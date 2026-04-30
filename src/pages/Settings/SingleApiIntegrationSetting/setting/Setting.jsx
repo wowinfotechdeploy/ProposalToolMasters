@@ -114,9 +114,9 @@ function Setting() {
     formBackGroundColor: "#d3d4d5",
     proposalForLabel: "Proposal For",
     proposalTypeLabel: "Proposal Type",
-    customSingleLabel: "Custom(Single)",
-    packagedStandardLabel: "Packaged(Standard)(Single/Multiple)",
-    packagedCustomisableLabel: "Package (Customisable) (Single/Multiple)",
+    customSingleLabel: "Services",
+    packagedStandardLabel: "Packages",
+    packagedCustomisableLabel: "Custom Packages",
     getQuoteLabel: "Get Proposal",
     signContractLabel: "Sign Engagement Letter",
     successUrl: null,
@@ -1554,14 +1554,14 @@ function Setting() {
                   const updatedTemplates =
                     existingIndex > -1
                       ? prevSetting[templateKey].map((template, index) =>
-                          index === existingIndex
-                            ? { ...template, templateKeyID: e.value } // Update the existing entry
-                            : template
-                        )
+                        index === existingIndex
+                          ? { ...template, templateKeyID: e.value } // Update the existing entry
+                          : template
+                      )
                       : [
-                          ...prevSetting[templateKey],
-                          { originalBusinessTypeID, templateKeyID: e.value }, // Add a new entry
-                        ];
+                        ...prevSetting[templateKey],
+                        { originalBusinessTypeID, templateKeyID: e.value }, // Add a new entry
+                      ];
 
                   // Return the updated state
                   return {
@@ -1575,7 +1575,7 @@ function Setting() {
               aria-label={`Select Template for ${label}`}
             />
             {requireErrorMessage &&
-            !checkIsAvailableOrNot(options, originalBusinessTypeID, Type) ? (
+              !checkIsAvailableOrNot(options, originalBusinessTypeID, Type) ? (
               <label className="validation">{errorMessage}</label>
             ) : (
               ""
@@ -1589,78 +1589,77 @@ function Setting() {
   return (
     <div>
       {/* <div class="update-practice-content page-background"> */}
-        {/* <div class="page-info-header page-info-strip"> */}
-          <div class="container">
-            <div className="col-md-6 col-6">
-              <div class="page-title-cls">{ModuleName}</div>
-            </div>
-          </div>
-        {/* </div> */}
-        <div class="container mt-3 mt-2 margin-bottom col-xl-8">
-          <div class="row mb-100">
-            <div class="col-lg-12 slider-scroll">
-              <div class="card">
-                <div class="card-body practice-detail Update-Scroll-res" style={{height: "70vh"}}>
-                  <div class="row">
-                    <div class="col-xl-12 col-lg-12">
-                      <div class=" pricing-box p-4  mt-0">
-                        <div class="row" id="BasicInformation">
-                          <div class="col-lg-12">
-                            <div class="row mb-4" id="PaymentGateWay">
-                              <div class="col-xl-12 col-lg-12">
-                                <div class="card-1 pricing-box p-4  mt-1">
-                                  <div class="col-lg-6 col-md-6">
-                                    <p
-                                      class="office-name font-weight"
-                                      style={{
-                                        width: "auto",
-                                        padding: "0px 2px 0px 1px",
-                                      }}
-                                    >
-                                      Payment Gateway
-                                    </p>
-                                  </div>
-                                  <div class="row mb-2">
-                                    <div class="col-lg-12">
-                                      <div class="row mb-2">
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label mt-4">
-                                            Payment Gateway
-                                            <span className="text-danger">
-                                              *
-                                            </span>
-                                          </label>
-                                        </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <div className="d-flex flex-column align-items-end">
-                                            <button
-                                              style={{
-                                                fontSize: "12px",
-                                                border: "none",
-                                                background: "transparent",
-                                                color: "#626ed4",
+      {/* <div class="page-info-header page-info-strip"> */}
+      <div class="container">
+        <div className="col-md-6 col-6">
+          <div class="page-title-cls">{ModuleName}</div>
+        </div>
+      </div>
+      {/* </div> */}
+      <div class="container mt-3 mt-2 margin-bottom col-xl-8">
+        <div class="row mb-100">
+          <div class="col-lg-12 slider-scroll">
+            <div class="card">
+              <div class="card-body practice-detail Update-Scroll-res" style={{ height: "70vh" }}>
+                <div class="row">
+                  <div class="col-xl-12 col-lg-12">
+                    <div class=" pricing-box p-4  mt-0">
+                      <div class="row" id="BasicInformation">
+                        <div class="col-lg-12">
+                          <div class="row mb-4" id="PaymentGateWay">
+                            <div class="col-xl-12 col-lg-12">
+                              <div class="card-1 pricing-box p-4  mt-1">
+                                <div class="col-lg-6 col-md-6">
+                                  <p
+                                    class="office-name font-weight"
+                                    style={{
+                                      width: "auto",
+                                      padding: "0px 2px 0px 1px",
+                                    }}
+                                  >
+                                    Payment Gateway
+                                  </p>
+                                </div>
+                                <div class="row mb-2">
+                                  <div class="col-lg-12">
+                                    <div class="row mb-2">
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label mt-4">
+                                          Payment Gateway
+                                          <span className="text-danger">
+                                            *
+                                          </span>
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <div className="d-flex flex-column align-items-end">
+                                          <button
+                                            style={{
+                                              fontSize: "12px",
+                                              border: "none",
+                                              background: "transparent",
+                                              color: "#626ed4",
+                                            }}
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#paymentGatewayModel"
+                                          >
+                                            + Payment Gateway
+                                          </button>
+                                          <div className="input-group">
+                                            <Select
+                                              className=" selectDropDown Drop-down-width"
+                                              value={PaymentGatewayValue}
+                                              onChange={(e) => {
+                                                setSetting({
+                                                  ...setting,
+                                                  paymentGatewayID: e.value,
+                                                });
                                               }}
-                                              data-bs-toggle="modal"
-                                              data-bs-target="#paymentGatewayModel"
-                                            >
-                                              + Payment Gateway
-                                            </button>
-                                            <div className="input-group">
-                                              <Select
-                                                className=" selectDropDown Drop-down-width"
-                                                value={PaymentGatewayValue}
-                                                onChange={(e) => {
-                                                  setSetting({
-                                                    ...setting,
-                                                    paymentGatewayID: e.value,
-                                                  });
-                                                }}
-                                                options={
-                                                  modifiedPaymentGatewayType
-                                                }
-                                                aria-label="Select Payment Gateway"
-                                              />
-                                            </div>
+                                              options={
+                                                modifiedPaymentGatewayType
+                                              }
+                                              aria-label="Select Payment Gateway"
+                                            />
                                           </div>
                                         </div>
                                       </div>
@@ -1669,122 +1668,123 @@ function Setting() {
                                 </div>
                               </div>
                             </div>
-                            <div class="row mb-4">
-                              <div class="col-xl-12 col-lg-12">
-                                <div class="card-1 pricing-box  p-4 mt-0">
-                                  <div class="col-lg-6 col-md-6">
-                                    <p
-                                      class="office-name font-weight"
-                                      style={{
-                                        width: "auto",
-                                        padding: "0px 2px 0px 1px",
-                                      }}
-                                    >
-                                      {EngagementName}
-                                    </p>
-                                  </div>
-                                  <div class="row">
-                                    <div className="col-lg-12">
-                                      <div class="row">
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label
-                                            class="form-label"
-                                            htmlFor="isEL"
-                                          >
-                                            {EngagementName}
-                                          </label>
-                                        </div>
-                                        <div
-                                          class="col-md-9 col-sm-9 col-lg-9"
-                                          style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                          }}
+                          </div>
+                          <div class="row mb-4">
+                            <div class="col-xl-12 col-lg-12">
+                              <div class="card-1 pricing-box  p-4 mt-0">
+                                <div class="col-lg-6 col-md-6">
+                                  <p
+                                    class="office-name font-weight"
+                                    style={{
+                                      width: "auto",
+                                      padding: "0px 2px 0px 1px",
+                                    }}
+                                  >
+                                    {EngagementName}
+                                  </p>
+                                </div>
+                                <div class="row">
+                                  <div className="col-lg-12">
+                                    <div class="row">
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label
+                                          class="form-label"
+                                          htmlFor="isEL"
                                         >
-                                          <FormGroup>
-                                            <FormControlLabel
-                                              control={
-                                                <CustomWidthTooltip
-                                                  title={`Enable/Disable ${EngagementName}`}
-                                                >
-                                                  <Android12Switch
-                                                    id="isEL"
-                                                    checked={
-                                                      setting.isContractEnabled
-                                                    }
-                                                    disabled={common.enableEL === 0}
-                                                    onChange={() =>
-                                                      setSetting({
-                                                        ...setting,
-                                                        isContractEnabled:
-                                                          !setting.isContractEnabled,
-                                                      })
-                                                    }
-                                                  />
-                                                </CustomWidthTooltip>
-                                              }
-                                            />
-                                            <div
-                                              style={{
-                                                marginTop: "-12px",
-                                                marginBottom: "10px",
-                                                textAlign: "justify",
-                                              }}
-                                              className="text-muted helpMessage"
-                                            >
-                                              <b>Note: </b>
-                                              {longText}
-                                            </div>
-                                          </FormGroup>
-                                        </div>
+                                          {EngagementName}
+                                        </label>
+                                      </div>
+                                      <div
+                                        class="col-md-9 col-sm-9 col-lg-9"
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                        }}
+                                      >
+                                        <FormGroup>
+                                          <FormControlLabel
+                                            control={
+                                              <CustomWidthTooltip
+                                                title={`Enable/Disable ${EngagementName}`}
+                                              >
+                                                <Android12Switch
+                                                  id="isEL"
+                                                  checked={
+                                                    setting.isContractEnabled
+                                                  }
+                                                  disabled={common.enableEL === 0}
+                                                  onChange={() =>
+                                                    setSetting({
+                                                      ...setting,
+                                                      isContractEnabled:
+                                                        !setting.isContractEnabled,
+                                                    })
+                                                  }
+                                                />
+                                              </CustomWidthTooltip>
+                                            }
+                                          />
+                                          <div
+                                            style={{
+                                              marginTop: "-12px",
+                                              marginBottom: "10px",
+                                              textAlign: "justify",
+                                            }}
+                                            className="text-muted helpMessage"
+                                          >
+                                            <b>Note: </b>
+                                            {longText}
+                                          </div>
+                                        </FormGroup>
                                       </div>
                                     </div>
-                                    {/*term And Condition */}
-                                    <div class="col-lg-12">
-                                      <div class="row mb-3" id="SelectTnC">
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Terms & Conditions
-                                            <span className="text-danger">
-                                              *
-                                            </span>
-                                          </label>
-                                        </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <div className="input-group">
-                                            <Select
-                                              className=" selectDropDown Drop-down-width"
-                                              value={TermAndConditionValue}
-                                              onChange={(e) => {
-                                                setSetting({
-                                                  ...setting,
-                                                  tnCTemplateKeyID: e.value,
-                                                  tnCTemplateID: e.templateID,
-                                                });
-                                              }}
-                                              options={TnCLookupList}
-                                              aria-label="Select Payment Gateway"
-                                            />
-                                            {requireErrorMessage &&
+                                  </div>
+                                  {/*term And Condition */}
+                                  <div class="col-lg-12">
+                                    <div class="row mb-3" id="SelectTnC">
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Terms & Conditions
+                                          <span className="text-danger">
+                                            *
+                                          </span>
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <div className="input-group">
+                                          <Select
+                                            className=" selectDropDown Drop-down-width"
+                                            value={TermAndConditionValue}
+                                            onChange={(e) => {
+                                              setSetting({
+                                                ...setting,
+                                                tnCTemplateKeyID: e.value,
+                                                tnCTemplateID: e.templateID,
+                                              });
+                                            }}
+                                            options={TnCLookupList}
+                                            aria-label="Select Payment Gateway"
+                                          />
+                                          {requireErrorMessage &&
                                             (setting.tnCTemplateKeyID === "" ||
                                               setting.tnCTemplateKeyID ===
-                                                null ||
+                                              null ||
                                               setting.tnCTemplateKeyID ===
-                                                undefined) ? (
-                                              <>
-                                                <label className="validation">
-                                                  {ERROR_MESSAGES}
-                                                </label>
-                                              </>
-                                            ) : (
-                                              ""
-                                            )}
-                                          </div>
+                                              undefined) ? (
+                                            <>
+                                              <label className="validation">
+                                                {ERROR_MESSAGES}
+                                              </label>
+                                            </>
+                                          ) : (
+                                            ""
+                                          )}
                                         </div>
                                       </div>
                                     </div>
-                                    {/*Template */}
-                                    {/*  <div class="col-lg-12">
+                                  </div>
+                                  {/*Template */}
+                                  {/*  <div class="col-lg-12">
                                                                               <div class="row mb-3">
                                                                                     <div class="col-md-3 col-sm-12 text-start text-md-end">
                                                                                         <label class="form-label">
@@ -1811,119 +1811,118 @@ function Setting() {
                                                                                     </div>
                                                                                 </div>
                                                                             </div> */}
-                                    <>
-                                      <TemplateDropdown
-                                        label="Default Template For Individual"
-                                        originalBusinessTypeID={1}
-                                        value={ELTemplateValueForIndividual}
-                                        setValue={setSetting}
-                                        options={
-                                          IndividualTemplateLookUpOptions
-                                        }
-                                        errorMessage={ERROR_MESSAGES}
-                                        requireErrorMessage={
-                                          requireErrorMessage
-                                        }
-                                        Type="EL"
-                                      />
-                                      <TemplateDropdown
-                                        label="Default Template For Sole-Trader"
-                                        originalBusinessTypeID={2}
-                                        value={ELTemplateValueForSoleTrader}
-                                        setValue={setSetting}
-                                        options={
-                                          SoleTraderTemplateLookUpOptions
-                                        }
-                                        errorMessage={ERROR_MESSAGES}
-                                        requireErrorMessage={
-                                          requireErrorMessage
-                                        }
-                                        Type="EL"
-                                      />
-                                      <TemplateDropdown
-                                        label="Default Template For Partnership"
-                                        originalBusinessTypeID={3}
-                                        value={ELTemplateValueForPartnership}
-                                        setValue={setSetting}
-                                        options={
-                                          PartnershipTemplateLookUpOptions
-                                        }
-                                        errorMessage={ERROR_MESSAGES}
-                                        requireErrorMessage={
-                                          requireErrorMessage
-                                        }
-                                        Type="EL"
-                                      />
-                                      <TemplateDropdown
-                                        label="Default Template For Llp"
-                                        originalBusinessTypeID={4}
-                                        value={ELTemplateValueForLLp}
-                                        setValue={setSetting}
-                                        options={LLpTemplateLookUpOptions}
-                                        errorMessage={ERROR_MESSAGES}
-                                        requireErrorMessage={
-                                          requireErrorMessage
-                                        }
-                                        Type="EL"
-                                      />
-                                      <TemplateDropdown
-                                        label="Default Template For Ltd"
-                                        originalBusinessTypeID={5}
-                                        value={ELTemplateValueForLtd}
-                                        setValue={setSetting}
-                                        options={LtdTemplateLookUpOptions}
-                                        errorMessage={ERROR_MESSAGES}
-                                        requireErrorMessage={
-                                          requireErrorMessage
-                                        }
-                                        Type="EL"
-                                      />
-                                    </>
+                                  <>
+                                    <TemplateDropdown
+                                      label="Default Template For Individual"
+                                      originalBusinessTypeID={1}
+                                      value={ELTemplateValueForIndividual}
+                                      setValue={setSetting}
+                                      options={
+                                        IndividualTemplateLookUpOptions
+                                      }
+                                      errorMessage={ERROR_MESSAGES}
+                                      requireErrorMessage={
+                                        requireErrorMessage
+                                      }
+                                      Type="EL"
+                                    />
+                                    <TemplateDropdown
+                                      label="Default Template For Sole-Trader"
+                                      originalBusinessTypeID={2}
+                                      value={ELTemplateValueForSoleTrader}
+                                      setValue={setSetting}
+                                      options={
+                                        SoleTraderTemplateLookUpOptions
+                                      }
+                                      errorMessage={ERROR_MESSAGES}
+                                      requireErrorMessage={
+                                        requireErrorMessage
+                                      }
+                                      Type="EL"
+                                    />
+                                    <TemplateDropdown
+                                      label="Default Template For Partnership"
+                                      originalBusinessTypeID={3}
+                                      value={ELTemplateValueForPartnership}
+                                      setValue={setSetting}
+                                      options={
+                                        PartnershipTemplateLookUpOptions
+                                      }
+                                      errorMessage={ERROR_MESSAGES}
+                                      requireErrorMessage={
+                                        requireErrorMessage
+                                      }
+                                      Type="EL"
+                                    />
+                                    <TemplateDropdown
+                                      label="Default Template For Llp"
+                                      originalBusinessTypeID={4}
+                                      value={ELTemplateValueForLLp}
+                                      setValue={setSetting}
+                                      options={LLpTemplateLookUpOptions}
+                                      errorMessage={ERROR_MESSAGES}
+                                      requireErrorMessage={
+                                        requireErrorMessage
+                                      }
+                                      Type="EL"
+                                    />
+                                    <TemplateDropdown
+                                      label="Default Template For Ltd"
+                                      originalBusinessTypeID={5}
+                                      value={ELTemplateValueForLtd}
+                                      setValue={setSetting}
+                                      options={LtdTemplateLookUpOptions}
+                                      errorMessage={ERROR_MESSAGES}
+                                      requireErrorMessage={
+                                        requireErrorMessage
+                                      }
+                                      Type="EL"
+                                    />
+                                  </>
 
-                                    {/*Email Template */}
-                                    <div class="col-lg-12">
-                                      <div class="row mb-3" id="EmailTemplate">
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            {EngagementName} Send Email Template
-                                            <span className="text-danger">
-                                              *
-                                            </span>
-                                          </label>
-                                        </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <div className="input-group">
-                                            <Select
-                                              className=" selectDropDown Drop-down-width"
-                                              value={
-                                                EmailTemplateValueForContract
-                                              }
-                                              onChange={(e) => {
-                                                setSetting({
-                                                  ...setting,
-                                                  contractEmailTemplateKeyID:
-                                                    e.value,
-                                                });
-                                              }}
-                                              options={
-                                                contractEmailTemplateLookUpOptions
-                                              }
-                                              aria-label="Select Payment Gateway"
-                                            />
-                                            {requireErrorMessage &&
+                                  {/*Email Template */}
+                                  <div class="col-lg-12">
+                                    <div class="row mb-3" id="EmailTemplate">
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          {EngagementName} Send Email Template
+                                          <span className="text-danger">
+                                            *
+                                          </span>
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <div className="input-group">
+                                          <Select
+                                            className=" selectDropDown Drop-down-width"
+                                            value={
+                                              EmailTemplateValueForContract
+                                            }
+                                            onChange={(e) => {
+                                              setSetting({
+                                                ...setting,
+                                                contractEmailTemplateKeyID:
+                                                  e.value,
+                                              });
+                                            }}
+                                            options={
+                                              contractEmailTemplateLookUpOptions
+                                            }
+                                            aria-label="Select Payment Gateway"
+                                          />
+                                          {requireErrorMessage &&
                                             (setting.contractEmailTemplateKeyID ===
                                               "" ||
                                               setting.contractEmailTemplateKeyID ===
-                                                null ||
+                                              null ||
                                               setting.contractEmailTemplateKeyID ===
-                                                undefined) ? (
-                                              <label className="validation">
-                                                {ERROR_MESSAGES}
-                                              </label>
-                                            ) : (
-                                              ""
-                                            )}
-                                          </div>
+                                              undefined) ? (
+                                            <label className="validation">
+                                              {ERROR_MESSAGES}
+                                            </label>
+                                          ) : (
+                                            ""
+                                          )}
                                         </div>
                                       </div>
                                     </div>
@@ -1931,69 +1930,70 @@ function Setting() {
                                 </div>
                               </div>
                             </div>
-                            <div class="row mb-4" id="Proposal">
-                              <div class="col-xl-12 col-lg-12">
-                                <div class="card-1 pricing-box p-4  mt-0">
-                                  <div class="col-lg-6 col-md-6">
-                                    <p
-                                      class="office-name font-weight"
-                                      style={{
-                                        width: "auto",
-                                        padding: "0px 2px 0px 1px",
-                                      }}
-                                    >
-                                      {proposalName}
-                                    </p>
-                                  </div>
-                                  <div class="row">
-                                    {/*Quote Type*/}
-                                    <div class="col-lg-12">
-                                      <div class="row mb-3" id="QuoteType">
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            {proposalName} Type
-                                            <span className="text-danger">
-                                              *
-                                            </span>
-                                          </label>
-                                        </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <div className="input-group">
-                                            <Select
-                                              isMulti
-                                              className=" selectDropDown Drop-down-width"
-                                              value={ProposalTypeValue}
-                                              onChange={(selectedOptions) => {
-                                                setSetting({
-                                                  ...setting,
-                                                  selectedProposalTypeValue:
-                                                    selectedOptions
-                                                      ? selectedOptions.map(
-                                                          (option) =>
-                                                            option.value
-                                                        )
-                                                      : [], // Extract only the 'value' properties
-                                                });
-                                              }}
-                                              options={Utils.select_Quote_Type}
-                                              aria-label="Select Payment Gateway"
-                                            />
-                                            {requireErrorMessage &&
+                          </div>
+                          <div class="row mb-4" id="Proposal">
+                            <div class="col-xl-12 col-lg-12">
+                              <div class="card-1 pricing-box p-4  mt-0">
+                                <div class="col-lg-6 col-md-6">
+                                  <p
+                                    class="office-name font-weight"
+                                    style={{
+                                      width: "auto",
+                                      padding: "0px 2px 0px 1px",
+                                    }}
+                                  >
+                                    {proposalName}
+                                  </p>
+                                </div>
+                                <div class="row">
+                                  {/*Quote Type*/}
+                                  <div class="col-lg-12">
+                                    <div class="row mb-3" id="QuoteType">
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          {proposalName} Type
+                                          <span className="text-danger">
+                                            *
+                                          </span>
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <div className="input-group">
+                                          <Select
+                                            isMulti
+                                            className=" selectDropDown Drop-down-width"
+                                            value={ProposalTypeValue}
+                                            onChange={(selectedOptions) => {
+                                              setSetting({
+                                                ...setting,
+                                                selectedProposalTypeValue:
+                                                  selectedOptions
+                                                    ? selectedOptions.map(
+                                                      (option) =>
+                                                        option.value
+                                                    )
+                                                    : [], // Extract only the 'value' properties
+                                              });
+                                            }}
+                                            options={Utils.select_Quote_Type}
+                                            aria-label="Select Payment Gateway"
+                                          />
+                                          {requireErrorMessage &&
                                             setting.selectedProposalTypeValue
                                               .length === 0 ? (
-                                              <label className="validation">
-                                                {ERROR_MESSAGES}
-                                              </label>
-                                            ) : (
-                                              ""
-                                            )}
-                                          </div>
+                                            <label className="validation">
+                                              {ERROR_MESSAGES}
+                                            </label>
+                                          ) : (
+                                            ""
+                                          )}
                                         </div>
                                       </div>
                                     </div>
-                                    {/*Template */}
+                                  </div>
+                                  {/*Template */}
 
-                                    {/* <div class="col-lg-12">
+                                  {/* <div class="col-lg-12">
                                                                                 <div class="row mb-3">
                                                                                     <div class="col-md-3 col-sm-12 text-start text-md-end">
                                                                                         <label class="form-label">
@@ -2020,119 +2020,118 @@ function Setting() {
                                                                                     </div>
                                                                                 </div>
                                                                             </div> */}
-                                    <>
-                                      <TemplateDropdown
-                                        label="Default Template For Individual"
-                                        originalBusinessTypeID={1}
-                                        value={PLTemplateValueForIndividual}
-                                        setValue={setSetting}
-                                        options={
-                                          QuoteIndividualTemplateLookUpOptions
-                                        }
-                                        errorMessage={ERROR_MESSAGES}
-                                        requireErrorMessage={
-                                          requireErrorMessage
-                                        }
-                                        Type="Quote"
-                                      />
-                                      <TemplateDropdown
-                                        label="Default Template For Sole-Trader"
-                                        originalBusinessTypeID={2}
-                                        value={PLTemplateValueForSoleTrader}
-                                        setValue={setSetting}
-                                        options={
-                                          QuoteSoleTraderTemplateLookUpOptions
-                                        }
-                                        errorMessage={ERROR_MESSAGES}
-                                        requireErrorMessage={
-                                          requireErrorMessage
-                                        }
-                                        Type="Quote"
-                                      />
-                                      <TemplateDropdown
-                                        label="Default Template For Partnership"
-                                        originalBusinessTypeID={3}
-                                        value={PLTemplateValueForPartnership}
-                                        setValue={setSetting}
-                                        options={
-                                          QuotePartnerShipTemplateLookUpOptions
-                                        }
-                                        errorMessage={ERROR_MESSAGES}
-                                        requireErrorMessage={
-                                          requireErrorMessage
-                                        }
-                                        Type="Quote"
-                                      />
-                                      <TemplateDropdown
-                                        label="Default Template For Llp"
-                                        originalBusinessTypeID={4}
-                                        value={PLTemplateValueForLLp}
-                                        setValue={setSetting}
-                                        options={QuoteLLpTemplateLookUpOptions}
-                                        errorMessage={ERROR_MESSAGES}
-                                        requireErrorMessage={
-                                          requireErrorMessage
-                                        }
-                                        Type="Quote"
-                                      />
-                                      <TemplateDropdown
-                                        label="Default Template For Ltd"
-                                        originalBusinessTypeID={5}
-                                        value={PLTemplateValueForLtd}
-                                        setValue={setSetting}
-                                        options={QuoteLtdTemplateLookUpOptions}
-                                        errorMessage={ERROR_MESSAGES}
-                                        requireErrorMessage={
-                                          requireErrorMessage
-                                        }
-                                        Type="Quote"
-                                      />
-                                    </>
-                                    {/*Email Template */}
-                                    <div class="col-lg-12">
-                                      <div
-                                        class="row mb-3"
-                                        id="QuoteEmailTemplate"
-                                      >
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            {proposalName} Send Email Template
-                                            <span className="text-danger">
-                                              *
-                                            </span>
-                                          </label>
-                                        </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <div className="input-group">
-                                            <Select
-                                              className=" selectDropDown Drop-down-width"
-                                              value={EmailTemplateValueForQuote}
-                                              onChange={(e) => {
-                                                setSetting({
-                                                  ...setting,
-                                                  quoteEmailTemplateKeyID:
-                                                    e.value,
-                                                });
-                                              }}
-                                              options={
-                                                quoteEmailTemplateLookUpOptions
-                                              }
-                                              aria-label="Select Payment Gateway"
-                                            />
-                                            {requireErrorMessage &&
+                                  <>
+                                    <TemplateDropdown
+                                      label="Default Template For Individual"
+                                      originalBusinessTypeID={1}
+                                      value={PLTemplateValueForIndividual}
+                                      setValue={setSetting}
+                                      options={
+                                        QuoteIndividualTemplateLookUpOptions
+                                      }
+                                      errorMessage={ERROR_MESSAGES}
+                                      requireErrorMessage={
+                                        requireErrorMessage
+                                      }
+                                      Type="Quote"
+                                    />
+                                    <TemplateDropdown
+                                      label="Default Template For Sole-Trader"
+                                      originalBusinessTypeID={2}
+                                      value={PLTemplateValueForSoleTrader}
+                                      setValue={setSetting}
+                                      options={
+                                        QuoteSoleTraderTemplateLookUpOptions
+                                      }
+                                      errorMessage={ERROR_MESSAGES}
+                                      requireErrorMessage={
+                                        requireErrorMessage
+                                      }
+                                      Type="Quote"
+                                    />
+                                    <TemplateDropdown
+                                      label="Default Template For Partnership"
+                                      originalBusinessTypeID={3}
+                                      value={PLTemplateValueForPartnership}
+                                      setValue={setSetting}
+                                      options={
+                                        QuotePartnerShipTemplateLookUpOptions
+                                      }
+                                      errorMessage={ERROR_MESSAGES}
+                                      requireErrorMessage={
+                                        requireErrorMessage
+                                      }
+                                      Type="Quote"
+                                    />
+                                    <TemplateDropdown
+                                      label="Default Template For Llp"
+                                      originalBusinessTypeID={4}
+                                      value={PLTemplateValueForLLp}
+                                      setValue={setSetting}
+                                      options={QuoteLLpTemplateLookUpOptions}
+                                      errorMessage={ERROR_MESSAGES}
+                                      requireErrorMessage={
+                                        requireErrorMessage
+                                      }
+                                      Type="Quote"
+                                    />
+                                    <TemplateDropdown
+                                      label="Default Template For Ltd"
+                                      originalBusinessTypeID={5}
+                                      value={PLTemplateValueForLtd}
+                                      setValue={setSetting}
+                                      options={QuoteLtdTemplateLookUpOptions}
+                                      errorMessage={ERROR_MESSAGES}
+                                      requireErrorMessage={
+                                        requireErrorMessage
+                                      }
+                                      Type="Quote"
+                                    />
+                                  </>
+                                  {/*Email Template */}
+                                  <div class="col-lg-12">
+                                    <div
+                                      class="row mb-3"
+                                      id="QuoteEmailTemplate"
+                                    >
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          {proposalName} Send Email Template
+                                          <span className="text-danger">
+                                            *
+                                          </span>
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <div className="input-group">
+                                          <Select
+                                            className=" selectDropDown Drop-down-width"
+                                            value={EmailTemplateValueForQuote}
+                                            onChange={(e) => {
+                                              setSetting({
+                                                ...setting,
+                                                quoteEmailTemplateKeyID:
+                                                  e.value,
+                                              });
+                                            }}
+                                            options={
+                                              quoteEmailTemplateLookUpOptions
+                                            }
+                                            aria-label="Select Payment Gateway"
+                                          />
+                                          {requireErrorMessage &&
                                             (setting.quoteEmailTemplateKeyID ===
                                               "" ||
                                               setting.quoteEmailTemplateKeyID ===
-                                                null ||
+                                              null ||
                                               setting.quoteEmailTemplateKeyID ===
-                                                undefined) ? (
-                                              <label className="validation">
-                                                {ERROR_MESSAGES}
-                                              </label>
-                                            ) : (
-                                              ""
-                                            )}
-                                          </div>
+                                              undefined) ? (
+                                            <label className="validation">
+                                              {ERROR_MESSAGES}
+                                            </label>
+                                          ) : (
+                                            ""
+                                          )}
                                         </div>
                                       </div>
                                     </div>
@@ -2140,466 +2139,467 @@ function Setting() {
                                 </div>
                               </div>
                             </div>
-                            <div class="row mb-4">
-                              <div class="col-xl-12 col-lg-12">
-                                <div class="card-1 pricing-box p-4  mt-0">
-                                  <div class="col-lg-6 col-md-6">
-                                    <p
-                                      class="office-name font-weight"
-                                      style={{
-                                        width: "auto",
-                                        padding: "0px 2px 0px 1px",
-                                      }}
-                                    >
-                                      Appearance
-                                    </p>
-                                  </div>
-                                  <div class="row">
-                                    {/*Font Family*/}
-                                    <div class="col-lg-12">
-                                      <div class="row mb-3" id="FontFamily">
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Font Family
-                                            <span className="text-danger">
-                                              *
-                                            </span>
-                                          </label>
-                                        </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <div className="input-group">
-                                            <Select
-                                              className=" selectDropDown Drop-down-width"
-                                              value={FontFamilyValue}
-                                              onChange={(e) => {
-                                                setSetting({
-                                                  ...setting,
-                                                  fontFamilyID: e.value,
-                                                });
-                                              }}
-                                              options={Utils.FontFamily}
-                                              aria-label="Select Payment Gateway"
-                                            />
-                                            {requireErrorMessage &&
+                          </div>
+                          <div class="row mb-4">
+                            <div class="col-xl-12 col-lg-12">
+                              <div class="card-1 pricing-box p-4  mt-0">
+                                <div class="col-lg-6 col-md-6">
+                                  <p
+                                    class="office-name font-weight"
+                                    style={{
+                                      width: "auto",
+                                      padding: "0px 2px 0px 1px",
+                                    }}
+                                  >
+                                    Appearance
+                                  </p>
+                                </div>
+                                <div class="row">
+                                  {/*Font Family*/}
+                                  <div class="col-lg-12">
+                                    <div class="row mb-3" id="FontFamily">
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Font Family
+                                          <span className="text-danger">
+                                            *
+                                          </span>
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <div className="input-group">
+                                          <Select
+                                            className=" selectDropDown Drop-down-width"
+                                            value={FontFamilyValue}
+                                            onChange={(e) => {
+                                              setSetting({
+                                                ...setting,
+                                                fontFamilyID: e.value,
+                                              });
+                                            }}
+                                            options={Utils.FontFamily}
+                                            aria-label="Select Payment Gateway"
+                                          />
+                                          {requireErrorMessage &&
                                             (setting.fontFamilyID === "" ||
                                               setting.fontFamilyID === null ||
                                               setting.fontFamilyID ===
-                                                undefined) ? (
-                                              <label className="validation">
-                                                {ERROR_MESSAGES}
-                                              </label>
-                                            ) : (
-                                              ""
-                                            )}
-                                          </div>
+                                              undefined) ? (
+                                            <label className="validation">
+                                              {ERROR_MESSAGES}
+                                            </label>
+                                          ) : (
+                                            ""
+                                          )}
                                         </div>
                                       </div>
                                     </div>
-                                    {/*Font Size Heading*/}
-                                    <div class="col-lg-12">
-                                      <div
-                                        class="row mb-3"
-                                        id="FontSizeHeading"
-                                      >
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Font Size Heading
-                                            <span className="text-danger">
-                                              *
-                                            </span>
-                                          </label>
+                                  </div>
+                                  {/*Font Size Heading*/}
+                                  <div class="col-lg-12">
+                                    <div
+                                      class="row mb-3"
+                                      id="FontSizeHeading"
+                                    >
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Font Size Heading
+                                          <span className="text-danger">
+                                            *
+                                          </span>
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <div className="input-group">
+                                          <Select
+                                            className=" selectDropDown Drop-down-width"
+                                            value={FontSizeHeadingValue}
+                                            onChange={(e) => {
+                                              setSetting({
+                                                ...setting,
+                                                fontSizeHeading: e.value,
+                                              });
+                                            }}
+                                            options={Utils.FontSize}
+                                            aria-label="Select Payment Gateway"
+                                          />
                                         </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <div className="input-group">
-                                            <Select
-                                              className=" selectDropDown Drop-down-width"
-                                              value={FontSizeHeadingValue}
-                                              onChange={(e) => {
-                                                setSetting({
-                                                  ...setting,
-                                                  fontSizeHeading: e.value,
-                                                });
-                                              }}
-                                              options={Utils.FontSize}
-                                              aria-label="Select Payment Gateway"
-                                            />
-                                          </div>
-                                          {requireErrorMessage &&
+                                        {requireErrorMessage &&
                                           (setting.fontSizeHeading === "" ||
                                             setting.fontSizeHeading === null ||
                                             setting.fontSizeHeading ===
-                                              undefined) ? (
-                                            <label className="validation">
-                                              {ERROR_MESSAGES}
-                                            </label>
-                                          ) : (
-                                            ""
-                                          )}
-                                        </div>
+                                            undefined) ? (
+                                          <label className="validation">
+                                            {ERROR_MESSAGES}
+                                          </label>
+                                        ) : (
+                                          ""
+                                        )}
                                       </div>
                                     </div>
-                                    {/*Font Size Text*/}
-                                    <div class="col-lg-12">
-                                      <div class="row mb-3" id="FontSizeText">
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Font Size Text
-                                            <span className="text-danger">
-                                              *
-                                            </span>
-                                          </label>
+                                  </div>
+                                  {/*Font Size Text*/}
+                                  <div class="col-lg-12">
+                                    <div class="row mb-3" id="FontSizeText">
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Font Size Text
+                                          <span className="text-danger">
+                                            *
+                                          </span>
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <div className="input-group">
+                                          <Select
+                                            className=" selectDropDown Drop-down-width"
+                                            value={FontSizeTextValue}
+                                            onChange={(e) => {
+                                              setSetting({
+                                                ...setting,
+                                                fontSizeText: e.value,
+                                              });
+                                            }}
+                                            options={Utils.FontSize}
+                                            aria-label="Select Payment Gateway"
+                                          />
                                         </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <div className="input-group">
-                                            <Select
-                                              className=" selectDropDown Drop-down-width"
-                                              value={FontSizeTextValue}
-                                              onChange={(e) => {
-                                                setSetting({
-                                                  ...setting,
-                                                  fontSizeText: e.value,
-                                                });
-                                              }}
-                                              options={Utils.FontSize}
-                                              aria-label="Select Payment Gateway"
-                                            />
-                                          </div>
-                                          {requireErrorMessage &&
+                                        {requireErrorMessage &&
                                           (setting.fontSizeText === "" ||
                                             setting.fontSizeText === null ||
                                             setting.fontSizeText ===
-                                              undefined) ? (
-                                            <label className="validation">
-                                              {ERROR_MESSAGES}
-                                            </label>
-                                          ) : (
-                                            ""
-                                          )}
-                                        </div>
+                                            undefined) ? (
+                                          <label className="validation">
+                                            {ERROR_MESSAGES}
+                                          </label>
+                                        ) : (
+                                          ""
+                                        )}
                                       </div>
                                     </div>
-                                    {/*Button Color */}
-                                    <div class="col-lg-12">
-                                      <div class="row mb-3" id="ButtonColor">
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Button Color
-                                            <span className="text-danger">
-                                              *
-                                            </span>
-                                          </label>
+                                  </div>
+                                  {/*Button Color */}
+                                  <div class="col-lg-12">
+                                    <div class="row mb-3" id="ButtonColor">
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Button Color
+                                          <span className="text-danger">
+                                            *
+                                          </span>
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <div className="input-group">
+                                          <input
+                                            type="color"
+                                            class="form-control height"
+                                            id="exampleColorInput contactNumber"
+                                            title="Choose your color"
+                                            value={setting.buttonColor}
+                                            onChange={(e) => {
+                                              setSetting({
+                                                ...setting,
+                                                buttonColor: e.target.value,
+                                              });
+                                            }}
+                                          />
                                         </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <div className="input-group">
-                                            <input
-                                              type="color"
-                                              class="form-control height"
-                                              id="exampleColorInput contactNumber"
-                                              title="Choose your color"
-                                              value={setting.buttonColor}
-                                              onChange={(e) => {
-                                                setSetting({
-                                                  ...setting,
-                                                  buttonColor: e.target.value,
-                                                });
-                                              }}
-                                            />
-                                          </div>
-                                          {requireErrorMessage &&
+                                        {requireErrorMessage &&
                                           (setting.buttonColor === "" ||
                                             setting.buttonColor === null ||
                                             setting.buttonColor ===
-                                              undefined) ? (
-                                            <label className="validation">
-                                              {ERROR_MESSAGES}
-                                            </label>
-                                          ) : (
-                                            ""
-                                          )}
-                                        </div>
+                                            undefined) ? (
+                                          <label className="validation">
+                                            {ERROR_MESSAGES}
+                                          </label>
+                                        ) : (
+                                          ""
+                                        )}
                                       </div>
                                     </div>
-                                    {/*Cancel Button Color */}
-                                    <div class="col-lg-12">
-                                      <div
-                                        class="row mb-3"
-                                        id="CancelButtonColor"
-                                      >
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Cancel Button Color
-                                            <span className="text-danger">
-                                              *
-                                            </span>
-                                          </label>
+                                  </div>
+                                  {/*Cancel Button Color */}
+                                  <div class="col-lg-12">
+                                    <div
+                                      class="row mb-3"
+                                      id="CancelButtonColor"
+                                    >
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Cancel Button Color
+                                          <span className="text-danger">
+                                            *
+                                          </span>
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <div className="input-group">
+                                          <input
+                                            type="color"
+                                            class="form-control height"
+                                            id="exampleColorInput contactNumber"
+                                            title="Choose your color"
+                                            value={setting.cancelButtonColor}
+                                            onChange={(e) => {
+                                              setSetting({
+                                                ...setting,
+                                                cancelButtonColor:
+                                                  e.target.value,
+                                              });
+                                            }}
+                                          />
                                         </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <div className="input-group">
-                                            <input
-                                              type="color"
-                                              class="form-control height"
-                                              id="exampleColorInput contactNumber"
-                                              title="Choose your color"
-                                              value={setting.cancelButtonColor}
-                                              onChange={(e) => {
-                                                setSetting({
-                                                  ...setting,
-                                                  cancelButtonColor:
-                                                    e.target.value,
-                                                });
-                                              }}
-                                            />
-                                          </div>
-                                          {requireErrorMessage &&
+                                        {requireErrorMessage &&
                                           (setting.cancelButtonColor === "" ||
                                             setting.cancelButtonColor ===
-                                              null ||
+                                            null ||
                                             setting.cancelButtonColor ===
-                                              undefined) ? (
-                                            <label className="validation">
-                                              {ERROR_MESSAGES}
-                                            </label>
-                                          ) : (
-                                            ""
-                                          )}
-                                        </div>
+                                            undefined) ? (
+                                          <label className="validation">
+                                            {ERROR_MESSAGES}
+                                          </label>
+                                        ) : (
+                                          ""
+                                        )}
                                       </div>
                                     </div>
-                                    {/*Background Color*/}
-                                    <div class="col-lg-12">
-                                      <div
-                                        class="row mb-3"
-                                        id="BackgroundColor"
-                                      >
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Backgound Color
-                                            <span className="text-danger">
-                                              *
-                                            </span>
-                                          </label>
+                                  </div>
+                                  {/*Background Color*/}
+                                  <div class="col-lg-12">
+                                    <div
+                                      class="row mb-3"
+                                      id="BackgroundColor"
+                                    >
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Backgound Color
+                                          <span className="text-danger">
+                                            *
+                                          </span>
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <div className="input-group">
+                                          <input
+                                            type="color"
+                                            class="form-control height"
+                                            id="exampleColorInput contactNumber"
+                                            title="Choose your color"
+                                            value={
+                                              setting.bodyBackGroundColor
+                                            }
+                                            onChange={(e) => {
+                                              setSetting({
+                                                ...setting,
+                                                bodyBackGroundColor:
+                                                  e.target.value,
+                                              });
+                                            }}
+                                          />
                                         </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <div className="input-group">
-                                            <input
-                                              type="color"
-                                              class="form-control height"
-                                              id="exampleColorInput contactNumber"
-                                              title="Choose your color"
-                                              value={
-                                                setting.bodyBackGroundColor
-                                              }
-                                              onChange={(e) => {
-                                                setSetting({
-                                                  ...setting,
-                                                  bodyBackGroundColor:
-                                                    e.target.value,
-                                                });
-                                              }}
-                                            />
-                                          </div>
-                                          {requireErrorMessage &&
+                                        {requireErrorMessage &&
                                           (setting.bodyBackGroundColor === "" ||
                                             setting.bodyBackGroundColor ===
-                                              null ||
+                                            null ||
                                             setting.bodyBackGroundColor ===
-                                              undefined) ? (
-                                            <label className="validation">
-                                              {ERROR_MESSAGES}
-                                            </label>
-                                          ) : (
-                                            ""
-                                          )}
-                                        </div>
+                                            undefined) ? (
+                                          <label className="validation">
+                                            {ERROR_MESSAGES}
+                                          </label>
+                                        ) : (
+                                          ""
+                                        )}
                                       </div>
                                     </div>
-                                    {/*Background Color*/}
-                                    <div class="col-lg-12">
-                                      <div
-                                        class="row mb-3"
-                                        id="FromBackgroundColor"
-                                      >
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Form Backgound Color
-                                            <span className="text-danger">
-                                              *
-                                            </span>
-                                          </label>
+                                  </div>
+                                  {/*Background Color*/}
+                                  <div class="col-lg-12">
+                                    <div
+                                      class="row mb-3"
+                                      id="FromBackgroundColor"
+                                    >
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Form Backgound Color
+                                          <span className="text-danger">
+                                            *
+                                          </span>
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <div className="input-group">
+                                          <input
+                                            type="color"
+                                            class="form-control height"
+                                            id="exampleColorInput contactNumber"
+                                            title="Choose your color"
+                                            value={
+                                              setting.formBackGroundColor
+                                            }
+                                            onChange={(e) => {
+                                              setSetting({
+                                                ...setting,
+                                                formBackGroundColor:
+                                                  e.target.value,
+                                              });
+                                            }}
+                                          />
                                         </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <div className="input-group">
-                                            <input
-                                              type="color"
-                                              class="form-control height"
-                                              id="exampleColorInput contactNumber"
-                                              title="Choose your color"
-                                              value={
-                                                setting.formBackGroundColor
-                                              }
-                                              onChange={(e) => {
-                                                setSetting({
-                                                  ...setting,
-                                                  formBackGroundColor:
-                                                    e.target.value,
-                                                });
-                                              }}
-                                            />
-                                          </div>
-                                          {requireErrorMessage &&
+                                        {requireErrorMessage &&
                                           (setting.formBackGroundColor === "" ||
                                             setting.formBackGroundColor ===
-                                              null ||
+                                            null ||
                                             setting.formBackGroundColor ===
-                                              undefined) ? (
-                                            <label className="validation">
-                                              {ERROR_MESSAGES}
-                                            </label>
-                                          ) : (
-                                            ""
-                                          )}
-                                        </div>
+                                            undefined) ? (
+                                          <label className="validation">
+                                            {ERROR_MESSAGES}
+                                          </label>
+                                        ) : (
+                                          ""
+                                        )}
                                       </div>
                                     </div>
-                                    {/*Background Service Category Colore */}
-                                    <div class="col-lg-12">
-                                      <div
-                                        class="row mb-3"
-                                        id="BackGroundServiceColor"
-                                      >
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Service Category Background Color
-                                            <span className="text-danger">
-                                              *
-                                            </span>
-                                          </label>
+                                  </div>
+                                  {/*Background Service Category Colore */}
+                                  <div class="col-lg-12">
+                                    <div
+                                      class="row mb-3"
+                                      id="BackGroundServiceColor"
+                                    >
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Service Category Background Color
+                                          <span className="text-danger">
+                                            *
+                                          </span>
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <div className="input-group">
+                                          <input
+                                            type="color"
+                                            class="form-control height"
+                                            id="exampleColorInput contactNumber"
+                                            title="Choose your color"
+                                            value={
+                                              setting.backgroundServiceCategoryColor
+                                            }
+                                            onChange={(e) => {
+                                              setSetting({
+                                                ...setting,
+                                                backgroundServiceCategoryColor:
+                                                  e.target.value,
+                                              });
+                                            }}
+                                          />
                                         </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <div className="input-group">
-                                            <input
-                                              type="color"
-                                              class="form-control height"
-                                              id="exampleColorInput contactNumber"
-                                              title="Choose your color"
-                                              value={
-                                                setting.backgroundServiceCategoryColor
-                                              }
-                                              onChange={(e) => {
-                                                setSetting({
-                                                  ...setting,
-                                                  backgroundServiceCategoryColor:
-                                                    e.target.value,
-                                                });
-                                              }}
-                                            />
-                                          </div>
-                                          {requireErrorMessage &&
+                                        {requireErrorMessage &&
                                           (setting.backgroundServiceCategoryColor ===
                                             "" ||
                                             setting.backgroundServiceCategoryColor ===
-                                              null ||
+                                            null ||
                                             setting.backgroundServiceCategoryColor ===
-                                              undefined) ? (
-                                            <label className="validation">
-                                              {ERROR_MESSAGES}
-                                            </label>
-                                          ) : (
-                                            ""
-                                          )}
-                                        </div>
+                                            undefined) ? (
+                                          <label className="validation">
+                                            {ERROR_MESSAGES}
+                                          </label>
+                                        ) : (
+                                          ""
+                                        )}
                                       </div>
                                     </div>
-                                    {/*Font color customization */}
-                                    <div class="col-lg-12">
-                                      <div
-                                        class="row mb-3"
-                                        id="BackGroundServiceColor"
-                                      >
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Font Color
-                                            <span className="text-danger">
-                                              *
-                                            </span>
-                                          </label>
+                                  </div>
+                                  {/*Font color customization */}
+                                  <div class="col-lg-12">
+                                    <div
+                                      class="row mb-3"
+                                      id="BackGroundServiceColor"
+                                    >
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Font Color
+                                          <span className="text-danger">
+                                            *
+                                          </span>
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <div className="input-group">
+                                          <input
+                                            type="color"
+                                            class="form-control height"
+                                            id="exampleColorInput contactNumber"
+                                            title="Choose your color"
+                                            value={setting.fontColor}
+                                            onChange={(e) => {
+                                              setSetting({
+                                                ...setting,
+                                                fontColor: e.target.value,
+                                              });
+                                            }}
+                                          />
                                         </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <div className="input-group">
-                                            <input
-                                              type="color"
-                                              class="form-control height"
-                                              id="exampleColorInput contactNumber"
-                                              title="Choose your color"
-                                              value={setting.fontColor}
-                                              onChange={(e) => {
-                                                setSetting({
-                                                  ...setting,
-                                                  fontColor: e.target.value,
-                                                });
-                                              }}
-                                            />
-                                          </div>
-                                          {requireErrorMessage &&
+                                        {requireErrorMessage &&
                                           (setting.fontColor === "" ||
                                             setting.fontColor === null ||
                                             setting.fontColor === undefined) ? (
-                                            <label className="validation">
-                                              {ERROR_MESSAGES}
-                                            </label>
-                                          ) : (
-                                            ""
-                                          )}
-                                        </div>
+                                          <label className="validation">
+                                            {ERROR_MESSAGES}
+                                          </label>
+                                        ) : (
+                                          ""
+                                        )}
                                       </div>
                                     </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
-                            <div class="row">
-                              <div class="col-xl-12 col-lg-12">
-                                <div class="card-1 pricing-box p-4  mt-0">
-                                  <div class="col-lg-6 col-md-6">
-                                    <p
-                                      class="office-name font-weight"
-                                      style={{
-                                        width: "auto",
-                                        padding: "0px 2px 0px 1px",
-                                      }}
+                          </div>
+                          <div class="row">
+                            <div class="col-xl-12 col-lg-12">
+                              <div class="card-1 pricing-box p-4  mt-0">
+                                <div class="col-lg-6 col-md-6">
+                                  <p
+                                    class="office-name font-weight"
+                                    style={{
+                                      width: "auto",
+                                      padding: "0px 2px 0px 1px",
+                                    }}
+                                  >
+                                    Personalize Setting
+                                  </p>
+                                </div>
+                                <div class="row">
+                                  <div class="col-lg-12">
+                                    <div
+                                      class="row mb-2"
+                                      id="ProposalNameFor"
                                     >
-                                      Personalize Setting
-                                    </p>
-                                  </div>
-                                  <div class="row">
-                                    <div class="col-lg-12">
-                                      <div
-                                        class="row mb-2"
-                                        id="ProposalNameFor"
-                                      >
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Rename "{proposalName} For" Label
-                                            {/* <span className="text-danger">
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Rename "{proposalName} For" Label
+                                          {/* <span className="text-danger">
                                               *
                                             </span> */}
-                                          </label>
-                                        </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <input
-                                            type="text"
-                                            className="input-text"
-                                            placeholder={`Rename ${proposalName} For Label`}
-                                            value={setting.proposalForLabel}
-                                            onChange={(e) =>
-                                              setSetting({
-                                                ...setting,
-                                                proposalForLabel:
-                                                  e.target.value,
-                                              })
-                                            }
-                                          />
-                                          {/* {requireErrorMessage &&
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <input
+                                          type="text"
+                                          className="input-text"
+                                          placeholder={`Rename ${proposalName} For Label`}
+                                          value={setting.proposalForLabel}
+                                          onChange={(e) =>
+                                            setSetting({
+                                              ...setting,
+                                              proposalForLabel:
+                                                e.target.value,
+                                            })
+                                          }
+                                        />
+                                        {/* {requireErrorMessage &&
                                           (setting.proposalForLabel === "" ||
                                             setting.proposalForLabel === null ||
                                             setting.proposalForLabel ===
@@ -2610,36 +2610,36 @@ function Setting() {
                                           ) : (
                                             ""
                                           )} */}
-                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                  <div class="row">
-                                    <div class="col-lg-12">
-                                      <div class="row mb-2" id="FontSizeType">
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Rename "{proposalName} Type" Label
-                                            {/* <span className="text-danger">
+                                </div>
+                                <div class="row">
+                                  <div class="col-lg-12">
+                                    <div class="row mb-2" id="FontSizeType">
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Rename "{proposalName} Type" Label
+                                          {/* <span className="text-danger">
                                               *
                                             </span> */}
-                                          </label>
-                                        </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <input
-                                            type="text"
-                                            className="input-text"
-                                            placeholder={` Rename ${proposalName} Type Label`}
-                                            value={setting.proposalTypeLabel}
-                                            onChange={(e) =>
-                                              setSetting({
-                                                ...setting,
-                                                proposalTypeLabel:
-                                                  e.target.value,
-                                              })
-                                            }
-                                          />
-                                          {/* {requireErrorMessage &&
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <input
+                                          type="text"
+                                          className="input-text"
+                                          placeholder={` Rename ${proposalName} Type Label`}
+                                          value={setting.proposalTypeLabel}
+                                          onChange={(e) =>
+                                            setSetting({
+                                              ...setting,
+                                              proposalTypeLabel:
+                                                e.target.value,
+                                            })
+                                          }
+                                        />
+                                        {/* {requireErrorMessage &&
                                           (setting.proposalTypeLabel === "" ||
                                             setting.proposalTypeLabel ===
                                               null ||
@@ -2651,39 +2651,39 @@ function Setting() {
                                           ) : (
                                             ""
                                           )} */}
-                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                  <div class="row">
-                                    <div class="col-lg-12">
-                                      <div
-                                        class="row mb-2"
-                                        id="ChangeCustomSingle"
-                                      >
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Rename "Services" Label
-                                            {/* <span className="text-danger">
+                                </div>
+                                <div class="row">
+                                  <div class="col-lg-12">
+                                    <div
+                                      class="row mb-2"
+                                      id="ChangeCustomSingle"
+                                    >
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Rename "Services" Label
+                                          {/* <span className="text-danger">
                                               *
                                             </span> */}
-                                          </label>
-                                        </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <input
-                                            type="text"
-                                            className="input-text"
-                                            placeholder="Rename Services Label"
-                                            value={setting.customSingleLabel}
-                                            onChange={(e) =>
-                                              setSetting({
-                                                ...setting,
-                                                customSingleLabel:
-                                                  e.target.value,
-                                              })
-                                            }
-                                          />
-                                          {/* {requireErrorMessage &&
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <input
+                                          type="text"
+                                          className="input-text"
+                                          placeholder="Rename Services Label"
+                                          value={setting.customSingleLabel}
+                                          onChange={(e) =>
+                                            setSetting({
+                                              ...setting,
+                                              customSingleLabel:
+                                                e.target.value,
+                                            })
+                                          }
+                                        />
+                                        {/* {requireErrorMessage &&
                                           (setting.customSingleLabel === "" ||
                                             setting.customSingleLabel ===
                                               null ||
@@ -2695,41 +2695,41 @@ function Setting() {
                                           ) : (
                                             ""
                                           )} */}
-                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                  <div class="row">
-                                    <div class="col-lg-12">
-                                      <div
-                                        class="row mb-2"
-                                        id="ChangePackedStandard"
-                                      >
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Rename "Packages" Label
-                                            {/* <span className="text-danger">
+                                </div>
+                                <div class="row">
+                                  <div class="col-lg-12">
+                                    <div
+                                      class="row mb-2"
+                                      id="ChangePackedStandard"
+                                    >
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Rename "Packages" Label
+                                          {/* <span className="text-danger">
                                               *
                                             </span> */}
-                                          </label>
-                                        </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <input
-                                            type="text"
-                                            className="input-text"
-                                            placeholder="Rename Packages Label"
-                                            value={
-                                              setting.packagedStandardLabel
-                                            }
-                                            onChange={(e) =>
-                                              setSetting({
-                                                ...setting,
-                                                packagedStandardLabel:
-                                                  e.target.value,
-                                              })
-                                            }
-                                          />
-                                          {/* {requireErrorMessage &&
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <input
+                                          type="text"
+                                          className="input-text"
+                                          placeholder="Rename Packages Label"
+                                          value={
+                                            setting.packagedStandardLabel
+                                          }
+                                          onChange={(e) =>
+                                            setSetting({
+                                              ...setting,
+                                              packagedStandardLabel:
+                                                e.target.value,
+                                            })
+                                          }
+                                        />
+                                        {/* {requireErrorMessage &&
                                           (setting.packagedStandardLabel ===
                                             "" ||
                                             setting.packagedStandardLabel ===
@@ -2742,41 +2742,41 @@ function Setting() {
                                           ) : (
                                             ""
                                           )} */}
-                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                  <div class="row">
-                                    <div class="col-lg-12">
-                                      <div
-                                        class="row mb-2"
-                                        id="ChangePackedCustom"
-                                      >
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Rename "Custom Packages" Label
-                                            {/* <span className="text-danger">
+                                </div>
+                                <div class="row">
+                                  <div class="col-lg-12">
+                                    <div
+                                      class="row mb-2"
+                                      id="ChangePackedCustom"
+                                    >
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Rename "Custom Packages" Label
+                                          {/* <span className="text-danger">
                                               *
                                             </span> */}
-                                          </label>
-                                        </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <input
-                                            type="text"
-                                            className="input-text"
-                                            placeholder=" Rename Custom Packages Label"
-                                            value={
-                                              setting.packagedCustomisableLabel
-                                            }
-                                            onChange={(e) =>
-                                              setSetting({
-                                                ...setting,
-                                                packagedCustomisableLabel:
-                                                  e.target.value,
-                                              })
-                                            }
-                                          />
-                                          {/* {requireErrorMessage &&
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <input
+                                          type="text"
+                                          className="input-text"
+                                          placeholder=" Rename Custom Packages Label"
+                                          value={
+                                            setting.packagedCustomisableLabel
+                                          }
+                                          onChange={(e) =>
+                                            setSetting({
+                                              ...setting,
+                                              packagedCustomisableLabel:
+                                                e.target.value,
+                                            })
+                                          }
+                                        />
+                                        {/* {requireErrorMessage &&
                                           (setting.packagedCustomisableLabel ===
                                             "" ||
                                             setting.packagedCustomisableLabel ===
@@ -2789,35 +2789,35 @@ function Setting() {
                                           ) : (
                                             ""
                                           )} */}
-                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                  <div class="row">
-                                    <div class="col-lg-12">
-                                      <div class="row mb-2" id="GetQuote">
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Rename "{proposalName}" Button
-                                            {/* <span className="text-danger">
+                                </div>
+                                <div class="row">
+                                  <div class="col-lg-12">
+                                    <div class="row mb-2" id="GetQuote">
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Rename "{proposalName}" Button
+                                          {/* <span className="text-danger">
                                               *
                                             </span> */}
-                                          </label>
-                                        </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <input
-                                            type="text"
-                                            className="input-text"
-                                            placeholder="Rename Proposal button"
-                                            value={setting.getQuoteLabel}
-                                            onChange={(e) =>
-                                              setSetting({
-                                                ...setting,
-                                                getQuoteLabel: e.target.value,
-                                              })
-                                            }
-                                          />
-                                          {/* {requireErrorMessage &&
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <input
+                                          type="text"
+                                          className="input-text"
+                                          placeholder="Rename Proposal button"
+                                          value={setting.getQuoteLabel}
+                                          onChange={(e) =>
+                                            setSetting({
+                                              ...setting,
+                                              getQuoteLabel: e.target.value,
+                                            })
+                                          }
+                                        />
+                                        {/* {requireErrorMessage &&
                                           (setting.getQuoteLabel === "" ||
                                             setting.getQuoteLabel === null ||
                                             setting.getQuoteLabel ===
@@ -2828,36 +2828,36 @@ function Setting() {
                                           ) : (
                                             ""
                                           )} */}
-                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                  <div class="row">
-                                    <div class="col-lg-12">
-                                      <div class="row mb-2" id="SignContract">
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Rename "{EngagementName}" Button
-                                            {/* <span className="text-danger">
+                                </div>
+                                <div class="row">
+                                  <div class="col-lg-12">
+                                    <div class="row mb-2" id="SignContract">
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Rename "{EngagementName}" Button
+                                          {/* <span className="text-danger">
                                               *
                                             </span> */}
-                                          </label>
-                                        </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <input
-                                            type="text"
-                                            className="input-text"
-                                            placeholder="Rename Engagement Letter Button"
-                                            value={setting.signContractLabel}
-                                            onChange={(e) =>
-                                              setSetting({
-                                                ...setting,
-                                                signContractLabel:
-                                                  e.target.value,
-                                              })
-                                            }
-                                          />
-                                          {/* {requireErrorMessage &&
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <input
+                                          type="text"
+                                          className="input-text"
+                                          placeholder="Rename Engagement Letter Button"
+                                          value={setting.signContractLabel}
+                                          onChange={(e) =>
+                                            setSetting({
+                                              ...setting,
+                                              signContractLabel:
+                                                e.target.value,
+                                            })
+                                          }
+                                        />
+                                        {/* {requireErrorMessage &&
                                           (setting.signContractLabel === "" ||
                                             setting.signContractLabel ===
                                               null ||
@@ -2869,512 +2869,511 @@ function Setting() {
                                           ) : (
                                             ""
                                           )} */}
-                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                  {/* New success Tab */}
-                                  <div className="row">
-                                    {/* New Tab */}
-                                    <div className="col-lg-12">
-                                      <div class="row">
-                                        <div class="mt-2 col-md-3 col-sm-12 text-start text-md-end">
-                                          <label
-                                            class="form-label"
-                                            htmlFor="isSuccess"
-                                          >
-                                            Open Success Url In New Tab
-                                          </label>
-                                        </div>
-                                        <div
-                                          class="col-md-9 col-sm-9 col-lg-9"
-                                          style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                          }}
+                                </div>
+                                {/* New success Tab */}
+                                <div className="row">
+                                  {/* New Tab */}
+                                  <div className="col-lg-12">
+                                    <div class="row">
+                                      <div class="mt-2 col-md-3 col-sm-12 text-start text-md-end">
+                                        <label
+                                          class="form-label"
+                                          htmlFor="isSuccess"
                                         >
-                                          <FormGroup>
-                                            <FormControlLabel
-                                              control={
-                                                <CustomWidthTooltip
-                                                  title={`Enable/Disable Open Success Url In New Tab`}
-                                                >
-                                                  <Android12Switch
-                                                    id="isSuccess"
-                                                    checked={
-                                                      setting.openSuccessUrlInNewTab
-                                                    }
-                                                    onChange={() =>
-                                                      setSetting({
-                                                        ...setting,
-                                                        openSuccessUrlInNewTab:
-                                                          !setting.openSuccessUrlInNewTab,
-                                                      })
-                                                    }
-                                                  />
-                                                </CustomWidthTooltip>
-                                              }
-                                            />
-                                            <div
-                                              style={{
-                                                marginTop: "-12px",
-                                                marginBottom: "10px",
-                                                textAlign: "left",
-                                              }}
-                                              className="text-muted helpMessage"
-                                            >
-                                              <b>Note: </b>If enabled, the
-                                              success URL will open in a new
-                                              browser tab after completion.
-                                            </div>
-                                          </FormGroup>
-                                        </div>
+                                          Open Success Url In New Tab
+                                        </label>
+                                      </div>
+                                      <div
+                                        class="col-md-9 col-sm-9 col-lg-9"
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                        }}
+                                      >
+                                        <FormGroup>
+                                          <FormControlLabel
+                                            control={
+                                              <CustomWidthTooltip
+                                                title={`Enable/Disable Open Success Url In New Tab`}
+                                              >
+                                                <Android12Switch
+                                                  id="isSuccess"
+                                                  checked={
+                                                    setting.openSuccessUrlInNewTab
+                                                  }
+                                                  onChange={() =>
+                                                    setSetting({
+                                                      ...setting,
+                                                      openSuccessUrlInNewTab:
+                                                        !setting.openSuccessUrlInNewTab,
+                                                    })
+                                                  }
+                                                />
+                                              </CustomWidthTooltip>
+                                            }
+                                          />
+                                          <div
+                                            style={{
+                                              marginTop: "-12px",
+                                              marginBottom: "10px",
+                                              textAlign: "left",
+                                            }}
+                                            className="text-muted helpMessage"
+                                          >
+                                            <b>Note: </b>If enabled, the
+                                            success URL will open in a new
+                                            browser tab after completion.
+                                          </div>
+                                        </FormGroup>
                                       </div>
                                     </div>
                                   </div>
-                                  {/* Success Url*/}
-                                  <div className="row">
-                                    <div class="col-lg-12">
-                                      <div class="row mb-3" id="successUrl">
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Success Url
-                                            <span className="text-danger">
-                                              *
-                                            </span>
-                                          </label>
-                                        </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <div className="input-group">
-                                            <input
-                                              type="text"
-                                              className="input-text"
-                                              placeholder="Success Url"
-                                              value={setting.successUrl}
-                                              onChange={(e) => {
-                                                setSetting({
-                                                  ...setting,
-                                                  successUrl: e.target.value,
-                                                });
-                                              }}
-                                            />
-                                            {requireErrorMessage &&
+                                </div>
+                                {/* Success Url*/}
+                                <div className="row">
+                                  <div class="col-lg-12">
+                                    <div class="row mb-3" id="successUrl">
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Success Url
+                                          <span className="text-danger">
+                                            *
+                                          </span>
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <div className="input-group">
+                                          <input
+                                            type="text"
+                                            className="input-text"
+                                            placeholder="Success Url"
+                                            value={setting.successUrl}
+                                            onChange={(e) => {
+                                              setSetting({
+                                                ...setting,
+                                                successUrl: e.target.value,
+                                              });
+                                            }}
+                                          />
+                                          {requireErrorMessage &&
                                             (setting.successUrl === "" ||
                                               setting.successUrl === null ||
                                               setting.successUrl ===
-                                                undefined) ? (
-                                              <label className="validation">
-                                                {ERROR_MESSAGES}
-                                              </label>
-                                            ) : (
-                                              ""
+                                              undefined) ? (
+                                            <label className="validation">
+                                              {ERROR_MESSAGES}
+                                            </label>
+                                          ) : (
+                                            ""
+                                          )}
+                                          {requireErrorMessage &&
+                                            setting.successUrl !== null &&
+                                            setting.successUrl !== "" &&
+                                            setting.successUrl !==
+                                            undefined &&
+                                            !isValidWebUrl(
+                                              setting.successUrl
+                                            ) && (
+                                              <span className="validation">
+                                                {" "}
+                                                Invalid Url{" "}
+                                              </span>
                                             )}
-                                            {requireErrorMessage &&
-                                              setting.successUrl !== null &&
-                                              setting.successUrl !== "" &&
-                                              setting.successUrl !==
-                                                undefined &&
-                                              !isValidWebUrl(
-                                                setting.successUrl
-                                              ) && (
-                                                <span className="validation">
-                                                  {" "}
-                                                  Invalid Url{" "}
-                                                </span>
-                                              )}
-                                          </div>
                                         </div>
                                       </div>
                                     </div>
                                   </div>
-                                  {/* New cancel Tab */}
-                                  <div className="row">
-                                    <div className="col-lg-12">
-                                      <div class="row">
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end mt-2">
-                                          <label
-                                            class="form-label"
-                                            htmlFor="isCancel"
-                                          >
-                                            Open Cancel Url In New Tab
-                                          </label>
-                                        </div>
-                                        <div
-                                          class="col-md-9 col-sm-9 col-lg-9"
-                                          style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                          }}
+                                </div>
+                                {/* New cancel Tab */}
+                                <div className="row">
+                                  <div className="col-lg-12">
+                                    <div class="row">
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end mt-2">
+                                        <label
+                                          class="form-label"
+                                          htmlFor="isCancel"
                                         >
-                                          <FormGroup>
-                                            <FormControlLabel
-                                              control={
-                                                <CustomWidthTooltip
-                                                  title={`Enable/Disable Open Cancel Url In New Tab`}
-                                                >
-                                                  <Android12Switch
-                                                    id="isCancel"
-                                                    checked={
-                                                      setting.openCancelUrlInNewTab
-                                                    }
-                                                    onChange={() =>
-                                                      setSetting({
-                                                        ...setting,
-                                                        openCancelUrlInNewTab:
-                                                          !setting.openCancelUrlInNewTab,
-                                                      })
-                                                    }
-                                                  />
-                                                </CustomWidthTooltip>
-                                              }
-                                            />
-                                            <div
-                                              style={{
-                                                marginTop: "-12px",
-                                                marginBottom: "10px",
-                                                textAlign: "left",
-                                              }}
-                                              className="text-muted helpMessage"
-                                            >
-                                              <b>Note: </b>If enabled, the
-                                              cancel URL will open in a new
-                                              browser tab when the user cancels.
-                                            </div>
-                                          </FormGroup>
-                                        </div>
+                                          Open Cancel Url In New Tab
+                                        </label>
+                                      </div>
+                                      <div
+                                        class="col-md-9 col-sm-9 col-lg-9"
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                        }}
+                                      >
+                                        <FormGroup>
+                                          <FormControlLabel
+                                            control={
+                                              <CustomWidthTooltip
+                                                title={`Enable/Disable Open Cancel Url In New Tab`}
+                                              >
+                                                <Android12Switch
+                                                  id="isCancel"
+                                                  checked={
+                                                    setting.openCancelUrlInNewTab
+                                                  }
+                                                  onChange={() =>
+                                                    setSetting({
+                                                      ...setting,
+                                                      openCancelUrlInNewTab:
+                                                        !setting.openCancelUrlInNewTab,
+                                                    })
+                                                  }
+                                                />
+                                              </CustomWidthTooltip>
+                                            }
+                                          />
+                                          <div
+                                            style={{
+                                              marginTop: "-12px",
+                                              marginBottom: "10px",
+                                              textAlign: "left",
+                                            }}
+                                            className="text-muted helpMessage"
+                                          >
+                                            <b>Note: </b>If enabled, the
+                                            cancel URL will open in a new
+                                            browser tab when the user cancels.
+                                          </div>
+                                        </FormGroup>
                                       </div>
                                     </div>
                                   </div>
-                                  {/* Cancel Url*/}
-                                  <div className="row">
-                                    <div class="col-lg-12">
-                                      <div class="row mb-3" id="cancelledUrl">
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            Cancel Url
-                                            <span className="text-danger">
-                                              *
-                                            </span>
-                                          </label>
-                                        </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <div className="input-group">
-                                            <input
-                                              type="text"
-                                              className="input-text"
-                                              placeholder="Cancel Url"
-                                              value={setting.cancelledUrl}
-                                              onChange={(e) => {
-                                                setSetting({
-                                                  ...setting,
-                                                  cancelledUrl: e.target.value,
-                                                });
-                                              }}
-                                            />
-                                            {requireErrorMessage &&
+                                </div>
+                                {/* Cancel Url*/}
+                                <div className="row">
+                                  <div class="col-lg-12">
+                                    <div class="row mb-3" id="cancelledUrl">
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          Cancel Url
+                                          <span className="text-danger">
+                                            *
+                                          </span>
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <div className="input-group">
+                                          <input
+                                            type="text"
+                                            className="input-text"
+                                            placeholder="Cancel Url"
+                                            value={setting.cancelledUrl}
+                                            onChange={(e) => {
+                                              setSetting({
+                                                ...setting,
+                                                cancelledUrl: e.target.value,
+                                              });
+                                            }}
+                                          />
+                                          {requireErrorMessage &&
                                             (setting.cancelledUrl === "" ||
                                               setting.cancelledUrl === null ||
                                               setting.cancelledUrl ===
-                                                undefined) ? (
-                                              <label className="validation">
-                                                {ERROR_MESSAGES}
-                                              </label>
-                                            ) : (
-                                              ""
+                                              undefined) ? (
+                                            <label className="validation">
+                                              {ERROR_MESSAGES}
+                                            </label>
+                                          ) : (
+                                            ""
+                                          )}
+                                          {requireErrorMessage &&
+                                            setting.cancelledUrl !== null &&
+                                            setting.cancelledUrl !== "" &&
+                                            setting.cancelledUrl !==
+                                            undefined &&
+                                            !isValidWebUrl(
+                                              setting.cancelledUrl
+                                            ) && (
+                                              <span className="validation">
+                                                {" "}
+                                                Invalid Url{" "}
+                                              </span>
                                             )}
-                                            {requireErrorMessage &&
-                                              setting.cancelledUrl !== null &&
-                                              setting.cancelledUrl !== "" &&
-                                              setting.cancelledUrl !==
-                                                undefined &&
-                                              !isValidWebUrl(
-                                                setting.cancelledUrl
-                                              ) && (
-                                                <span className="validation">
-                                                  {" "}
-                                                  Invalid Url{" "}
-                                                </span>
-                                              )}
-                                          </div>
                                         </div>
                                       </div>
                                     </div>
                                   </div>
-                                  {/*Delete Prospect */}
-                                  <div className="row">
-                                    <div className="col-lg-12">
-                                      <div class="row">
-                                        <div class="mt-2 col-md-3 col-sm-12 text-start text-md-end">
-                                          <label
-                                            class="form-label"
-                                            htmlFor="isDeleteProspect"
-                                          >
-                                            Delete {prospectName}
-                                          </label>
-                                        </div>
-                                        <div
-                                          class="col-md-9 col-sm-9 col-lg-9"
-                                          style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                          }}
+                                </div>
+                                {/*Delete Prospect */}
+                                <div className="row">
+                                  <div className="col-lg-12">
+                                    <div class="row">
+                                      <div class="mt-2 col-md-3 col-sm-12 text-start text-md-end">
+                                        <label
+                                          class="form-label"
+                                          htmlFor="isDeleteProspect"
                                         >
-                                          <FormGroup>
-                                            <FormControlLabel
-                                              control={
-                                                <CustomWidthTooltip
-                                                  title={`Enable/Disable delete ${prospectName}`}
-                                                >
-                                                  <Android12Switch
-                                                    id="isDeleteProspect"
-                                                    checked={
-                                                      setting.isDeleteClient
-                                                    }
-                                                    onChange={() =>
-                                                      setSetting({
-                                                        ...setting,
-                                                        isDeleteClient:
-                                                          !setting.isDeleteClient,
-                                                      })
-                                                    }
-                                                  />
-                                                </CustomWidthTooltip>
-                                              }
-                                            />
-                                            <div
-                                              style={{
-                                                marginTop: "-12px",
-                                                marginBottom: "10px",
-                                                textAlign: "left",
-                                              }}
-                                              className="text-muted helpMessage"
-                                            >
-                                              <b>Note: </b>If enabled, the{" "}
-                                              {prospectName} will be deleted if
-                                              it does not have any active{" "}
-                                              {proposalName} and{" "}
-                                              {EngagementName} against it.
-                                            </div>
-                                          </FormGroup>
-                                        </div>
+                                          Delete {prospectName}
+                                        </label>
                                       </div>
-                                    </div>
-                                  </div>
-                                  <div className="row">
-                                    <div className="col-lg-12">
-                                      <div class="row">
-                                        <div class="mt-2 col-md-3 col-sm-12 text-start text-md-end">
-                                          <label
-                                            class="form-label"
-                                            htmlFor="isDeleteQuote"
-                                          >
-                                            Delete {proposalName}
-                                          </label>
-                                        </div>
-                                        <div
-                                          class="col-md-9 col-sm-9 col-lg-9"
-                                          style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                          }}
-                                        >
-                                          <FormGroup>
-                                            <FormControlLabel
-                                              control={
-                                                <CustomWidthTooltip
-                                                  title={`Enable/Disable delete ${proposalName}`}
-                                                >
-                                                  <Android12Switch
-                                                    id="isDeleteQuote"
-                                                    checked={
-                                                      setting.isDeleteQuote
-                                                    }
-                                                    onChange={() =>
-                                                      setSetting({
-                                                        ...setting,
-                                                        isDeleteQuote:
-                                                          !setting.isDeleteQuote,
-                                                      })
-                                                    }
-                                                  />
-                                                </CustomWidthTooltip>
-                                              }
-                                            />
-                                            <div
-                                              style={{
-                                                marginTop: "-12px",
-                                                marginBottom: "10px",
-                                                textAlign: "justify",
-                                              }}
-                                              className="text-muted helpMessage"
-                                            >
-                                              <b>Note: </b>If enabled,{" "}
-                                              {proposalName} that are not
-                                              accepted will be deleted after{" "}
-                                              {setting.deleteQuoteAfterDays}{" "}
-                                              days.
-                                            </div>
-                                          </FormGroup>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  {/* Delete Proposal*/}
-                                  <div className="row">
-                                    <div class="col-lg-12">
                                       <div
-                                        class="row mb-3"
-                                        id="deleteQuoteAfterDays"
+                                        class="col-md-9 col-sm-9 col-lg-9"
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                        }}
                                       >
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            In Days
-                                            <span className="text-danger">
-                                              *
-                                            </span>
-                                          </label>
-                                        </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <div className="input-group">
-                                            <input
-                                              type="text"
-                                              className="input-text"
-                                              placeholder={`Delete ${proposalName} In Days`}
-                                              value={
-                                                setting.deleteQuoteAfterDays
-                                              }
-                                              onChange={(e) => {
-                                                setSetting({
-                                                  ...setting,
-                                                  deleteQuoteAfterDays:
-                                                    e.target.value,
-                                                });
-                                              }}
-                                            />
-                                            {requireErrorMessage &&
+                                        <FormGroup>
+                                          <FormControlLabel
+                                            control={
+                                              <CustomWidthTooltip
+                                                title={`Enable/Disable delete ${prospectName}`}
+                                              >
+                                                <Android12Switch
+                                                  id="isDeleteProspect"
+                                                  checked={
+                                                    setting.isDeleteClient
+                                                  }
+                                                  onChange={() =>
+                                                    setSetting({
+                                                      ...setting,
+                                                      isDeleteClient:
+                                                        !setting.isDeleteClient,
+                                                    })
+                                                  }
+                                                />
+                                              </CustomWidthTooltip>
+                                            }
+                                          />
+                                          <div
+                                            style={{
+                                              marginTop: "-12px",
+                                              marginBottom: "10px",
+                                              textAlign: "left",
+                                            }}
+                                            className="text-muted helpMessage"
+                                          >
+                                            <b>Note: </b>If enabled, the{" "}
+                                            {prospectName} will be deleted if
+                                            it does not have any active{" "}
+                                            {proposalName} and{" "}
+                                            {EngagementName} against it.
+                                          </div>
+                                        </FormGroup>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="row">
+                                  <div className="col-lg-12">
+                                    <div class="row">
+                                      <div class="mt-2 col-md-3 col-sm-12 text-start text-md-end">
+                                        <label
+                                          class="form-label"
+                                          htmlFor="isDeleteQuote"
+                                        >
+                                          Delete {proposalName}
+                                        </label>
+                                      </div>
+                                      <div
+                                        class="col-md-9 col-sm-9 col-lg-9"
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                        }}
+                                      >
+                                        <FormGroup>
+                                          <FormControlLabel
+                                            control={
+                                              <CustomWidthTooltip
+                                                title={`Enable/Disable delete ${proposalName}`}
+                                              >
+                                                <Android12Switch
+                                                  id="isDeleteQuote"
+                                                  checked={
+                                                    setting.isDeleteQuote
+                                                  }
+                                                  onChange={() =>
+                                                    setSetting({
+                                                      ...setting,
+                                                      isDeleteQuote:
+                                                        !setting.isDeleteQuote,
+                                                    })
+                                                  }
+                                                />
+                                              </CustomWidthTooltip>
+                                            }
+                                          />
+                                          <div
+                                            style={{
+                                              marginTop: "-12px",
+                                              marginBottom: "10px",
+                                              textAlign: "justify",
+                                            }}
+                                            className="text-muted helpMessage"
+                                          >
+                                            <b>Note: </b>If enabled,{" "}
+                                            {proposalName} that are not
+                                            accepted will be deleted after{" "}
+                                            {setting.deleteQuoteAfterDays}{" "}
+                                            days.
+                                          </div>
+                                        </FormGroup>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                {/* Delete Proposal*/}
+                                <div className="row">
+                                  <div class="col-lg-12">
+                                    <div
+                                      class="row mb-3"
+                                      id="deleteQuoteAfterDays"
+                                    >
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          In Days
+                                          <span className="text-danger">
+                                            *
+                                          </span>
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <div className="input-group">
+                                          <input
+                                            type="text"
+                                            className="input-text"
+                                            placeholder={`Delete ${proposalName} In Days`}
+                                            value={
+                                              setting.deleteQuoteAfterDays
+                                            }
+                                            onChange={(e) => {
+                                              setSetting({
+                                                ...setting,
+                                                deleteQuoteAfterDays:
+                                                  e.target.value,
+                                              });
+                                            }}
+                                          />
+                                          {requireErrorMessage &&
                                             (setting.deleteQuoteAfterDays ===
                                               "" ||
                                               setting.deleteQuoteAfterDays ===
-                                                null ||
+                                              null ||
                                               setting.deleteQuoteAfterDays ===
-                                                undefined) ? (
-                                              <label className="validation">
-                                                {ERROR_MESSAGES}
-                                              </label>
-                                            ) : (
-                                              ""
-                                            )}
-                                          </div>
+                                              undefined) ? (
+                                            <label className="validation">
+                                              {ERROR_MESSAGES}
+                                            </label>
+                                          ) : (
+                                            ""
+                                          )}
                                         </div>
                                       </div>
                                     </div>
                                   </div>
-                                  {/*Delete Contract */}
-                                  <div className="row">
-                                    <div className="col-lg-12">
-                                      <div class="row">
-                                        <div class="mt-2 col-md-3 col-sm-12 text-start text-md-end">
-                                          <label
-                                            class="form-label"
-                                            htmlFor="isContractEnabled"
-                                          >
-                                            Delete {EngagementName}
-                                          </label>
-                                        </div>
-                                        <div
-                                          class="col-md-9 col-sm-9 col-lg-9"
-                                          style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                          }}
+                                </div>
+                                {/*Delete Contract */}
+                                <div className="row">
+                                  <div className="col-lg-12">
+                                    <div class="row">
+                                      <div class="mt-2 col-md-3 col-sm-12 text-start text-md-end">
+                                        <label
+                                          class="form-label"
+                                          htmlFor="isContractEnabled"
                                         >
-                                          <FormGroup>
-                                            <FormControlLabel
-                                              control={
-                                                <CustomWidthTooltip
-                                                  title={`Enable/Disable delete ${EngagementName}`}
-                                                >
-                                                  <Android12Switch
-                                                    id="isContractEnabled"
-                                                    checked={
-                                                      setting.isContractEnabled
-                                                    }
-                                                    onChange={() =>
-                                                      setSetting({
-                                                        ...setting,
-                                                        isContractEnabled:
-                                                          !setting.isContractEnabled,
-                                                      })
-                                                    }
-                                                  />
-                                                </CustomWidthTooltip>
-                                              }
-                                            />
-                                            <div
-                                              style={{
-                                                marginTop: "-12px",
-                                                marginBottom: "10px",
-                                                textAlign: "left",
-                                              }}
-                                              className="text-muted helpMessage"
-                                            >
-                                              <b>Note: </b>If enabled, the{" "}
-                                              {EngagementName} that are not
-                                              signed will be deleted after{" "}
-                                              {setting.deleteContractAfterDays}{" "}
-                                              days.
-                                            </div>
-                                          </FormGroup>
-                                        </div>
+                                          Delete {EngagementName}
+                                        </label>
+                                      </div>
+                                      <div
+                                        class="col-md-9 col-sm-9 col-lg-9"
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                        }}
+                                      >
+                                        <FormGroup>
+                                          <FormControlLabel
+                                            control={
+                                              <CustomWidthTooltip
+                                                title={`Enable/Disable delete ${EngagementName}`}
+                                              >
+                                                <Android12Switch
+                                                  id="isContractEnabled"
+                                                  checked={
+                                                    setting.isContractEnabled
+                                                  }
+                                                  onChange={() =>
+                                                    setSetting({
+                                                      ...setting,
+                                                      isContractEnabled:
+                                                        !setting.isContractEnabled,
+                                                    })
+                                                  }
+                                                />
+                                              </CustomWidthTooltip>
+                                            }
+                                          />
+                                          <div
+                                            style={{
+                                              marginTop: "-12px",
+                                              marginBottom: "10px",
+                                              textAlign: "left",
+                                            }}
+                                            className="text-muted helpMessage"
+                                          >
+                                            <b>Note: </b>If enabled, the{" "}
+                                            {EngagementName} that are not
+                                            signed will be deleted after{" "}
+                                            {setting.deleteContractAfterDays}{" "}
+                                            days.
+                                          </div>
+                                        </FormGroup>
                                       </div>
                                     </div>
                                   </div>
-                                  {/* Delete Proposal*/}
-                                  <div className="row">
-                                    <div class="col-lg-12">
-                                      <div
-                                        class="row mb-3"
-                                        id="deleteContractAfterDays"
-                                      >
-                                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                          <label class="form-label">
-                                            In Days
-                                            <span className="text-danger">
-                                              *
-                                            </span>
-                                          </label>
-                                        </div>
-                                        <div class="col-md-9 col-sm-12">
-                                          <div className="input-group">
-                                            <input
-                                              type="text"
-                                              className="input-text"
-                                              placeholder={`Delete ${EngagementName} In Days`}
-                                              value={
-                                                setting.deleteContractAfterDays
-                                              }
-                                              onChange={(e) => {
-                                                setSetting({
-                                                  ...setting,
-                                                  deleteContractAfterDays:
-                                                    e.target.value,
-                                                });
-                                              }}
-                                            />
-                                            {requireErrorMessage &&
+                                </div>
+                                {/* Delete Proposal*/}
+                                <div className="row">
+                                  <div class="col-lg-12">
+                                    <div
+                                      class="row mb-3"
+                                      id="deleteContractAfterDays"
+                                    >
+                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                        <label class="form-label">
+                                          In Days
+                                          <span className="text-danger">
+                                            *
+                                          </span>
+                                        </label>
+                                      </div>
+                                      <div class="col-md-9 col-sm-12">
+                                        <div className="input-group">
+                                          <input
+                                            type="text"
+                                            className="input-text"
+                                            placeholder={`Delete ${EngagementName} In Days`}
+                                            value={
+                                              setting.deleteContractAfterDays
+                                            }
+                                            onChange={(e) => {
+                                              setSetting({
+                                                ...setting,
+                                                deleteContractAfterDays:
+                                                  e.target.value,
+                                              });
+                                            }}
+                                          />
+                                          {requireErrorMessage &&
                                             (setting.deleteContractAfterDays ===
                                               "" ||
                                               setting.deleteContractAfterDays ===
-                                                null ||
+                                              null ||
                                               setting.deleteContractAfterDays ===
-                                                undefined) ? (
-                                              <label className="validation">
-                                                {ERROR_MESSAGES}
-                                              </label>
-                                            ) : (
-                                              ""
-                                            )}
-                                          </div>
+                                              undefined) ? (
+                                            <label className="validation">
+                                              {ERROR_MESSAGES}
+                                            </label>
+                                          ) : (
+                                            ""
+                                          )}
                                         </div>
                                       </div>
                                     </div>
@@ -3388,27 +3387,28 @@ function Setting() {
                     </div>
                   </div>
                 </div>
-                {/* Card Body End */}
-                <span
-                  style={{ display: "flex", justifyContent: "center" }}
-                  className="validation"
-                >
-                  {errorMessage}
-                </span>
-                <div class="separator"></div>
-                <div className="col-lg-12 text-center mt-4">
-                  <button
-                    onClick={() => UpdateSetting()}
-                    className="btn btn-md create-item-btn update-practice"
-                  >
-                    <span> Update {ModuleName}</span>
-                  </button>
-                </div>
               </div>
-              {/* Card End */}
+              {/* Card Body End */}
+              <span
+                style={{ display: "flex", justifyContent: "center" }}
+                className="validation"
+              >
+                {errorMessage}
+              </span>
+              <div class="separator"></div>
+              <div className="col-lg-12 text-center mt-4">
+                <button
+                  onClick={() => UpdateSetting()}
+                  className="btn btn-md create-item-btn update-practice"
+                >
+                  <span> Update {ModuleName}</span>
+                </button>
+              </div>
             </div>
+            {/* Card End */}
           </div>
         </div>
+      </div>
       {/* </div> */}
       <SuccessModal
         handleClose={handleClose}
