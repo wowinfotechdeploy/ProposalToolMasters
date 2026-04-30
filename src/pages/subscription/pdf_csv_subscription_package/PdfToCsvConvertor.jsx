@@ -1,12 +1,14 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import BackButtonSvg from "../../../components/BackButtonSvg";
 import { useNavigate } from "react-router-dom";
 import { Card, CardBody, Col, Row } from "reactstrap";
-import { AuthContextProvider } from "../../../AuthContext/AuthContext";
 import { Tooltip } from "@mui/material";
 import Select from "react-select";
 import dayjs from "dayjs";
 import axios from "axios";
+
+
+import { AuthContextProvider } from "../../../AuthContext/AuthContext";
+import BackButtonSvg from "../../../components/BackButtonSvg";
 import {
   ChoosePlanApi,
   CreateStripeCheckoutSession,
@@ -24,13 +26,18 @@ import SuccessModal from "../../../components/SuccessModal";
 import NoResultFoundModel from "../../../components/NoResultFoundModel";
 import PaginationComponent from "../../../components/PaginationModel";
 import NoSubscriptionModal from "../../../components/NoSubscriptionModal";
-import * as pdfjsLib from "pdfjs-dist";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { GetOrganisationLookupList } from "../../../redux/Services/Master/OrganisationLookupList";
 import { CalenderFilterEnum, PDFToCSVToggle } from "../../../Middleware/enums";
 import Utils from "../../../Middleware/Utils";
 import DatePicker from "react-date-picker";
 import CurruptedFileFormate from "../../../components/CurruptedFileFormate";
+
+import * as pdfjsLib from "pdfjs-dist";
+import workerSrc from "pdfjs-dist/build/pdf.worker.min.js";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
+
 
 function PdfToCsvConvertorModel(props) {
   const [pdfFile, setPdfFile] = useState(null);
@@ -180,7 +187,7 @@ function PdfToCsvConvertorModel(props) {
           // console.log("Total Pages:", totalPages);
           // setPdfPageCount(totalPages);
         } catch (err) {
-          console.error("Error reading PDF:", err);
+          console.log("Error reading PDF:", err);
           setError("Failed to read the PDF.");
         }
       };
@@ -830,8 +837,8 @@ function PdfToCsvConvertorModel(props) {
                     <button
                       className="btn btn-md btn-success create-item-btn"
                       onClick={() => setToggleID(PDFToCSVToggle.MySubscription)}
-                      // onClick={() => setHasSubcription(false)}
-                      // disabled={isConverting}
+                    // onClick={() => setHasSubcription(false)}
+                    // disabled={isConverting}
                     >
                       {/* <i className="bi bi-plus-circle "></i> */}
                       PDF To CSV Subscription
@@ -839,8 +846,8 @@ function PdfToCsvConvertorModel(props) {
                     <button
                       className="btn btn-md btn-success create-item-btn"
                       onClick={() => setToggleID(PDFToCSVToggle.Upgrade)}
-                      // onClick={() => setHasSubcription(false)}
-                      // disabled={isConverting}
+                    // onClick={() => setHasSubcription(false)}
+                    // disabled={isConverting}
                     >
                       {/* <i className="bi bi-plus-circle "></i> */}
                       Upgrade
@@ -1062,7 +1069,7 @@ function PdfToCsvConvertorModel(props) {
                     <button
                       className="btn btn-md btn-success create-item-btn"
                       onClick={() => setToggleID(PDFToCSVToggle.Convertor)}
-                      // disabled={isConverting}
+                    // disabled={isConverting}
                     >
                       Back
                     </button>
@@ -1141,12 +1148,12 @@ function PdfToCsvConvertorModel(props) {
                                                       >
                                                         Validity:{" "}
                                                         {PurchasePlanList.months !==
-                                                        null
+                                                          null
                                                           ? String(
-                                                              PurchasePlanList.months,
-                                                            ) +
-                                                            " " +
-                                                            PurchasePlanList.validity
+                                                            PurchasePlanList.months,
+                                                          ) +
+                                                          " " +
+                                                          PurchasePlanList.validity
                                                           : PurchasePlanList.validity}
                                                       </span>
                                                     </div>
@@ -1233,7 +1240,7 @@ function PdfToCsvConvertorModel(props) {
                         <button
                           className="btn btn-md btn-success create-item-btn"
                           onClick={() => setToggleID(PDFToCSVToggle.Convertor)}
-                          // disabled={isConverting}
+                        // disabled={isConverting}
                         >
                           Back
                         </button>
@@ -1397,16 +1404,16 @@ function PdfToCsvConvertorModel(props) {
                                         style={{
                                           background:
                                             subscription.subscriptionStatus ===
-                                            "Active"
+                                              "Active"
                                               ? "#008000"
                                               : subscription.subscriptionStatus ===
-                                                  "Expired"
+                                                "Expired"
                                                 ? "#FF0000"
                                                 : subscription.subscriptionStatus ===
-                                                    "Pending"
+                                                  "Pending"
                                                   ? "#DAA520"
                                                   : subscription.subscriptionStatus ===
-                                                      "InActive"
+                                                    "InActive"
                                                     ? "#772424"
                                                     : "gray",
                                           width: "100px",
