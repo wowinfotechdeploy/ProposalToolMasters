@@ -352,7 +352,7 @@ function OrganisationSubscriptionPackageDetails(props) {
       // packageName: props.subscriptionPackageObj.packageName,
       prepareQuote: props.subscriptionPackageObj.prepareQuote,
       sendQuote: props.subscriptionPackageObj.sendQuote,
-      quotesPerMonth: 
+      quotesPerMonth:
         props.subscriptionPackageObj.quotesPerMonth === ""
           ? null
           : props.subscriptionPackageObj.quotesPerMonth,
@@ -436,7 +436,7 @@ function OrganisationSubscriptionPackageDetails(props) {
     };
     AddUpdateSubscriptionPackageData(ApiRequest_ParamsObj);
     const modalEl = document.getElementById(
-    "OrganisationSubscriptionPackageDetails"
+      "OrganisationSubscriptionPackageDetails"
     );
     window.bootstrap.Modal.getInstance(modalEl)?.hide();
     // console.log("ApiRequest_ParamsObj", ApiRequest_ParamsObj);
@@ -602,7 +602,7 @@ function OrganisationSubscriptionPackageDetails(props) {
                     />
 
                     {requireErrorMessage &&
-                    props.subscriptionPackageObj.packageName === "" ? (
+                      props.subscriptionPackageObj.packageName === "" ? (
                       <label className="validation">{ERROR_MESSAGES}</label>
                     ) : (
                       ""
@@ -719,12 +719,12 @@ function OrganisationSubscriptionPackageDetails(props) {
                             value={
                               props.subscriptionPackageObj?.quotesPerMonth ===
                                 "" ||
-                              props.subscriptionPackageObj?.quotesPerMonth ===
+                                props.subscriptionPackageObj?.quotesPerMonth ===
                                 null
                                 ? ""
                                 : props.subscriptionPackageObj?.quotesPerMonth
-                                    ?.toString()
-                                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                  ?.toString()
+                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                             }
                             onChange={(e) => {
                               let inputValue = e.target.value;
@@ -840,12 +840,12 @@ function OrganisationSubscriptionPackageDetails(props) {
                         value={
                           props.subscriptionPackageObj.eSignaturePerMonth ===
                             "" ||
-                          props.subscriptionPackageObj.eSignaturePerMonth ===
+                            props.subscriptionPackageObj.eSignaturePerMonth ===
                             null
                             ? 0
                             : props.subscriptionPackageObj.eSignaturePerMonth
-                                ?.toString()
-                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              ?.toString()
+                              .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                         }
                         onChange={(e) => {
                           let inputValue = e.target.value;
@@ -879,8 +879,8 @@ function OrganisationSubscriptionPackageDetails(props) {
                       />
                     </div>
                     {requireErrorMessageForESignature &&
-                    props.subscriptionPackageObj.sendContract &&
-                    Number(subscriptionPackageObj.eSignaturePerMonth) < 1 ? (
+                      props.subscriptionPackageObj.sendContract &&
+                      Number(subscriptionPackageObj.eSignaturePerMonth) < 1 ? (
                       <label className="validation mb-1">
                         The E-Signature per month must be at least 1.
                       </label>
@@ -940,11 +940,11 @@ function OrganisationSubscriptionPackageDetails(props) {
                         // value={subscriptionPackageObj?.pages}
                         value={
                           props.subscriptionPackageObj?.noOfPages === "" ||
-                          props.subscriptionPackageObj?.noOfPages === null
+                            props.subscriptionPackageObj?.noOfPages === null
                             ? 0
                             : props.subscriptionPackageObj?.noOfPages
-                                ?.toString()
-                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              ?.toString()
+                              .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                         }
                         onChange={(e) => {
                           setErrorMessage("");
@@ -966,9 +966,9 @@ function OrganisationSubscriptionPackageDetails(props) {
                         }}
                       />
                       {requireErrorMessage &&
-                      (props.subscriptionPackageObj.noOfPages === "" ||
-                        props.subscriptionPackageObj.noOfPages === undefined ||
-                        props.subscriptionPackageObj.noOfPages === null) ? (
+                        (props.subscriptionPackageObj.noOfPages === "" ||
+                          props.subscriptionPackageObj.noOfPages === undefined ||
+                          props.subscriptionPackageObj.noOfPages === null) ? (
                         <label className="validation">{ERROR_MESSAGES}</label>
                       ) : (
                         ""
@@ -1132,11 +1132,11 @@ function OrganisationSubscriptionPackageDetails(props) {
                         value={
                           props.subscriptionPackageObj?.yearlyValuePlan ===
                             "" ||
-                          props.subscriptionPackageObj?.yearlyValuePlan === null
+                            props.subscriptionPackageObj?.yearlyValuePlan === null
                             ? 0
                             : props.subscriptionPackageObj?.yearlyValuePlan
-                                ?.toString()
-                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              ?.toString()
+                              .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                         }
                         onChange={(e) => {
                           setErrorMessage("");

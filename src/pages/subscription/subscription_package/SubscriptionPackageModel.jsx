@@ -364,63 +364,63 @@ function SubscriptionPackageModel(props) {
       subscriptionOffers: subscriptionPackageObj.isFreePackage
         ? null
         : [
-            {
-              paymentFrequencyID: 4, // Monthly
-              discountPercentage:
-                subscriptionPackageObj.discountPercentageMonthCheck
-                  ? subscriptionPackageObj.discountPercentageMonth === ""
-                    ? null
-                    : Number(subscriptionPackageObj.discountPercentageMonth)
-                  : 0,
-              discountPrice: subscriptionPackageObj.discountPriceMonthCheck
-                ? subscriptionPackageObj.discountPriceMonth === ""
+          {
+            paymentFrequencyID: 4, // Monthly
+            discountPercentage:
+              subscriptionPackageObj.discountPercentageMonthCheck
+                ? subscriptionPackageObj.discountPercentageMonth === ""
                   ? null
-                  : Number(subscriptionPackageObj.discountPriceMonth)
+                  : Number(subscriptionPackageObj.discountPercentageMonth)
                 : 0,
-              monthFree: subscriptionPackageObj.monthFreeMonthCheck
-                ? subscriptionPackageObj.monthFreeMonth === ""
+            discountPrice: subscriptionPackageObj.discountPriceMonthCheck
+              ? subscriptionPackageObj.discountPriceMonth === ""
+                ? null
+                : Number(subscriptionPackageObj.discountPriceMonth)
+              : 0,
+            monthFree: subscriptionPackageObj.monthFreeMonthCheck
+              ? subscriptionPackageObj.monthFreeMonth === ""
+                ? null
+                : Number(subscriptionPackageObj.monthFreeMonth)
+              : 0,
+            getMonths: subscriptionPackageObj.getMonthsMonthCheck
+              ? subscriptionPackageObj.getMonthsMonth === ""
+                ? null
+                : Number(subscriptionPackageObj.getMonthsMonth)
+              : 0,
+            inPriceOfMonth:
+              subscriptionPackageObj.inPriceOfMonthMonth === ""
+                ? null
+                : Number(subscriptionPackageObj.inPriceOfMonthMonth),
+          },
+          {
+            paymentFrequencyID: 1, // Yearly
+            discountPercentage:
+              subscriptionPackageObj.discountPercentageYearCheck
+                ? subscriptionPackageObj.discountPercentageYear === ""
                   ? null
-                  : Number(subscriptionPackageObj.monthFreeMonth)
+                  : Number(subscriptionPackageObj.discountPercentageYear)
                 : 0,
-              getMonths: subscriptionPackageObj.getMonthsMonthCheck
-                ? subscriptionPackageObj.getMonthsMonth === ""
-                  ? null
-                  : Number(subscriptionPackageObj.getMonthsMonth)
-                : 0,
-              inPriceOfMonth:
-                subscriptionPackageObj.inPriceOfMonthMonth === ""
-                  ? null
-                  : Number(subscriptionPackageObj.inPriceOfMonthMonth),
-            },
-            {
-              paymentFrequencyID: 1, // Yearly
-              discountPercentage:
-                subscriptionPackageObj.discountPercentageYearCheck
-                  ? subscriptionPackageObj.discountPercentageYear === ""
-                    ? null
-                    : Number(subscriptionPackageObj.discountPercentageYear)
-                  : 0,
-              discountPrice: subscriptionPackageObj.discountPriceYearCheck
-                ? subscriptionPackageObj.discountPriceYear === ""
-                  ? null
-                  : Number(subscriptionPackageObj.discountPriceYear)
-                : 0,
-              monthFree: subscriptionPackageObj.monthFreeYearCheck
-                ? subscriptionPackageObj.monthFreeYear === ""
-                  ? null
-                  : Number(subscriptionPackageObj.monthFreeYear)
-                : 0,
-              getMonths: subscriptionPackageObj.getMonthsYearCheck
-                ? subscriptionPackageObj.getMonthsYear === ""
-                  ? null
-                  : Number(subscriptionPackageObj.getMonthsYear)
-                : 0,
-              inPriceOfMonth:
-                subscriptionPackageObj.inPriceOfMonthYear === ""
-                  ? null
-                  : Number(subscriptionPackageObj.inPriceOfMonthYear),
-            },
-          ],
+            discountPrice: subscriptionPackageObj.discountPriceYearCheck
+              ? subscriptionPackageObj.discountPriceYear === ""
+                ? null
+                : Number(subscriptionPackageObj.discountPriceYear)
+              : 0,
+            monthFree: subscriptionPackageObj.monthFreeYearCheck
+              ? subscriptionPackageObj.monthFreeYear === ""
+                ? null
+                : Number(subscriptionPackageObj.monthFreeYear)
+              : 0,
+            getMonths: subscriptionPackageObj.getMonthsYearCheck
+              ? subscriptionPackageObj.getMonthsYear === ""
+                ? null
+                : Number(subscriptionPackageObj.getMonthsYear)
+              : 0,
+            inPriceOfMonth:
+              subscriptionPackageObj.inPriceOfMonthYear === ""
+                ? null
+                : Number(subscriptionPackageObj.inPriceOfMonthYear),
+          },
+        ],
     };
     AddUpdateSubscriptionPackageData(ApiRequest_ParamsObj);
     // console.log("ApiRequest_ParamsObj", ApiRequest_ParamsObj);
@@ -584,13 +584,76 @@ function SubscriptionPackageModel(props) {
                       />
 
                       {requireErrorMessage &&
-                      subscriptionPackageObj.packageName === "" ? (
+                        subscriptionPackageObj.packageName === "" ? (
                         <label className="validation">{ERROR_MESSAGES}</label>
                       ) : (
                         ""
                       )}
                     </div>
                   </div>
+                  {/* Bookkeeping subscription start  */}
+
+                  <div className="row p-2">
+                    <div className="fieldset-group ">
+                      <label className="fieldset-group-label required">
+                        Bookkeeping Subscriptions
+                      </label>
+                      <div class="row">
+                        <div class="col-lg-3 col-md-3 col-sm-6 text-start text-md-end mt-2">
+                          <label class="form-label">
+                            Xero
+                          </label>
+                        </div>
+                        <div
+                          class="col-lg-3 col-md-3 col-sm-6"
+                          style={{ display: "flex", alignItems: "center" }}
+                        >
+                          <div style={{ width: "40px", marginBottom: "5px" }}>
+                            {subscriptionPackageObj.prepareQuote ? "Yes" : "No"}
+                          </div>
+                          <FormGroup>
+                            <FormControlLabel
+                              control={
+                                <Android12Switch
+                                  checked={subscriptionPackageObj.prepareQuote}
+                                  onClick={handlePrepareQuoteChange}
+                                />
+                              }
+                            />
+                          </FormGroup>
+                        </div>
+                        {/* </div>
+
+                      <div class="row"> */}
+                        <div class="col-lg-3 col-md-3 col-sm-6 text-start text-md-end mt-2">
+                          <label class="form-label">Quickbooks</label>
+                        </div>
+                        <div
+                          class="col-lg-3 col-md-3 col-sm-6"
+                          style={{ display: "flex", alignItems: "center" }}
+                        >
+                          <div style={{ width: "40px", marginBottom: "5px" }}>
+                            {subscriptionPackageObj.sendQuote ? "Yes" : "No"}
+                          </div>
+                          <FormGroup>
+                            <FormControlLabel
+                              control={
+                                <Android12Switch
+                                  checked={subscriptionPackageObj.sendQuote}
+                                  onClick={handleSendQuoteChange}
+                                  disabled={
+                                    !subscriptionPackageObj.prepareQuote
+                                  }
+                                />
+                              }
+                            />
+                          </FormGroup>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Bookkeeping subscription end  */}
+                  {/* api integration start  */}
                   <div className="row p-2">
                     <div className="fieldset-group ">
                       <label className="fieldset-group-label required">
@@ -625,6 +688,7 @@ function SubscriptionPackageModel(props) {
                       </div>
                     </div>
                   </div>
+                  {/* api integration end  */}
                   <div className="row p-2">
                     <div className="fieldset-group ">
                       <label className="fieldset-group-label required">
@@ -758,11 +822,11 @@ function SubscriptionPackageModel(props) {
                           size="small"
                           value={
                             subscriptionPackageObj.eSignaturePerMonth === "" ||
-                            subscriptionPackageObj.eSignaturePerMonth === null
+                              subscriptionPackageObj.eSignaturePerMonth === null
                               ? 0
                               : subscriptionPackageObj.eSignaturePerMonth
-                                  ?.toString()
-                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                ?.toString()
+                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                           }
                           onChange={(e) => {
                             let inputValue = e.target.value;
@@ -796,8 +860,8 @@ function SubscriptionPackageModel(props) {
                         />
                       </div>
                       {requireErrorMessageForESignature &&
-                      subscriptionPackageObj.sendContract &&
-                      Number(subscriptionPackageObj.eSignaturePerMonth) < 1 ? (
+                        subscriptionPackageObj.sendContract &&
+                        Number(subscriptionPackageObj.eSignaturePerMonth) < 1 ? (
                         <label className="validation mb-1">
                           The E-Signature per month must be at least 1.
                         </label>
@@ -853,11 +917,11 @@ function SubscriptionPackageModel(props) {
                           // value={subscriptionPackageObj?.pages}
                           value={
                             subscriptionPackageObj?.pages === "" ||
-                            subscriptionPackageObj?.pages === null
+                              subscriptionPackageObj?.pages === null
                               ? 0
                               : subscriptionPackageObj?.pages
-                                  ?.toString()
-                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                ?.toString()
+                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                           }
                           onChange={(e) => {
                             setErrorMessage("");
@@ -879,9 +943,9 @@ function SubscriptionPackageModel(props) {
                           }}
                         />
                         {requireErrorMessage &&
-                        (subscriptionPackageObj.pages === "" ||
-                          subscriptionPackageObj.pages === undefined ||
-                          subscriptionPackageObj.pages === null) ? (
+                          (subscriptionPackageObj.pages === "" ||
+                            subscriptionPackageObj.pages === undefined ||
+                            subscriptionPackageObj.pages === null) ? (
                           <label className="validation">{ERROR_MESSAGES}</label>
                         ) : (
                           ""
@@ -988,11 +1052,11 @@ function SubscriptionPackageModel(props) {
                           size="small"
                           value={
                             subscriptionPackageObj?.yearlyValuePlan === "" ||
-                            subscriptionPackageObj?.yearlyValuePlan === null
+                              subscriptionPackageObj?.yearlyValuePlan === null
                               ? 0
                               : subscriptionPackageObj?.yearlyValuePlan
-                                  ?.toString()
-                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                ?.toString()
+                                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                           }
                           onChange={(e) => {
                             setErrorMessage("");
@@ -1073,9 +1137,9 @@ function SubscriptionPackageModel(props) {
                                 value={
                                   subscriptionPackageObj.discountPercentageYearCheck
                                     ? subscriptionPackageObj.discountPercentageYear ===
-                                        "" ||
+                                      "" ||
                                       subscriptionPackageObj.discountPercentageYear ===
-                                        null
+                                      null
                                       ? 0
                                       : subscriptionPackageObj.discountPercentageYear
                                     : 0
@@ -1170,14 +1234,14 @@ function SubscriptionPackageModel(props) {
                                 value={
                                   subscriptionPackageObj?.discountPriceYearCheck
                                     ? subscriptionPackageObj?.discountPriceYear ===
-                                        "" ||
+                                      "" ||
                                       subscriptionPackageObj?.discountPriceYear ===
-                                        null
+                                      null
                                       ? 0
                                       : subscriptionPackageObj?.discountPriceYear
 
-                                          ?.toString()
-                                          .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                        ?.toString()
+                                        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                                     : 0
                                 }
                                 onChange={(e) => {
@@ -1288,9 +1352,9 @@ function SubscriptionPackageModel(props) {
                                 value={
                                   subscriptionPackageObj.monthFreeYearCheck
                                     ? subscriptionPackageObj.monthFreeYear ===
-                                        "" ||
+                                      "" ||
                                       subscriptionPackageObj.monthFreeYear ===
-                                        null
+                                      null
                                       ? 0
                                       : subscriptionPackageObj.monthFreeYear
                                     : 0
@@ -1371,9 +1435,9 @@ function SubscriptionPackageModel(props) {
                                 value={
                                   subscriptionPackageObj.getMonthsYearCheck
                                     ? subscriptionPackageObj.getMonthsYear ===
-                                        "" ||
+                                      "" ||
                                       subscriptionPackageObj.getMonthsYear ===
-                                        null
+                                      null
                                       ? 0
                                       : subscriptionPackageObj.getMonthsYear
                                     : 0
@@ -1429,7 +1493,7 @@ function SubscriptionPackageModel(props) {
                                 value={
                                   subscriptionPackageObj.inPriceOfMonthYear ===
                                     "" ||
-                                  subscriptionPackageObj.inPriceOfMonthYear ===
+                                    subscriptionPackageObj.inPriceOfMonthYear ===
                                     null
                                     ? 0
                                     : subscriptionPackageObj.inPriceOfMonthYear
@@ -1509,9 +1573,9 @@ function SubscriptionPackageModel(props) {
                                 value={
                                   subscriptionPackageObj.discountPercentageMonthCheck
                                     ? subscriptionPackageObj.discountPercentageMonth ===
-                                        "" ||
+                                      "" ||
                                       subscriptionPackageObj.discountPercentageMonth ===
-                                        null
+                                      null
                                       ? 0
                                       : subscriptionPackageObj.discountPercentageMonth
                                     : 0
@@ -1606,13 +1670,13 @@ function SubscriptionPackageModel(props) {
                                 value={
                                   subscriptionPackageObj?.discountPriceMonthCheck
                                     ? subscriptionPackageObj?.discountPriceMonth ===
-                                        "" ||
+                                      "" ||
                                       subscriptionPackageObj.discountPriceMonth ===
-                                        null
+                                      null
                                       ? 0
                                       : subscriptionPackageObj?.discountPriceMonth
-                                          ?.toString()
-                                          .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                        ?.toString()
+                                        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                                     : 0
                                 }
                                 onChange={(e) => {
@@ -1727,9 +1791,9 @@ function SubscriptionPackageModel(props) {
                                 value={
                                   subscriptionPackageObj?.monthFreeMonthCheck
                                     ? subscriptionPackageObj?.monthFreeMonth ===
-                                        "" ||
+                                      "" ||
                                       subscriptionPackageObj?.monthFreeMonth ===
-                                        null
+                                      null
                                       ? 0
                                       : subscriptionPackageObj?.monthFreeMonth
                                     : 0
@@ -1810,9 +1874,9 @@ function SubscriptionPackageModel(props) {
                                 value={
                                   subscriptionPackageObj?.getMonthsMonthCheck
                                     ? subscriptionPackageObj?.getMonthsMonth ===
-                                        "" ||
+                                      "" ||
                                       subscriptionPackageObj?.getMonthsMonth ===
-                                        null
+                                      null
                                       ? 0
                                       : subscriptionPackageObj?.getMonthsMonth
                                     : 0
@@ -1868,7 +1932,7 @@ function SubscriptionPackageModel(props) {
                                 value={
                                   subscriptionPackageObj?.inPriceOfMonthMonth ===
                                     "" ||
-                                  subscriptionPackageObj?.inPriceOfMonthMonth ===
+                                    subscriptionPackageObj?.inPriceOfMonthMonth ===
                                     null
                                     ? 0
                                     : subscriptionPackageObj?.inPriceOfMonthMonth
