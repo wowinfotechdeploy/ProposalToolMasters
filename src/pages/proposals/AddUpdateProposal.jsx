@@ -8774,6 +8774,39 @@ const ReviewPackagesComponent = (props) => {
     return Number(Number(sum).toFixed(2));
   };
 
+  /** Net Total row (template 6): pre-discount VAT per package column for ONE-OFF; matches computeOneOffTotalPackageValues inclusion + package* fees (no frequency scaling on One-Off). */
+  const sumOneOffPackageColumnPreDiscountVatFromServices = (slot) => {
+    const cfg =
+      slot === "one"
+        ? { pkgId: "packageOneID", gateVal: "packageOneValue", feeVal: "packageOneValue" }
+        : slot === "two"
+          ? { pkgId: "packageTwoID", gateVal: "packageTwoValue", feeVal: "packageTwoValue" }
+          : { pkgId: "packageThreeID", gateVal: "packageThreeValue", feeVal: "packageThreeValue" };
+
+    let sum = 0;
+    props.selectedOneOffServiceList?.forEach((category) => {
+      category.servicesList.forEach((service) => {
+        const pkgId = service[cfg.pkgId];
+        const gate = service[cfg.gateVal];
+        const feeRaw = service[cfg.feeVal];
+        if (
+          Array.isArray(service.servicePackageIDs) &&
+          pkgId != null &&
+          service.servicePackageIDs.includes(pkgId) &&
+          gate !== null &&
+          service.service_vat_percentage != null
+        ) {
+          const fee = Number(Number(feeRaw).toFixed(2));
+          const pct = Number(Number(service.service_vat_percentage).toFixed(2));
+          if (Number.isFinite(fee) && Number.isFinite(pct)) {
+            sum += (fee * pct) / 100;
+          }
+        }
+      });
+    });
+    return Number(Number(sum).toFixed(2));
+  };
+
   const updateRecurringHtmlContent = () => {
     setRecurringPackagesTable(
       <div
@@ -15615,11 +15648,18 @@ const ReviewPackagesComponent = (props) => {
                                       <td className="tr-table-class font-14 text-white text-right">
                                         (-){" "}
                                         {(() => {
-                                          // In negative discount case, this row is not rendered hence this is fine
-                                          // we do not need negative discount check like we did in the net total row
-                                          const vatNetTotal = Number(props.RecurringPricingInfo.PackageOneStaticVaTPrice)
-                                          const vatGrandTotal = Number(props.RecurringPricingInfo.PackageOneVaTPrice) // this is the vat row value in default table, it is discount adjusted
-                                          return props.formatValue(vatNetTotal - vatGrandTotal, props.currencyID)
+                                          const vatStatic =
+                                            sumRecurringPackageColumnPreDiscountVatFromServices(
+                                              "one",
+                                            );
+                                          const vatDiscountAdjusted = Number(
+                                            props.RecurringPricingInfo.PackageOneVaTPrice ||
+                                              0,
+                                          );
+                                          return props.formatValue(
+                                            vatStatic - vatDiscountAdjusted,
+                                            props.currencyID,
+                                          );
                                         })()}
                                         {/* {props.formatValue(
                                           Number(
@@ -15667,12 +15707,21 @@ const ReviewPackagesComponent = (props) => {
                                             feesNetTotal = Number(props.RecurringPricingInfo.packageOneNetTotal)
                                           }
                                     
-                                          let vatNetTotal = Number(props.RecurringPricingInfo.PackageOneStaticVaTPrice)
-                                          
-                                          const netTotalFeesIncVat = feesNetTotal + vatNetTotal
-                                          const netTotalGrandTotal = props.RecurringPricingInfo.PackageOneGrandTotal
+                                          const vatNetTotal =
+                                            sumRecurringPackageColumnPreDiscountVatFromServices(
+                                              "one",
+                                            );
 
-                                          return props.formatValue(Number(netTotalFeesIncVat) - Number(netTotalGrandTotal), props.currencyID)
+                                          const netTotalFeesIncVat =
+                                            feesNetTotal + vatNetTotal;
+                                          const netTotalGrandTotal =
+                                            props.RecurringPricingInfo.PackageOneGrandTotal;
+
+                                          return props.formatValue(
+                                            Number(netTotalFeesIncVat) -
+                                              Number(netTotalGrandTotal),
+                                            props.currencyID,
+                                          );
                                         })()}
                                       </td>
                                     )}
@@ -15709,9 +15758,18 @@ const ReviewPackagesComponent = (props) => {
                                               props.currencyID,
                                             )} */}
                                             {(() => {
-                                              let vatNetTotal = Number(props.RecurringPricingInfo.PackageTwoStaticVaTPrice)
-                                              const vatGrandTotal = Number(props.RecurringPricingInfo.PackageTwoVaTPrice) // this is the vat row value in default table, it is discount adjusted
-                                              return props.formatValue(vatNetTotal - vatGrandTotal, props.currencyID)
+                                              const vatStatic =
+                                                sumRecurringPackageColumnPreDiscountVatFromServices(
+                                                  "two",
+                                                );
+                                              const vatDiscountAdjusted = Number(
+                                                props.RecurringPricingInfo.PackageTwoVaTPrice ||
+                                                  0,
+                                              );
+                                              return props.formatValue(
+                                                vatStatic - vatDiscountAdjusted,
+                                                props.currencyID,
+                                              );
                                             })()}
                                           </td>
                                         ):""}
@@ -15748,12 +15806,21 @@ const ReviewPackagesComponent = (props) => {
                                                 feesNetTotal = Number(props.RecurringPricingInfo.packageTwoNetTotal)
                                               }
 
-                                              let vatNetTotal = Number(props.RecurringPricingInfo.PackageTwoStaticVaTPrice)
+                                              const vatNetTotal =
+                                                sumRecurringPackageColumnPreDiscountVatFromServices(
+                                                  "two",
+                                                );
 
-                                              const netTotalFeesIncVat = feesNetTotal + vatNetTotal
-                                              const netTotalGrandTotal = props.RecurringPricingInfo.PackageTwoGrandTotal
+                                              const netTotalFeesIncVat =
+                                                feesNetTotal + vatNetTotal;
+                                              const netTotalGrandTotal =
+                                                props.RecurringPricingInfo.PackageTwoGrandTotal;
 
-                                              return props.formatValue(Number(netTotalFeesIncVat) - Number(netTotalGrandTotal), props.currencyID)
+                                              return props.formatValue(
+                                                Number(netTotalFeesIncVat) -
+                                                  Number(netTotalGrandTotal),
+                                                props.currencyID,
+                                              );
                                             })()}
                                           </td>
                                         )}
@@ -15791,9 +15858,18 @@ const ReviewPackagesComponent = (props) => {
                                               props.currencyID,
                                             )} */}
                                             {(() => {
-                                              let vatNetTotal = Number(props.RecurringPricingInfo.PackageThreeStaticVaTPrice)
-                                              const vatGrandTotal = Number(props.RecurringPricingInfo.PackageThreeVaTPrice) // this is the vat row value in default table, it is discount adjusted
-                                              return props.formatValue(vatNetTotal - vatGrandTotal, props.currencyID)
+                                              const vatStatic =
+                                                sumRecurringPackageColumnPreDiscountVatFromServices(
+                                                  "three",
+                                                );
+                                              const vatDiscountAdjusted = Number(
+                                                props.RecurringPricingInfo.PackageThreeVaTPrice ||
+                                                  0,
+                                              );
+                                              return props.formatValue(
+                                                vatStatic - vatDiscountAdjusted,
+                                                props.currencyID,
+                                              );
                                             })()}
                                           </td>
                                         ):""}
@@ -15829,12 +15905,21 @@ const ReviewPackagesComponent = (props) => {
                                                 feesNetTotal = Number(props.RecurringPricingInfo.packageThreeNetTotal)
                                               }
 
-                                              let vatNetTotal = Number(props.RecurringPricingInfo.PackageThreeStaticVaTPrice)
+                                              const vatNetTotal =
+                                                sumRecurringPackageColumnPreDiscountVatFromServices(
+                                                  "three",
+                                                );
 
-                                              const netTotalFeesIncVat = feesNetTotal + vatNetTotal
-                                              const netTotalGrandTotal = props.RecurringPricingInfo.PackageThreeGrandTotal
+                                              const netTotalFeesIncVat =
+                                                feesNetTotal + vatNetTotal;
+                                              const netTotalGrandTotal =
+                                                props.RecurringPricingInfo.PackageThreeGrandTotal;
 
-                                              return props.formatValue(Number(netTotalFeesIncVat) - Number(netTotalGrandTotal), props.currencyID)
+                                              return props.formatValue(
+                                                Number(netTotalFeesIncVat) -
+                                                  Number(netTotalGrandTotal),
+                                                props.currencyID,
+                                              );
                                             })()}
                                           </td>
                                         )}
@@ -18396,53 +18481,18 @@ const ReviewPackagesComponent = (props) => {
                               props.visibleFieldsCustomTemp.vat && (
                                 <td className="tr-table-class font-14 text-white text-right">
                                   {(() => {
-                                    console.log("-------one off pricing info--------")
-                                    console.log(props.OneOffPricingInfo)
-                                    console.log("-------one off pricing info--------")
-
-                                    
-                                     if (hasAnyNegativePackageDiscountOneOffCustom) {
+                                    if (hasAnyNegativePackageDiscountOneOffCustom) {
                                       return props.formatValue(
-                                      props.OneOffPricingInfo.PackageOneVaTPrice,
-                                      props.currencyID,
+                                        props.OneOffPricingInfo.PackageOneVaTPrice,
+                                        props.currencyID,
                                       );
-                                      }
-                                    // Pre-discount VAT for package column 1: match computeOneOffTotalPackageValues
-                                    // inclusion (package ID + non-null package fee), using each service's VAT %.
-                                    let netTotalPackageOneOffVatSum = 0;
-                                    props.selectedOneOffServiceList?.forEach(
-                                      (category) => {
-                                        category.servicesList.forEach(
-                                          (service) => {
-                                            if (
-                                              Array.isArray(
-                                                service.servicePackageIDs,
-                                              ) &&
-                                              service.servicePackageIDs.includes(
-                                                service.packageOneID,
-                                              ) &&
-                                              service.packageOneValue !==
-                                                null &&
-                                              service.service_vat_percentage !=
-                                                null
-                                            ) {
-                                              const fee = Number(Number(service.packageOneValue).toFixed(2))
-                                              const pct = Number(Number(service.service_vat_percentage).toFixed(2))
-                                              netTotalPackageOneOffVatSum +=
-                                                (fee * pct) / 100;
-                                            }
-                                          },
-                                        );
-                                      },
-                                    );
-                                    const vatDisplay = Number(Number(netTotalPackageOneOffVatSum).toFixed(2))
-                                      // props.GetTwoDecimalValueWithoutRoundOff(
-                                      //   netTotalPackageOneOffVatSum,
-                                      // );
-                                    return props.formatValue(
-                                      vatDisplay,
-                                      props.currencyID,
-                                    );
+                                    }
+
+                                    const vatDisplay =
+                                      sumOneOffPackageColumnPreDiscountVatFromServices(
+                                        "one",
+                                      );
+                                    return props.formatValue(vatDisplay, props.currencyID);
                                   })()}
                                 </td>
                               ):""}
@@ -18462,10 +18512,26 @@ const ReviewPackagesComponent = (props) => {
                                       );
                                     }
 
-                                    return props.formatValue(
-                                      Number(props.OneOffPricingInfo.packageOneVatAmount) + Number(totalOnePackageValueOneOff),
-                                      props.currencyID,
-                                    ); 
+                                    const discountedTotal = Number(
+                                      props.OneOffPricingInfo.packageOneDisCountedTotal,
+                                    );
+                                    const discount = Number(
+                                      props.OneOffPricingInfo.packageOneDisCount,
+                                    );
+
+                                    const shouldUseDiscounted =
+                                      totalOnePackageValueOneOff < discountedTotal ||
+                                      (discount > 0 && !props.ProposalObject.DiscountLines);
+
+                                    const fees = shouldUseDiscounted
+                                      ? discountedTotal
+                                      : Number(totalOnePackageValueOneOff);
+                                    const vat =
+                                      sumOneOffPackageColumnPreDiscountVatFromServices(
+                                        "one",
+                                      );
+
+                                    return props.formatValue(fees + vat, props.currencyID);
                                   })()}
                                 </td>
                               )}
@@ -18502,30 +18568,61 @@ const ReviewPackagesComponent = (props) => {
                                 {props.vatPercentageOneOff ?
                                   props.visibleFieldsCustomTemp.vat && (
                                     <td className="tr-table-class font-14 text-white text-right">
-                                      {props.formatValue(
-                                        Number.isNaN(
-                                              Number(
-                                                props.OneOffPricingInfo
-                                                  .PackageTwoStaticVaTPrice,
-                                              ),
-                                            )
-                                              ? 0
-                                              : Number(
-                                                  props.OneOffPricingInfo
-                                                    .PackageTwoStaticVaTPrice,
-                                            ),
-                                        props.currencyID,
-                                      )}
+                                      {(() => {
+                                        if (hasAnyNegativePackageDiscountOneOffCustom) {
+                                          return props.formatValue(
+                                            props.OneOffPricingInfo.PackageTwoVaTPrice,
+                                            props.currencyID,
+                                          );
+                                        }
+                                        const vatDisplay =
+                                          sumOneOffPackageColumnPreDiscountVatFromServices(
+                                            "two",
+                                          );
+                                        return props.formatValue(vatDisplay, props.currencyID);
+                                      })()}
                                     </td>
                                   ):""}
                                 {props.vatPercentageOneOff !== 0 &&
                                   props.visibleFieldsCustomTemp.feesIncVat && (
                                     <td className="tr-table-class font-14 text-white text-right">
-                                      {props.formatValue(
-                                        (Number.isNaN(Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice)) ? 0 : Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice)) +
-                                            totalTwoPackageValueOneOff,
-                                        props.currencyID,
-                                      )}
+                                      {(() => {
+                                        if (hasAnyNegativePackageDiscountOneOffCustom) {
+                                          return props.formatValue(
+                                            Number(props.OneOffPricingInfo.PackageTwoVaTPrice) +
+                                              Number(
+                                                props.OneOffPricingInfo.packageTwoDisCountedTotal,
+                                              ),
+                                            props.currencyID,
+                                          );
+                                        }
+
+                                        const discountedTotal = Number(
+                                          props.OneOffPricingInfo
+                                            .packageTwoDisCountedTotal,
+                                        );
+                                        const discount = Number(
+                                          props.OneOffPricingInfo.packageTwoDisCount,
+                                        );
+
+                                        const shouldUseDiscounted =
+                                          totalTwoPackageValueOneOff <
+                                            discountedTotal ||
+                                          (discount > 0 &&
+                                            !props.ProposalObject.DiscountLines);
+
+                                        const fees = shouldUseDiscounted
+                                          ? discountedTotal
+                                          : Number(totalTwoPackageValueOneOff);
+                                        const vat =
+                                          sumOneOffPackageColumnPreDiscountVatFromServices(
+                                            "two",
+                                          );
+                                        return props.formatValue(
+                                          fees + vat,
+                                          props.currencyID,
+                                        );
+                                      })()}
                                     </td>
                                   )}
                                 {props.visibleFieldsCustomTemp.serviceScope && (
@@ -18564,30 +18661,63 @@ const ReviewPackagesComponent = (props) => {
                                 {props.vatPercentageOneOff ?
                                   props.visibleFieldsCustomTemp.vat && (
                                     <td className="tr-table-class font-14 text-white text-right">
-                                      {props.formatValue(
-                                        Number.isNaN(
-                                              Number(
-                                                props.OneOffPricingInfo
-                                                  .PackageThreeStaticVaTPrice,
-                                              ),
-                                            )
-                                              ? 0
-                                              : Number(
-                                                  props.OneOffPricingInfo
-                                                    .PackageThreeStaticVaTPrice,
-                                            ),
-                                        props.currencyID,
-                                      )}
+                                      {(() => {
+                                        if (hasAnyNegativePackageDiscountOneOffCustom) {
+                                          return props.formatValue(
+                                            props.OneOffPricingInfo.PackageThreeVaTPrice,
+                                            props.currencyID,
+                                          );
+                                        }
+                                        const vatDisplay =
+                                          sumOneOffPackageColumnPreDiscountVatFromServices(
+                                            "three",
+                                          );
+                                        return props.formatValue(vatDisplay, props.currencyID);
+                                      })()}
                                     </td>
                                   ):""}
                                 {props.vatPercentageOneOff !== 0 &&
                                   props.visibleFieldsCustomTemp.feesIncVat && (
                                     <td className="tr-table-class font-14 text-white text-right">
-                                      {props.formatValue(
-                                        (Number.isNaN(Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice)) ? 0 : Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice)) +
-                                            totalThreePackageValueOneOff,
-                                        props.currencyID,
-                                      )}
+                                      {(() => {
+                                        if (hasAnyNegativePackageDiscountOneOffCustom) {
+                                          return props.formatValue(
+                                            Number(props.OneOffPricingInfo.PackageThreeVaTPrice) +
+                                              Number(
+                                                props.OneOffPricingInfo
+                                                  .packageThreeDisCountedTotal,
+                                              ),
+                                            props.currencyID,
+                                          );
+                                        }
+
+                                        const discountedTotal = Number(
+                                          props.OneOffPricingInfo
+                                            .packageThreeDisCountedTotal,
+                                        );
+                                        const discount = Number(
+                                          props.OneOffPricingInfo
+                                            .packageThreeDisCount,
+                                        );
+
+                                        const shouldUseDiscounted =
+                                          totalThreePackageValueOneOff <
+                                            discountedTotal ||
+                                          (discount > 0 &&
+                                            !props.ProposalObject.DiscountLines);
+
+                                        const fees = shouldUseDiscounted
+                                          ? discountedTotal
+                                          : Number(totalThreePackageValueOneOff);
+                                        const vat =
+                                          sumOneOffPackageColumnPreDiscountVatFromServices(
+                                            "three",
+                                          );
+                                        return props.formatValue(
+                                          fees + vat,
+                                          props.currencyID,
+                                        );
+                                      })()}
                                     </td>
                                   )}
                                 {props.visibleFieldsCustomTemp.serviceScope && (
@@ -18629,17 +18759,16 @@ const ReviewPackagesComponent = (props) => {
                                     props.visibleFieldsCustomTemp.vat && (
                                       <td className="tr-table-class font-14 text-white text-right">
                                         (-){" "}
-                                        {props.formatValue(
-                                          Number(
-                                            props.OneOffPricingInfo
-                                              .PackageOneStaticVaTPrice,
-                                          ) -
-                                            Number(
-                                              props.OneOffPricingInfo
-                                                .PackageOneVaTPrice,
-                                            ),
-                                          props.currencyID,
-                                        )}
+                                            {props.formatValue(
+                                              sumOneOffPackageColumnPreDiscountVatFromServices(
+                                                "one",
+                                              ) -
+                                                Number(
+                                                  props.OneOffPricingInfo
+                                                    .PackageOneVaTPrice || 0,
+                                                ),
+                                              props.currencyID,
+                                            )}
                                       </td>
                                     ):""}
                                     {/* Discount Fees Inc Vat */}
@@ -18647,12 +18776,14 @@ const ReviewPackagesComponent = (props) => {
                                     props.visibleFieldsCustomTemp.feesIncVat && (
                                       <td className="tr-table-class font-14 text-white text-right">
                                         (-){" "}
-                                        {props.formatValue(
-                                          Number(props.OneOffPricingInfo.packageOneDisCount) +
-                                            (Number(props.OneOffPricingInfo.PackageOneStaticVaTPrice) -
-                                              Number(props.OneOffPricingInfo.PackageOneVaTPrice)),
-                                          props.currencyID,
-                                        )}
+                                            {props.formatValue(
+                                              Number(props.OneOffPricingInfo.packageOneDisCount) +
+                                                (sumOneOffPackageColumnPreDiscountVatFromServices(
+                                                  "one",
+                                                ) -
+                                                  Number(props.OneOffPricingInfo.PackageOneVaTPrice || 0)),
+                                              props.currencyID,
+                                            )}
                                       </td>
                                     )}
                                   {props.visibleFieldsCustomTemp
@@ -18677,13 +18808,12 @@ const ReviewPackagesComponent = (props) => {
                                           <td className="tr-table-class font-14 text-white text-right">
                                             (-){" "}
                                             {props.formatValue(
-                                              Number(
-                                                props.OneOffPricingInfo
-                                                  .PackageTwoStaticVaTPrice,
+                                              sumOneOffPackageColumnPreDiscountVatFromServices(
+                                                "two",
                                               ) -
                                                 Number(
                                                   props.OneOffPricingInfo
-                                                    .PackageTwoVaTPrice,
+                                                    .PackageTwoVaTPrice || 0,
                                                 ),
                                               props.currencyID,
                                             )}
@@ -18695,8 +18825,10 @@ const ReviewPackagesComponent = (props) => {
                                             (-){" "}
                                             {props.formatValue(
                                               Number(props.OneOffPricingInfo.packageTwoDisCount) +
-                                                (Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice) -
-                                                  Number(props.OneOffPricingInfo.PackageTwoVaTPrice)),
+                                                (sumOneOffPackageColumnPreDiscountVatFromServices(
+                                                  "two",
+                                                ) -
+                                                  Number(props.OneOffPricingInfo.PackageTwoVaTPrice || 0)),
                                               props.currencyID,
                                             )}
                                           </td>
@@ -18724,13 +18856,12 @@ const ReviewPackagesComponent = (props) => {
                                           <td className="tr-table-class font-14 text-white text-right">
                                             (-){" "}
                                             {props.formatValue(
-                                              Number(
-                                                props.OneOffPricingInfo
-                                                  .PackageThreeStaticVaTPrice,
+                                              sumOneOffPackageColumnPreDiscountVatFromServices(
+                                                "three",
                                               ) -
                                                 Number(
                                                   props.OneOffPricingInfo
-                                                    .PackageThreeVaTPrice,
+                                                    .PackageThreeVaTPrice || 0,
                                                 ),
                                               props.currencyID,
                                             )}
@@ -18742,8 +18873,10 @@ const ReviewPackagesComponent = (props) => {
                                             (-){" "}
                                             {props.formatValue(
                                               Number(props.OneOffPricingInfo.packageThreeDisCount) +
-                                                (Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice) -
-                                                  Number(props.OneOffPricingInfo.PackageThreeVaTPrice)),
+                                                (sumOneOffPackageColumnPreDiscountVatFromServices(
+                                                  "three",
+                                                ) -
+                                                  Number(props.OneOffPricingInfo.PackageThreeVaTPrice || 0)),
                                               props.currencyID,
                                             )}
                                           </td>
