@@ -13465,7 +13465,7 @@ const PricingTableTemplatesModal = ({
                             ? Number(OneOffPricingInfo.packageOneDisCountedTotal)
                           : totalOnePackageValue
                             : Number(OneOffPricingInfo.packageOneNetTotal)) +
-                          Number(OneOffPricingInfo.PackageOneStaticVaTPrice),
+                          Number(OneOffPricingInfo.PackageOneVaTPrice ),
                       currencyID,
                     )}
                   </td>
@@ -13502,7 +13502,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-right">
                           {" "}
                           {formatValue(
-                            Number(OneOffPricingInfo.PackageTwoStaticVaTPrice),
+                            Number(OneOffPricingInfo.PackageTwoVaTPrice),
                             currencyID,
                           )}
                         </td>
@@ -13519,7 +13519,8 @@ const PricingTableTemplatesModal = ({
                                 ? Number(OneOffPricingInfo.packageTwoDisCountedTotal)
                               : totalTwoPackageValue
                                 : Number(OneOffPricingInfo.packageTwoNetTotal)) +
-                              Number(OneOffPricingInfo.PackageTwoStaticVaTPrice),
+                              // Number(OneOffPricingInfo.PackageTwoStaticVaTPrice), 
+                              Number(OneOffPricingInfo.PackageTwoVaTPrice), 
                           currencyID,
                         )}
                       </td>
@@ -13558,7 +13559,7 @@ const PricingTableTemplatesModal = ({
                         <td className="tr-table-class font-14 text-white text-right">
                           {" "}
                           {formatValue(
-                            Number(OneOffPricingInfo.PackageThreeStaticVaTPrice),
+                            Number(OneOffPricingInfo.PackageThreeVaTPrice),
                             currencyID,
                           )}
                         </td>
@@ -13575,7 +13576,7 @@ const PricingTableTemplatesModal = ({
                                 ? Number(OneOffPricingInfo.packageThreeDisCountedTotal)
                               : totalThreePackageValue
                                 : Number(OneOffPricingInfo.packageThreeNetTotal)) +
-                              Number(OneOffPricingInfo.PackageThreeStaticVaTPrice),
+                              Number(OneOffPricingInfo.PackageThreeVaTPrice),
                           currencyID,
                         )}
                       </td>
