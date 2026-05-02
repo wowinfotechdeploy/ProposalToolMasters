@@ -3224,7 +3224,7 @@ const TopbarClone = () => {
                                       : "#fff",
                                   }}
                                 >
-                                  Settings 4
+                                  Settings
                                   <span
                                     style={{
                                       display: "inline-block",
