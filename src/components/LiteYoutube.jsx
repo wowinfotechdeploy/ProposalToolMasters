@@ -41,6 +41,8 @@ export default function LiteYouTube({ videoId, className = "", style = {} }) {
           <img
             src={thumbnail}
             alt="YouTube thumbnail"
+            fetchPriority="high"
+            loading="eager"
             style={{
               width: "100%",
               height: "100%",

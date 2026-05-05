@@ -270,7 +270,7 @@ const Activity_Logs = () => {
           <div class="container-fluid  ">
             {/* .............new code.............. */}
             <div
-              class="row left-margin activity_logs table-padding"
+              class="row left-margin table-padding"
               style={{ justifyContent: "initial" }}
             >
               {/* <div className="col-1"></div> */}
@@ -412,11 +412,11 @@ const Activity_Logs = () => {
             </div>
           </div>
         </div>
-        <Footer />
       </div>
       <button class="btn btn-danger btn-icon" id="back-to-top">
         <i class="ri-arrow-up-line"></i>
       </button>
+      <Footer />
     </div>
   );
 };

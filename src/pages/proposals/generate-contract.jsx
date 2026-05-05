@@ -293,7 +293,7 @@ function AcceptInvitation() {
   //Generate Pdf Array and objects
   useEffect(() => {
     const currencyID = organisationData?.otherInformation?.[0]?.currencyID;
-    const taxName = currencyID === 1 ? "VAT" : currencyID === 2 ? "EU VAT" : currencyID === 3 ? "Salex Tax" : currencyID === 4 ? "GST" : "";
+    const taxName = currencyID === 1 ? "VAT" : currencyID === 2 ? "EU VAT" : currencyID === 3 ? "Sales Tax" : currencyID === 4 ? "GST" : "";
     const currencySymbol = currencyID === 1 ? "£" : currencyID === 2 ? "€" : currencyID === 3 ? "$" : currencyID === 4 ? "₹" : "";
     if (templateElementList) {
       const pdfDataArray = [];
@@ -628,13 +628,13 @@ function AcceptInvitation() {
                 prevElementType !== ElementType.AWS_PDF_LINK
               ) {
                 currentArray.push({
-                  textbox: `<div style="padding-left: 40px; padding-right: 40px; font-family: ${fontFamily};">${coloredHtmlContent}</div>`,
+                  textbox: `<div data-first-page="true" style="font-family: ${fontFamily};">${coloredHtmlContent}</div>`,
                 });
               } else {
                 pdfDataArray.push(currentArray);
                 currentArray = [
                   {
-                    textbox: `<div style="padding-left: 40px; padding-right: 40px; font-family: ${fontFamily};">${coloredHtmlContent}</div>`,
+                    textbox: `<div data-first-page="true" style="font-family: ${fontFamily};">${coloredHtmlContent}</div>`,
                   },
                 ];
               }
@@ -1839,16 +1839,16 @@ function AcceptInvitation() {
           );
           let AddFirstPageHtmlContent = [...updatedTemplateElementList];
           if (!isAddedFirstPage) {
-            // const firstPageElement = {
-            //   "ttetMapID": null,
-            //   "templateElementTypeID": 10,
-            //   "templateElementTypeName": "First Page",
-            //   "serialNo": null,
-            //   "headings": "",
-            //   "shortDesc": "",
-            //   "htmlContent": setDefaultFontFamily(firstPageHTML, fontFamily)
-            // };
-            // AddFirstPageHtmlContent.splice(0, 0, firstPageElement);
+            const firstPageElement = {
+              "ttetMapID": null,
+              "templateElementTypeID": 10,
+              "templateElementTypeName": "First Page",
+              "serialNo": null,
+              "headings": "",
+              "shortDesc": "",
+              "htmlContent": setDefaultFontFamily(firstPageHTML, fontFamily)
+            };
+            AddFirstPageHtmlContent.splice(0, 0, firstPageElement);
           }
           // const GetCommonFontFamily = AddFirstPageHtmlContent.find(item => item.templateElementTypeName === "Text Block").htmlContent
           // const { uniqueFontFamilies, // Unique font families

@@ -10,7 +10,8 @@ function SubscriptionView(props) {
     formatValue,
     formatValueWithoutCurrencySymbol,
   } = useContext(AuthContextProvider);
-  console.log(props.subscriptionPackageObj, "props.subscriptionPackageObj");
+  console.log(props.subscriptionPackageObj);
+  // console.log(props.subscriptionPackageObj, "props.subscriptionPackageObj")
   return (
     <div>
       <div
@@ -134,6 +135,14 @@ function SubscriptionView(props) {
                                 }
                               </p>
                               <p className="mt-0 mb-1 text-dark">
+                                <b>Remaining Proposal</b>:{" "}
+                                {props.subscriptionPackageObj
+                                  .remainingQuotesPerMonth < 0
+                                  ? 0
+                                  : props.subscriptionPackageObj
+                                      .remainingQuotesPerMonth}
+                              </p>
+                              <p className="mt-0 mb-1 text-dark">
                                 <b>Remaining E-Signatures</b>:{" "}
                                 {props.subscriptionPackageObj
                                   .remainingESignatures < 0
@@ -169,6 +178,24 @@ function SubscriptionView(props) {
                             </p>
                             <div className="pricing-features ">
                               <p className="mt-0 mb-1 text-dark">
+                                {props.subscriptionPackageObj?.apiIntegration ==
+                                true ? (
+                                  <span
+                                    style={{ color: "green" }}
+                                    className="fa fa-check"
+                                  ></span>
+                                ) : (
+                                  <span
+                                    style={{ color: "red", marginRight: "2px" }}
+                                    className="fa fa-times"
+                                  ></span>
+                                )}
+                                <span style={{ marginLeft: "10px" }}>
+                                  {" "}
+                                  API Integration
+                                </span>
+                              </p>
+                              <p className="mt-0 mb-1 text-dark">
                                 {props.subscriptionPackageObj?.prepareQuote ==
                                 true ? (
                                   <span
@@ -184,6 +211,24 @@ function SubscriptionView(props) {
                                 <span style={{ marginLeft: "10px" }}>
                                   {" "}
                                   Prepare {proposalName}
+                                </span>
+                              </p>
+                              <p className="mt-0 mb-1 text-dark">
+                                {props.subscriptionPackageObj
+                                  ?.prepareContract === true ? (
+                                  <span
+                                    style={{ color: "green" }}
+                                    className="fa fa-check"
+                                  ></span>
+                                ) : (
+                                  <span
+                                    style={{ color: "red", marginRight: "2px" }}
+                                    className="fa fa-times"
+                                  ></span>
+                                )}
+                                <span style={{ marginLeft: "10px" }}>
+                                  {" "}
+                                  Prepare {EngagementName}
                                 </span>
                               </p>
                               <p className="mt-0 mb-1 text-dark">
@@ -205,22 +250,27 @@ function SubscriptionView(props) {
                                 </span>
                               </p>
                               <p className="mt-0 mb-1 text-dark">
-                                {props.subscriptionPackageObj
-                                  ?.prepareContract === true ? (
+                              {props.subscriptionPackageObj?.sendQuote === true && props.subscriptionPackageObj?.quotesPerMonth > 0 && 
+                                (
+                                  <>
                                   <span
-                                    style={{ color: "green" }}
-                                    className="fa fa-check"
-                                  ></span>
-                                ) : (
+                                  style={{
+                                    color: "green",
+                                  }}
+                                  className="fa fa-check"
+                                ></span>
                                   <span
-                                    style={{ color: "red", marginRight: "2px" }}
-                                    className="fa fa-times"
-                                  ></span>
-                                )}
-                                <span style={{ marginLeft: "10px" }}>
+                                    style={{
+                                    marginLeft: "10px",
+                                    }}
+                                  >
                                   {" "}
-                                  Prepare {EngagementName} (EL)
+                                  Prepare and Send {proposalName}:{" "}
+                                  {formatValueWithoutCurrencySymbol(props.subscriptionPackageObj?.quotesPerMonth)}
+                                  /Month
                                 </span>
+                                </>
+                              )}
                               </p>
                               <p className="mt-0 mb-1 text-dark">
                                 {props.subscriptionPackageObj?.signContract ===
@@ -237,11 +287,13 @@ function SubscriptionView(props) {
                                 )}
                                 <span style={{ marginLeft: "10px" }}>
                                   {" "}
-                                  Send And Digitally Sign The EL:{" "}
-                                  {
+                                  Send And Digitally Sign The {
+                                    EngagementName
+                                  }:{" "}
+                                  {formatValueWithoutCurrencySymbol(
                                     props.subscriptionPackageObj
-                                      ?.eSignaturePerMonth
-                                  }
+                                      ?.eSignaturePerMonth,
+                                  )}
                                   /Month
                                 </span>
                               </p>
@@ -263,54 +315,6 @@ function SubscriptionView(props) {
                                 <span style={{ marginLeft: "10px" }}>
                                   {" "}
                                   Personalized Outgoing Mailbox
-                                </span>
-                              </p>
-                              <p className="mt-0 mb-1 text-dark">
-                                {props.subscriptionPackageObj?.apiIntegration ==
-                                true ? (
-                                  <span
-                                    style={{ color: "green" }}
-                                    className="fa fa-check"
-                                  ></span>
-                                ) : (
-                                  <span
-                                    style={{ color: "red", marginRight: "2px" }}
-                                    className="fa fa-times"
-                                  ></span>
-                                )}
-                                <span style={{ marginLeft: "10px" }}>
-                                  {" "}
-                                  API Integration
-                                </span>
-                              </p>
-                              <p className="mt-0 mb-1 text-dark">
-                                {props.subscriptionPackageObj
-                                  ?.enablePdfToCsv === null ||
-                                !props.subscriptionPackageObj
-                                  ?.enablePdfToCsv ? (
-                                  <span
-                                    style={{
-                                      color: "red",
-                                      marginRight: "2px",
-                                    }}
-                                    className="fa fa-times"
-                                  ></span>
-                                ) : (
-                                  <span
-                                    style={{
-                                      color: "green",
-                                    }}
-                                    className="fa fa-check"
-                                  ></span>
-                                )}
-                                {"  "}
-                                <span
-                                  style={{
-                                    marginLeft: "10px",
-                                  }}
-                                >
-                                  {" "}
-                                  PDF To CSV
                                 </span>
                               </p>
                             </div>

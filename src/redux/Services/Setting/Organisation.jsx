@@ -98,3 +98,11 @@ export const UploadManuallySignedContract = async (ContractKeyID, UserKeyID, Sig
     );
     return res;
 };
+
+export const UpdateOrganisationSubscriptionPackageFromSuperAdmin = async (params) => {
+    const res = await postApiWithAuthenticated(
+        `${OrganisationBaseUrl}/Organisation/UpdateOrganisationSubscriptionPackageFromSuperAdmin`,
+        params
+    );
+    return res;
+};

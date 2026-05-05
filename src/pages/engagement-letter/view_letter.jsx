@@ -573,14 +573,14 @@ const View_Engagement_Latter = () => {
   };
 
   return (
-    <div className="container">
-      <div class="main-content">
-        <div class="page-content page-background prospect-bg">
-          <div class="page-info-header page-info-strip">
-            <div class="container">
-              <div className="row">
-                <div className="col-md-6 col-sm-6 col-6">
-                  <div class="prospects-title">
+     <div className="container">
+      {/* <div class="main-content"> */}
+      <div class="page-content page-background prospect-bg">
+        {/* <div class="page-info-header page-info-strip"> */}
+        <div class="container">
+          <div className="row">
+            <div className="col-md-6 col-sm-6 col-6">
+              <div class="prospects-title">
                     <h5>Reference ID: {EngagementObj.contractName}</h5>
                     {/* <h5>
                       {EngagementName}:{" "}
@@ -639,7 +639,7 @@ const View_Engagement_Latter = () => {
                 </div>
               </div>
             </div>
-          </div>
+          {/* </div> */}
           <div class="container-fluid ">
             <div class="row">
               <div class="col-lg-12">
@@ -1919,7 +1919,7 @@ const View_Engagement_Latter = () => {
           ErrorMessage={errorMessage}
         />
         <Footer />
-      </div>
+        
 
       {/* start back-to-top */}
       <button
@@ -1930,7 +1930,7 @@ const View_Engagement_Latter = () => {
         <i class="ri-arrow-up-line"></i>
       </button>
       {/* end back-to-top */}
-    </div>
+      </div>
   );
 };
 

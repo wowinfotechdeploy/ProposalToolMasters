@@ -674,6 +674,40 @@ const AuthContext = ({ children }) => {
     }
     return { fromDate: _fromDate, toDate: today };
   };
+
+  const GetOnlyDate = (value) => {
+    if (!value) return "";
+
+    // Case 1: Format like "May 28 2025  6:03PM" or "May  9 2025  5:55PM"
+    if (/[A-Za-z]{3}\s+\d{1,2}\s+\d{4}/.test(value)) {
+      const [monthStr, day, year] = value.trim().split(/\s+/);
+      const monthMap = {
+        Jan: "01",
+        Feb: "02",
+        Mar: "03",
+        Apr: "04",
+        May: "05",
+        Jun: "06",
+        Jul: "07",
+        Aug: "08",
+        Sep: "09",
+        Oct: "10",
+        Nov: "11",
+        Dec: "12",
+      };
+      const month = monthMap[monthStr];
+      const formattedDay = day.padStart(2, "0");
+      return `${formattedDay}/${month}/${year}`;
+    }
+
+    // Case 2: Format like "6/11/2025 10:21:35 AM"
+    const [datePart] = value.split(" ");
+    const [month, day, year] = datePart.split("/"); // US format mm/dd/yyyy
+    const formattedDay = day.padStart(2, "0");
+    const formattedMonth = month.padStart(2, "0");
+    return `${formattedDay}/${formattedMonth}/${year}`;
+  };
+
   const hasActionAccess = (moduleId, mActionId) => {
     let userAccess = localStorage.getItem("userAccess");
     userAccess = JSON.parse(userAccess);
@@ -1067,6 +1101,13 @@ const AuthContext = ({ children }) => {
 
     return emailRegex.test(email);
   };
+
+  const formatName = (value = "") => {
+    if (!value) return "";
+    const cleaned = value.replace(/[.\s]/g, "");
+    return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
+  };
+
   function formatValue(value, id) {
     // Ensure value is not null
     value = value == null ? 0 : value;
@@ -3395,12 +3436,49 @@ const AuthContext = ({ children }) => {
     return replacedArray;
   }
 
-  const replaceUrlInHtml = (htmlContent) => {
-    // Regex to match URLs outside of <img> tags
-    const urlRegex = /(?<!<img[^>]*src=["'])\bhttps?:\/\/[^\s<>"']+[\w/]/g;
+  // const replaceUrlInHtml = (htmlContent) => {
+  //   // Regex to match URLs outside of <img> tags
+  //   const urlRegex = /(?<!<img[^>]*src=["'])\bhttps?:\/\/[^\s<>"']+[\w/]/g;
 
-    // Replace URLs with styled spans
-    return htmlContent.replace(urlRegex, (url) => {
+  //   // Replace URLs with styled spans
+  //   return htmlContent.replace(urlRegex, (url) => {
+  //     return `<span style="display: block; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; overflow-x: auto; white-space: pre-wrap;">${url}</span>`;
+  //   });
+  // };
+
+ const replaceUrlInHtml = (htmlContent) => {
+    const urlRegex = /\bhttps?:\/\/[^\s<>"']+[\w/]/g;
+
+    return htmlContent.replace(urlRegex, (url, offset) => {
+      const before = htmlContent.substring(Math.max(0, offset - 100), offset);
+
+      // Don't replace if URL is inside src=, href=, or url()
+      if (/(?:src|href|url)\s*=\s*["']?$/.test(before)) {
+        return url;
+      }
+
+      // Don't replace if inside CSS url() function
+      if (/url\s*\(\s*["']?$/.test(before)) {
+        return url;
+      }
+
+      // Don't replace if inside any HTML attribute
+      const lastQuote = Math.max(
+        before.lastIndexOf('"'),
+        before.lastIndexOf("'"),
+      );
+      const lastEquals = before.lastIndexOf("=");
+      const lastCloseBracket = before.lastIndexOf(">");
+
+      if (
+        lastQuote > lastCloseBracket &&
+        lastEquals > lastCloseBracket &&
+        lastEquals < lastQuote
+      ) {
+        return url;
+      }
+
+      // Safe to replace
       return `<span style="display: block; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; overflow-x: auto; white-space: pre-wrap;">${url}</span>`;
     });
   };
@@ -3487,17 +3565,34 @@ const AuthContext = ({ children }) => {
     return `${firstFour} ${rest}`;
   };
 
+  const lightenColor = (hex, percent) => {
+    hex = hex.replace("#", "");
+
+    let r = parseInt(hex.substring(0, 2), 16);
+    let g = parseInt(hex.substring(2, 4), 16);
+    let b = parseInt(hex.substring(4, 6), 16);
+
+    r = Math.min(255, Math.floor(r + (255 - r) * percent));
+    g = Math.min(255, Math.floor(g + (255 - g) * percent));
+    b = Math.min(255, Math.floor(b + (255 - b) * percent));
+
+    return `rgb(${r}, ${g}, ${b})`;
+  };
+
   /* -------------- Set All Function Used Globally Throughout The Project ------------ */
   return (
     <AuthContextProvider.Provider
       value={{
+        lightenColor,
         formatUKPhoneNumberLocal,
+        formatName,
         isValueGreaterThan20000,
         replaceUrlInHtml,
         replaceTemplatePricingVariables,
         isValidNumber,
         getFontStylesFromHtml,
         GetActiveDateRange,
+        GetOnlyDate,
         topbar,
         loader,
         listCount,

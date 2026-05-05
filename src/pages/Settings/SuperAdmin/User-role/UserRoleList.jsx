@@ -312,16 +312,22 @@ const UserRoleList = () => {
 
   //Design part :
   return (
-    <div>
-      <div class="main-content">
+    <div className="container-fluid">
+      {/* <div class="main-content"> */}
         <div class="services page-background">
-          <div class="page-info-header page-info-strip">
-            <div class="container ">
-              <div className="row">
+          <div class="">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card">
+                  {/* end card header  */}
+                  <div class="card-body mb-2">
+                    <div id="customerList" style={{ marginTop: "3rem" }}>
+                      <div class="bg-light border-bottom px-2">
+                          <div className="row">
                 <div className="col-md-6 col-6">
                   <div class="page-title-cls">User Role</div>
                 </div>
-                <div class="col-md-6 col-6">
+                <div class="col-auto ms-auto">
                   <div className="d-flex  add-new-btn">
                     <div class="text-right flex1">
                       <Tooltip title="Set Default Access">
@@ -346,18 +352,17 @@ const UserRoleList = () => {
                       </Tooltip>
                     </div>
                   </div>
-                </div>
               </div>
             </div>
           </div>
-          <div class="container">
+          <div class="">
             <div class="row">
               <div class="col-lg-12">
                 <div class="card ">
                   <div class="card-body">
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mb-3 table-padding">
+                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
                         <div className="row justify-content-between">
                           <div class="col-lg-6 col-md-10 col-sm-9  d-flex align-items-center">
                             <div class="search-box col-md-3 col-6 width-searchbox mb-2">
@@ -682,7 +687,12 @@ const UserRoleList = () => {
             />
           </div>
         </div>
-        <Footer />
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        
       </div>
 
       {/* start back-to-top */}
@@ -694,6 +704,7 @@ const UserRoleList = () => {
         <i class="ri-arrow-up-line"></i>
       </button>
       {/* end back-to-top */}
+      <Footer />
     </div>
   );
 };

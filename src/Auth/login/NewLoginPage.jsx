@@ -25,6 +25,7 @@ import "./LoginStyle.css";
 import { redirectUri } from "../../Base-Url/Base_Url";
 import GoogleLoginButton from "./GoogleLoginButton";
 import "./NewLoginPage.css";
+import LiteYouTube from "../../components/LiteYoutube";
 
 const Login = () => {
   const common = useSelector((state) => state.Storage);
@@ -596,7 +597,7 @@ const Login = () => {
                               <br />
                               Watch how simple it is below!
                             </p>
-                            <iframe
+                            {/* <iframe
                               className="responsive-video"
                               width="450"
                               height="250"
@@ -605,8 +606,13 @@ const Login = () => {
                               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                               referrerPolicy="strict-origin-when-cross-origin"
                               allowFullScreen
+                              loading="lazy"
                               style={{ borderRadius: "8px" }}
-                            ></iframe>
+                            ></iframe> */}
+                            <LiteYouTube
+                              videoId="FtKPfV79mJg"
+                              style={{ width: "450px", height: "250px" }}
+                            />
                           </div>
                         </div>
                       </td>

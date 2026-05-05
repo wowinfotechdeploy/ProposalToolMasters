@@ -1,5 +1,8 @@
 /* global $ */
 import React, { useContext, useEffect, useState, useRef } from "react";
+import * as pdfjsLib from "pdfjs-dist/build/pdf";
+import pdfWorker from "pdfjs-dist/build/pdf.worker.entry";
+import { lazy, Suspense } from "react";
 import "../../pages/configure/packages/Package.css";
 import Select from "react-select";
 import ReactDOMServer from "react-dom/server";
@@ -40,9 +43,9 @@ import {
   GetTemplateListLookupList,
   GetTemplateModelData,
 } from "../../redux/Services/Config/TemplateApi";
-import { SelectServices } from "../../components/SelectServices";
+// import { SelectServices } from "../../components/SelectServices";
 import { AdditionalInformation } from "../../components/AdditionalInformation";
-import PreviewComponentPdf from "../../components/PreviewComponentpdf";
+// import PreviewComponentPdf from "../../components/PreviewComponentpdf";
 import { GetOrganisationInformationModel } from "../../redux/Services/Setting/Organisation";
 import BackButtonSvg from "../../components/BackButtonSvg";
 import {
@@ -65,6 +68,15 @@ import { GetPaymentGatewayModel } from "../../redux/Services/Setting/PaymentGate
 import PaymentGatewayModel from "../../components/PaymentGatewayModel";
 import RecordsAvailablePopupModel from "../../components/RecordsAvailablePopupModel";
 import Text_Editor from "../../components/Text_Editor";
+const SelectServices = lazy(() => import("../../components/SelectServices"));
+const PreviewComponentPdf = lazy(
+  () => import("../../components/PreviewComponentpdf"),
+);
+// const PricingTableTemplatesModal = lazy(
+//   () => import("../../components/PricingTableTemplatesModal"),
+// );
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+
 const BasicInformationComponent = (props) => {
   const navigate = useNavigate();
   const handleAddClient = () => {
@@ -6891,6 +6903,9 @@ const Add_Update_Engagement_Letter = () => {
     isDefault: null,
     PaymentGatewayID: null,
   });
+  const [flagForTemplatePdf, setFlagForTemplatePdf] = useState(false);
+  const [awsPdfWidth, setAwsPdfWidth] = useState(null);
+  const [awsPdfHeight, setAwsPdfHeight] = useState(null);
   const [isAddUpdatePricingActionDone, setIsAddUpdatePricingActionDone] =
     useState(false);
   const [contractSignatoriesList, setContractSignatoriesList] = useState([
@@ -7282,6 +7297,31 @@ const Add_Update_Engagement_Letter = () => {
             (item) => item.templateElementTypeID === 10
           );
           let AddFirstPageHtmlContent = [...ModelData.templateElementList];
+          setFlagForTemplatePdf(ModelData.templateElementList.find(
+            (item) => item.templateElementTypeID === 9)
+          );
+          const pdfElement = ModelData.templateElementList.find(
+            (item) => item.templateElementTypeID === 9
+          );
+          const getPdfDimensions = async (pdfUrl) => {
+            setLoader(true);
+            const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+            setLoader(false);
+            const page = await pdf.getPage(1);
+            const viewport = page.getViewport({ scale: 1 });
+            return {
+              targetWidth: viewport.width,
+              targetHeight: viewport.height
+            };
+          };
+          let targetWidth = 595.28;  // default A4
+          let targetHeight = 841.89; // default A4
+
+          if (pdfElement) {
+            const dimensions = await getPdfDimensions(pdfElement.htmlContent); // htmlContent has the AWS URL
+            setAwsPdfWidth(dimensions.targetWidth);
+            setAwsPdfHeight(dimensions.targetHeight);
+          }
 
           if (!isAddedFirstPage) {
             const firstPageElement = {
@@ -15061,36 +15101,38 @@ const Add_Update_Engagement_Letter = () => {
                 />
               )}
               {activeTab === EngagementLetterHeader.SelectServices && (
-                <SelectServices
-                  DisableTabOnChange={DisableTabOnChange}
-                  oneOffObj={oneOffObj}
-                  requireMessage={requireMessage}
-                  setOneOffObj={setOneOffObj}
-                  recurringObj={recurringObj}
-                  formatValue={formatValue}
-                  setOneOffPricingInfo={setOneOffPricingInfo}
-                  OneOffPricingInfo={OneOffPricingInfo}
-                  setRecurringPricingInfo={setRecurringPricingInfo}
-                  setRecurringFrequencyPricingInfo={
-                    setRecurringFrequencyPricingInfo
-                  }
-                  hasHyphenAfterNumber={hasHyphenAfterNumber}
-                  RecurringFrequencyPricingInfo={RecurringFrequencyPricingInfo}
-                  RecurringPricingInfo={RecurringPricingInfo}
-                  setRecurringObj={setRecurringObj}
-                  recurringServiceList={recurringServiceList}
-                  setRecurringServiceList={setRecurringServiceList}
-                  setOneOffServiceList={setOneOffServiceList}
-                  oneOffServiceList={oneOffServiceList}
-                  recurringError={recurringError}
-                  moduleName={"Contract"}
-                  setRecurringError={setRecurringError}
-                  getCrudButtonTextName={getCrudButtonTextName}
-                  getCrudPopUpTitleName={getCrudPopUpTitleName}
-                  HandleTabChange={HandleTabChange}
-                  handleCancel={handleCancel}
-                  HandleBack={HandleBack}
-                />
+                <Suspense>
+                  <SelectServices
+                    DisableTabOnChange={DisableTabOnChange}
+                    oneOffObj={oneOffObj}
+                    requireMessage={requireMessage}
+                    setOneOffObj={setOneOffObj}
+                    recurringObj={recurringObj}
+                    formatValue={formatValue}
+                    setOneOffPricingInfo={setOneOffPricingInfo}
+                    OneOffPricingInfo={OneOffPricingInfo}
+                    setRecurringPricingInfo={setRecurringPricingInfo}
+                    setRecurringFrequencyPricingInfo={
+                      setRecurringFrequencyPricingInfo
+                    }
+                    hasHyphenAfterNumber={hasHyphenAfterNumber}
+                    RecurringFrequencyPricingInfo={RecurringFrequencyPricingInfo}
+                    RecurringPricingInfo={RecurringPricingInfo}
+                    setRecurringObj={setRecurringObj}
+                    recurringServiceList={recurringServiceList}
+                    setRecurringServiceList={setRecurringServiceList}
+                    setOneOffServiceList={setOneOffServiceList}
+                    oneOffServiceList={oneOffServiceList}
+                    recurringError={recurringError}
+                    moduleName={"Contract"}
+                    setRecurringError={setRecurringError}
+                    getCrudButtonTextName={getCrudButtonTextName}
+                    getCrudPopUpTitleName={getCrudPopUpTitleName}
+                    HandleTabChange={HandleTabChange}
+                    handleCancel={handleCancel}
+                    HandleBack={HandleBack}
+                  />
+                </Suspense>
               )}
               {activeTab === EngagementLetterHeader.AdditionalInformation && (
                 <AdditionalInformation
@@ -15269,8 +15311,12 @@ const Add_Update_Engagement_Letter = () => {
                 />
               )}
               {activeTab === EngagementLetterHeader.Preview && (
+                <Suspense>
                 <PreviewComponentPdf
                   isDefaultFirstPage={isDefaultFirstPage}
+                  flagForTemplatePdf={flagForTemplatePdf}
+                  awsPdfHeight={awsPdfHeight}
+                  awsPdfWidth={awsPdfWidth}
                   common={common}
                   setRequireMessage={setRequireMessage}
                   DocumentCode={DocumentCode}
@@ -15348,6 +15394,7 @@ const Add_Update_Engagement_Letter = () => {
                   serviceDescriptionObj={serviceDescriptionObj}
                   statementOfFactsObj={statementOfFactsObj}
                 />
+                </Suspense>
               )}
             </div>
           </div>

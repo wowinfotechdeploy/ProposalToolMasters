@@ -24,6 +24,7 @@ import {
   GetTemplateLookupPDFList,
   GetTemplatePdfList,
 } from "../redux/Services/Config/TemplateApi";
+import { Landscape } from "@mui/icons-material";
 export default function PreviewComponentPdf(props) {
   const moduleNameForSaveAsDraft = "Preview";
   const statusIDForSaveAsDraft = 1;
@@ -296,6 +297,16 @@ export default function PreviewComponentPdf(props) {
   const FooterImage = props.footerImage;
   const HeaderHeight = props.headerHeight;
   const FooterHeight = props.footerHeight;
+  const WatermarkImage = props.watermarkImage;
+  const orientationID = props.orientationID;
+  const flagForTemplatePdf = props.flagForTemplatePdf;
+  const awsPdfWidth = props.awsPdfWidth;
+  const awsPdfHeight = props.awsPdfHeight;
+  const headerFooterFirstPage = props?.isDefaultFirstPage
+    ? props?.headerFooterFirstPage
+    : null;
+  const headerFooterLastPage = props?.headerFooterLastPage;
+  const [landscapeMode, setLandscapeMode] = useState(orientationID === 2);
   const showSeparatorLines = props.showSeparatorLines;
   console.log(props.StatementOfFact);
   // console.log(props.selectedOneOffServiceList);
@@ -1361,6 +1372,11 @@ export default function PreviewComponentPdf(props) {
     GetTemplatePdfListData();
   }, []);
 
+ const toggleLandscape = () => {
+    setIsPdfAlreadyGenerated(false);
+    setLandscapeMode((prev) => !prev);
+  };
+
   if (MergePdfUrl) {
   }
   const sendDataToBackend = async (
@@ -1393,7 +1409,14 @@ export default function PreviewComponentPdf(props) {
       FooterImage: FooterImage,
       HeaderHeight: HeaderHeight,
       FooterHeight: FooterHeight,
+      WatermarkImage: WatermarkImage,
       showSeparatorLines: showSeparatorLines,
+      landscapeMode: landscapeMode,
+      headerFooterFirstPage: headerFooterFirstPage,
+      // headerFooterLastPage: headerFooterLastPage,
+      flagForTemplatePdf: flagForTemplatePdf,
+      awsPdfHeight: awsPdfHeight,
+      awsPdfWidth: awsPdfWidth
     };
 
     try {
@@ -1526,7 +1549,10 @@ export default function PreviewComponentPdf(props) {
             newColorCode,
             BrandLogo,
             fontFamily,
-            showSeparatorLines
+            landscapeMode,
+            // flagForTemplatePdf,
+            awsPdfHeight,
+            awsPdfWidth,
           )
         );
         await Promise.all(promises);
@@ -1551,7 +1577,7 @@ export default function PreviewComponentPdf(props) {
         generatePdf();
       }
     }
-  }, [generatePdfData]);
+  }, [generatePdfData,landscapeMode]);
 
   function getPackageName(id, name) {
     const packages = props.lastPaymentFrequencyAndDiscountedPriceForPreview;
@@ -2091,9 +2117,7 @@ export default function PreviewComponentPdf(props) {
                 currentArray = [
                   {
                     textbox: `
-      <div style="
-        padding-left: 40px; 
-        padding-right: 40px; 
+      <div data-first-page="true" style="
         page-break-after: always;
       ">
         ${coloredHtmlContent}
@@ -2106,9 +2130,7 @@ export default function PreviewComponentPdf(props) {
                 currentArray = [
                   {
                     textbox: `
-      <div style="
-        padding-left: 40px; 
-        padding-right: 40px; 
+      <div data-first-page="true" style=" 
         page-break-after: always;
       ">
         ${coloredHtmlContent}
@@ -5109,6 +5131,16 @@ export default function PreviewComponentPdf(props) {
           style={{ height: isMobile ? "" : "54vh" }}
           className="tab-pane active"
         >
+          {!flagForTemplatePdf &&
+          <button
+            onClick={toggleLandscape}
+            className="btn btn-primary btn-sm mt-2"
+            style={{ marginBottom: 10 }}
+          >
+            <Landscape />
+            {landscapeMode ? "Switch to Portrait" : "Switch to Landscape"}
+          </button>
+          }
           {MergePdfUrl &&
             (isMobile ? (
               <PdfViewer isVisible={false} pdfFile={MergePdfUrl} />

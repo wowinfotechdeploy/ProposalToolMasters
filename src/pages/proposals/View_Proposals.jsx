@@ -792,13 +792,13 @@ const View_Proposals = () => {
 
   return (
     <div className="container">
-      <div class="main-content">
-        <div class="page-content page-background prospect-bg">
-          <div class="page-info-header page-info-strip">
-            <div class="container">
-              <div className="row">
-                <div className="col-md-6 col-sm-6 col-6">
-                  <div class="prospects-title">
+      {/* <div class="main-content"> */}
+      <div class="page-content page-background prospect-bg">
+        {/* <div class="page-info-header page-info-strip"> */}
+        <div class="container">
+          <div className="row">
+            <div className="col-md-6 col-sm-6 col-6">
+              <div class="prospects-title">
                     <h5>
                       {/* {proposalName}:{" "} */}
                       Reference ID:
@@ -856,18 +856,17 @@ const View_Proposals = () => {
                 </div>
               </div>
             </div>
-          </div>
           <div class="container-fluid ">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card" style={{ marginTop: "75px" }}>
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div class="search-box ms-2 width-searchbox prospect-form">
-                        <div class=" table-card  mb-3 Height_View_scroll scroll-hidden">
-                          <ul class="nav nav-tabs mb-3" role="tablist">
-                            <li class="nav-item">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card" style={{ marginTop: "75px" }}>
+                <div class="card-body">
+                  <div id="customerList">
+                    <div class="row g-4 mb-3"></div>
+                    <div class="search-box ms-2 width-searchbox prospect-form">
+                      <div class=" table-card  mb-3 Height_View_scroll scroll-hidden">
+                        <ul class="nav nav-tabs mb-3" role="tablist">
+                          <li class="nav-item">
                               <a
                                 class="nav-link tab_nav active"
                                 data-bs-toggle="tab"
@@ -3835,11 +3834,10 @@ const View_Proposals = () => {
             {/* end modal  */}
           </div>
           {/* container-fluid  */}
-        </div>
+
         {/* End Page-content */}
 
         <Footer />
-      </div>
 
       {/* start back-to-top */}
       <button
@@ -3850,6 +3848,7 @@ const View_Proposals = () => {
         <i class="ri-arrow-up-line"></i>
       </button>
       {/* end back-to-top */}
+    </div>
     </div>
   );
 };

@@ -9,7 +9,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-calendar/dist/Calendar.css";
 import { format, parse, isValid } from "date-fns";
-export const SelectServices = (props) => {
+export default function SelectServices(props) {
   const {
     isMobile,
     getCrudButtonTextName,
