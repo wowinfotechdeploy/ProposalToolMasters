@@ -10,7 +10,7 @@ import AddressModal from "../../../components/AddressModal/AddressModal";
 import Utils from "../../../Middleware/Utils";
 import Select from "react-select";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { styled } from '@mui/material/styles';
+import { styled } from "@mui/material/styles";
 import {
   GetCompanyDetails,
   GetCompanyList,
@@ -35,7 +35,7 @@ import "react-calendar/dist/Calendar.css";
 import { CLIENT_TYPES } from "../../../Middleware/enums";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { GetCurrencyTypeList } from "../../../redux/Services/Master/CurrencyTypeLookUpList";
-import Button from '@mui/material/Button';
+import Button from "@mui/material/Button";
 import {
   AddUpdateLogo,
   AddUpdateOrganisation,
@@ -55,7 +55,6 @@ import Android12Switch from "../../../components/AndroidSwitch";
 import { updateState } from "../../../redux/Persist";
 import InstructionModal from "../Email_config/InstructionModel";
 
-
 const Update_Practice_Details = () => {
   // A] Declare State
   const navigate = useNavigate();
@@ -66,7 +65,8 @@ const Update_Practice_Details = () => {
     setTopbar,
     prospectName,
     proposalName,
-    scrollUpDownByElementID, EngagementName
+    scrollUpDownByElementID,
+    EngagementName,
   } = useContext(AuthContextProvider);
   const [fullAddress, setFullAddress] = useState("");
   const [addressPopUpTitle, setAddressPopUpTitle] = useState(null);
@@ -200,12 +200,12 @@ const Update_Practice_Details = () => {
       },
     },
   ]);
-  const [taxName,setTaxName] = useState("VAT");
+  const [taxName, setTaxName] = useState("VAT");
   const [modalOpen, setModalOpen] = useState(false);
   const [professionTypeLookupList, setProfessionTypeLookupList] = useState([]);
   const [selectedOfficerAddressIndex, setSelectedOfficerAddressIndex] =
     useState(0);
-  const [instructions, setInstructions] = useState('')
+  const [instructions, setInstructions] = useState("");
   const [professionTypeValue, setProfessionTypeValue] = useState("");
   const [concatenatedRegisterAddress, setConcatenatedRegisterAddress] =
     useState("");
@@ -277,7 +277,7 @@ const Update_Practice_Details = () => {
       setConcatenatedResidentialAddress(ResidentialFullAddress);
     }
   }, [addressUpdatedDatetime]);
-  
+
   const handleCurrencyChange = (e) => {
     const selectedCurrency = e.value;
     let newVAT = 20;
@@ -298,27 +298,27 @@ const Update_Practice_Details = () => {
     setOtherInfo((prev) => ({
       ...prev,
       indirectTaxPercentage: newVAT,
-      preferredCurrency: selectedCurrency
+      preferredCurrency: selectedCurrency,
     }));
-  }
+  };
 
   const handleChangeTaxPercentage = (e) => {
-  let value = e.target.value;
+    let value = e.target.value;
 
-  let cleanValue = value.replace(/[^0-9.]/g, '');
+    let cleanValue = value.replace(/[^0-9.]/g, "");
 
-  // Prevent multiple dots:
-  const parts = cleanValue.split('.');
-  if (parts.length > 2) {
-    cleanValue = parts[0] + '.' + parts.slice(1).join('');
-  }
+    // Prevent multiple dots:
+    const parts = cleanValue.split(".");
+    if (parts.length > 2) {
+      cleanValue = parts[0] + "." + parts.slice(1).join("");
+    }
 
-  const regex = /^(\d{0,3}(\.\d{0,2})?)?$/;
+    const regex = /^(\d{0,3}(\.\d{0,2})?)?$/;
 
     if (regex.test(cleanValue)) {
       setOtherInfo({
         ...otherInfo,
-        indirectTaxPercentage: cleanValue,
+        indirectTaxPercentage: cleanValue === "" ? null : cleanValue,
       });
     }
   };
@@ -411,7 +411,7 @@ const Update_Practice_Details = () => {
           setcountryCodes(CountryList);
         }
       }
-    } catch (error) { }
+    } catch (error) {}
   };
 
   // Country Lookup list
@@ -424,7 +424,7 @@ const Update_Practice_Details = () => {
           setCountryLookupList(CountryList);
         }
       }
-    } catch (error) { }
+    } catch (error) {}
   };
 
   //  Profession Type Lookup List Api
@@ -460,7 +460,7 @@ const Update_Practice_Details = () => {
           // });
         }
       }
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const GetIncorporatedInLookUpListData = async () => {
@@ -476,7 +476,7 @@ const Update_Practice_Details = () => {
           setIncorporatedInList(incorporateInListData);
         }
       }
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const GetOrganisationInformationModelData = async () => {
@@ -512,14 +512,15 @@ const Update_Practice_Details = () => {
         });
 
         if (
-          (ModelData.otherInformation.signatureImageUrl && ModelData.otherInformation.signatoryName) || // both are truthy
-          (!ModelData.otherInformation.signatureImageUrl && !ModelData.otherInformation.signatoryName)  // both are falsy
+          (ModelData.otherInformation.signatureImageUrl &&
+            ModelData.otherInformation.signatoryName) || // both are truthy
+          (!ModelData.otherInformation.signatureImageUrl &&
+            !ModelData.otherInformation.signatoryName) // both are falsy
         ) {
           setIsIsSignatoryAvailable(true); // If both are available or both are not available
         } else {
           setIsIsSignatoryAvailable(false); // Else, they are in different states
         }
-
 
         const professionTypeName = ModelData.professionTypeList.map((item) => {
           return item.professionTypeName;
@@ -532,7 +533,8 @@ const Update_Practice_Details = () => {
           VATReg: ModelData.otherInformation.isVatRegistered,
           vatNumber: ModelData.otherInformation.vatNumber,
           preferredCurrency: ModelData.otherInformation.preferredCurrencyId,
-          indirectTaxPercentage: ModelData.otherInformation.indirectTaxPercentage,
+          indirectTaxPercentage:
+            ModelData.otherInformation.indirectTaxPercentage,
           website: ModelData.otherInformation.website,
           contactEmail: ModelData.otherInformation.emailID,
           contactPhone: ModelData.otherInformation.phoneNo,
@@ -546,18 +548,19 @@ const Update_Practice_Details = () => {
           webOfAffiliatedAccount:
             ModelData.otherInformation.affiliatedAccountingBodyWebsite,
         });
-        if(ModelData.otherInformation.preferredCurrencyId === 1) {
+        if (ModelData.otherInformation.preferredCurrencyId === 1) {
           setTaxName("VAT");
-        } else if(ModelData.otherInformation.preferredCurrencyId === 2) {
+        } else if (ModelData.otherInformation.preferredCurrencyId === 2) {
           setTaxName("EU VAT");
-        } else if(ModelData.otherInformation.preferredCurrencyId === 3) {
+        } else if (ModelData.otherInformation.preferredCurrencyId === 3) {
           setTaxName("Sales Tax");
-        } else if(ModelData.otherInformation.preferredCurrencyId === 4) {
+        } else if (ModelData.otherInformation.preferredCurrencyId === 4) {
           setTaxName("GST");
         }
         setOtherInfo((prev) => ({
           ...prev,
-          indirectTaxPercentage: ModelData.otherInformation.indirectTaxPercentage
+          indirectTaxPercentage:
+            ModelData.otherInformation.indirectTaxPercentage,
         }));
         let CountryList;
         const countryCodeData = await CountryCode();
@@ -674,7 +677,7 @@ const Update_Practice_Details = () => {
 
   const addOfficer = () => {
     setRequireErrorMessage(false);
-    setOfficerCount(officerCount + 1)
+    setOfficerCount(officerCount + 1);
     concatenatedResidentialAddress.push({
       officersFullAddress: "",
     });
@@ -718,8 +721,9 @@ const Update_Practice_Details = () => {
       address?.addressLine1?.replace(",", " ")
     )}${addPart(address?.addressLine2)}${addPart(address?.locality)}${addPart(
       address?.region
-    )}${addPart(address?.country || address?.countryName)}${address?.postcode || ""
-      }`;
+    )}${addPart(address?.country || address?.countryName)}${
+      address?.postcode || ""
+    }`;
 
     // Remove trailing comma, if present
     if (concatenatedAddress.endsWith(", ")) {
@@ -811,8 +815,6 @@ const Update_Practice_Details = () => {
         otherInfo.contactPhone === "" ||
         !phoneNumberRegex.test(otherInfo.contactPhone) ||
         !isIsSignatoryAvailable
-
-
       ) {
         if (
           basicInfo.businessTypeID === "" ||
@@ -1001,7 +1003,8 @@ const Update_Practice_Details = () => {
               signatoryName: basicInfo.signatoryName,
               isVatRegistered: otherInfo.VATReg,
               vatNumber: otherInfo.vatNumber,
-              indirectTaxPercentage: otherInfo.indirectTaxPercentage,
+              indirectTaxPercentage:
+                otherInfo.VATReg === 0 ? otherInfo.indirectTaxPercentage : null,
               preferredCurrencyId: otherInfo.preferredCurrency,
               website: otherInfo.website,
               countryCodeID: otherInfo.countryCodeID,
@@ -1176,6 +1179,7 @@ const Update_Practice_Details = () => {
             hasError = true;
           }
         }
+
         if (!hasError && !DateError && !OfficerAppointedOnDate) {
           const ApiRequest_ParamsObj = {
             organisationKeyID: common.organisationKeyID,
@@ -1196,7 +1200,8 @@ const Update_Practice_Details = () => {
               signatoryName: basicInfo.signatoryName,
               isVatRegistered: otherInfo.VATReg,
               vatNumber: otherInfo.vatNumber,
-              indirectTaxPercentage: otherInfo.indirectTaxPercentage,
+              indirectTaxPercentage:
+                otherInfo.VATReg === 0 ? otherInfo.indirectTaxPercentage : null,
               preferredCurrencyId: otherInfo.preferredCurrency,
               website: otherInfo.website,
               countryCodeID: otherInfo.countryCodeID,
@@ -1368,7 +1373,7 @@ const Update_Practice_Details = () => {
         const CompanyOfficer = data?.data?.responseData;
         const CompOfficers = [];
         let CorrespondenceOrResidentialAddress = [];
-        let officerCount = 0
+        let officerCount = 0;
         if (CompanyOfficer?.length === 0) {
           CompOfficers.push({
             officerID: null,
@@ -1394,7 +1399,7 @@ const Update_Practice_Details = () => {
           );
         } else {
           CompanyOfficer.forEach((officer) => {
-            officerCount = officerCount + 1
+            officerCount = officerCount + 1;
             let officerName = officer?.name?.split(",");
             let officerFirstName = officerName[1]?.trim()?.split(" ")[0];
             let officerLastName = officerName[0]?.trim()?.split(" ")[0];
@@ -1413,8 +1418,9 @@ const Update_Practice_Details = () => {
               organisationID: common.organisationID,
               premises: officer?.address.premises || null,
               addressLine1:
-                `${officer?.address.premises || ""} ${officer?.address.address_line_1 || ""
-                  }`.trim() || null,
+                `${officer?.address.premises || ""} ${
+                  officer?.address.address_line_1 || ""
+                }`.trim() || null,
               addressLine2: officer?.address.address_line_2 || null,
               locality: officer?.address.locality || null,
               region: officer?.address.region || null,
@@ -1444,7 +1450,8 @@ const Update_Practice_Details = () => {
               moduleID: 0,
               officersAddress: officerAddress,
             });
-            let fullAddressConcatenation = concatenateFullAddress(officerAddress);
+            let fullAddressConcatenation =
+              concatenateFullAddress(officerAddress);
             let CorrespondenceOrResidentialAddressObj = {
               officersFullAddress: fullAddressConcatenation,
             };
@@ -1595,7 +1602,7 @@ const Update_Practice_Details = () => {
   const handleCompanyInputChange = (e) => {
     const newValue = e.target.value.trim();
     if (companyDebounceRef.current) {
-        clearTimeout(companyDebounceRef.current);
+      clearTimeout(companyDebounceRef.current);
     }
     if (newValue === "") {
       setCompanies([]);
@@ -1606,12 +1613,12 @@ const Update_Practice_Details = () => {
       }
     } else {
       companyDebounceRef.current = setTimeout(() => {
-      getCompanies(newValue);
-      // Show the autocomplete list here
-      const autocompleteDiv = document.querySelector(".searchList");
-      if (autocompleteDiv) {
-        autocompleteDiv.classList.add("show");
-      }
+        getCompanies(newValue);
+        // Show the autocomplete list here
+        const autocompleteDiv = document.querySelector(".searchList");
+        if (autocompleteDiv) {
+          autocompleteDiv.classList.add("show");
+        }
       }, 700);
     }
   };
@@ -1655,14 +1662,12 @@ const Update_Practice_Details = () => {
         setSignature(base64ImageData);
         if (
           (base64ImageData && basicInfo.signatoryName) || // both are truthy
-          (!base64ImageData && !basicInfo.signatoryName)  // both are falsy
+          (!base64ImageData && !basicInfo.signatoryName) // both are falsy
         ) {
           setIsIsSignatoryAvailable(true); // If both are available or both are not available
         } else {
           setIsIsSignatoryAvailable(false); // Else, they are in different states
         }
-
-
       };
 
       if (file) {
@@ -1745,8 +1750,9 @@ const Update_Practice_Details = () => {
 
   function formatDate(dateString) {
     const dateObject = new Date(dateString);
-    const formattedDate = `${dateObject.getDate()}/${dateObject.getMonth() + 1
-      }/${dateObject.getFullYear()}`;
+    const formattedDate = `${dateObject.getDate()}/${
+      dateObject.getMonth() + 1
+    }/${dateObject.getFullYear()}`;
     return formattedDate;
   }
 
@@ -1764,7 +1770,7 @@ const Update_Practice_Details = () => {
   //   // setInstructions(`If enabled, your practice has access to ${EngagementName} feature , otherwise your practices no longer has access to ${EngagementName} features`);
   //   setInstructions(`If enabled, your practice will have access to the ${EngagementName} feature,Conversely, if it is disabled, your practice will no longer have access to the ${EngagementName} features, and their associated advantages will be unavailable`)}
 
-  const longText = `If enabled, your practice will have access to the ${EngagementName} feature.Conversely, if it is disabled, your practice will no longer have access to the ${EngagementName} features, and their associated advantages will be unavailable.`
+  const longText = `If enabled, your practice will have access to the ${EngagementName} feature.Conversely, if it is disabled, your practice will no longer have access to the ${EngagementName} features, and their associated advantages will be unavailable.`;
 
   const CustomWidthTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
@@ -1773,30 +1779,58 @@ const Update_Practice_Details = () => {
       maxWidth: 500,
     },
   });
+
+  const handleVATStatusChange = (e) => {
+    setOtherInfo({
+      ...otherInfo,
+      VATReg: e.value,
+    });
+
+    if (otherInfo.VATReg === 0) {
+      setOtherInfo((prev) => ({
+        ...prev,
+        indirectTaxPercentage: 20,
+      }));
+    }
+  };
+
   return (
-    <div>
-      <div class="main-content">
-        <div class="update-practice-content page-background">
-          <div class="page-info-header page-info-strip">
-            <div class="container">
-              <div className="col-md-6 col-6">
+    <>
+    <div className="container-fluid">
+      {/* <div class="main-content"> */}
+        <div class="services page-background">
+              <div class="col-lg-12">
+                <div class="card">
+                  {/* end card header  */}
+                  <div class="card-body mb-2">
+                    <div id="customerList" style={{ marginTop: "3rem" }}>
+                      <div class="bg-light border-bottom px-2">
+                        <div className="container">
+                          <div className="row">
+                            <div className="col-md-12 p-0 ">
                 <div class="page-title-cls">Update Practice Details</div>
               </div>
             </div>
-          </div>
-          <div class="container margin-bottom col-xl-8">
+            </div>
+            </div>
+            </div>
+            </div>
+            </div>
+            </div>
+          {/* </div> */}
+          <div class="container mt-5 col-xl-8">
             <div class="row mb-100">
               <div class="col-lg-12 slider-scroll">
                 <div class="card">
                   {/* end card header  */}
-                  <div class="card-body practice-detail Update-Scroll-res">
+                  <div class="card-body practice-detail Update-Scroll-res mt-0">
                     <div class="row">
                       <div class="col-xl-12 col-lg-12">
                         <div class=" pricing-box p-4  mt-0">
                           <div class="row" id="BasicInformation">
                             <div class="col-lg-12">
                               <div class="row mb-3">
-                                <div className="page-title-cls">
+                                <div className="page-title-cls mb-3">
                                   Basic Information
                                 </div>
                                 <div class="col-lg-12">
@@ -1846,480 +1880,480 @@ const Update_Practice_Details = () => {
                             {(basicInfo.businessTypeID ===
                               CLIENT_TYPES.Sole_Trader ||
                               basicInfo.businessTypeID ===
-                              CLIENT_TYPES.Partnership) && (
-                                <>
-                                  <div class="col-lg-12">
-                                    <div class="row mb-3" id="TradingName">
-                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                        <label class="form-label">
-                                          Trading Name
-                                          <span class="text-danger">*</span>
-                                        </label>
-                                      </div>
-                                      <div class="col-md-9 col-sm-12">
-                                        <input
-                                          maxLength={50}
-                                          type="text"
-                                          className="input-text"
-                                          placeholder="Trading Name"
-                                          value={basicInfo.tradingName}
-                                          onChange={(e) => {
-                                            const inputValue = e.target.value;
-                                            const trimmedValue =
-                                              inputValue.replace(/^\s+/g, "");
-
-                                            // Validation: Check if the trimmed value is either alphanumeric or only alphabet but not only numeric
-                                            const isValidName =
-                                              /^[a-zA-Z0-9\s,.!?"':;&()-_`]+(?:[a-zA-Z0-9\s,.!?"':;&()-_`]+)*$/.test(
-                                                trimmedValue
-                                              ) && !/^\d+$/.test(trimmedValue);
-
-                                            if (
-                                              isValidName ||
-                                              trimmedValue === ""
-                                            ) {
-                                              const capitalizedValue =
-                                                trimmedValue
-                                                  .charAt(0)
-                                                  .toUpperCase() +
-                                                trimmedValue.slice(1);
-                                              setBasicInfo({
-                                                ...basicInfo,
-                                                tradingName: capitalizedValue,
-                                              });
-                                            }
-                                          }}
-                                        />
-                                        {requireErrorMessage &&
-                                          (basicInfo.tradingName === "" ||
-                                            basicInfo.tradingName === null) ? (
-                                          <span className="validation">
-                                            {ERROR_MESSAGES}
-                                          </span>
-                                        ) : (
-                                          ""
-                                        )}
-                                      </div>
+                                CLIENT_TYPES.Partnership) && (
+                              <>
+                                <div class="col-lg-12">
+                                  <div class="row mb-3" id="TradingName">
+                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                      <label class="form-label">
+                                        Trading Name
+                                        <span class="text-danger">*</span>
+                                      </label>
                                     </div>
-                                  </div>
-                                  <div class="col-lg-12">
-                                    <div class="row mb-3" id="TradingDate">
-                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                        <label class="form-label">
-                                          Trading Start Date
-                                          <span class="text-danger">*</span>
-                                        </label>
-                                      </div>
-                                      <div className="col-md-9 col-sm-12">
-                                        {/* <div className="phone-input-div update-practice-phone"> */}
-                                        <DatePicker
-                                          minDate={minDate}
-                                          maxDate={maxDate}
-                                          format="dd/MM/y"
-                                          dayPlaceholder="dd"
-                                          monthPlaceholder="mm"
-                                          yearPlaceholder="yyyy"
-                                          value={basicInfo.tradingStartDate}
-                                          onChange={(e) => {
-                                            setDateValidation(false);
+                                    <div class="col-md-9 col-sm-12">
+                                      <input
+                                        maxLength={50}
+                                        type="text"
+                                        className="input-text"
+                                        placeholder="Trading Name"
+                                        value={basicInfo.tradingName}
+                                        onChange={(e) => {
+                                          const inputValue = e.target.value;
+                                          const trimmedValue =
+                                            inputValue.replace(/^\s+/g, "");
+
+                                          // Validation: Check if the trimmed value is either alphanumeric or only alphabet but not only numeric
+                                          const isValidName =
+                                            /^[a-zA-Z0-9\s,.!?"':;&()-_`]+(?:[a-zA-Z0-9\s,.!?"':;&()-_`]+)*$/.test(
+                                              trimmedValue
+                                            ) && !/^\d+$/.test(trimmedValue);
+
+                                          if (
+                                            isValidName ||
+                                            trimmedValue === ""
+                                          ) {
+                                            const capitalizedValue =
+                                              trimmedValue
+                                                .charAt(0)
+                                                .toUpperCase() +
+                                              trimmedValue.slice(1);
                                             setBasicInfo({
                                               ...basicInfo,
-                                              tradingStartDate: e,
+                                              tradingName: capitalizedValue,
                                             });
+                                          }
+                                        }}
+                                      />
+                                      {requireErrorMessage &&
+                                      (basicInfo.tradingName === "" ||
+                                        basicInfo.tradingName === null) ? (
+                                        <span className="validation">
+                                          {ERROR_MESSAGES}
+                                        </span>
+                                      ) : (
+                                        ""
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="col-lg-12">
+                                  <div class="row mb-3" id="TradingDate">
+                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                      <label class="form-label">
+                                        Trading Start Date
+                                        <span class="text-danger">*</span>
+                                      </label>
+                                    </div>
+                                    <div className="col-md-9 col-sm-12">
+                                      {/* <div className="phone-input-div update-practice-phone"> */}
+                                      <DatePicker
+                                        minDate={minDate}
+                                        maxDate={maxDate}
+                                        format="dd/MM/y"
+                                        dayPlaceholder="dd"
+                                        monthPlaceholder="mm"
+                                        yearPlaceholder="yyyy"
+                                        value={basicInfo.tradingStartDate}
+                                        onChange={(e) => {
+                                          setDateValidation(false);
+                                          setBasicInfo({
+                                            ...basicInfo,
+                                            tradingStartDate: e,
+                                          });
+                                        }}
+                                      />
+                                      {DateValidation &&
+                                      (basicInfo.tradingStartDate !== "" ||
+                                        basicInfo.tradingStartDate !== null) ? (
+                                        <span className="validation">
+                                          Invalid Date
+                                        </span>
+                                      ) : (
+                                        ""
+                                      )}
+                                      {requireErrorMessage &&
+                                      (basicInfo.tradingStartDate === "" ||
+                                        basicInfo.tradingStartDate === null) ? (
+                                        <span className="validation">
+                                          {ERROR_MESSAGES}
+                                        </span>
+                                      ) : (
+                                        ""
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="col-lg-12">
+                                  <div class="row mb-3" id="TradingAddress">
+                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                      <label class="form-label">
+                                        Trading Address
+                                        <span class="text-danger">*</span>
+                                      </label>
+                                    </div>
+                                    <div className="col-md-9 col-sm-12">
+                                      <div className="phone-input-div update-practice-phone">
+                                        <input
+                                          style={{
+                                            // padding: "5px",
+                                            cursor: "pointer",
+                                          }}
+                                          class="input-text"
+                                          placeholder="Trading Address"
+                                          value={concatenatedTradingAddress}
+                                          onMouseDown={(e) => {
+                                            e.preventDefault();
+
+                                            handleOpenTradingAddressPopup(e);
                                           }}
                                         />
-                                        {DateValidation &&
-                                          (basicInfo.tradingStartDate !== "" ||
-                                            basicInfo.tradingStartDate !== null) ? (
-                                          <span className="validation">
-                                            Invalid Date
-                                          </span>
-                                        ) : (
-                                          ""
-                                        )}
-                                        {requireErrorMessage &&
-                                          (basicInfo.tradingStartDate === "" ||
-                                            basicInfo.tradingStartDate === null) ? (
-                                          <span className="validation">
-                                            {ERROR_MESSAGES}
-                                          </span>
-                                        ) : (
-                                          ""
-                                        )}
                                       </div>
+                                      {requireErrorMessage &&
+                                      (concatenatedTradingAddress === "" ||
+                                        concatenatedTradingAddress === null) ? (
+                                        <span className="validation">
+                                          {ERROR_MESSAGES}
+                                        </span>
+                                      ) : (
+                                        ""
+                                      )}
                                     </div>
                                   </div>
-                                  <div class="col-lg-12">
-                                    <div class="row mb-3" id="TradingAddress">
-                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                        <label class="form-label">
-                                          Trading Address
-                                          <span class="text-danger">*</span>
-                                        </label>
-                                      </div>
-                                      <div className="col-md-9 col-sm-12">
-                                        <div className="phone-input-div update-practice-phone">
-                                          <input
-                                            style={{
-                                              // padding: "5px",
-                                              cursor: "pointer",
-                                            }}
-                                            class="input-text"
-                                            placeholder="Trading Address"
-                                            value={concatenatedTradingAddress}
-                                            onMouseDown={(e) => {
-                                              e.preventDefault();
-
-                                              handleOpenTradingAddressPopup(e);
-                                            }}
-                                          />
-                                        </div>
-                                        {requireErrorMessage &&
-                                          (concatenatedTradingAddress === "" ||
-                                            concatenatedTradingAddress === null) ? (
-                                          <span className="validation">
-                                            {ERROR_MESSAGES}
-                                          </span>
-                                        ) : (
-                                          ""
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </>
-                              )}
+                                </div>
+                              </>
+                            )}
 
                             {(basicInfo.businessTypeID ===
                               CLIENT_TYPES.Company ||
                               basicInfo.businessTypeID ===
-                              CLIENT_TYPES.LLP) && (
-                                <>
-                                  <div className="col-lg-12">
-                                    <div class="row mb-3" id="UpdateCompany">
-                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                        <label class="form-label">
-                                          Update Company
-                                        </label>
-                                      </div>
-                                      <div class="col-md-9 col-sm-12">
-                                        <input
-                                          style={{ padding: "5px" }}
-                                          class="input-text"
-                                          placeholder="Search Company"
-                                          onChange={handleCompanyInputChange}
-                                          onKeyDown={(e) => {
-                                            if (
-                                              e.key === " " &&
-                                              e.target.value === ""
-                                            ) {
-                                              e.preventDefault();
-                                            }
-                                          }}
-                                        />
-                                        {companies.length > 0 && (
-                                          <div className="autocomplete-input-div show">
-                                            <ul className="searchList">
-                                              {companies.map((i, index) => (
-                                                <li
-                                                  key={index}
-                                                  onClick={() =>
-                                                    handleCompanySelect(i)
-                                                  }
-                                                >
-                                                  {i.title}
-                                                </li>
-                                              ))}
-                                            </ul>
-                                          </div>
-                                        )}
-                                      </div>
+                                CLIENT_TYPES.LLP) && (
+                              <>
+                                <div className="col-lg-12">
+                                  <div class="row mb-3" id="UpdateCompany">
+                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                      <label class="form-label">
+                                        Update Company
+                                      </label>
                                     </div>
-                                    <div class="row mb-3">
-                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                        <label class="form-label">
-                                          Company Name
-                                          <span class="text-danger">*</span>
-                                        </label>
-                                      </div>
-                                      <div class="col-md-9 col-sm-12">
-                                        <input
-                                          disabled
-                                          style={{ padding: "5px" }}
-                                          class="input-text"
-                                          placeholder="Company Name"
-                                          value={companyForm.companyName}
-                                          onChange={(e) =>
-                                            setCompanyForm({
-                                              ...companyForm,
-                                              companyName: e.target.value,
-                                            })
+                                    <div class="col-md-9 col-sm-12">
+                                      <input
+                                        style={{ padding: "5px" }}
+                                        class="input-text"
+                                        placeholder="Search Company"
+                                        onChange={handleCompanyInputChange}
+                                        onKeyDown={(e) => {
+                                          if (
+                                            e.key === " " &&
+                                            e.target.value === ""
+                                          ) {
+                                            e.preventDefault();
                                           }
-                                        />
-                                        {requireErrorMessage &&
-                                          (companyForm.companyName === "" ||
-                                            companyForm.companyName === null) ? (
-                                          <span className="validation">
-                                            {ERROR_MESSAGES}
-                                          </span>
-                                        ) : (
-                                          ""
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                        <label class="form-label">
-                                          Entity Type
-                                          <span class="text-danger">*</span>
-                                        </label>
-                                      </div>
-                                      <div class="col-md-9 col-sm-12">
-                                        <input
-                                          disabled
-                                          style={{ padding: "5px" }}
-                                          class="input-text"
-                                          placeholder="Entity Type"
-                                          value={companyForm.companyType}
-                                          onChange={(e) =>
-                                            setCompanyForm({
-                                              ...companyForm,
-                                              companyType: e.target.value,
-                                            })
-                                          }
-                                        />
-                                        {requireErrorMessage &&
-                                          (companyForm.companyType === "" ||
-                                            companyForm.companyType === null) ? (
-                                          <span className="validation">
-                                            {ERROR_MESSAGES}
-                                          </span>
-                                        ) : (
-                                          ""
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div class="row mb-3" id="CompanyNumber">
-                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                        <label class="form-label">
-                                          Company Number
-                                          <span class="text-danger">*</span>
-                                        </label>
-                                      </div>
-                                      <div class="col-md-9 col-sm-12">
-                                        <input
-                                          disabled
-                                          style={{ padding: "5px" }}
-                                          class="input-text"
-                                          placeholder="Company Number"
-                                          value={companyForm.companyNumber}
-                                          onChange={(e) =>
-                                            setCompanyForm({
-                                              ...companyForm,
-                                              companyNumber: e.target.value,
-                                            })
-                                          }
-                                        />
-                                        {requireErrorMessage &&
-                                          (companyForm.companyNumber === "" ||
-                                            companyForm.companyNumber === null) ? (
-                                          <span className="validation">
-                                            {ERROR_MESSAGES}
-                                          </span>
-                                        ) : (
-                                          ""
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div class="row mb-3" id="CompanyAddress">
-                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                        <label class="form-label">
-                                          Registered Office Address
-                                        </label>
-                                      </div>
-                                      <div class="col-md-9 col-sm-12">
-                                        <input
-                                          disabled
-                                          style={{ padding: "5px" }}
-                                          class="input-text"
-                                          placeholder="Registered Office Address"
-                                          value={concatenatedRegisterAddress}
-                                          onChange={(e) =>
-                                            setBasicInfo({
-                                              ...basicInfo,
-                                              regOfficeAddress: e.target.value,
-                                            })
-                                          }
-                                        />
-                                      </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                        <label class="form-label">
-                                          Incorporation Date
-                                          <span class="text-danger">*</span>
-                                        </label>
-                                      </div>
-                                      <div class="col-md-9 col-sm-12">
-                                        <input
-                                          disabled
-                                          style={{ padding: "5px" }}
-                                          className="input-text"
-                                          placeholder="Incorporation Date"
-                                          value={formatDate(
-                                            companyForm.incorporationDate
-                                          )}
-                                          onChange={(e) =>
-                                            setCompanyForm({
-                                              ...companyForm,
-                                              incorporationDate: e.target.value,
-                                            })
-                                          }
-                                        />
-                                        {requireErrorMessage &&
-                                          (companyForm.incorporationDate === "" ||
-                                            companyForm.incorporationDate ===
-                                            null) ? (
-                                          <span className="validation">
-                                            {ERROR_MESSAGES}
-                                          </span>
-                                        ) : (
-                                          ""
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div class="row mb-3" id="IncorporatedIn">
-                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                        <label class="form-label">
-                                          Incorporated In
-                                          <span class="text-danger">*</span>
-                                        </label>
-                                      </div>
-                                      <div class="col-md-9 col-sm-12">
-                                        <div className="input-group">
-                                          <Select
-                                            className="CurrencySelect"
-                                            options={incorporatedInList}
-                                            value={IncorporatedValue}
-                                            onChange={handleIncorporatedInChange}
-                                          />
-                                          {requireErrorMessage &&
-                                            (companyForm.incInID === 0 ||
-                                              companyForm.incInID === null ||
-                                              companyForm.incInID === "") ? (
-                                            <span className="validation">
-                                              {ERROR_MESSAGES}
-                                            </span>
-                                          ) : (
-                                            ""
-                                          )}
+                                        }}
+                                      />
+                                      {companies.length > 0 && (
+                                        <div className="autocomplete-input-div show">
+                                          <ul className="searchList">
+                                            {companies.map((i, index) => (
+                                              <li
+                                                key={index}
+                                                onClick={() =>
+                                                  handleCompanySelect(i)
+                                                }
+                                              >
+                                                {i.title}
+                                              </li>
+                                            ))}
+                                          </ul>
                                         </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div class="row mb-3">
+                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                      <label class="form-label">
+                                        Company Name
+                                        <span class="text-danger">*</span>
+                                      </label>
+                                    </div>
+                                    <div class="col-md-9 col-sm-12">
+                                      <input
+                                        disabled
+                                        style={{ padding: "5px" }}
+                                        class="input-text"
+                                        placeholder="Company Name"
+                                        value={companyForm.companyName}
+                                        onChange={(e) =>
+                                          setCompanyForm({
+                                            ...companyForm,
+                                            companyName: e.target.value,
+                                          })
+                                        }
+                                      />
+                                      {requireErrorMessage &&
+                                      (companyForm.companyName === "" ||
+                                        companyForm.companyName === null) ? (
+                                        <span className="validation">
+                                          {ERROR_MESSAGES}
+                                        </span>
+                                      ) : (
+                                        ""
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div class="row mb-3">
+                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                      <label class="form-label">
+                                        Entity Type
+                                        <span class="text-danger">*</span>
+                                      </label>
+                                    </div>
+                                    <div class="col-md-9 col-sm-12">
+                                      <input
+                                        disabled
+                                        style={{ padding: "5px" }}
+                                        class="input-text"
+                                        placeholder="Entity Type"
+                                        value={companyForm.companyType}
+                                        onChange={(e) =>
+                                          setCompanyForm({
+                                            ...companyForm,
+                                            companyType: e.target.value,
+                                          })
+                                        }
+                                      />
+                                      {requireErrorMessage &&
+                                      (companyForm.companyType === "" ||
+                                        companyForm.companyType === null) ? (
+                                        <span className="validation">
+                                          {ERROR_MESSAGES}
+                                        </span>
+                                      ) : (
+                                        ""
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div class="row mb-3" id="CompanyNumber">
+                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                      <label class="form-label">
+                                        Company Number
+                                        <span class="text-danger">*</span>
+                                      </label>
+                                    </div>
+                                    <div class="col-md-9 col-sm-12">
+                                      <input
+                                        disabled
+                                        style={{ padding: "5px" }}
+                                        class="input-text"
+                                        placeholder="Company Number"
+                                        value={companyForm.companyNumber}
+                                        onChange={(e) =>
+                                          setCompanyForm({
+                                            ...companyForm,
+                                            companyNumber: e.target.value,
+                                          })
+                                        }
+                                      />
+                                      {requireErrorMessage &&
+                                      (companyForm.companyNumber === "" ||
+                                        companyForm.companyNumber === null) ? (
+                                        <span className="validation">
+                                          {ERROR_MESSAGES}
+                                        </span>
+                                      ) : (
+                                        ""
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div class="row mb-3" id="CompanyAddress">
+                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                      <label class="form-label">
+                                        Registered Office Address
+                                      </label>
+                                    </div>
+                                    <div class="col-md-9 col-sm-12">
+                                      <input
+                                        disabled
+                                        style={{ padding: "5px" }}
+                                        class="input-text"
+                                        placeholder="Registered Office Address"
+                                        value={concatenatedRegisterAddress}
+                                        onChange={(e) =>
+                                          setBasicInfo({
+                                            ...basicInfo,
+                                            regOfficeAddress: e.target.value,
+                                          })
+                                        }
+                                      />
+                                    </div>
+                                  </div>
+                                  <div class="row mb-3">
+                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                      <label class="form-label">
+                                        Incorporation Date
+                                        <span class="text-danger">*</span>
+                                      </label>
+                                    </div>
+                                    <div class="col-md-9 col-sm-12">
+                                      <input
+                                        disabled
+                                        style={{ padding: "5px" }}
+                                        className="input-text"
+                                        placeholder="Incorporation Date"
+                                        value={formatDate(
+                                          companyForm.incorporationDate
+                                        )}
+                                        onChange={(e) =>
+                                          setCompanyForm({
+                                            ...companyForm,
+                                            incorporationDate: e.target.value,
+                                          })
+                                        }
+                                      />
+                                      {requireErrorMessage &&
+                                      (companyForm.incorporationDate === "" ||
+                                        companyForm.incorporationDate ===
+                                          null) ? (
+                                        <span className="validation">
+                                          {ERROR_MESSAGES}
+                                        </span>
+                                      ) : (
+                                        ""
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div class="row mb-3" id="IncorporatedIn">
+                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                      <label class="form-label">
+                                        Incorporated In
+                                        <span class="text-danger">*</span>
+                                      </label>
+                                    </div>
+                                    <div class="col-md-9 col-sm-12">
+                                      <div className="input-group">
+                                        <Select
+                                          className="CurrencySelect"
+                                          options={incorporatedInList}
+                                          value={IncorporatedValue}
+                                          onChange={handleIncorporatedInChange}
+                                        />
+                                        {requireErrorMessage &&
+                                        (companyForm.incInID === 0 ||
+                                          companyForm.incInID === null ||
+                                          companyForm.incInID === "") ? (
+                                          <span className="validation">
+                                            {ERROR_MESSAGES}
+                                          </span>
+                                        ) : (
+                                          ""
+                                        )}
                                       </div>
                                     </div>
                                   </div>
-                                </>
-                              )}
+                                </div>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
                     </div>
                     {(basicInfo.businessTypeID === CLIENT_TYPES.Company ||
                       basicInfo.businessTypeID === CLIENT_TYPES.LLP) && (
-                        <>
-                          <div
-                            class="row mb-4 trading-detail"
-                            id="TradingDetails"
-                          >
-                            <div class="col-xl-12 col-lg-12">
-                              <div class="card-1 pricing-box p-4 mt-0">
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <p
-                                    class="office-name font-weight"
-                                    style={{ width: "auto" }}
-                                  >
-                                    Trading Details
-                                  </p>
-                                </div>
-                                <div class="row">
-                                  <div class="col-lg-12">
-                                    <div class="row mb-3">
-                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                        <label class="form-label">
-                                          Trading Name
-                                          <span class="text-danger">*</span>
-                                        </label>
-                                      </div>
-                                      <div class="col-md-9 col-sm-12">
-                                        <input
-                                          maxLength={50}
-                                          type="text"
-                                          className="input-text"
-                                          placeholder="Trading Name"
-                                          value={basicInfo.tradingName}
-                                          onChange={(e) => {
-                                            const inputValue = e.target.value;
-                                            const trimmedValue =
-                                              inputValue.replace(/^\s+/g, "");
-
-                                            // Validation: Check if the trimmed value is either alphanumeric or only alphabet but not only numeric
-                                            const isValidName =
-                                              /^[a-zA-Z0-9\s,.!?"':;&()-_`]+(?:[a-zA-Z0-9\s,.!?"':;&()-_`]+)*$/.test(
-                                                trimmedValue
-                                              ) && !/^\d+$/.test(trimmedValue);
-
-                                            if (
-                                              isValidName ||
-                                              trimmedValue === ""
-                                            ) {
-                                              const capitalizedValue =
-                                                trimmedValue
-                                                  .charAt(0)
-                                                  .toUpperCase() +
-                                                trimmedValue.slice(1);
-                                              setBasicInfo({
-                                                ...basicInfo,
-                                                tradingName: capitalizedValue,
-                                              });
-                                            }
-                                          }}
-                                        />
-                                        {requireErrorMessage &&
-                                          (basicInfo.tradingName === "" ||
-                                            basicInfo.tradingName === null) ? (
-                                          <span className="validation">
-                                            {ERROR_MESSAGES}
-                                          </span>
-                                        ) : (
-                                          ""
-                                        )}
-                                      </div>
+                      <>
+                        <div
+                          class="row mb-4 trading-detail"
+                          id="TradingDetails"
+                        >
+                          <div class="col-xl-12 col-lg-12">
+                            <div class="card-1 pricing-box p-4 mt-0">
+                              <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                <p
+                                  class="office-name font-weight"
+                                  style={{ width: "auto" }}
+                                >
+                                  Trading Details
+                                </p>
+                              </div>
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="row mb-3">
+                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                      <label class="form-label">
+                                        Trading Name
+                                        <span class="text-danger">*</span>
+                                      </label>
                                     </div>
-                                  </div>
-                                  <div class="col-lg-12">
-                                    <div class="row mb-3">
-                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                        <label class="form-label">
-                                          Trading Start Date
-                                          <span class="text-danger">*</span>
-                                        </label>
-                                      </div>
-                                      <div class="col-md-9 col-sm-12">
-                                        <DatePicker
-                                          minDate={minDate}
-                                          maxDate={maxDate}
-                                          format="dd/MM/y"
-                                          dayPlaceholder="dd"
-                                          monthPlaceholder="mm"
-                                          yearPlaceholder="yyyy"
-                                          value={basicInfo.tradingStartDate}
-                                          onChange={(e) => {
-                                            setDateValidation(false);
+                                    <div class="col-md-9 col-sm-12">
+                                      <input
+                                        maxLength={50}
+                                        type="text"
+                                        className="input-text"
+                                        placeholder="Trading Name"
+                                        value={basicInfo.tradingName}
+                                        onChange={(e) => {
+                                          const inputValue = e.target.value;
+                                          const trimmedValue =
+                                            inputValue.replace(/^\s+/g, "");
+
+                                          // Validation: Check if the trimmed value is either alphanumeric or only alphabet but not only numeric
+                                          const isValidName =
+                                            /^[a-zA-Z0-9\s,.!?"':;&()-_`]+(?:[a-zA-Z0-9\s,.!?"':;&()-_`]+)*$/.test(
+                                              trimmedValue
+                                            ) && !/^\d+$/.test(trimmedValue);
+
+                                          if (
+                                            isValidName ||
+                                            trimmedValue === ""
+                                          ) {
+                                            const capitalizedValue =
+                                              trimmedValue
+                                                .charAt(0)
+                                                .toUpperCase() +
+                                              trimmedValue.slice(1);
                                             setBasicInfo({
                                               ...basicInfo,
-                                              tradingStartDate: e,
+                                              tradingName: capitalizedValue,
                                             });
-                                          }}
-                                        />
-                                        {/* {DateValidation &&
+                                          }
+                                        }}
+                                      />
+                                      {requireErrorMessage &&
+                                      (basicInfo.tradingName === "" ||
+                                        basicInfo.tradingName === null) ? (
+                                        <span className="validation">
+                                          {ERROR_MESSAGES}
+                                        </span>
+                                      ) : (
+                                        ""
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="col-lg-12">
+                                  <div class="row mb-3">
+                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                      <label class="form-label">
+                                        Trading Start Date
+                                        <span class="text-danger">*</span>
+                                      </label>
+                                    </div>
+                                    <div class="col-md-9 col-sm-12">
+                                      <DatePicker
+                                        minDate={minDate}
+                                        maxDate={maxDate}
+                                        format="dd/MM/y"
+                                        dayPlaceholder="dd"
+                                        monthPlaceholder="mm"
+                                        yearPlaceholder="yyyy"
+                                        value={basicInfo.tradingStartDate}
+                                        onChange={(e) => {
+                                          setDateValidation(false);
+                                          setBasicInfo({
+                                            ...basicInfo,
+                                            tradingStartDate: e,
+                                          });
+                                        }}
+                                      />
+                                      {/* {DateValidation &&
                                           (basicInfo.tradingStartDate !== "" ||
                                             basicInfo.tradingStartDate !== null) ? (
                                           <span className="validation">
@@ -2328,57 +2362,57 @@ const Update_Practice_Details = () => {
                                         ) : (
                                           ""
                                         )} */}
-                                        {requireErrorMessage &&
-                                          (basicInfo.tradingStartDate === "" ||
-                                            basicInfo.tradingStartDate === null) ? (
-                                          <span className="validation">
-                                            {ERROR_MESSAGES}
-                                          </span>
-                                        ) : (
-                                          ""
-                                        )}
-                                      </div>
+                                      {requireErrorMessage &&
+                                      (basicInfo.tradingStartDate === "" ||
+                                        basicInfo.tradingStartDate === null) ? (
+                                        <span className="validation">
+                                          {ERROR_MESSAGES}
+                                        </span>
+                                      ) : (
+                                        ""
+                                      )}
                                     </div>
                                   </div>
-                                  <div class="col-lg-12">
-                                    <div class="row mb-3">
-                                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                        <label class="form-label">
-                                          Trading Address
-                                          <span class="text-danger">*</span>
-                                        </label>
-                                      </div>
-                                      <div class="col-md-9 col-sm-12">
-                                        <input
-                                          style={{
-                                            padding: "5px",
-                                            cursor: "pointer",
-                                          }}
-                                          class="input-text"
-                                          placeholder="Trading Address"
-                                          value={concatenatedTradingAddress}
-                                          onClick={(e) => {
-                                            handleOpenTradingAddressPopup(e);
-                                          }}
-                                        />
-                                        {requireErrorMessage &&
-                                          (concatenatedTradingAddress === "" ||
-                                            concatenatedTradingAddress === null) ? (
-                                          <span className="validation">
-                                            {ERROR_MESSAGES}
-                                          </span>
-                                        ) : (
-                                          ""
-                                        )}
-                                      </div>
+                                </div>
+                                <div class="col-lg-12">
+                                  <div class="row mb-3">
+                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                      <label class="form-label">
+                                        Trading Address
+                                        <span class="text-danger">*</span>
+                                      </label>
+                                    </div>
+                                    <div class="col-md-9 col-sm-12">
+                                      <input
+                                        style={{
+                                          padding: "5px",
+                                          cursor: "pointer",
+                                        }}
+                                        class="input-text"
+                                        placeholder="Trading Address"
+                                        value={concatenatedTradingAddress}
+                                        onClick={(e) => {
+                                          handleOpenTradingAddressPopup(e);
+                                        }}
+                                      />
+                                      {requireErrorMessage &&
+                                      (concatenatedTradingAddress === "" ||
+                                        concatenatedTradingAddress === null) ? (
+                                        <span className="validation">
+                                          {ERROR_MESSAGES}
+                                        </span>
+                                      ) : (
+                                        ""
+                                      )}
                                     </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
                           </div>
-                        </>
-                      )}
+                        </div>
+                      </>
+                    )}
                     <div class="row mb-4" id="E-Signature">
                       <div class="col-xl-12 col-lg-12">
                         <div class="card-1 pricing-box p-4  mt-0">
@@ -2401,9 +2435,14 @@ const Update_Practice_Details = () => {
                                       ? `Disable ${EngagementName}`
                                       : `Enable ${EngagementName}`}{" "} */}
                                   </label>
-
                                 </div>
-                                <div class="col-md-9 col-sm-9 col-lg-9" style={{ display: 'flex', alignItems: 'center' }} >
+                                <div
+                                  class="col-md-9 col-sm-9 col-lg-9"
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                  }}
+                                >
                                   <FormGroup>
                                     <FormControlLabel
                                       control={
@@ -2414,21 +2453,26 @@ const Update_Practice_Details = () => {
                                             onClick={() =>
                                               setOtherInfo({
                                                 ...otherInfo,
-                                                enableEL: otherInfo.enableEL === 1 ? 0 : 1,
+                                                enableEL:
+                                                  otherInfo.enableEL === 1
+                                                    ? 0
+                                                    : 1,
                                               })
                                             }
                                           />
                                         </CustomWidthTooltip>
                                       }
-
                                     />
                                     <div
                                       style={{
-                                        marginTop: '-12px', marginBottom: '10px', textAlign: 'justify',
+                                        marginTop: "-12px",
+                                        marginBottom: "10px",
+                                        textAlign: "justify",
                                       }}
                                       className="text-muted helpMessage"
                                     >
-                                      <b>Note: </b>{longText}
+                                      <b>Note: </b>
+                                      {longText}
                                     </div>
                                   </FormGroup>
 
@@ -2441,7 +2485,6 @@ const Update_Practice_Details = () => {
           
                                
                            </label> */}
-
                                 </div>
                               </div>
                             </div>
@@ -2450,11 +2493,16 @@ const Update_Practice_Details = () => {
                                 <div class="col-md-3 col-sm-12 text-start text-md-end">
                                   <label class="form-label">
                                     Signatory Name
-                                    {((signature !== null && signature !== undefined && signature !== "") ||
-                                      (
-                                        basicInfo.signatureImageUrl !== null && basicInfo.signatureImageUrl !== undefined && basicInfo.signatureImageUrl !== ""
-                                      )) &&
-                                      <span class="text-danger">*</span>}
+                                    {((signature !== null &&
+                                      signature !== undefined &&
+                                      signature !== "") ||
+                                      (basicInfo.signatureImageUrl !== null &&
+                                        basicInfo.signatureImageUrl !==
+                                          undefined &&
+                                        basicInfo.signatureImageUrl !==
+                                          "")) && (
+                                      <span class="text-danger">*</span>
+                                    )}
                                   </label>
                                 </div>
                                 <div class="col-md-9 col-sm-12">
@@ -2464,17 +2512,20 @@ const Update_Practice_Details = () => {
                                     placeholder="Signatory Name"
                                     value={basicInfo.signatoryName}
                                     onChange={(e) => {
-                                      if (signature || basicInfo.signatureImageUrl) {
+                                      if (
+                                        signature ||
+                                        basicInfo.signatureImageUrl
+                                      ) {
                                         if (!e.target.value) {
-                                          setIsIsSignatoryAvailable(false)
+                                          setIsIsSignatoryAvailable(false);
                                         } else {
-                                          setIsIsSignatoryAvailable(true)
+                                          setIsIsSignatoryAvailable(true);
                                         }
                                       } else {
                                         if (e.target.value) {
-                                          setIsIsSignatoryAvailable(false)
+                                          setIsIsSignatoryAvailable(false);
                                         } else {
-                                          setIsIsSignatoryAvailable(true)
+                                          setIsIsSignatoryAvailable(true);
                                         }
                                       }
                                       setBasicInfo({
@@ -2484,30 +2535,21 @@ const Update_Practice_Details = () => {
                                     }}
                                   />
                                   {requireErrorMessage &&
-                                    (
-                                      (
-                                        (
-                                          signature !== null &&
-                                          signature !== undefined &&
-                                          signature !== ""
-                                        ) ||
-                                        (
-                                          basicInfo.signatureImageUrl !== "" &&
-                                          basicInfo.signatureImageUrl !== undefined &&
-                                          basicInfo.signatureImageUrl !== null
-                                        )
-                                      ) &&
-                                      (
-                                        basicInfo.signatoryName === "" ||
-                                        basicInfo.signatoryName === null
-                                      )
-                                    ) ? (
-                                    <span className="validation">{ERROR_MESSAGES}</span>
+                                  ((signature !== null &&
+                                    signature !== undefined &&
+                                    signature !== "") ||
+                                    (basicInfo.signatureImageUrl !== "" &&
+                                      basicInfo.signatureImageUrl !==
+                                        undefined &&
+                                      basicInfo.signatureImageUrl !== null)) &&
+                                  (basicInfo.signatoryName === "" ||
+                                    basicInfo.signatoryName === null) ? (
+                                    <span className="validation">
+                                      {ERROR_MESSAGES}
+                                    </span>
                                   ) : (
                                     ""
-                                  )
-                                  }
-
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -2516,9 +2558,11 @@ const Update_Practice_Details = () => {
                                 <div class="col-md-3 col-sm-12 text-start text-md-end">
                                   <label class="form-label">
                                     Signature Image
-                                    {basicInfo.signatoryName !== null && basicInfo.signatoryName !== undefined && basicInfo.signatoryName !== ""
-                                      &&
-                                      <span class="text-danger">*</span>}
+                                    {basicInfo.signatoryName !== null &&
+                                      basicInfo.signatoryName !== undefined &&
+                                      basicInfo.signatoryName !== "" && (
+                                        <span class="text-danger">*</span>
+                                      )}
                                   </label>
                                 </div>
                                 <div class="col-md-9 col-sm-12">
@@ -2527,7 +2571,7 @@ const Update_Practice_Details = () => {
                                     <div className="upload-image-preview-div">
                                       {basicInfo.signatureImageUrl &&
                                         basicInfo.signatureImageUrl !==
-                                        undefined && (
+                                          undefined && (
                                           <img
                                             src={basicInfo.signatureImageUrl}
                                             style={{
@@ -2561,7 +2605,8 @@ const Update_Practice_Details = () => {
                                           if (
                                             basicInfo.signatoryName !== null &&
                                             basicInfo.signatoryName !== "" &&
-                                            basicInfo.signatoryName !== undefined
+                                            basicInfo.signatoryName !==
+                                              undefined
                                           ) {
                                             setIsIsSignatoryAvailable(false); // If either of them is falsy, set to false
                                           } else {
@@ -2606,12 +2651,19 @@ const Update_Practice_Details = () => {
                                         .png up to a file size of 2MB.
                                       </div>
                                       {requireErrorMessage &&
-                                        (basicInfo.signatoryName !== null
-                                          && basicInfo.signatoryName !== undefined &&
-                                          basicInfo.signatoryName !== "" &&
-                                          (signature === "" ||
-                                            signature === null)) ? (
-                                        <span className="validation">This field is required if you have entered a value in the above 'Signatory Name' field. To proceed without uploading a signature, please remove the data from 'Signatory Name' above.</span>
+                                      basicInfo.signatoryName !== null &&
+                                      basicInfo.signatoryName !== undefined &&
+                                      basicInfo.signatoryName !== "" &&
+                                      (signature === "" ||
+                                        signature === null) ? (
+                                        <span className="validation">
+                                          This field is required if you have
+                                          entered a value in the above
+                                          'Signatory Name' field. To proceed
+                                          without uploading a signature, please
+                                          remove the data from 'Signatory Name'
+                                          above.
+                                        </span>
                                       ) : (
                                         ""
                                       )}
@@ -2707,7 +2759,7 @@ const Update_Practice_Details = () => {
                                   />
                                   {requireErrorMessage &&
                                     (otherInfo.contactEmail === null ||
-                                      otherInfo.contactEmail === "" ? (
+                                    otherInfo.contactEmail === "" ? (
                                       <span className="validation">
                                         {ERROR_MESSAGES}
                                       </span>
@@ -2767,10 +2819,10 @@ const Update_Practice_Details = () => {
                                     </div>
                                   </div>
                                   {requireErrorMessage &&
-                                    (otherInfo.countryCodeID === "" ||
-                                      otherInfo.countryCodeID === null ||
-                                      otherInfo.contactPhone === "" ||
-                                      otherInfo.contactPhone === null) ? (
+                                  (otherInfo.countryCodeID === "" ||
+                                    otherInfo.countryCodeID === null ||
+                                    otherInfo.contactPhone === "" ||
+                                    otherInfo.contactPhone === null) ? (
                                     <span className="validation">
                                       {ERROR_MESSAGES}
                                     </span>
@@ -2802,12 +2854,7 @@ const Update_Practice_Details = () => {
                                       className="CurrencySelect"
                                       options={Utils.VAT_Registered}
                                       value={VATRegFilter}
-                                      onChange={(e) =>
-                                        setOtherInfo({
-                                          ...otherInfo,
-                                          VATReg: e.value,
-                                        })
-                                      }
+                                      onChange={(e) => handleVATStatusChange(e)}
                                     />
                                   </div>
                                 </div>
@@ -2815,36 +2862,40 @@ const Update_Practice_Details = () => {
                             </div>
                             {otherInfo.VATReg === 0 && (
                               <>
-                              <div class="col-lg-12">
-                                <div class="row mb-3">
-                                  <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                    <label class="form-label">{taxName} Number</label>
-                                  </div>
-                                  <div class="col-md-9 col-sm-12">
-                                    <input
-                                      style={{ width: "100%" }}
-                                      className="input-text"
-                                      type="text"
-                                      placeholder={`${taxName} Number`}
-                                      value={otherInfo.vatNumber}
-                                      onChange={(e) => {
-                                        const sanitizedInput = e.target.value
-                                          .trimStart()
-                                          .slice(0, 12);
-                                        setOtherInfo({
-                                          ...otherInfo,
-                                          vatNumber:
-                                            sanitizedInput.toUpperCase(),
-                                        });
-                                      }}
-                                    />
+                                <div class="col-lg-12">
+                                  <div class="row mb-3">
+                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                      <label class="form-label">
+                                        {taxName} Number
+                                      </label>
+                                    </div>
+                                    <div class="col-md-9 col-sm-12">
+                                      <input
+                                        style={{ width: "100%" }}
+                                        className="input-text"
+                                        type="text"
+                                        placeholder={`${taxName} Number`}
+                                        value={otherInfo.vatNumber}
+                                        onChange={(e) => {
+                                          const sanitizedInput = e.target.value
+                                            .trimStart()
+                                            .slice(0, 12);
+                                          setOtherInfo({
+                                            ...otherInfo,
+                                            vatNumber:
+                                              sanitizedInput.toUpperCase(),
+                                          });
+                                        }}
+                                      />
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
                                 <div className="col-lg-12">
                                   <div className="row mb-3" id="Tax_Percentage">
                                     <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                      <label className="form-label">{taxName} Percentage</label>
+                                      <label className="form-label">
+                                        {taxName} Percentage
+                                      </label>
                                     </div>
                                     <div className="col-md-9 col-sm-12">
                                       {/* <Slider
@@ -2865,15 +2916,22 @@ const Update_Practice_Details = () => {
                                         style={{ width: "100%" }}
                                         className="input-text"
                                         type="text"
-                                        value={otherInfo.indirectTaxPercentage ?? 20.00}
+                                        value={
+                                          otherInfo.indirectTaxPercentage === 0
+                                            ? 20.0
+                                            : otherInfo.indirectTaxPercentage
+                                        }
                                         onChange={handleChangeTaxPercentage}
                                       />
                                     </div>
                                   </div>
                                 </div>
-                                {requireErrorMessage && otherInfo.indirectTaxPercentage > 100 &&
-                                  <label className="text-danger text-center mt-1">Percentage cannot exceed 100</label>
-                                }
+                                {requireErrorMessage &&
+                                  otherInfo.indirectTaxPercentage > 100 && (
+                                    <label className="text-danger text-center mt-1">
+                                      Percentage cannot exceed 100
+                                    </label>
+                                  )}
                               </>
                             )}
                             {/* <div class="col-lg-12">
@@ -2927,8 +2985,8 @@ const Update_Practice_Details = () => {
                                 />
                               </div>
                               {requireErrorMessage &&
-                                (otherInfo.preferredCurrency === "" ||
-                                  otherInfo.preferredCurrency === null) ? (
+                              (otherInfo.preferredCurrency === "" ||
+                                otherInfo.preferredCurrency === null) ? (
                                 <span className="validation">
                                   {ERROR_MESSAGES}
                                 </span>
@@ -3125,8 +3183,8 @@ const Update_Practice_Details = () => {
                         <label className="fieldset-group-label required">
                           {basicInfo.businessTypeID ===
                             CLIENT_TYPES.Sole_Trader && (
-                              <>Sole Trader Details</>
-                            )}{" "}
+                            <>Sole Trader Details</>
+                          )}{" "}
                         </label>
                         {officersForm?.map((i, index) => {
                           return (
@@ -3171,8 +3229,8 @@ const Update_Practice_Details = () => {
                                     maxLength={20}
                                   />
                                   {requireErrorMessage &&
-                                    (officersForm[index].firstName === null ||
-                                      officersForm[index].firstName === "") ? (
+                                  (officersForm[index].firstName === null ||
+                                    officersForm[index].firstName === "") ? (
                                     <span className="validation">
                                       {ERROR_MESSAGES}
                                     </span>
@@ -3197,8 +3255,12 @@ const Update_Practice_Details = () => {
                                     placeholder="Last Name"
                                     value={
                                       officersForm[index].lastName
-                                        ? officersForm[index].lastName.charAt(0).toUpperCase() +
-                                        officersForm[index].lastName.slice(1).toLowerCase()
+                                        ? officersForm[index].lastName
+                                            .charAt(0)
+                                            .toUpperCase() +
+                                          officersForm[index].lastName
+                                            .slice(1)
+                                            .toLowerCase()
                                         : ""
                                     }
                                     onChange={(e) => {
@@ -3227,8 +3289,8 @@ const Update_Practice_Details = () => {
                                     }}
                                   />
                                   {requireErrorMessage &&
-                                    (officersForm[index].lastName === null ||
-                                      officersForm[index].lastName === "") ? (
+                                  (officersForm[index].lastName === null ||
+                                    officersForm[index].lastName === "") ? (
                                     <span className="validation">
                                       {ERROR_MESSAGES}
                                     </span>
@@ -3278,12 +3340,12 @@ const Update_Practice_Details = () => {
                                     </div>
                                   </div>
                                   {requireErrorMessage &&
-                                    (officersForm[index].phoneCountryCodeID ===
+                                  (officersForm[index].phoneCountryCodeID ===
+                                    null ||
+                                    officersForm[index].phoneCountryCodeID ===
                                       null ||
-                                      officersForm[index].phoneCountryCodeID ===
-                                      null ||
-                                      officersForm[index].phoneNo === null ||
-                                      officersForm[index].phoneNo === "") ? (
+                                    officersForm[index].phoneNo === null ||
+                                    officersForm[index].phoneNo === "") ? (
                                     <span className="validation">
                                       {ERROR_MESSAGES}
                                     </span>
@@ -3346,7 +3408,7 @@ const Update_Practice_Details = () => {
                                   />
                                   {requireErrorMessage &&
                                     (officersForm[index].emailID === null ||
-                                      officersForm[index].emailID === "" ? (
+                                    officersForm[index].emailID === "" ? (
                                       <span className="validation">
                                         {ERROR_MESSAGES}
                                       </span>
@@ -3392,10 +3454,10 @@ const Update_Practice_Details = () => {
                                     autoComplete="off"
                                   />
                                   {requireErrorMessage &&
-                                    (concatenatedResidentialAddress[index]
-                                      .officersFullAddress === null ||
-                                      concatenatedResidentialAddress[index]
-                                        .officersFullAddress === "") ? (
+                                  (concatenatedResidentialAddress[index]
+                                    .officersFullAddress === null ||
+                                    concatenatedResidentialAddress[index]
+                                      .officersFullAddress === "") ? (
                                     <span className="validation">
                                       {ERROR_MESSAGES}
                                     </span>
@@ -3415,8 +3477,8 @@ const Update_Practice_Details = () => {
                         <label className="fieldset-group-label required">
                           {basicInfo.businessTypeID ===
                             CLIENT_TYPES.Partnership && (
-                              <>Partnership Details</>
-                            )}{" "}
+                            <>Partnership Details</>
+                          )}{" "}
                         </label>
                         {officersForm?.map((i, index) => {
                           return (
@@ -3517,8 +3579,8 @@ const Update_Practice_Details = () => {
                                     maxLength={20}
                                   />
                                   {requireErrorMessage &&
-                                    (officersForm[index].firstName === null ||
-                                      officersForm[index].firstName === "") ? (
+                                  (officersForm[index].firstName === null ||
+                                    officersForm[index].firstName === "") ? (
                                     <span className="validation">
                                       {ERROR_MESSAGES}
                                     </span>
@@ -3542,8 +3604,12 @@ const Update_Practice_Details = () => {
                                     placeholder="Last Name"
                                     value={
                                       officersForm[index].lastName
-                                        ? officersForm[index].lastName.charAt(0).toUpperCase() +
-                                        officersForm[index].lastName.slice(1).toLowerCase()
+                                        ? officersForm[index].lastName
+                                            .charAt(0)
+                                            .toUpperCase() +
+                                          officersForm[index].lastName
+                                            .slice(1)
+                                            .toLowerCase()
                                         : ""
                                     }
                                     onChange={(e) => {
@@ -3563,8 +3629,8 @@ const Update_Practice_Details = () => {
                                     maxLength={20}
                                   />
                                   {requireErrorMessage &&
-                                    (officersForm[index]?.lastName === null ||
-                                      officersForm[index]?.lastName === "") ? (
+                                  (officersForm[index]?.lastName === null ||
+                                    officersForm[index]?.lastName === "") ? (
                                     <span className="validation">
                                       {ERROR_MESSAGES}
                                     </span>
@@ -3620,12 +3686,12 @@ const Update_Practice_Details = () => {
                                     </div>
                                   </div>
                                   {requireErrorMessage &&
-                                    (officersForm[index].phoneCountryCodeID ===
+                                  (officersForm[index].phoneCountryCodeID ===
+                                    null ||
+                                    officersForm[index].phoneCountryCodeID ===
                                       null ||
-                                      officersForm[index].phoneCountryCodeID ===
-                                      null ||
-                                      officersForm[index].phoneNo === null ||
-                                      officersForm[index].phoneNo === "") ? (
+                                    officersForm[index].phoneNo === null ||
+                                    officersForm[index].phoneNo === "") ? (
                                     <span className="validation">
                                       {ERROR_MESSAGES}
                                     </span>
@@ -3689,7 +3755,7 @@ const Update_Practice_Details = () => {
                                   />
                                   {requireErrorMessage &&
                                     (officersForm[index].emailID === null ||
-                                      officersForm[index].emailID === "" ? (
+                                    officersForm[index].emailID === "" ? (
                                       <span className="validation">
                                         {ERROR_MESSAGES}
                                       </span>
@@ -3736,10 +3802,10 @@ const Update_Practice_Details = () => {
                                     }}
                                   />
                                   {requireErrorMessage &&
-                                    (concatenatedResidentialAddress[index]
-                                      .officersFullAddress === null ||
-                                      concatenatedResidentialAddress[index]
-                                        .officersFullAddress === "") ? (
+                                  (concatenatedResidentialAddress[index]
+                                    .officersFullAddress === null ||
+                                    concatenatedResidentialAddress[index]
+                                      .officersFullAddress === "") ? (
                                     <span className="validation">
                                       {ERROR_MESSAGES}
                                     </span>
@@ -3770,237 +3836,241 @@ const Update_Practice_Details = () => {
 
                     {(basicInfo.businessTypeID === CLIENT_TYPES.Company ||
                       basicInfo.businessTypeID === CLIENT_TYPES.LLP) && (
-                        <div>
-                          {officersForm?.map((i, index) => {
-                            return (
-                              <div
-                                className="fieldset-group"
-                                id={`Officers${index}`}
+                      <div>
+                        {officersForm?.map((i, index) => {
+                          return (
+                            <div
+                              className="fieldset-group"
+                              id={`Officers${index}`}
+                            >
+                              <label class="fieldset-group-label">
+                                {" "}
+                                Officer {index + 1}{" "}
+                              </label>
+                              <label
+                                htmlFor=""
+                                className="fieldset-group-label-1 required"
                               >
-                                <label class="fieldset-group-label">
-                                  {" "}
-                                  Officer {index + 1}{" "}
-                                </label>
-                                <label
-                                  htmlFor=""
-                                  className="fieldset-group-label-1 required"
-                                >
-                                  {officersForm?.length === 1 ? null : (
-                                    <button
-                                      className="btn btn-sm btn-danger gap-1 delete-fieldset-group"
-                                      onClick={() => deleteOfficer(index)}
-                                    >
-                                      <i class="bi bi-trash3 "></i>
-                                      Delete Officer
-                                    </button>
-                                  )}
-                                </label>
-                                <div
-                                  style={{ alignItems: "center" }}
-                                  className="align-right text-right mb-2 "
-                                >
-                                  <Switch
-                                    id="checkbox"
-                                    checked={
-                                      officersForm[index]?.isAuthorisedSignatory
-                                    }
-                                    onChange={(e) => handleSwitchToggle(e, index)}
-                                    color="primary"
-                                  />
-                                  <div
-                                    htmlFor="checkbox"
-                                    className="isAuthorized"
+                                {officersForm?.length === 1 ? null : (
+                                  <button
+                                    className="btn btn-sm btn-danger gap-1 delete-fieldset-group"
+                                    onClick={() => deleteOfficer(index)}
                                   >
-                                    Authorised Signatory
+                                    <i class="bi bi-trash3 "></i>
+                                    Delete Officer
+                                  </button>
+                                )}
+                              </label>
+                              <div
+                                style={{ alignItems: "center" }}
+                                className="align-right text-right mb-2 "
+                              >
+                                <Switch
+                                  id="checkbox"
+                                  checked={
+                                    officersForm[index]?.isAuthorisedSignatory
+                                  }
+                                  onChange={(e) => handleSwitchToggle(e, index)}
+                                  color="primary"
+                                />
+                                <div
+                                  htmlFor="checkbox"
+                                  className="isAuthorized"
+                                >
+                                  Authorised Signatory
+                                </div>
+                              </div>
+                              {officersForm.length === 0 && (
+                                <div className="row fieldset flex-center-div">
+                                  <div className="col-lg-12 text-right">
+                                    <span className="validation">
+                                      {" "}
+                                      At least 1 authorised officer is required.{" "}
+                                    </span>
                                   </div>
                                 </div>
-                                {officersForm.length === 0 && (
+                              )}
+                              {requireErrorMessage &&
+                                AuthorityCount === 0 &&
+                                authoritySignatorySignatory && (
                                   <div className="row fieldset flex-center-div">
                                     <div className="col-lg-12 text-right">
                                       <span className="validation">
                                         {" "}
-                                        At least 1 authorised officer is required.{" "}
+                                        At least 1 authorised officer is
+                                        required.{" "}
                                       </span>
                                     </div>
                                   </div>
                                 )}
-                                {requireErrorMessage &&
-                                  AuthorityCount === 0 &&
-                                  authoritySignatorySignatory && (
-                                    <div className="row fieldset flex-center-div">
-                                      <div className="col-lg-12 text-right">
-                                        <span className="validation">
-                                          {" "}
-                                          At least 1 authorised officer is
-                                          required.{" "}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  )}
-                                <div className="row fieldset">
-                                  <div className="col-md-3 col-sm-12 text-start text-md-end">
-                                    <label class="form-label">
-                                      First Name
-                                      <span style={{ color: "#ec4561" }}>*</span>
-                                    </label>
-                                  </div>
-                                  <div class="col-md-9 col-sm-12 ">
-                                    <input
-                                      type="text"
-                                      style={{ padding: "5px" }}
-                                      id="customerName-field"
-                                      class="input-text"
-                                      placeholder="First Name"
-                                      value={officersForm[index]?.firstName}
-                                      onChange={(e) => {
-                                        const inputValue = e.target.value.trim();
-                                        // Reject input if it contains numeric characters
-                                        // Remove all spaces and dots
-                                        const cleanedValue = inputValue.replace(
-                                          /[.\s]/g,
-                                          ""
-                                        );
-
-                                        // Reject input if it starts with a digit
-                                        if (/\d/.test(cleanedValue)) {
-                                          return;
-                                        }
-                                        const capitalizedValue =
-                                          cleanedValue.charAt(0).toUpperCase() +
-                                          cleanedValue.slice(1);
-
-                                        OnOfficerChange(
-                                          index,
-                                          "firstName",
-                                          capitalizedValue
-                                        );
-                                      }}
-                                      maxLength={20}
-                                    />
-                                    {requireErrorMessage &&
-                                      (officersForm[index].firstName === null ||
-                                        officersForm[index].firstName === "") ? (
-                                      <span className="validation">
-                                        {ERROR_MESSAGES}
-                                      </span>
-                                    ) : (
-                                      ""
-                                    )}
-                                  </div>
-                                  <div className="mb-2"></div>
-
-                                  <div className="col-md-3 col-sm-12 text-start text-md-end">
-                                    <label class="form-label">
-                                      Last Name
-                                      <span style={{ color: "#ec4561" }}>*</span>
-                                    </label>
-                                  </div>
-                                  <div class="col-md-9 col-sm-12 ">
-                                    <input
-                                      type="text"
-                                      style={{ padding: "5px" }}
-                                      id="customerName-field"
-                                      class="input-text"
-                                      placeholder="Last Name"
-                                      value={
-                                        officersForm[index].lastName
-                                          ? officersForm[index].lastName.charAt(0).toUpperCase() +
-                                          officersForm[index].lastName.slice(1).toLowerCase()
-                                          : ""
-                                      }
-                                      onChange={(e) => {
-                                        const inputValue = e.target.value;
-
-                                        // Remove all spaces and dots
-                                        const cleanedValue = inputValue.replace(
-                                          /[.\s]/g,
-                                          ""
-                                        );
-
-                                        // Reject input if it starts with a digit
-                                        if (/\d/.test(cleanedValue)) {
-                                          return;
-                                        }
-
-                                        const capitalizedValue =
-                                          cleanedValue.charAt(0).toUpperCase() +
-                                          cleanedValue.slice(1);
-
-                                        OnOfficerChange(
-                                          index,
-                                          "lastName",
-                                          capitalizedValue
-                                        );
-                                      }}
-                                      maxLength={20}
-                                    />
-                                    {requireErrorMessage &&
-                                      (officersForm[index].lastName === null ||
-                                        officersForm[index].lastName === "") ? (
-                                      <span className="validation">
-                                        {ERROR_MESSAGES}
-                                      </span>
-                                    ) : (
-                                      ""
-                                    )}
-                                  </div>
+                              <div className="row fieldset">
+                                <div className="col-md-3 col-sm-12 text-start text-md-end">
+                                  <label class="form-label">
+                                    First Name
+                                    <span style={{ color: "#ec4561" }}>*</span>
+                                  </label>
                                 </div>
-                                <div className="row fieldset ">
-                                  <div className="col-md-3 col-sm-12 text-start text-md-end">
-                                    <label class="form-label">
-                                      Role
-                                      <span style={{ color: "#ec4561" }}>*</span>
-                                    </label>
-                                  </div>
-                                  <div class="col-md-9 col-sm-12 ">
-                                    <input
-                                      maxLength={30}
-                                      type="text"
-                                      style={{ padding: "5px" }}
-                                      id="customerName-field"
-                                      class="input-text"
-                                      placeholder="Role"
-                                      value={officersForm[index]?.officerRole}
-                                      onChange={(e) =>
-                                        OnOfficerChange(
-                                          index,
-                                          "officerRole",
-                                          e.target.value.charAt(0).toUpperCase() +
+                                <div class="col-md-9 col-sm-12 ">
+                                  <input
+                                    type="text"
+                                    style={{ padding: "5px" }}
+                                    id="customerName-field"
+                                    class="input-text"
+                                    placeholder="First Name"
+                                    value={officersForm[index]?.firstName}
+                                    onChange={(e) => {
+                                      const inputValue = e.target.value.trim();
+                                      // Reject input if it contains numeric characters
+                                      // Remove all spaces and dots
+                                      const cleanedValue = inputValue.replace(
+                                        /[.\s]/g,
+                                        ""
+                                      );
+
+                                      // Reject input if it starts with a digit
+                                      if (/\d/.test(cleanedValue)) {
+                                        return;
+                                      }
+                                      const capitalizedValue =
+                                        cleanedValue.charAt(0).toUpperCase() +
+                                        cleanedValue.slice(1);
+
+                                      OnOfficerChange(
+                                        index,
+                                        "firstName",
+                                        capitalizedValue
+                                      );
+                                    }}
+                                    maxLength={20}
+                                  />
+                                  {requireErrorMessage &&
+                                  (officersForm[index].firstName === null ||
+                                    officersForm[index].firstName === "") ? (
+                                    <span className="validation">
+                                      {ERROR_MESSAGES}
+                                    </span>
+                                  ) : (
+                                    ""
+                                  )}
+                                </div>
+                                <div className="mb-2"></div>
+
+                                <div className="col-md-3 col-sm-12 text-start text-md-end">
+                                  <label class="form-label">
+                                    Last Name
+                                    <span style={{ color: "#ec4561" }}>*</span>
+                                  </label>
+                                </div>
+                                <div class="col-md-9 col-sm-12 ">
+                                  <input
+                                    type="text"
+                                    style={{ padding: "5px" }}
+                                    id="customerName-field"
+                                    class="input-text"
+                                    placeholder="Last Name"
+                                    value={
+                                      officersForm[index].lastName
+                                        ? officersForm[index].lastName
+                                            .charAt(0)
+                                            .toUpperCase() +
+                                          officersForm[index].lastName
+                                            .slice(1)
+                                            .toLowerCase()
+                                        : ""
+                                    }
+                                    onChange={(e) => {
+                                      const inputValue = e.target.value;
+
+                                      // Remove all spaces and dots
+                                      const cleanedValue = inputValue.replace(
+                                        /[.\s]/g,
+                                        ""
+                                      );
+
+                                      // Reject input if it starts with a digit
+                                      if (/\d/.test(cleanedValue)) {
+                                        return;
+                                      }
+
+                                      const capitalizedValue =
+                                        cleanedValue.charAt(0).toUpperCase() +
+                                        cleanedValue.slice(1);
+
+                                      OnOfficerChange(
+                                        index,
+                                        "lastName",
+                                        capitalizedValue
+                                      );
+                                    }}
+                                    maxLength={20}
+                                  />
+                                  {requireErrorMessage &&
+                                  (officersForm[index].lastName === null ||
+                                    officersForm[index].lastName === "") ? (
+                                    <span className="validation">
+                                      {ERROR_MESSAGES}
+                                    </span>
+                                  ) : (
+                                    ""
+                                  )}
+                                </div>
+                              </div>
+                              <div className="row fieldset ">
+                                <div className="col-md-3 col-sm-12 text-start text-md-end">
+                                  <label class="form-label">
+                                    Role
+                                    <span style={{ color: "#ec4561" }}>*</span>
+                                  </label>
+                                </div>
+                                <div class="col-md-9 col-sm-12 ">
+                                  <input
+                                    maxLength={30}
+                                    type="text"
+                                    style={{ padding: "5px" }}
+                                    id="customerName-field"
+                                    class="input-text"
+                                    placeholder="Role"
+                                    value={officersForm[index]?.officerRole}
+                                    onChange={(e) =>
+                                      OnOfficerChange(
+                                        index,
+                                        "officerRole",
+                                        e.target.value.charAt(0).toUpperCase() +
                                           e.target.value.slice(1).toLowerCase()
-                                        )
-                                      }
-                                    />
-                                    {requireErrorMessage &&
-                                      (officersForm[index].officerRole === null ||
-                                        officersForm[index].officerRole === "") ? (
-                                      <span className="validation">
-                                        {ERROR_MESSAGES}
-                                      </span>
-                                    ) : (
-                                      ""
-                                    )}
-                                  </div>
-                                  <div className="mb-2"></div>
-                                  <div className="col-md-3 col-sm-12 text-start text-md-end">
-                                    <label class="form-label text-right">
-                                      Appointed On
-                                      <span style={{ color: "#ec4561" }}>*</span>
-                                    </label>
-                                  </div>
-                                  <div class="col-md-9 col-sm-12">
-                                    <DatePicker
-                                      minDate={minDate}
-                                      maxDate={maxDate}
-                                      format="dd/MM/y"
-                                      dayPlaceholder="dd"
-                                      monthPlaceholder="mm"
-                                      yearPlaceholder="yyyy"
-                                      value={officersForm[index]?.appointedOn}
-                                      onChange={(e) =>
-                                        OnOfficerChange(index, "appointedOn", e)
-                                      }
-                                    />
-                                    {/* {InvalidAppointedOnDate &&
+                                      )
+                                    }
+                                  />
+                                  {requireErrorMessage &&
+                                  (officersForm[index].officerRole === null ||
+                                    officersForm[index].officerRole === "") ? (
+                                    <span className="validation">
+                                      {ERROR_MESSAGES}
+                                    </span>
+                                  ) : (
+                                    ""
+                                  )}
+                                </div>
+                                <div className="mb-2"></div>
+                                <div className="col-md-3 col-sm-12 text-start text-md-end">
+                                  <label class="form-label text-right">
+                                    Appointed On
+                                    <span style={{ color: "#ec4561" }}>*</span>
+                                  </label>
+                                </div>
+                                <div class="col-md-9 col-sm-12">
+                                  <DatePicker
+                                    minDate={minDate}
+                                    maxDate={maxDate}
+                                    format="dd/MM/y"
+                                    dayPlaceholder="dd"
+                                    monthPlaceholder="mm"
+                                    yearPlaceholder="yyyy"
+                                    value={officersForm[index]?.appointedOn}
+                                    onChange={(e) =>
+                                      OnOfficerChange(index, "appointedOn", e)
+                                    }
+                                  />
+                                  {/* {InvalidAppointedOnDate &&
                                       !isValidDate(
                                         officersForm[index]?.appointedOn
                                       ) ? (
@@ -4008,212 +4078,211 @@ const Update_Practice_Details = () => {
                                         Invalid Date
                                       </span>
                                     ) : null} */}
-                                    {requireErrorMessage &&
-                                      (officersForm[index]?.appointedOn === null ||
-                                        officersForm[index]?.appointedOn === "") ? (
-                                      <span className="validation">
-                                        {ERROR_MESSAGES}
-                                      </span>
-                                    ) : (
-                                      ""
-                                    )}
-                                  </div>
+                                  {requireErrorMessage &&
+                                  (officersForm[index]?.appointedOn === null ||
+                                    officersForm[index]?.appointedOn === "") ? (
+                                    <span className="validation">
+                                      {ERROR_MESSAGES}
+                                    </span>
+                                  ) : (
+                                    ""
+                                  )}
                                 </div>
-                                <div class="row fieldset ">
-                                  <div class="col-md-3 col-sm-12 text-start text-md-end ">
-                                    <label class="form-label">Phone</label>
-                                  </div>
-                                  <div className="col-md-9 col-sm-12 ">
-                                    <div className="phone-input-div">
-                                      <Select
-                                        class="phone-input-country-code"
-                                        options={countryCodes}
-                                        value={
-                                          officersForm[index].phoneCountryCodeID
-                                        }
-                                        onChange={(e) => {
-                                          handleOfficerPhoneSelectedValue(
-                                            e,
-                                            index
-                                          );
-                                        }}
-                                      />
-                                      <div className="phone-input-number-div">
-                                        <input
-                                          style={{ width: "100%" }}
-                                          className="input-text"
-                                          type="text"
-                                          placeholder="Phone"
-                                          value={
-                                            officersForm[index].phoneNo || ""
-                                          }
-                                          // onChange={(e) => {
-                                          //   // Ensure that the input only contains numeric characters
-                                          //   const sanitizedInput = e.target.value
-                                          //     .replace(/[^0-9]/g, "")
-                                          //     .slice(0, 15);
-                                          //   OnOfficerChange(
-                                          //     index,
-                                          //     "phoneNo",
-                                          //     sanitizedInput
-                                          //   );
-                                          // }}
-                                          onChange={(e) => {
-                                            // Ensure that the input only contains numeric characters
-                                            const sanitizedInput = e.target.value
-                                              .replace(/\[^0-9\]/g, "")
-                                              .slice(0, 15)
-                                              .trim();
-                                            const updatedPhoneNo =
-                                              sanitizedInput !== ""
-                                                ? sanitizedInput
-                                                : null;
-                                            OnOfficerChange(
-                                              index,
-                                              "phoneNo",
-                                              updatedPhoneNo
-                                            );
-                                          }}
-                                        />
-                                      </div>
-                                    </div>
-                                    {requireErrorMessage &&
-                                      officersForm[index].phoneNo !== null &&
-                                      officersForm[index].phoneNo !== "" &&
-                                      officersForm[index].phoneNo !== undefined &&
-                                      !isValidPhoneNumber(
-                                        officersForm[index].phoneNo
-                                      ) && (
-                                        <span className="validation">
-                                          {" "}
-                                          Invalid phone number{" "}
-                                        </span>
-                                      )}
-                                  </div>
-                                  <div className="mb-2"></div>
-                                  <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                    <label class="form-label">
-                                      Email
-                                      <span className="text-danger">*</span>
-                                    </label>
-                                  </div>
-                                  <div class="col-md-9 col-sm-12">
-                                    <input
-                                      className="input-text"
-                                      type="email"
-                                      maxLength={50}
-                                      placeholder="Email"
-                                      value={officersForm[index]?.emailID}
-                                      onChange={(e) => {
-                                        // Get the entered value
-                                        const enteredValue = e.target.value
-                                          .trim()
-                                          .toLowerCase();
-
-                                        // Check for consecutive dots
-                                        if (enteredValue.includes("..")) {
-                                          // If consecutive dots found, remove the last dot
-                                          const correctedValue =
-                                            enteredValue.replace(/\.+/g, ".");
-                                          // Update the email address in the parent component
-                                          OnOfficerChange(
-                                            index,
-                                            "emailID",
-                                            correctedValue
-                                          );
-                                          return;
-                                        }
-
-                                        // Update the email address in the parent component
-                                        OnOfficerChange(
-                                          index,
-                                          "emailID",
-                                          enteredValue
-                                        );
-                                      }}
-                                    />
-                                    {requireErrorMessage &&
-                                      (officersForm[index].emailID === null ||
-                                        officersForm[index].emailID === "" ? (
-                                        <span className="validation">
-                                          {ERROR_MESSAGES}
-                                        </span>
-                                      ) : (
-                                        !isValidEmail(
-                                          officersForm[index].emailID
-                                        ) && (
-                                          <span className="validation">
-                                            Invalid email pattern
-                                          </span>
-                                        )
-                                      ))}
-                                  </div>
+                              </div>
+                              <div class="row fieldset ">
+                                <div class="col-md-3 col-sm-12 text-start text-md-end ">
+                                  <label class="form-label">Phone</label>
                                 </div>
-                                <div class="row fieldset">
-                                  <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                    <label class="address-label form-label required">
-                                      Correspondence Address
-                                      <span className="text-danger">*</span>
-                                    </label>
-                                  </div>
-                                  <div class="col-md-9 col-sm-12">
-                                    <input
-                                      placeholder="Correspondence Address"
-                                      className="input-text"
-                                      style={{
-                                        padding: "5px",
-                                        cursor: "pointer",
-                                      }}
-                                      type="text"
+                                <div className="col-md-9 col-sm-12 ">
+                                  <div className="phone-input-div">
+                                    <Select
+                                      class="phone-input-country-code"
+                                      options={countryCodes}
                                       value={
-                                        concatenatedResidentialAddress[index]
-                                          ?.officersFullAddress
+                                        officersForm[index].phoneCountryCodeID
                                       }
-                                      onMouseDown={(e) => {
-                                        e.preventDefault();
-                                        setAddressPopUpTitle(
-                                          "Correspondence Address"
-                                        );
-                                        handleOpenRegisterOfficeAddressPopup(
+                                      onChange={(e) => {
+                                        handleOfficerPhoneSelectedValue(
                                           e,
                                           index
                                         );
                                       }}
-                                      autoComplete="off"
                                     />
-                                    {requireErrorMessage &&
-                                      (concatenatedResidentialAddress[index]
-                                        .officersFullAddress === null ||
-                                        concatenatedResidentialAddress[index]
-                                          .officersFullAddress === "") ? (
+                                    <div className="phone-input-number-div">
+                                      <input
+                                        style={{ width: "100%" }}
+                                        className="input-text"
+                                        type="text"
+                                        placeholder="Phone"
+                                        value={
+                                          officersForm[index].phoneNo || ""
+                                        }
+                                        // onChange={(e) => {
+                                        //   // Ensure that the input only contains numeric characters
+                                        //   const sanitizedInput = e.target.value
+                                        //     .replace(/[^0-9]/g, "")
+                                        //     .slice(0, 15);
+                                        //   OnOfficerChange(
+                                        //     index,
+                                        //     "phoneNo",
+                                        //     sanitizedInput
+                                        //   );
+                                        // }}
+                                        onChange={(e) => {
+                                          // Ensure that the input only contains numeric characters
+                                          const sanitizedInput = e.target.value
+                                            .replace(/\[^0-9\]/g, "")
+                                            .slice(0, 15)
+                                            .trim();
+                                          const updatedPhoneNo =
+                                            sanitizedInput !== ""
+                                              ? sanitizedInput
+                                              : null;
+                                          OnOfficerChange(
+                                            index,
+                                            "phoneNo",
+                                            updatedPhoneNo
+                                          );
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                  {requireErrorMessage &&
+                                    officersForm[index].phoneNo !== null &&
+                                    officersForm[index].phoneNo !== "" &&
+                                    officersForm[index].phoneNo !== undefined &&
+                                    !isValidPhoneNumber(
+                                      officersForm[index].phoneNo
+                                    ) && (
+                                      <span className="validation">
+                                        {" "}
+                                        Invalid phone number{" "}
+                                      </span>
+                                    )}
+                                </div>
+                                <div className="mb-2"></div>
+                                <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                  <label class="form-label">
+                                    Email
+                                    <span className="text-danger">*</span>
+                                  </label>
+                                </div>
+                                <div class="col-md-9 col-sm-12">
+                                  <input
+                                    className="input-text"
+                                    type="email"
+                                    maxLength={50}
+                                    placeholder="Email"
+                                    value={officersForm[index]?.emailID}
+                                    onChange={(e) => {
+                                      // Get the entered value
+                                      const enteredValue = e.target.value
+                                        .trim()
+                                        .toLowerCase();
+
+                                      // Check for consecutive dots
+                                      if (enteredValue.includes("..")) {
+                                        // If consecutive dots found, remove the last dot
+                                        const correctedValue =
+                                          enteredValue.replace(/\.+/g, ".");
+                                        // Update the email address in the parent component
+                                        OnOfficerChange(
+                                          index,
+                                          "emailID",
+                                          correctedValue
+                                        );
+                                        return;
+                                      }
+
+                                      // Update the email address in the parent component
+                                      OnOfficerChange(
+                                        index,
+                                        "emailID",
+                                        enteredValue
+                                      );
+                                    }}
+                                  />
+                                  {requireErrorMessage &&
+                                    (officersForm[index].emailID === null ||
+                                    officersForm[index].emailID === "" ? (
                                       <span className="validation">
                                         {ERROR_MESSAGES}
                                       </span>
                                     ) : (
-                                      ""
-                                    )}
-                                  </div>
+                                      !isValidEmail(
+                                        officersForm[index].emailID
+                                      ) && (
+                                        <span className="validation">
+                                          Invalid email pattern
+                                        </span>
+                                      )
+                                    ))}
                                 </div>
                               </div>
-                            );
-                          })}
-
-                          <div className="row fieldset">
-                            <div className="col-lg-12 text-right">
-                              <button
-                                className="btn btn-md btn-primary create-item-btn"
-                                onClick={addOfficer}
-                              >
-                                <i class="bi bi-plus-circle "></i>
-                                <span style={{ paddingLeft: "5px" }}>
-                                  Add Officer
-                                </span>
-                              </button>
+                              <div class="row fieldset">
+                                <div class="col-md-3 col-sm-12 text-start text-md-end">
+                                  <label class="address-label form-label required">
+                                    Correspondence Address
+                                    <span className="text-danger">*</span>
+                                  </label>
+                                </div>
+                                <div class="col-md-9 col-sm-12">
+                                  <input
+                                    placeholder="Correspondence Address"
+                                    className="input-text"
+                                    style={{
+                                      padding: "5px",
+                                      cursor: "pointer",
+                                    }}
+                                    type="text"
+                                    value={
+                                      concatenatedResidentialAddress[index]
+                                        ?.officersFullAddress
+                                    }
+                                    onMouseDown={(e) => {
+                                      e.preventDefault();
+                                      setAddressPopUpTitle(
+                                        "Correspondence Address"
+                                      );
+                                      handleOpenRegisterOfficeAddressPopup(
+                                        e,
+                                        index
+                                      );
+                                    }}
+                                    autoComplete="off"
+                                  />
+                                  {requireErrorMessage &&
+                                  (concatenatedResidentialAddress[index]
+                                    .officersFullAddress === null ||
+                                    concatenatedResidentialAddress[index]
+                                      .officersFullAddress === "") ? (
+                                    <span className="validation">
+                                      {ERROR_MESSAGES}
+                                    </span>
+                                  ) : (
+                                    ""
+                                  )}
+                                </div>
+                              </div>
                             </div>
+                          );
+                        })}
+
+                        <div className="row fieldset">
+                          <div className="col-lg-12 text-right">
+                            <button
+                              className="btn btn-md btn-primary create-item-btn"
+                              onClick={addOfficer}
+                            >
+                              <i class="bi bi-plus-circle "></i>
+                              <span style={{ paddingLeft: "5px" }}>
+                                Add Officer
+                              </span>
+                            </button>
                           </div>
                         </div>
-                      )}
-                  </div>
+                      </div>
+                    )}
                   <span
                     style={{ display: "flex", justifyContent: "center" }}
                     className="validation"
@@ -4230,6 +4299,7 @@ const Update_Practice_Details = () => {
                     >
                       <span> Update Practice Details</span>
                     </button>
+                  </div>
                   </div>
                   {/* end card  */}
                 </div>
@@ -4295,16 +4365,16 @@ const Update_Practice_Details = () => {
             open={modalOpen}
             handleClose={handleCloseModal}
             instructions={instructions}
-          // alertMessage={alertMessage} // Pass alert message to InstructionModal
+            // alertMessage={alertMessage} // Pass alert message to InstructionModal
           />
-        </div>
         {/* End Page-content */}
-
-        <Footer />
-      </div>
+        </div>              
+        
 
       {/* end back-to-top */}
     </div>
+    <Footer />
+    </>
   );
 };
 

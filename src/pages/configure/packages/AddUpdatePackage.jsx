@@ -1,5 +1,5 @@
 /* global $ */
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, lazy } from "react";
 import "./Package.css";
 import Select from "react-select";
 import SuccessModal from "../../../components/SuccessModal";
@@ -17,7 +17,7 @@ import { PackageHeader } from "../../../Middleware/enums";
 import { ERROR_MESSAGES } from "../../../components/GlobalMessage";
 import { useSelector } from "react-redux";
 import { GetProfessionTypeLookupList } from "../../../redux/Services/Master/ProfessionTypeApi";
-import { SelectServices } from "../../../components/SelectServices";
+// import { SelectServices } from "../../../components/SelectServices";
 import { AdditionalInformation } from "../../../components/AdditionalInformation";
 import { GetCalculatedServicesPrice, GetCalculatedServicesPriceByPackages } from "../../../redux/Services/Config/ServicesApi";
 import { GetClientLookupList } from "../../../redux/Services/client/clientAPI";
@@ -34,6 +34,7 @@ import { DeclineSuperAdminChanges } from "../../../redux/Services/Config/Service
 import SAPredefinedChangesNotifyMessageModel from "../../../components/SAPredefinedChangesNotifyMessageModel";
 import RecordsAvailablePopupModel from "../../../components/RecordsAvailablePopupModel";
 import { Message } from "@mui/icons-material";
+const SelectServices = lazy(() => import("../../../components/SelectServices"));
 
 export const BasicInformationComponent = (props) => {
   return (

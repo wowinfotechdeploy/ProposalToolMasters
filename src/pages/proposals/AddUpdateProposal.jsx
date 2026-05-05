@@ -1,5 +1,8 @@
 /* global $ */
 import React, { useContext, useEffect, useRef, useState } from "react";
+import * as pdfjsLib from "pdfjs-dist/build/pdf";
+import pdfWorker from "pdfjs-dist/build/pdf.worker.entry";
+import { lazy, Suspense } from "react";
 import "../configure/packages/Package.css";
 import "./Proposals.css";
 import Select from "react-select";
@@ -37,7 +40,7 @@ import {
   GetProposalLookupList,
 } from "../../redux/Services/client/clientAPI";
 import { ERROR_MESSAGES } from "../../components/GlobalMessage";
-import { SelectServices } from "../../components/SelectServices";
+// import { SelectServices } from "../../components/SelectServices";
 
 import {
   GetTemplateListLookupList,
@@ -45,7 +48,7 @@ import {
   TemplateAvailableData,
 } from "../../redux/Services/Config/TemplateApi";
 import { SelectedProposalCustomize } from "../../components/SelectedProposalCustomize";
-import PreviewComponentPdf from "../../components/PreviewComponentpdf";
+// import PreviewComponentPdf from "../../components/PreviewComponentpdf";
 import { GetOrganisationInformationModel } from "../../redux/Services/Setting/Organisation";
 import {
   AddUpdateQuote,
@@ -66,6 +69,17 @@ import {
   GetProspectSendMailStatus,
   ResendAddUpdateQuote,
 } from "../../redux/Services/EmailFailureStatusAPI/EmailFailureStatusAPI";
+const SelectServices = lazy(() => import("../../components/SelectServices"));
+const PreviewComponentPdf = lazy(
+  () => import("../../components/PreviewComponentpdf"),
+);
+// const PricingTableCustomizationModal = lazy(
+//   () => import("../../components/PricingTableCustomizationModal"),
+// );
+// const PricingTableTemplatesModal = lazy(
+//   () => import("../../components/PricingTableTemplatesModal"),
+// );
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 const BasicInformationComponent = (props) => {
   const navigate = useNavigate();
@@ -12209,6 +12223,9 @@ const Add_Update_Proposal = (props) => {
   const [footerImage, setFooterImage] = useState(null);
   const [headerContent, setHeaderContent] = useState(null);
   const [footerContent, setFooterContent] = useState(null);
+  const [flagForTemplatePdf, setFlagForTemplatePdf] = useState(false);
+  const [awsPdfWidth, setAwsPdfWidth] = useState(null);
+  const [awsPdfHeight, setAwsPdfHeight] = useState(null);
   const [fontSize, setFontSize] = useState("");
   const [isDefaultFirstPage, setIsDefaultFirstPage] = useState(null);
   const [CompanyLogo, setCompanyLogo] = useState(null);
@@ -17097,6 +17114,31 @@ const Add_Update_Proposal = (props) => {
             (item) => item.templateElementTypeID === 10,
           );
           let AddFirstPageHtmlContent = [...ModelData.templateElementList];
+          setFlagForTemplatePdf(ModelData.templateElementList.find(
+            (item) => item.templateElementTypeID === 9)
+          );
+          const pdfElement = ModelData.templateElementList.find(
+            (item) => item.templateElementTypeID === 9
+          );
+          const getPdfDimensions = async (pdfUrl) => {
+            setLoader(true);
+            const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+            setLoader(false);
+            const page = await pdf.getPage(1);
+            const viewport = page.getViewport({ scale: 1 });
+            return {
+              targetWidth: viewport.width,
+              targetHeight: viewport.height
+            };
+          };
+          let targetWidth = 595.28;  // default A4
+          let targetHeight = 841.89; // default A4
+
+          if (pdfElement) {
+            const dimensions = await getPdfDimensions(pdfElement.htmlContent); // htmlContent has the AWS URL
+            setAwsPdfWidth(dimensions.targetWidth);
+            setAwsPdfHeight(dimensions.targetHeight);
+          }
 
           if (!isAddedFirstPage) {
             const firstPageElement = {
@@ -20646,39 +20688,41 @@ const Add_Update_Proposal = (props) => {
                  
               )} */}
               {activeTab === ProposalHeader.SelectServices && (
-                <SelectServices
-                  selectedProposalValue={selectedProposalValue}
-                  ongoingServiceObj={ongoingServiceObj}
-                  setOngoingServiceObj={setOngoingServiceObj}
-                  OneOffServiceObj={OneOffServiceObj}
-                  hasHyphenAfterNumber={hasHyphenAfterNumber}
-                  setOneOffServiceObj={setOneOffServiceObj}
-                  handleCancel={handleCancelBtn}
-                  handleSaveAsDraft={handleSaveAsDraft}
-                  serviceList={serviceList}
-                  DisableTabOnChange={DisableTabOnChange}
-                  errorMessage={errorMessage}
-                  recurringServiceList={recurringServiceList}
-                  oneOffServiceList={oneOffServiceList}
-                  setOneOffPricingInfo={setOneOffPricingInfo}
-                  RecurringPricingInfo={RecurringPricingInfo}
-                  OneOffPricingInfo={OneOffPricingInfo}
-                  OneOffPricingInfoCopy={OneOffPricingInfoCopy}
-                  setRecurringPricingInfo={setRecurringPricingInfo}
-                  setOneOffServiceList={setOneOffServiceList}
-                  setRecurringServiceList={setRecurringServiceList}
-                  requireServiceValidation={requireServiceValidation}
-                  setRequireServiceValidation={setRequireServiceValidation}
-                  HandleTabChange={HandleTabChange}
-                  HandleBack={HandleBack}
-                  setRequireMessage={setRequireMessage}
-                  ProposalObject={ProposalObject}
-                  TabHide={TabHide}
-                  getCrudButtonTextName={getCrudButtonTextName}
-                  moduleName={"Quote"}
-                  requireMessage={requireMessage}
-                  proposalName={proposalName}
-                />
+                <Suspense>
+                  <SelectServices
+                    selectedProposalValue={selectedProposalValue}
+                    ongoingServiceObj={ongoingServiceObj}
+                    setOngoingServiceObj={setOngoingServiceObj}
+                    OneOffServiceObj={OneOffServiceObj}
+                    hasHyphenAfterNumber={hasHyphenAfterNumber}
+                    setOneOffServiceObj={setOneOffServiceObj}
+                    handleCancel={handleCancelBtn}
+                    handleSaveAsDraft={handleSaveAsDraft}
+                    serviceList={serviceList}
+                    DisableTabOnChange={DisableTabOnChange}
+                    errorMessage={errorMessage}
+                    recurringServiceList={recurringServiceList}
+                    oneOffServiceList={oneOffServiceList}
+                    setOneOffPricingInfo={setOneOffPricingInfo}
+                    RecurringPricingInfo={RecurringPricingInfo}
+                    OneOffPricingInfo={OneOffPricingInfo}
+                    OneOffPricingInfoCopy={OneOffPricingInfoCopy}
+                    setRecurringPricingInfo={setRecurringPricingInfo}
+                    setOneOffServiceList={setOneOffServiceList}
+                    setRecurringServiceList={setRecurringServiceList}
+                    requireServiceValidation={requireServiceValidation}
+                    setRequireServiceValidation={setRequireServiceValidation}
+                    HandleTabChange={HandleTabChange}
+                    HandleBack={HandleBack}
+                    setRequireMessage={setRequireMessage}
+                    ProposalObject={ProposalObject}
+                    TabHide={TabHide}
+                    getCrudButtonTextName={getCrudButtonTextName}
+                    moduleName={"Quote"}
+                    requireMessage={requireMessage}
+                    proposalName={proposalName}
+                  />
+              </Suspense>
               )}
               {activeTab === ProposalHeader.SelectPackages && (
                 <SelectedProposalCustomize
@@ -20902,86 +20946,91 @@ const Add_Update_Proposal = (props) => {
                 />
               )}
               {activeTab === ProposalHeader.Preview && (
-                <PreviewComponentPdf
-                  isDefaultFirstPage={isDefaultFirstPage}
-                  DocumentCode={DocumentCode}
-                  setIsAddUpdatePricingActionDone={
-                    setIsAddUpdatePricingActionDone
-                  }
-                  isAddUpdatePricingActionDone={isAddUpdatePricingActionDone}
-                  paymentGatewayObj={paymentGatewayObj}
-                  BrandColor={BrandColor}
-                  common={common}
-                  Logo={CompanyLogo}
-                  fontFamily={fontFamily}
-                  fontSize={fontSize}
-                  StatementOfFact={StatementOfFact}
-                  DisableTabOnChange={DisableTabOnChange}
-                  handleSaveAsDraft={handleSaveAsDraft}
-                  HandleTabChange={HandleTabChange}
-                  handleCancelBtn={handleCancelBtn}
-                  DiscountLines={ProposalObject.DiscountLines}
-                  handleSkipEngagementLetter={handleSkipEngagementLetter}
-                  RecurringPackagesTable={RecurringPackagesTable}
-                  setRecurringPackagesTable={setRecurringPackagesTable}
-                  OneOffPackagesTable={OneOffPackagesTable}
-                  selectedPackagesList={selectedPackagesList}
-                  setOneOffPackagesTable={setOneOffPackagesTable}
-                  ProposalObject={ProposalObject}
-                  MergePdfUrl={MergePdfUrl}
-                  additionalInformationList={additionalInformationList}
-                  setMergePdfUrl={setMergePdfUrl}
-                  vatPercentage={vatPercentage}
-                  currencyID={currencyID}
-                  taxName={taxName}
-                  currencySymbol={currencySymbol}
-                  feeTypeId={ProposalObject.feeTypeId}
-                  pricingSettingObj={pricingSettingObj}
-                  selectedRecurringServiceList={selectedRecurringServiceList}
-                  selectedOneOffServiceList={selectedOneOffServiceList}
-                  templateElementList={templateElementList}
-                  organisationData={organisationData}
-                  moduleName={"Quote"}
-                  RecurringPricingInfo={RecurringPricingInfo}
-                  OneOffPricingInfo={OneOffPricingInfo}
-                  selectedPackages={selectedPackagesDetails}
-                  setProposalObject={setProposalObject}
-                  requireMessage={requireMessage}
-                  setRequireMessage={setRequireMessage}
-                  lastPaymentFrequencyAndDiscountedPriceForPreview={
-                    lastPaymentFrequencyAndDiscountedPriceForPreview
-                  }
-                  formatValueWithoutCurrencySymbol_v1={
-                    formatValueWithoutCurrencySymbol_v1
-                  }
-                  formatValue={formatValue}
-                  formatValueWithoutCurrencySymbol={
-                    formatValueWithoutCurrencySymbol
-                  }
-                  setLastPaymentFrequencyAndDiscountedPriceForPreview={
-                    setLastPaymentFrequencyAndDiscountedPriceForPreview
-                  }
-                  setLastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
-                    setLastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
-                  }
-                  lastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
-                    lastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
-                  }
-                  proposalName={proposalName}
-                  headerContent={headerContent}
-                  footerContent={footerContent}
-                  headerImage={headerImage}
-                  footerImage={footerImage}
-                  headerHeight={headerHeight}
-                  footerHeight={footerHeight}
-                  showSeparatorLines={showSeparatorLines}
-                  setServiceDescriptionHTML={setServiceDescriptionHTML}
-                  serviceDescriptionHTML={serviceDescriptionHTML}
-                  setStatementOfFactsHTML={setStatementOfFactsHTML}
-                  statementOfFactsHTML={statementOfFactsHTML}
-                  statementOfFactsObj={statementOfFactsObj}
-                  serviceDescriptionObj={serviceDescriptionObj}
-                />
+                <Suspense>
+                  <PreviewComponentPdf
+                    isDefaultFirstPage={isDefaultFirstPage}
+                    flagForTemplatePdf={flagForTemplatePdf}
+                    awsPdfHeight={awsPdfHeight}
+                    awsPdfWidth={awsPdfWidth}
+                    DocumentCode={DocumentCode}
+                    setIsAddUpdatePricingActionDone={
+                      setIsAddUpdatePricingActionDone
+                    }
+                    isAddUpdatePricingActionDone={isAddUpdatePricingActionDone}
+                    paymentGatewayObj={paymentGatewayObj}
+                    BrandColor={BrandColor}
+                    common={common}
+                    Logo={CompanyLogo}
+                    fontFamily={fontFamily}
+                    fontSize={fontSize}
+                    StatementOfFact={StatementOfFact}
+                    DisableTabOnChange={DisableTabOnChange}
+                    handleSaveAsDraft={handleSaveAsDraft}
+                    HandleTabChange={HandleTabChange}
+                    handleCancelBtn={handleCancelBtn}
+                    DiscountLines={ProposalObject.DiscountLines}
+                    handleSkipEngagementLetter={handleSkipEngagementLetter}
+                    RecurringPackagesTable={RecurringPackagesTable}
+                    setRecurringPackagesTable={setRecurringPackagesTable}
+                    OneOffPackagesTable={OneOffPackagesTable}
+                    selectedPackagesList={selectedPackagesList}
+                    setOneOffPackagesTable={setOneOffPackagesTable}
+                    ProposalObject={ProposalObject}
+                    MergePdfUrl={MergePdfUrl}
+                    additionalInformationList={additionalInformationList}
+                    setMergePdfUrl={setMergePdfUrl}
+                    vatPercentage={vatPercentage}
+                    currencyID={currencyID}
+                    taxName={taxName}
+                    currencySymbol={currencySymbol}
+                    feeTypeId={ProposalObject.feeTypeId}
+                    pricingSettingObj={pricingSettingObj}
+                    selectedRecurringServiceList={selectedRecurringServiceList}
+                    selectedOneOffServiceList={selectedOneOffServiceList}
+                    templateElementList={templateElementList}
+                    organisationData={organisationData}
+                    moduleName={"Quote"}
+                    RecurringPricingInfo={RecurringPricingInfo}
+                    OneOffPricingInfo={OneOffPricingInfo}
+                    selectedPackages={selectedPackagesDetails}
+                    setProposalObject={setProposalObject}
+                    requireMessage={requireMessage}
+                    setRequireMessage={setRequireMessage}
+                    lastPaymentFrequencyAndDiscountedPriceForPreview={
+                      lastPaymentFrequencyAndDiscountedPriceForPreview
+                    }
+                    formatValueWithoutCurrencySymbol_v1={
+                      formatValueWithoutCurrencySymbol_v1
+                    }
+                    formatValue={formatValue}
+                    formatValueWithoutCurrencySymbol={
+                      formatValueWithoutCurrencySymbol
+                    }
+                    setLastPaymentFrequencyAndDiscountedPriceForPreview={
+                      setLastPaymentFrequencyAndDiscountedPriceForPreview
+                    }
+                    setLastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
+                      setLastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
+                    }
+                    lastPaymentFrequencyAndDiscountedPriceForPreviewForoneoff={
+                      lastPaymentFrequencyAndDiscountedPriceForPreviewForOneOff
+                    }
+                    proposalName={proposalName}
+                    headerContent={headerContent}
+                    footerContent={footerContent}
+                    headerImage={headerImage}
+                    footerImage={footerImage}
+                    headerHeight={headerHeight}
+                    footerHeight={footerHeight}
+                    showSeparatorLines={showSeparatorLines}
+                    setServiceDescriptionHTML={setServiceDescriptionHTML}
+                    serviceDescriptionHTML={serviceDescriptionHTML}
+                    setStatementOfFactsHTML={setStatementOfFactsHTML}
+                    statementOfFactsHTML={statementOfFactsHTML}
+                    statementOfFactsObj={statementOfFactsObj}
+                    serviceDescriptionObj={serviceDescriptionObj}
+                  />
+                </Suspense>
               )}
             </div>
           </div>

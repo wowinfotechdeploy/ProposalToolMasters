@@ -54,18 +54,20 @@ const CouponCodeList = () => {
     userAccessData,
     formatValue,
     formatValueWithoutCurrencySymbol,
-    activeOrganizationSubscriptionPlan
+    activeOrganizationSubscriptionPlan,
+    isSubscriptionLoading
   } = useContext(AuthContextProvider);
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
   // B] Initial useEffect :
   // 1) Will Call Initial Api Like List Api
   useEffect(() => {
+    if (isSubscriptionLoading || !activeOrganizationSubscriptionPlan) return;
     if (!activeOrganizationSubscriptionPlan?.apiIntegration) {
       navigate(-1); // Redirect to the previous page
     }
     setTopbar("block");
     GetCouponCodeListData(1);
-  }, []);
+  }, [isSubscriptionLoading, activeOrganizationSubscriptionPlan]);
 
   //2) This useEffect will trigger when we successfully add or update record from popup model
   useEffect(() => {
@@ -217,16 +219,23 @@ const CouponCodeList = () => {
   }
   //Design part :
   return (
-    <div>
-      <div className="main-content">
-        <div className="services page-background">
-          <div className="page-info-header page-info-strip">
-            <div className="container">
-              <div className="row">
-                <div className="col-md-6 col-6">
+    <div className="container-fluid">
+      {/* <div class="main-content"> */}
+        <div class="services page-background">
+          <div class="">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card">
+                  {/* end card header  */}
+                  <div class="card-body mb-2">
+                    <div id="customerList" style={{ marginTop: "3rem" }}>
+                      <div class="bg-light border-bottom px-2">
+                        {/* <div className="container"> */}
+                          <div className="row">
+                            <div className="col-md-6 p-0 justify-content-start d-flex align-items-center">
                   <div class="page-title-cls">Coupons</div>
                 </div>
-                <div className="col-md-6 col-6">
+                <div className="col-auto ms-auto">
                   <div className="d-flex justify-content-sm-end add-new-btn">
                     {/* {userAccessData.Admin_Setting_CouponCodeCanAdd && */}
                     {common.organisationKeyID !== null && (
@@ -241,16 +250,16 @@ const CouponCodeList = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            {/* </div> */}
           </div>
-          <div class="container">
+          <div class="">
             <div class="row">
               <div class="col-lg-12">
                 <div class="card">
                   <div class="card-body">
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card  mb-3 table-padding">
+                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
                         {/* <div class="search-box col-md-4 col-8 width-searchbox mb-2">
                           <i class="ri-search-line search-icon"></i>
                           <input
@@ -497,6 +506,11 @@ const CouponCodeList = () => {
               modelRequestData={modelRequestData}
             />
           </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
         </div>
 
         <Footer />

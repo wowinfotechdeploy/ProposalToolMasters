@@ -383,16 +383,22 @@ function SuperAdminReminderTemplateList() {
     );
   };
   return (
-    <div className="container">
-      <div class="main-content">
+    <div className="container-fluid">
+      {/* <div class="main-content"> */}
         <div class="services page-background">
-          <div class="page-info-header page-info-strip">
-            <div class="container">
-              <div className="row">
+          <div class="">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card">
+                  {/* end card header  */}
+                  <div class="card-body mb-2">
+                    <div id="customerList" style={{ marginTop: "3rem" }}>
+                      <div class="bg-light border-bottom px-2">
+                          <div className="row">
                 <div className="col-md-7 col-6">
                   <div class="page-title-cls">{moduleName}</div>
                 </div>
-                <div className="col-md-5 col-6">
+                <div className="col-auto ms-auto">
                   <div className="d-flex justify-content-sm-end add-new-btn">
                     {userAccessData.SuperAdmin_Setting_Email_Template_CanAdd && (
                       <CommonButtonComponent
@@ -403,7 +409,6 @@ function SuperAdminReminderTemplateList() {
                     )}
                   </div>
                 </div>
-              </div>
             </div>
           </div>
           <div>
@@ -415,7 +420,7 @@ function SuperAdminReminderTemplateList() {
                   <div class="card-body">
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card  mb-3 table-padding">
+                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
                         <div class="search-box ms-2 width-searchbox">
                           <div className="row">
                             <div className="col-lg-12 col-md-12 col-sm-12 ">
@@ -835,9 +840,14 @@ function SuperAdminReminderTemplateList() {
           TemplateType={TemplateType}
           setTemplateType={setTemplateType}
         />
-        <Footer />
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
       </div>
       {/* end back-to-top */}
+      <Footer />
     </div>
   );
 }
