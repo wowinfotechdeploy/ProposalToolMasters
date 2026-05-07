@@ -36,6 +36,8 @@ function AcceptInvitation() {
   const [fontFamily, setFontFamily] = useState("");
   const [fontSize, setFontSize] = useState("");
   const [showSeparatorLines,setShowSeparatorLines] = useState(null);
+  const [watermarkImage, setWatermarkImage] = useState(null);
+  const [orientationID, setOrientationID] = useState(1);
   const [recurringServiceCatList, setRecurringServiceCatList] = useState([]);
   const [oneOffServiceCatList, setOneOffServiceCatList] = useState([]);
   const [serviceDescriptionList, setServiceDescriptionList] = useState([]);
@@ -59,6 +61,7 @@ function AcceptInvitation() {
   const [FooterHeight, setFooterHeight] = useState(null);
   const [HeaderImage, setHeaderImage] = useState(null);
   const [FooterImage, setFooterImage] = useState(null);
+  const [orgkeyId, setOrgkeyId] = useState("");
   const imgTag = `<img src="${BrandLogo}" alt="Logo" style="display: none; margin: 0 auto 15px;">`;
 
   const [contractSignatoriesList, setContractSignatoriesList] = useState([]);
@@ -1668,12 +1671,15 @@ function AcceptInvitation() {
     }
   }, [generatePdfData, organisationData]);
 
-  const GetTemplateLookupListData = async (ClientId, QuoteId) => {
+  const GetTemplateLookupListData = async (QuoteId, OrganisationKeyID) => {
     setLoader(true);
     try {
       const response = await GetTemplateListLookupList({
         TemplateTypeID: 2,
-        organisationKeyID: common.organisationKeyID,
+        organisationKeyID:
+          common.organisationKeyID === ""
+            ? OrganisationKeyID
+            : common.organisationKeyID,
         QuoteKeyID: quoteKeyID,
       });
       const data = response.data;
@@ -1694,6 +1700,8 @@ function AcceptInvitation() {
           headerContent: item.headerContent,
           footerContent: item.footerContent,
           showSeparatorLines: Boolean(item.showSeparatorLines),
+          watermarkImage: item.watermarkImage,
+          orientationID: item.orientationID,
         }));
         // setTemplateLookUpOptions(mappedOptions);
         // const isSelectedDefault = data.responseData.data.filter(
@@ -1708,6 +1716,8 @@ function AcceptInvitation() {
         setHeaderHeight(mappedOptions[0]?.headerHeight);
         setFooterHeight(mappedOptions[0]?.footerHeight);
         setShowSeparatorLines(mappedOptions[0]?.showSeparatorLines);
+        setWatermarkImage(isSelectedDefault[0]?.watermarkImage);
+        setOrientationID(isSelectedDefault[0]?.orientationID);
       } else {
         setLoader(false);
         console.error("Error fetching data from the API");
@@ -2056,14 +2066,17 @@ function AcceptInvitation() {
               currencyID: ModelData.organisationDetails?.currencyID
             },
           ];
-
+          setOrgkeyId(ModelData.organisationDetails.organisationKeyID);
           // // Set updated organization data
           setOrganisationData({
             otherInformation: updatedOtherInformation,
           });
           setChargeTypeId1Array(chargeTypeId1Array);
           setChargeTypeId2Array(chargeTypeId2Array);
-          await GetTemplateLookupListData(ModelData.quoteKeyID);
+          await GetTemplateLookupListData(
+            ModelData.quoteKeyID,
+            ModelData.organisationDetails.organisationKeyID,
+          );
           GetTemplateModalData(
             ModelData.templateKeyID,
             ModelData.clientID,

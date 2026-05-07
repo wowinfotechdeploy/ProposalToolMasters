@@ -3146,7 +3146,11 @@ const ReviewServicesComponent = (props) => {
                           ? d.slabTypeID === 2
                             ? formatCurrency(d.value)
                             : `${d.slabFrom}-${d.slabTo}`
-                          : ""
+                          : d.driverTypeID === 5
+                            ? d.enteredText
+                            : d.driverTypeID === 6
+                              ? d.enteredDate
+                              : ""
                   }</strong>
                 </li>
               `,
@@ -3204,7 +3208,11 @@ const ReviewServicesComponent = (props) => {
                           ? d.slabTypeID === 2
                             ? formatCurrency(d.value)
                             : `${d.slabFrom}-${d.slabTo}`
-                          : ""
+                          : d.driverTypeID === 5
+                            ? d.enteredText
+                            : d.driverTypeID === 6
+                              ? d.enteredDate
+                              : ""
                   }</strong>
                 </li>
               `,
@@ -3237,7 +3245,11 @@ const ReviewServicesComponent = (props) => {
                              : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                  d.slabTo,
                                )}`
-                           : ""
+                           : d.driverTypeID === 5
+                             ? d.enteredText
+                             : d.driverTypeID === 6
+                               ? d.enteredDate
+                               : ""
                    }</strong>
                  </p>
                `,
@@ -3315,7 +3327,11 @@ const ReviewServicesComponent = (props) => {
                                 : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                     d.slabTo,
                                   )}`
-                            : ""
+                            : d.driverTypeID === 5
+                              ? d.enteredText
+                              : d.driverTypeID === 6
+                                ? d.enteredDate
+                                : ""
                     }</strong>
                   </li>
                 `,
@@ -3392,7 +3408,11 @@ const ReviewServicesComponent = (props) => {
                                 : `${formatCurrency(d.slabFrom)}-${formatCurrency(
                                     d.slabTo,
                                   )}`
-                            : ""
+                            : d.driverTypeID === 5
+                              ? d.enteredText
+                              : d.driverTypeID === 6
+                                ? d.enteredDate
+                                : ""
                     }</strong>
                   </li>
                 `,
@@ -3421,12 +3441,26 @@ const ReviewServicesComponent = (props) => {
                    return `<p style="color: black; font-size: ${fontSizeContent};">${
                      d.driverName
                    }: <strong>${formatCurrency(d.driverValue)}</strong></p>`;
-                 } else {
-                   const source = d.driverTypeID === 4 ? d.slab : d.variation;
-                   return source
-                     ?.filter((item) => item.isDefault)
-                     .map(
-                       (sub) => `
+                 }
+                 // else {
+                 // Type 5 – Text
+                 if (d.driverTypeID === 5) {
+                   return `<p style="color:black;font-size:${fontSizeContent};">
+      ${d.driverName}: <strong>${d.enteredText}</strong>
+    </p>`;
+                 }
+
+                 // Type 6 – Date
+                 if (d.driverTypeID === 6) {
+                   return `<p style="color:black;font-size:${fontSizeContent};">
+      ${d.driverName}: <strong>${d.enteredDate}</strong>
+    </p>`;
+                 }
+                 const source = d.driverTypeID === 4 ? d.slab : d.variation;
+                 return source
+                   ?.filter((item) => item.isDefault)
+                   .map(
+                     (sub) => `
                    <p style="color: black; font-size: ${fontSizeContent};">
                      ${d.driverName}: ${
                        d.driverTypeID === 4
@@ -3439,9 +3473,9 @@ const ReviewServicesComponent = (props) => {
                      }
                    </p>
                  `,
-                     )
-                     .join("");
-                 }
+                   )
+                   .join("");
+                 //  }
                })
                .join("")}`
             : ""
@@ -3468,7 +3502,11 @@ const ReviewServicesComponent = (props) => {
                            : `${formatCurrency(d.slabFrom)} - ${formatCurrency(
                                d.slabTo,
                              )}`
-                         : ""
+                         : d.driverTypeID === 5
+                           ? d.enteredText
+                           : d.driverTypeID === 6
+                             ? d.enteredDate
+                             : ""
                  }</strong>
                </p>
              `,
