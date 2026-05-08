@@ -4536,15 +4536,9 @@ const ReviewPackagesComponent = (props) => {
   function generateSOFHTML() {
     const fontFamily = "Arial, sans-serif";
     const fontSizeHeading = "18px";
-    const rucurringHeadingFontSize = props?.statementOfFactsObj
-      .recurringOnGoingHeadingFontSize
-      ? props?.statementOfFactsObj.recurringOnGoingHeadingFontSize
-      : "18px";
-    const oneOffHeadingFontSize = props?.statementOfFactsObj.oneOffAdhocFontSize
-      ? props?.statementOfFactsObj.oneOffAdhocFontSize
-      : "18px";
     const fontSizeContent = "14px";
     const newColorCode = "#b4aba6";
+    
 
     const formatCurrency = props.formatValueWithoutCurrencySymbol;
 
@@ -4562,20 +4556,7 @@ const ReviewPackagesComponent = (props) => {
         
         ${
           SelectedPackage.reccuring.length
-            ? props?.statementOfFactsObj?.recurringOnGoingHeading !== null &&
-              props?.statementOfFactsObj?.recurringOnGoingHeading !==
-                undefined &&
-              props?.statementOfFactsObj?.recurringOnGoingHeading !== ""
-              ? `<p style="font-size: ${rucurringHeadingFontSize}; color: ${newColorCode}; font-weight: ${
-                  props?.statementOfFactsObj?.recurringOnGoingHeadingIsBold
-                    ? "bold"
-                    : "normal"
-                }; font-style: ${
-                  props?.statementOfFactsObj?.recurringOnGoingHeadingIsItalic
-                    ? "italic"
-                    : undefined
-                };">${props?.statementOfFactsObj?.recurringOnGoingHeading}</p>`
-              : ""
+            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">Ongoing/Recurring Services</p>`
             : ""
         }
 
@@ -4624,19 +4605,7 @@ const ReviewPackagesComponent = (props) => {
 
         ${
           SelectedPackage.oneOff.length
-            ? props?.statementOfFactsObj?.oneOffAdhocHeading !== null &&
-              props?.statementOfFactsObj?.oneOffAdhocHeading !== undefined &&
-              props?.statementOfFactsObj?.oneOffAdhocHeading !== ""
-              ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: ${
-                  props?.statementOfFactsObj?.oneOffAdhocHeadingIsBold
-                    ? "bold"
-                    : "normal"
-                }; font-style: ${
-                  props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic
-                    ? "italic"
-                    : undefined
-                };">${props?.statementOfFactsObj?.oneOffAdhocHeading}</p>`
-              : ""
+            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">One-Off/Ad hoc Services</p>`
             : ""
         }
 
@@ -4723,20 +4692,7 @@ const ReviewPackagesComponent = (props) => {
       <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};">
         ${
           props?.selectedRecurringServiceList?.length
-            ? props?.statementOfFactsObj?.recurringOnGoingHeading !== null &&
-              props?.statementOfFactsObj?.recurringOnGoingHeading !==
-                undefined &&
-              props?.statementOfFactsObj?.recurringOnGoingHeading !== ""
-              ? `<p style="font-size: ${rucurringHeadingFontSize}; color: ${newColorCode}; font-weight: ${
-                  props?.statementOfFactsObj?.recurringOnGoingHeadingIsBold
-                    ? "bold"
-                    : "normal"
-                }; font-style: ${
-                  props?.statementOfFactsObj?.recurringOnGoingHeadingIsItalic
-                    ? "italic"
-                    : undefined
-                };">${props?.statementOfFactsObj?.recurringOnGoingHeading}</p>`
-              : ""
+            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">Ongoing/Recurring Services</p>`
             : ""
         }
 
@@ -4805,19 +4761,7 @@ const ReviewPackagesComponent = (props) => {
 
         ${
           props?.selectedOneOffServiceList?.length
-            ? props?.statementOfFactsObj?.oneOffAdhocHeading !== null &&
-              props?.statementOfFactsObj?.oneOffAdhocHeading !== undefined &&
-              props?.statementOfFactsObj?.oneOffAdhocHeading !== ""
-              ? `<p style="font-size: ${oneOffHeadingFontSize}; color: ${newColorCode}; font-weight: ${
-                  props?.statementOfFactsObj?.oneOffAdhocHeadingIsBold
-                    ? "bold"
-                    : "normal"
-                }; font-style: ${
-                  props?.statementOfFactsObj?.oneOffAdhocHeadingIsItalic
-                    ? "italic"
-                    : undefined
-                };">${props?.statementOfFactsObj?.oneOffAdhocHeading}</p>`
-              : ""
+            ? `<p style="font-size: ${fontSizeHeading}; color: ${newColorCode}; font-weight: bold;">One-Off/Ad hoc Services</p>`
             : ""
         }
 
@@ -4900,20 +4844,21 @@ const ReviewPackagesComponent = (props) => {
                      d.driverName
                    }: <strong>${formatCurrency(d.driverValue)}</strong></p>`;
                  }
+                 //  else {
 
-                 if (d.driverTypeID === 5 && d.enteredText) {
+                 // Type 5 – Text
+                 if (d.driverTypeID === 5) {
                    return `<p style="color:black;font-size:${fontSizeContent};">
       ${d.driverName}: <strong>${d.enteredText}</strong>
     </p>`;
                  }
 
                  // Type 6 – Date
-                 if (d.driverTypeID === 6 && d.enteredDate) {
+                 if (d.driverTypeID === 6) {
                    return `<p style="color:black;font-size:${fontSizeContent};">
       ${d.driverName}: <strong>${d.enteredDate}</strong>
     </p>`;
                  }
-
                  const source = d.driverTypeID === 4 ? d.slab : d.variation;
                  return source
                    ?.filter((item) => item.isDefault)
@@ -4933,6 +4878,7 @@ const ReviewPackagesComponent = (props) => {
                  `,
                    )
                    .join("");
+                 //  }
                })
                .join("")}`
             : ""
