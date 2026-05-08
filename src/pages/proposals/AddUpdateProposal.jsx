@@ -16629,6 +16629,7 @@ const Add_Update_Proposal = (props) => {
     clientID,
     templateID,
   ) => {
+    debugger;
     setLoader(true);
     try {
       const response = await GetTemplateListLookupList({
@@ -16971,45 +16972,52 @@ const Add_Update_Proposal = (props) => {
         }));
         setServiceDescriptionObj((prev) => ({
           ...prev,
-          mainHeading: defaultTemplateObject?.mainHeadingSD,
+          mainHeading: defaultTemplateOptions?.[0]?.mainHeadingSD,
           recurringOnGoingHeading:
-            defaultTemplateObject?.recurringOnGoingHeadingSD,
-          oneOffAdhocHeading: defaultTemplateObject?.oneOffAdhocHeadingSD,
-          mainHeadingFontSize: defaultTemplateObject?.mainHeadingFontSizeSD,
+            defaultTemplateOptions?.[0]?.recurringOnGoingHeadingSD,
+          oneOffAdhocHeading: defaultTemplateOptions?.[0]?.oneOffAdhocHeadingSD,
+          mainHeadingFontSize:
+            defaultTemplateOptions?.[0]?.mainHeadingFontSizeSD,
           recurringOnGoingHeadingFontSize:
-            defaultTemplateObject?.recurringOnGoingHeadingFontSizeSD,
-          oneOffAdhocFontSize: defaultTemplateObject?.oneOffAdhocFontSizeSD,
-          mainHeadingIsBold: defaultTemplateObject?.mainHeadingIsBoldSD,
-          mainHeadingIsItalic: defaultTemplateObject?.mainHeadingIsItalicSD,
+            defaultTemplateOptions?.[0]?.recurringOnGoingHeadingFontSizeSD,
+          oneOffAdhocFontSize:
+            defaultTemplateOptions?.[0]?.oneOffAdhocFontSizeSD,
+          mainHeadingIsBold: defaultTemplateOptions?.[0]?.mainHeadingIsBoldSD,
+          mainHeadingIsItalic:
+            defaultTemplateOptions?.[0]?.mainHeadingIsItalicSD,
           recurringOnGoingHeadingIsBold:
-            defaultTemplateObject?.recurringOnGoingHeadingIsBoldSD,
+            defaultTemplateOptions?.[0]?.recurringOnGoingHeadingIsBoldSD,
           recurringOnGoingHeadingIsItalic:
-            defaultTemplateObject?.recurringOnGoingHeadingIsItalicSD,
+            defaultTemplateOptions?.[0]?.recurringOnGoingHeadingIsItalicSD,
           oneOffAdhocHeadingIsBold:
-            defaultTemplateObject?.oneOffAdhocHeadingIsBoldSD,
+            defaultTemplateOptions?.[0]?.oneOffAdhocHeadingIsBoldSD,
           oneOffAdhocHeadingIsItalic:
-            defaultTemplateObject?.oneOffAdhocHeadingIsItalicSD,
+            defaultTemplateOptions?.[0]?.oneOffAdhocHeadingIsItalicSD,
         }));
         setStatementOfFactsObj((prev) => ({
           ...prev,
-          mainHeading: defaultTemplateObject?.mainHeadingSOF,
+          mainHeading: defaultTemplateOptions?.[0]?.mainHeadingSOF,
           recurringOnGoingHeading:
-            defaultTemplateObject?.recurringOnGoingHeadingSOF,
-          oneOffAdhocHeading: defaultTemplateObject?.oneOffAdhocHeadingSOF,
-          mainHeadingFontSize: defaultTemplateObject?.mainHeadingFontSizeSOF,
+            defaultTemplateOptions?.[0]?.recurringOnGoingHeadingSOF,
+          oneOffAdhocHeading:
+            defaultTemplateOptions?.[0]?.oneOffAdhocHeadingSOF,
+          mainHeadingFontSize:
+            defaultTemplateOptions?.[0]?.mainHeadingFontSizeSOF,
           recurringOnGoingHeadingFontSize:
-            defaultTemplateObject?.recurringOnGoingHeadingFontSizeSOF,
-          oneOffAdhocFontSize: defaultTemplateObject?.oneOffAdhocFontSizeSOF,
-          mainHeadingIsBold: defaultTemplateObject?.mainHeadingIsBoldSOF,
-          mainHeadingIsItalic: defaultTemplateObject?.mainHeadingIsItalicSOF,
+            defaultTemplateOptions?.[0]?.recurringOnGoingHeadingFontSizeSOF,
+          oneOffAdhocFontSize:
+            defaultTemplateOptions?.[0]?.oneOffAdhocFontSizeSOF,
+          mainHeadingIsBold: defaultTemplateOptions?.[0]?.mainHeadingIsBoldSOF,
+          mainHeadingIsItalic:
+            defaultTemplateOptions?.[0]?.mainHeadingIsItalicSOF,
           recurringOnGoingHeadingIsBold:
-            defaultTemplateObject?.recurringOnGoingHeadingIsBoldSOF,
+            defaultTemplateOptions?.[0]?.recurringOnGoingHeadingIsBoldSOF,
           recurringOnGoingHeadingIsItalic:
-            defaultTemplateObject?.recurringOnGoingHeadingIsItalicSOF,
+            defaultTemplateOptions?.[0]?.recurringOnGoingHeadingIsItalicSOF,
           oneOffAdhocHeadingIsBold:
-            defaultTemplateObject?.oneOffAdhocHeadingIsBoldSOF,
+            defaultTemplateOptions?.[0]?.oneOffAdhocHeadingIsBoldSOF,
           oneOffAdhocHeadingIsItalic:
-            defaultTemplateObject?.oneOffAdhocHeadingIsItalicSOF,
+            defaultTemplateOptions?.[0]?.oneOffAdhocHeadingIsItalicSOF,
         }));
         // setProposalObject((prevState) => ({
         //   ...prevState,
@@ -17152,11 +17160,13 @@ const Add_Update_Proposal = (props) => {
             (item) => item.templateElementTypeID === 10,
           );
           let AddFirstPageHtmlContent = [...ModelData.templateElementList];
-          setFlagForTemplatePdf(ModelData.templateElementList.find(
-            (item) => item.templateElementTypeID === 9)
+          setFlagForTemplatePdf(
+            ModelData.templateElementList.find(
+              (item) => item.templateElementTypeID === 9,
+            ),
           );
           const pdfElement = ModelData.templateElementList.find(
-            (item) => item.templateElementTypeID === 9
+            (item) => item.templateElementTypeID === 9,
           );
           const getPdfDimensions = async (pdfUrl) => {
             setLoader(true);
@@ -17166,10 +17176,10 @@ const Add_Update_Proposal = (props) => {
             const viewport = page.getViewport({ scale: 1 });
             return {
               targetWidth: viewport.width,
-              targetHeight: viewport.height
+              targetHeight: viewport.height,
             };
           };
-          let targetWidth = 595.28;  // default A4
+          let targetWidth = 595.28; // default A4
           let targetHeight = 841.89; // default A4
 
           if (pdfElement) {
@@ -20760,7 +20770,7 @@ const Add_Update_Proposal = (props) => {
                     requireMessage={requireMessage}
                     proposalName={proposalName}
                   />
-              </Suspense>
+                </Suspense>
               )}
               {activeTab === ProposalHeader.SelectPackages && (
                 <SelectedProposalCustomize
