@@ -437,7 +437,7 @@ h6 {
   --hover-bg-color: #5a2eca;
   height: auto;             
   min-height: 150px;         
-  overflow: hidden;       
+  overflow: visible;       
   word-wrap: break-word;  
 }
 
@@ -463,13 +463,19 @@ h6 {
 }
 
 .stat-amount {
+  display: inline-block;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 13px;
   color: #5a2eca; /* purple */
   border: 1px solid #d5c8f7;
   padding: 4px 12px;
   border-radius: 20px;
   background: #faf9ff;
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .stat-card-body {
