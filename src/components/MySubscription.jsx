@@ -110,72 +110,72 @@ const MySubscription = () => {
             const PlanList =
               SubScriptionListData?.planList === null
                 ? [
-                    {
-                      organisationKeyID: null,
-                      ospKeyID: null,
-                      organisationName: null,
-                      email: null,
-                      mobileNumber: null,
-                      packageName: null,
-                      packagePrice: null,
-                      subscriptionStartDate: null,
-                      nextRenewalDate: null,
-                      subscriptionStatus: null,
-                      invoiceKeyID: null,
-                      finalBillingAmount: null,
-                      paymentStatus: null,
-                      hostedInvoiceUrl: null,
-                      invoicePdf: null,
-                    },
-                  ]
+                  {
+                    organisationKeyID: null,
+                    ospKeyID: null,
+                    organisationName: null,
+                    email: null,
+                    mobileNumber: null,
+                    packageName: null,
+                    packagePrice: null,
+                    subscriptionStartDate: null,
+                    nextRenewalDate: null,
+                    subscriptionStatus: null,
+                    invoiceKeyID: null,
+                    finalBillingAmount: null,
+                    paymentStatus: null,
+                    hostedInvoiceUrl: null,
+                    invoicePdf: null,
+                  },
+                ]
                 : SubScriptionListData?.planList;
             const ActivePlanList =
               SubScriptionListData?.activePlan === null
                 ? {
-                    ospKeyID: null,
-                    isPlanActive: null,
-                    subscriptionPackageKeyID: null,
-                    packageName: null,
-                    paymentFrequencyID: null,
-                    prepareQuote: null,
-                    sendQuote: null,
-                    prepareContract: null,
-                    sendContract: null,
-                    signContract: null,
-                    eSignaturePerMonth: null,
-                    remainingESignatures: null,
-                    yearlyValuePlan: null,
-                    offerID: null,
-                    discountPercentage: null,
-                    discountPrice: null,
-                    monthFree: null,
-                    getMonths: null,
-                    inPriceOfMonth: null,
-                    isMailBox: null,
-                    subscriptionStartDate: null,
-                    subscriptionEndDate: null,
-                    subscriptionCancelledDate: null,
-                    renewDate: null,
-                    invoiceKeyID: null,
-                    finalBillingAmount: null,
-                    paymentStatus: null,
-                    subscriptionStatus: null,
-                    hostedInvoiceUrl: null,
-                    invoicePdf: null,
-                    organisationKeyID: null,
-                    status: null,
-                    statusName: null,
-                    userKeyID: null,
-                    createdBy: null,
-                    createdOn: null,
-                    lastUpdatedBy: null,
-                    lastUpdatedOn: null,
-                    notifySAChanges: null,
-                    acceptSAChanges: null,
-                    keyID: null,
-                    createdByID: null,
-                    organisationID: null,
-                  }
+                  ospKeyID: null,
+                  isPlanActive: null,
+                  subscriptionPackageKeyID: null,
+                  packageName: null,
+                  paymentFrequencyID: null,
+                  prepareQuote: null,
+                  sendQuote: null,
+                  prepareContract: null,
+                  sendContract: null,
+                  signContract: null,
+                  eSignaturePerMonth: null,
+                  remainingESignatures: null,
+                  yearlyValuePlan: null,
+                  offerID: null,
+                  discountPercentage: null,
+                  discountPrice: null,
+                  monthFree: null,
+                  getMonths: null,
+                  inPriceOfMonth: null,
+                  isMailBox: null,
+                  subscriptionStartDate: null,
+                  subscriptionEndDate: null,
+                  subscriptionCancelledDate: null,
+                  renewDate: null,
+                  invoiceKeyID: null,
+                  finalBillingAmount: null,
+                  paymentStatus: null,
+                  subscriptionStatus: null,
+                  hostedInvoiceUrl: null,
+                  invoicePdf: null,
+                  organisationKeyID: null,
+                  status: null,
+                  statusName: null,
+                  userKeyID: null,
+                  createdBy: null,
+                  createdOn: null,
+                  lastUpdatedBy: null,
+                  lastUpdatedOn: null,
+                  notifySAChanges: null,
+                  acceptSAChanges: null,
+                  keyID: null,
+                  createdByID: null,
+                  organisationID: null,
+                }
                 : SubScriptionListData?.activePlan;
             setListCount(totalCount);
             // Extract planList and store in subscriptionList state
@@ -396,53 +396,53 @@ const MySubscription = () => {
                                                         <p className="mt-3">
                                                           {subScriptionActiveList.paymentStatus ===
                                                             "Unpaid" && (
-                                                            <Tooltip
-                                                              title={`Pay Now`}
-                                                            >
-                                                              <button
-                                                                className="btn btn-md btn-success create-item-btn"
-                                                                onClick={() =>
-                                                                  RedirectStripeCheckout(
-                                                                    subScriptionActiveList,
-                                                                  )
-                                                                }
+                                                              <Tooltip
+                                                                title={`Pay Now`}
                                                               >
-                                                                <span>
-                                                                  Pay Now
-                                                                </span>
-                                                              </button>
-                                                            </Tooltip>
-                                                          )}
+                                                                <button
+                                                                  className="btn btn-md btn-success create-item-btn"
+                                                                  onClick={() =>
+                                                                    RedirectStripeCheckout(
+                                                                      subScriptionActiveList,
+                                                                    )
+                                                                  }
+                                                                >
+                                                                  <span>
+                                                                    Pay Now
+                                                                  </span>
+                                                                </button>
+                                                              </Tooltip>
+                                                            )}
                                                           {subScriptionActiveList.paymentStatus ===
                                                             "Paid" && (
-                                                            <Tooltip
-                                                              title={`Download`}
-                                                            >
-                                                              <a
-                                                                style={{
-                                                                  width: "60px",
-                                                                  marginTop:
-                                                                    "7px",
-                                                                  padding:
-                                                                    " 2px 2px 2px 2px ", // Add padding to the button
-                                                                  display:
-                                                                    "inline-block", // Ensure button stays in line
-                                                                  borderRadius:
-                                                                    "0.5rem",
-                                                                }}
-                                                                href={
-                                                                  subScriptionActiveList.hostedInvoiceUrl
-                                                                }
-                                                                className="btn btn-secondary btn-xs"
+                                                              <Tooltip
+                                                                title={`Download`}
                                                               >
-                                                                <i className="fa fa-download"></i>
-                                                              </a>
-                                                            </Tooltip>
-                                                          )}
+                                                                <a
+                                                                  style={{
+                                                                    width: "60px",
+                                                                    marginTop:
+                                                                      "7px",
+                                                                    padding:
+                                                                      " 2px 2px 2px 2px ", // Add padding to the button
+                                                                    display:
+                                                                      "inline-block", // Ensure button stays in line
+                                                                    borderRadius:
+                                                                      "0.5rem",
+                                                                  }}
+                                                                  href={
+                                                                    subScriptionActiveList.hostedInvoiceUrl
+                                                                  }
+                                                                  className="btn btn-secondary btn-xs"
+                                                                >
+                                                                  <i className="fa fa-download"></i>
+                                                                </a>
+                                                              </Tooltip>
+                                                            )}
                                                           {subScriptionActiveList.paymentStatus ===
                                                             "Free" && (
-                                                            <p>Free</p>
-                                                          )}
+                                                              <p>Free</p>
+                                                            )}
                                                         </p>
                                                       </div>
                                                     </div>
@@ -458,10 +458,10 @@ const MySubscription = () => {
                                                   <p className="mt-0 mb-1 text-dark">
                                                     <b>Payment Frequency</b>:{" "}
                                                     {subScriptionActiveList.paymentFrequencyID ===
-                                                    1
+                                                      1
                                                       ? "Yearly"
                                                       : subScriptionActiveList.paymentFrequencyID ===
-                                                          4
+                                                        4
                                                         ? "Monthly"
                                                         : ""}
                                                   </p>
@@ -469,10 +469,10 @@ const MySubscription = () => {
                                                   <p className="mt-0 mb-1 text-dark">
                                                     <b>Days</b>:{" "}
                                                     {subScriptionActiveList.paymentFrequencyID ===
-                                                    1
+                                                      1
                                                       ? "365 Days"
                                                       : subScriptionActiveList.paymentFrequencyID ===
-                                                          4
+                                                        4
                                                         ? "30 Days"
                                                         : "-"}
                                                   </p>
@@ -480,14 +480,14 @@ const MySubscription = () => {
                                                   <p className="mt-0 mb-1 text-dark">
                                                     <b>Subscription Date</b>:{" "}
                                                     {subScriptionActiveList.subscriptionStartDate ===
-                                                    null
+                                                      null
                                                       ? "-"
                                                       : subScriptionActiveList.subscriptionStartDate}
                                                   </p>
                                                   <p className="mt-0 mb-1 text-dark">
                                                     <b> Next Renewal Date</b>:{" "}
                                                     {subScriptionActiveList.renewDate ===
-                                                    null
+                                                      null
                                                       ? "-"
                                                       : subScriptionActiveList.renewDate}
                                                   </p>
@@ -505,16 +505,16 @@ const MySubscription = () => {
                                                       style={{
                                                         color:
                                                           subScriptionActiveList.subscriptionStatus ===
-                                                          "Active"
+                                                            "Active"
                                                             ? "#008000"
                                                             : subScriptionActiveList.subscriptionStatus ===
-                                                                "Expired"
+                                                              "Expired"
                                                               ? "#FF0000"
                                                               : subScriptionActiveList.subscriptionStatus ===
-                                                                  "Pending"
+                                                                "Pending"
                                                                 ? "#DAA520"
                                                                 : subScriptionActiveList.subscriptionStatus ===
-                                                                    "InActive"
+                                                                  "InActive"
                                                                   ? "#772424"
                                                                   : "gray",
                                                         width: "100px",
@@ -534,7 +534,7 @@ const MySubscription = () => {
                                                     </b>
                                                     :{" "}
                                                     {subScriptionActiveList.remainingESignatures <
-                                                    0
+                                                      0
                                                       ? 0
                                                       : subScriptionActiveList.remainingESignatures}
                                                   </p>
@@ -542,7 +542,7 @@ const MySubscription = () => {
                                                     <b>Remaining Pages</b>:{" "}
                                                     {subScriptionActiveList.noOfPages <
                                                       0 ||
-                                                    subScriptionActiveList.noOfPages ===
+                                                      subScriptionActiveList.noOfPages ===
                                                       null
                                                       ? 0
                                                       : subScriptionActiveList.noOfPages}
@@ -588,7 +588,7 @@ const MySubscription = () => {
                                                 <div className="pricing-features">
                                                   <p className="mt-0 mb-1 text-dark">
                                                     {subScriptionActiveList?.apiIntegration ==
-                                                    true ? (
+                                                      true ? (
                                                       <span
                                                         style={{
                                                           color: "green",
@@ -615,7 +615,7 @@ const MySubscription = () => {
                                                   </p>
                                                   <p className="mt-0 mb-1 text-dark">
                                                     {subScriptionActiveList?.prepareQuote ==
-                                                    true ? (
+                                                      true ? (
                                                       <span
                                                         style={{
                                                           color: "green",
@@ -642,7 +642,7 @@ const MySubscription = () => {
                                                   </p>
                                                   <p className="mt-0 mb-1 text-dark">
                                                     {subScriptionActiveList?.prepareContract ===
-                                                    true ? (
+                                                      true ? (
                                                       <span
                                                         style={{
                                                           color: "green",
@@ -669,7 +669,7 @@ const MySubscription = () => {
                                                   </p>
                                                   <p className="mt-0 mb-1 text-dark">
                                                     {subScriptionActiveList?.sendQuote ===
-                                                    true ? (
+                                                      true ? (
                                                       <span
                                                         style={{
                                                           color: "green",
@@ -697,7 +697,7 @@ const MySubscription = () => {
 
                                                   <p className="mt-0 mb-1 text-dark">
                                                     {subScriptionActiveList?.signContract ===
-                                                    true ? (
+                                                      true ? (
                                                       <span
                                                         style={{
                                                           color: "green",
@@ -732,7 +732,7 @@ const MySubscription = () => {
                                                   <p className="mt-0 mb-1 text-dark">
                                                     {subScriptionActiveList?.isMailBox ===
                                                       null ||
-                                                    !subScriptionActiveList?.isMailBox ? (
+                                                      !subScriptionActiveList?.isMailBox ? (
                                                       <span
                                                         style={{
                                                           color: "red",
@@ -762,7 +762,7 @@ const MySubscription = () => {
                                                   <p className="mt-0 mb-1 text-dark">
                                                     {subScriptionActiveList?.enablePdfToCsv ===
                                                       null ||
-                                                    !subScriptionActiveList?.enablePdfToCsv ? (
+                                                      !subScriptionActiveList?.enablePdfToCsv ? (
                                                       <span
                                                         style={{
                                                           color: "red",
@@ -788,6 +788,73 @@ const MySubscription = () => {
                                                       PDF To CSV
                                                     </span>
                                                   </p>
+
+                                                  {/* xero  */}
+                                                  {subScriptionActiveList && subScriptionActiveList?.enableXERO !== null && (
+                                                    <p className="mt-0 mb-1 text-dark">
+                                                      {subScriptionActiveList?.enableXERO ===
+                                                        null ||
+                                                        !subScriptionActiveList?.enableXERO ? (
+                                                        <span
+                                                          style={{
+                                                            color: "red",
+                                                            marginRight: "2px",
+                                                          }}
+                                                          className="fa fa-times"
+                                                        ></span>
+                                                      ) : (
+                                                        <span
+                                                          style={{
+                                                            color: "green",
+                                                          }}
+                                                          className="fa fa-check"
+                                                        ></span>
+                                                      )}
+                                                      {"  "}
+                                                      <span
+                                                        style={{
+                                                          marginLeft: "10px",
+                                                        }}
+                                                      >
+                                                        {" "}
+                                                        Xero Subscription
+                                                      </span>
+                                                    </p>
+                                                  )}
+
+                                                  {/* Quickbook  */}
+                                                  {subScriptionActiveList && subScriptionActiveList?.enableQBO !== null && (
+                                                    <p className="mt-0 mb-1 text-dark">
+                                                      {subScriptionActiveList?.enableQBO ===
+                                                        null ||
+                                                        !subScriptionActiveList?.enableQBO ? (
+                                                        <span
+                                                          style={{
+                                                            color: "red",
+                                                            marginRight: "2px",
+                                                          }}
+                                                          className="fa fa-times"
+                                                        ></span>
+                                                      ) : (
+                                                        <span
+                                                          style={{
+                                                            color: "green",
+                                                          }}
+                                                          className="fa fa-check"
+                                                        ></span>
+                                                      )}
+                                                      {"  "}
+                                                      <span
+                                                        style={{
+                                                          marginLeft: "10px",
+                                                        }}
+                                                      >
+                                                        {" "}
+                                                        Quickbooks Subscription
+                                                      </span>
+                                                    </p>
+                                                  )}
+
                                                 </div>
                                               </CardBody>
                                             </div>
@@ -890,13 +957,13 @@ const MySubscription = () => {
                                               </td>
                                               <td className="table-content-font align-items-center text-center">
                                                 {subscription.subscriptionStartDate ===
-                                                null
+                                                  null
                                                   ? "_"
                                                   : subscription.subscriptionStartDate}
                                               </td>
                                               <td className="table-content-font align-items-center text-center">
                                                 {subscription.nextRenewalDate ===
-                                                null
+                                                  null
                                                   ? "_"
                                                   : subscription.nextRenewalDate}
                                               </td>
@@ -912,61 +979,61 @@ const MySubscription = () => {
                                                 {/* <div className="mb-1 text-center  text-white rounded text-nowrap"> */}
                                                 {subscription.paymentStatus ===
                                                   "Unpaid" && (
-                                                  <Tooltip title={`Pay Now`}>
-                                                    <button
-                                                      style={{
-                                                        width: "80px",
-                                                        marginTop: "5px",
-                                                        // padding: "5px 8px 6px 5px",
-                                                        // margin:'1px', // Add padding to the button
-                                                        display: "inline-block", // Ensure button stays in line
-                                                        // borderRadius: "0.5rem",
-                                                      }}
-                                                      className="btn btn-md btn-success create-item-btn view"
-                                                      onClick={() =>
-                                                        RedirectStripeCheckout(
-                                                          subscription,
-                                                        )
-                                                      }
-                                                    >
-                                                      <span>Pay Now</span>
-                                                    </button>
-                                                  </Tooltip>
-                                                )}
+                                                    <Tooltip title={`Pay Now`}>
+                                                      <button
+                                                        style={{
+                                                          width: "80px",
+                                                          marginTop: "5px",
+                                                          // padding: "5px 8px 6px 5px",
+                                                          // margin:'1px', // Add padding to the button
+                                                          display: "inline-block", // Ensure button stays in line
+                                                          // borderRadius: "0.5rem",
+                                                        }}
+                                                        className="btn btn-md btn-success create-item-btn view"
+                                                        onClick={() =>
+                                                          RedirectStripeCheckout(
+                                                            subscription,
+                                                          )
+                                                        }
+                                                      >
+                                                        <span>Pay Now</span>
+                                                      </button>
+                                                    </Tooltip>
+                                                  )}
                                                 {subscription.paymentStatus ===
                                                   "Paid" && (
-                                                  <Tooltip title={`Download`}>
-                                                    <a
-                                                      style={{
-                                                        width: "60px",
-                                                        padding:
-                                                          "2px 2px 2px 2px", // Add padding to the button
-                                                        display: "inline-block", // Ensure button stays in line
-                                                        borderRadius: "0.5rem",
-                                                      }}
-                                                      href={
-                                                        subscription.hostedInvoiceUrl
-                                                      }
-                                                      className="btn btn-secondary btn-xs"
-                                                    >
-                                                      <i className="fa fa-download"></i>
-                                                    </a>
-                                                  </Tooltip>
-                                                )}
+                                                    <Tooltip title={`Download`}>
+                                                      <a
+                                                        style={{
+                                                          width: "60px",
+                                                          padding:
+                                                            "2px 2px 2px 2px", // Add padding to the button
+                                                          display: "inline-block", // Ensure button stays in line
+                                                          borderRadius: "0.5rem",
+                                                        }}
+                                                        href={
+                                                          subscription.hostedInvoiceUrl
+                                                        }
+                                                        className="btn btn-secondary btn-xs"
+                                                      >
+                                                        <i className="fa fa-download"></i>
+                                                      </a>
+                                                    </Tooltip>
+                                                  )}
                                                 {subscription.paymentStatus ===
                                                   "Free" && (
-                                                  <p
-                                                    style={{
-                                                      background: "#DAA520",
-                                                      width: "100px",
-                                                      padding: "4px 5px",
-                                                      display: "inline-block",
-                                                      borderRadius: "0.5rem",
-                                                    }}
-                                                  >
-                                                    Free
-                                                  </p>
-                                                )}
+                                                    <p
+                                                      style={{
+                                                        background: "#DAA520",
+                                                        width: "100px",
+                                                        padding: "4px 5px",
+                                                        display: "inline-block",
+                                                        borderRadius: "0.5rem",
+                                                      }}
+                                                    >
+                                                      Free
+                                                    </p>
+                                                  )}
                                                 {/* </div> */}
                                               </td>
                                               <td className="Switch">
@@ -982,16 +1049,16 @@ const MySubscription = () => {
                                                       style={{
                                                         background:
                                                           subscription.subscriptionStatus ===
-                                                          "Active"
+                                                            "Active"
                                                             ? "#008000"
                                                             : subscription.subscriptionStatus ===
-                                                                "Expired"
+                                                              "Expired"
                                                               ? "#FF0000"
                                                               : subscription.subscriptionStatus ===
-                                                                  "Pending"
+                                                                "Pending"
                                                                 ? "#DAA520"
                                                                 : subscription.subscriptionStatus ===
-                                                                    "InActive"
+                                                                  "InActive"
                                                                   ? "#772424"
                                                                   : "gray",
                                                         width: "100px",

@@ -61,7 +61,7 @@ const ChoosePlanForPurchase = (props) => {
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
           const ModelData = data?.data?.responseData?.data;
-
+ 
           setChooseApiData(ModelData);
         }
       } else {
@@ -759,6 +759,7 @@ const ChoosePlanForPurchase = (props) => {
                                                         API Integration
                                                       </span>
                                                     </div>
+
                                                     <div>
                                                       {PurchasePlanList?.prepareQuote ==
                                                       true ? (
@@ -906,6 +907,61 @@ const ChoosePlanForPurchase = (props) => {
                                                         Mailbox
                                                       </span>
                                                     </div>
+
+                                                     <div>
+                                                      {PurchasePlanList?.enableXERO ==
+                                                      true ? (
+                                                        <span
+                                                          style={{
+                                                            color: "green",
+                                                          }}
+                                                          className="fa fa-check"
+                                                        ></span>
+                                                      ) : (
+                                                        <span
+                                                          style={{
+                                                            color: "red",
+                                                          }}
+                                                          className="fa fa-times"
+                                                        ></span>
+                                                      )}
+                                                      <span
+                                                        style={{
+                                                          marginLeft: "10px",
+                                                        }}
+                                                      >
+                                                        {" "}
+                                                        Xero Subscription
+                                                      </span>
+                                                    </div>
+
+                                                     <div>
+                                                      {PurchasePlanList?.enableQBO ==
+                                                      true ? (
+                                                        <span
+                                                          style={{
+                                                            color: "green",
+                                                          }}
+                                                          className="fa fa-check"
+                                                        ></span>
+                                                      ) : (
+                                                        <span
+                                                          style={{
+                                                            color: "red",
+                                                          }}
+                                                          className="fa fa-times"
+                                                        ></span>
+                                                      )}
+                                                      <span
+                                                        style={{
+                                                          marginLeft: "10px",
+                                                        }}
+                                                      >
+                                                        {" "}
+                                                        Quickbooks Subscription
+                                                      </span>
+                                                    </div>
+                                                    
                                                     {PurchasePlanList && (
                                                       <div
                                                         className="d-flex flex-column"

@@ -39,6 +39,8 @@ function SubscriptionPackageModel(props) {
     signContract: true,
     eSignaturePerMonth: "",
     enablePdfToCsv: true,
+    enableXERO: false,
+    enableQBO: false,
     pages: null,
     yearlyValuePlan: "",
     discountPercentageYear: "",
@@ -61,6 +63,7 @@ function SubscriptionPackageModel(props) {
     inPriceOfMonthMonth: "",
     isMailBox: false,
     apiIntegration: true,
+    noOfPages: null,
   });
 
   const navigate = useNavigate();
@@ -183,6 +186,8 @@ function SubscriptionPackageModel(props) {
             yearlyValuePlan: ModelData.yearlyValuePlan,
             isMailBox: ModelData.isMailBox,
             enablePdfToCsv: ModelData.enablePdfToCsv,
+            enableXERO: ModelData.enableXERO,
+            enableQBO: ModelData.enableQBO,
             pages: ModelData.noOfPages,
             discountPercentageYear:
               discountPercentageYear === undefined ? 0 : discountPercentageYear,
@@ -348,7 +353,9 @@ function SubscriptionPackageModel(props) {
       sendQuote: subscriptionPackageObj.sendQuote,
       prepareContract: subscriptionPackageObj.prepareContract,
       enablePdfToCsv: subscriptionPackageObj.enablePdfToCsv,
-      noOfPages: subscriptionPackageObj.pages,
+      enableQBO: subscriptionPackageObj.enableQBO,
+      enableXERO: subscriptionPackageObj.enableXERO,
+      noOfPages: Number(subscriptionPackageObj.pages),
       sendContract: subscriptionPackageObj.sendContract,
       signContract: subscriptionPackageObj.sendContract,
       isMailBox: subscriptionPackageObj.isMailBox,
@@ -422,6 +429,7 @@ function SubscriptionPackageModel(props) {
           },
         ],
     };
+
     AddUpdateSubscriptionPackageData(ApiRequest_ParamsObj);
     // console.log("ApiRequest_ParamsObj", ApiRequest_ParamsObj);
   };
@@ -609,14 +617,17 @@ function SubscriptionPackageModel(props) {
                           style={{ display: "flex", alignItems: "center" }}
                         >
                           <div style={{ width: "40px", marginBottom: "5px" }}>
-                            {subscriptionPackageObj.prepareQuote ? "Yes" : "No"}
+                            {subscriptionPackageObj.enableXERO ? "Yes" : "No"}
                           </div>
                           <FormGroup>
                             <FormControlLabel
                               control={
                                 <Android12Switch
-                                  checked={subscriptionPackageObj.prepareQuote}
-                                  onClick={handlePrepareQuoteChange}
+                                  checked={subscriptionPackageObj.enableXERO}
+                                  onClick={(e) => setSubscriptionPackageObj({
+                                    ...subscriptionPackageObj,
+                                    enableXERO: !subscriptionPackageObj.enableXERO
+                                  })}
                                 />
                               }
                             />
@@ -633,17 +644,21 @@ function SubscriptionPackageModel(props) {
                           style={{ display: "flex", alignItems: "center" }}
                         >
                           <div style={{ width: "40px", marginBottom: "5px" }}>
-                            {subscriptionPackageObj.sendQuote ? "Yes" : "No"}
+                            {subscriptionPackageObj.enableQBO ? "Yes" : "No"}
                           </div>
                           <FormGroup>
                             <FormControlLabel
                               control={
                                 <Android12Switch
-                                  checked={subscriptionPackageObj.sendQuote}
-                                  onClick={handleSendQuoteChange}
-                                  disabled={
-                                    !subscriptionPackageObj.prepareQuote
-                                  }
+                                  checked={subscriptionPackageObj.enableQBO}
+                                  onClick={(e) => {
+
+                                    setSubscriptionPackageObj({
+                                      ...subscriptionPackageObj,
+                                      enableQBO: !subscriptionPackageObj.enableQBO
+                                    })
+                                  }}
+
                                 />
                               }
                             />
