@@ -62,6 +62,12 @@ export const UpdateUnPaidAccount = Loadable(
   )
 );
 
+export const UpdateSubscriptionPackageReminder = Loadable(
+  lazy(() =>
+    import("../pages/Settings/SuperAdminReminder/SuperAdminReminderSubscriptionPackage/UpdateSuperAdminReminderSubscriptionPackage")
+  )
+);
+
 // export const UserSubscriptionPackageTab = Loadable(
 //   lazy(() => import("../pages/subscription/User/UserSubscriptionPackageModel"))
 // );
@@ -138,6 +144,14 @@ const DeletionReminder = Loadable(
   lazy(() =>
     import(
       "../pages/Settings/SuperAdminReminder/LoginToOutbooks/LoginToOutbooksReminderList"
+    )
+  )
+);
+
+const SubscriptionPackageReminder = Loadable(
+  lazy(() =>
+    import(
+      "../pages/Settings/SuperAdminReminder/SuperAdminReminderSubscriptionPackage/SuperAdminReminderSubscriptionPackageList"
     )
   )
 );
@@ -1234,6 +1248,10 @@ function Index() {
                         element={<AddUpdateReminder />}
                       />
                       <Route
+                        path="/UpdateSuperAdminSubscriptionPackageReminder"
+                        element={<UpdateSubscriptionPackageReminder />}
+                      />
+                      <Route
                         path="/reminder-email-template"
                         element={<ReminderTemplateList />}
                       />
@@ -1315,6 +1333,11 @@ function Index() {
                       <Route
                         path="/paid-unpaid-list"
                         element={<DeletionReminder />}
+                      />
+                      
+                      <Route
+                        path="/subscription-reminder-list"
+                        element={<SubscriptionPackageReminder />}
                       />
                       {/* <Route path="/view-pdf/:quoteKeyID" element={<ViewPdf />} /> */}
                       <Route path="/view-pdf" element={<ViewPdf />} />

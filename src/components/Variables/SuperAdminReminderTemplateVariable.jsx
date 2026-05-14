@@ -128,6 +128,24 @@ function SuperAdminEmailTemplateVariable({
                     </div>
                 </>
             )}
+            {businessTypeId == EmailTemplates.FreePackageOrg_FirstMail && (
+                <>
+                    <CopyToClipboard heading={`User:`} texts={SuperTemplateTypeVariable.FreePackageReminder} />
+                    <div className="separator mt-2 mb-2" />
+                </>
+            )}
+             {businessTypeId == EmailTemplates.FreePackageOrg_SecondMail && (
+                <>
+                    <CopyToClipboard heading={`User:`} texts={SuperTemplateTypeVariable.FreePackageReminder} />
+                    <div className="separator mt-2 mb-2" />
+                </>
+            )}
+             {businessTypeId == EmailTemplates.FreePackageOrg_ThirdMail && (
+                <>
+                    <CopyToClipboard heading={`User:`} texts={SuperTemplateTypeVariable.FreePackageReminder} />
+                    <div className="separator mt-2 mb-2" />
+                </>
+            )}
         </div>
     );
 }

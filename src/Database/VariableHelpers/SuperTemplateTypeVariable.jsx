@@ -55,6 +55,14 @@ const Reminder = [
   "$User.FullName$",
   "$LastLoginDate$",
 ];
+const FreePackageReminder = [
+  "$User.FirstName$",
+  "$User.LastName$",
+  "$User.FullName$",
+  "$Organisation.Name$",
+  "$appUrl$",
+  "$TrialEndDate$",
+]
 const Subscription = [
   "$SubscriptionPackageName$",
   "$NewUserSignUpDate$",
@@ -183,5 +191,6 @@ export default {
   PaidUser_SecondMail,
   PaidUser_ThirdMail,
   Reminder,
+  FreePackageReminder,
   Subscription,
 };

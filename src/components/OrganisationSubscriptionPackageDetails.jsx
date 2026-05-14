@@ -295,10 +295,17 @@ function OrganisationSubscriptionPackageDetails(props) {
     } else {
       setRequireErrorMessage(""); // Clear the error message if there are no errors.
     }
-    // if (subscriptionPackageObj.sendContract === true) {
-    //   if (Number(subscriptionPackageObj.eSignaturePerMonth) < 1) {
-    //     scrollUpDownByElementID("ESignature");
-    //     setRequireErrorMessageForESignature(true);
+    if (props.subscriptionPackageObj.sendContract === true) {
+      if (Number(props.subscriptionPackageObj.eSignaturePerMonth) < 1) {
+        scrollUpDownByElementID("ESignature");
+        setRequireErrorMessageForESignature(true);
+        return false;
+      }
+    }
+    // if (subscriptionPackageObj.sendQuote === true) {
+    //   if (Number(subscriptionPackageObj.quotesPerMonth) < 1) {
+    //     scrollUpDownByElementID("QuotesPerMonth");
+    //     setRequireErrorMessageForQuotesPerMonth(true);
     //     return false;
     //   }
     // }
@@ -644,7 +651,7 @@ function OrganisationSubscriptionPackageDetails(props) {
                   </div>
                 </div>
                 <div className="row p-2">
-                  <div className="fieldset-group ">
+                  <div className="fieldset-group " id="QuotesPerMonth">
                     <label className="fieldset-group-label required">
                       {proposalName}
                     </label>
@@ -704,6 +711,7 @@ function OrganisationSubscriptionPackageDetails(props) {
                         </FormGroup>
                       </div>
                       {subscriptionPackageObj.prepareQuote === true && (
+                        <>
                         <div className=" col-6 p-2">
                           <TextField
                             InputLabelProps={{
@@ -729,7 +737,7 @@ function OrganisationSubscriptionPackageDetails(props) {
                             onChange={(e) => {
                               let inputValue = e.target.value;
                               // Remove leading zeros
-                              inputValue = inputValue.replace(/^0+/, "");
+                              inputValue = inputValue.replace(/^0+(?=\d)/, "");
                               // Remove non-numeric characters except decimal point
                               inputValue = inputValue.replace(/[^\d]/g, "");
                               // Limit to 12 digits before the decimal point
@@ -757,6 +765,7 @@ function OrganisationSubscriptionPackageDetails(props) {
                             }
                           />
                         </div>
+                        </>
                       )}
                     </div>
                   </div>
@@ -880,7 +889,7 @@ function OrganisationSubscriptionPackageDetails(props) {
                     </div>
                     {requireErrorMessageForESignature &&
                     props.subscriptionPackageObj.sendContract &&
-                    Number(subscriptionPackageObj.eSignaturePerMonth) < 1 ? (
+                    Number(props.subscriptionPackageObj.eSignaturePerMonth) < 1 ? (
                       <label className="validation mb-1">
                         The E-Signature per month must be at least 1.
                       </label>

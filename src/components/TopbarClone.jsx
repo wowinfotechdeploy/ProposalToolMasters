@@ -3373,7 +3373,7 @@ const toggleConfigList = () => {
                                               </a>
                                             </Link>
                                           </li>
-                                           {/* <li class="nav-item">
+                                           <li class="nav-item">
                                             <Link
                                               to="/subscription-reminder-list"
                                               onClick={togglenav}
@@ -3392,7 +3392,7 @@ const toggleConfigList = () => {
                                                 Subscription Package Upgrade
                                               </a>
                                             </Link>
-                                          </li> */}
+                                          </li>
                                           <li class="nav-item">
                                             <Link
                                               to="/marketing-reminder"

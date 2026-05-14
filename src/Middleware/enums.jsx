@@ -190,6 +190,9 @@ export const EmailTemplates = {
   PaidUser_SecondMail: 36,
   PaidUser_ThirdMail: 37,
   Reminder: 38,
+  FreePackageOrg_FirstMail: 44,
+  FreePackageOrg_SecondMail: 45,
+  FreePackageOrg_ThirdMail: 46
 };
 export const EmailProviderEnum = {
   BT_Internet: 1,
