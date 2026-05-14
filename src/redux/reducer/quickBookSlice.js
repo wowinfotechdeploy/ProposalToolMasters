@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { Base_Url, QuickBookUrl, XeroBaseUrl } from "../../Base-Url/Base_Url";
+import { Base_Url, DeviationBaseUrl, DeviationBaseUrlv2, QuickBookUrl, XeroBaseUrl } from "../../Base-Url/Base_Url";
 import apiClient from "../Services/axiosInterceptor";
 
 // GET connection URL
@@ -71,31 +71,56 @@ export const fetchContactsLookup = createAsyncThunk(
   }
 );
 
-export const GetAllDrivers = createAsyncThunk(
-  "xero/getAllDrivers",
-  async (organisationKeyID, thunkAPI) => {
-    try {
-      const res = await apiClient.get(
-        `${Base_Url}/XEROAndQBO/GetLocalAndGlobalPricingDriverListWithServices?OrganisationKeyID=${organisationKeyID}`
-      );
+// export const GetAllDrivers = createAsyncThunk(
+//   "xero/getAllDrivers",
+//   async (organisationKeyID, thunkAPI) => {
+//     try {
+//       const res = await apiClient.get(
+//         `${Base_Url}/XEROAndQBO/GetLocalAndGlobalPricingDriverListWithServices?OrganisationKeyID=${organisationKeyID}`
+//       );
 
-      const drivers = res.data?.responseData?.data || [];
+//       const drivers = res.data?.responseData?.data || [];
 
-      // Transform data here (VERY IMPORTANT)
-      const formatted = drivers.map((d) => ({
-        id: d.globalPricingDriverID,
-        name: d.driverName,
-        services: d._ServiceList.map((s) => ({
-          serviceID: s.serviceID,
-          serviceName: s.serviceName,
-        })),
-      }));
+//       // Transform data here (VERY IMPORTANT)
+//       const formatted = drivers.map((d) => ({
+//         id: d.globalPricingDriverID,
+//         name: d.driverName,
+//         services: d._ServiceList.map((s) => ({
+//           serviceID: s.serviceID,
+//           serviceName: s.serviceName,
+//         })),
+//       }));
 
-      return formatted; // clean data for UI
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data);
-    }
-  }
+//       return formatted; // clean data for UI
+//     } catch (err) {
+//       return thunkAPI.rejectWithValue(err.response?.data);
+//     }
+//   }
+// );
+
+
+export const GetAllMetricsList = createAsyncThunk(
+   "metrics/GetAllMetricsList",
+
+   async (_, thunkAPI) => {
+      try {
+         const res = await apiClient.get(`${DeviationBaseUrl}metrics`);
+
+         const metrics = res?.data?.metrics || [];
+ 
+         // format data for react-select
+         const formatted = metrics.map((d) => ({
+            metricKey: d.metricKey,
+            description: d.description,
+         }));
+
+         return formatted;
+      } catch (err) {
+         return thunkAPI.rejectWithValue(
+            err?.response?.data || "Something went wrong"
+         );
+      }
+   }
 );
 
 export const addContactMapping = createAsyncThunk(
@@ -116,6 +141,25 @@ export const addContactMapping = createAsyncThunk(
     }
   }
 );
+
+// export const SaveMetricMapping = createAsyncThunk(
+//   "quickBook/SaveMetricMapping",
+
+//    async ({ organisationKeyID, payload }, thunkAPI) => {
+//     try {
+//       const res = await apiClient.post(
+//         `${DeviationBaseUrlv2}mappings/${organisationKeyID}`,
+//         payload
+//       );
+
+//       return res.data;
+//     } catch (err) {
+//       return thunkAPI.rejectWithValue(
+//         err?.response?.data || "Something went wrong"
+//       );
+//     }
+//   }
+// );
 
 export const DisconnectIntegration = createAsyncThunk(
   "integration/disconnect",
@@ -141,6 +185,9 @@ const quickBookSlice = createSlice({
     connectionUrl: null,
     contactsLookup: [],
     drivers: [],
+     metrics: [],
+   metricsLoading: false,
+   metricsError: null,
     message: "",
     loading: {
       connectionUrl: false,
@@ -182,17 +229,17 @@ const quickBookSlice = createSlice({
         state.loading.contactsLookup = [];
         state.error.contactsLookup = action.payload;
       })
-      .addCase(GetAllDrivers.pending, (state) => {
-        state.loading.drivers = true;
-      })
-      .addCase(GetAllDrivers.fulfilled, (state, action) => {
-        state.loading.drivers = false;
-        state.drivers = action.payload;
-      })
-      .addCase(GetAllDrivers.rejected, (state, action) => {
-        state.loading.drivers = false;
-        state.error.drivers = action.payload;
-      })
+      // .addCase(GetAllDrivers.pending, (state) => {
+      //   state.loading.drivers = true;
+      // })
+      // .addCase(GetAllDrivers.fulfilled, (state, action) => {
+      //   state.loading.drivers = false;
+      //   state.drivers = action.payload;
+      // })
+      // .addCase(GetAllDrivers.rejected, (state, action) => {
+      //   state.loading.drivers = false;
+      //   state.error.drivers = action.payload;
+      // })
       .addCase(DisconnectIntegration.pending, (state) => {
         state.loading.disconnect = true;
       })
@@ -203,8 +250,25 @@ const quickBookSlice = createSlice({
       .addCase(DisconnectIntegration.rejected, (state, action) => {
         state.loading.disconnect = false;
         state.error.disconnect = action.payload;
-      });
+      })
 
+         // pending
+         .addCase(GetAllMetricsList.pending, (state) => {
+            state.metricsLoading = true;
+            state.metricsError = null;
+         })
+
+         // fulfilled
+         .addCase(GetAllMetricsList.fulfilled, (state, action) => {
+            state.metricsLoading = false;
+            state.metrics = action.payload;
+         })
+
+         // rejected
+         .addCase(GetAllMetricsList.rejected, (state, action) => {
+            state.metricsLoading = false;
+            state.metricsError = action.payload;
+         })
     // });
   },
 });
