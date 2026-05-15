@@ -95,3 +95,18 @@ export const DeleteSingleApiClient = async (params) => {
   );
   return res;
 };
+
+//Global Prospect Variables
+export const GetClientGlobalVariables = async (id) => {
+  const res = await getListWithAuthenticated(
+    `${clientsListUrl}/GetClientGlobalVariables?ClientKeyID=${id}`
+  );
+  return res;
+};
+
+export const AddUpdateClientGlobalVariables = async (params) => {
+  const res = await postApiWithAuthenticated(
+    `${clientsListUrl}/AddUpdateClientGlobalVariables`,params
+  );
+  return res;
+};

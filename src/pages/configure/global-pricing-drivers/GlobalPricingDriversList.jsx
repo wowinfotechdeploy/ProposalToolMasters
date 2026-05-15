@@ -28,10 +28,12 @@ const Global_Pricing_Driver_model = lazy(() => import("./GlobalPricingDriverMode
 function Predefined_Global_Pricing_Drivers() {
   let getGlobalPricingDriverListApiCallCount = 0;
   const moduleName = "Global Pricing Driver";
+  const moduleNameGlobalProspect = "Global Prospect Variables";
   // A] States Declaration :
   const [errorMessage, setErrorMessage] = useState("");
   const [isAddUpdateActionDone, setIsAddUpdateActionDone] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [activeTab, setActiveTab] = useState("GlobalPricingDriver");
   const [modelRequestData, setModelRequestData] = useState({
     Action: "",
     status: "",
@@ -43,6 +45,7 @@ function Predefined_Global_Pricing_Drivers() {
     variationKeyID: null,
     userKeyID: null,
     slabKeyID: null,
+    addedFor: null
   });
   const [primarySortDirectionObj, setPrimarySortDirectionObj] = useState({
     DriverNameSort: null,
@@ -82,7 +85,7 @@ function Predefined_Global_Pricing_Drivers() {
 
   useEffect(() => {
     setTopbar("block");
-    GetGlobalPricingDriverListData(1, null, null, null);
+    GetGlobalPricingDriverListData(1, null, null, null, modelRequestData.addedFor);
   }, []);
   const formattedErrorMessage = handleErrorMessage(errorMessage);
   //2) This useEffect will trigger when we successfully add or update record from popup model
@@ -92,9 +95,9 @@ function Predefined_Global_Pricing_Drivers() {
         setSearchKeyword("");
         setPrimarySortDirection(null);
         setCurrentPage(1);
-        GetGlobalPricingDriverListData(1, null, null, null);
+        GetGlobalPricingDriverListData(1, null, null, null, modelRequestData.addedFor);
       } else {
-        GetGlobalPricingDriverListData(currentPage);
+        GetGlobalPricingDriverListData(currentPage, null, null, null, modelRequestData.addedFor);
       }
       setIsAddUpdateActionDone(false);
     }
@@ -106,7 +109,8 @@ function Predefined_Global_Pricing_Drivers() {
     i,
     searchKeywordValue,
     sortValue,
-    GlobalDriverSortType
+    GlobalDriverSortType,
+    addedFor
   ) => {
     setLoader(true);
     const pageNoList = i - 1;
@@ -125,6 +129,7 @@ function Predefined_Global_Pricing_Drivers() {
             : GlobalDriverSortType !== null
               ? GlobalDriverSortType
               : null,
+        addedFor: addedFor
       });
       if (response) {
         if (response?.data?.statusCode === 200) {
@@ -143,7 +148,8 @@ function Predefined_Global_Pricing_Drivers() {
                 newPaneNo,
                 searchKeywordValue,
                 sortValue,
-                GlobalDriverSortType
+                GlobalDriverSortType,
+                addedFor
               );
               setCurrentPage(pageNoList);
               return;
@@ -160,7 +166,8 @@ function Predefined_Global_Pricing_Drivers() {
                 i,
                 searchKeywordValue,
                 sortValue,
-                GlobalDriverSortType
+                GlobalDriverSortType,
+                addedFor
               );
             }, 2000);
           } else {
@@ -183,6 +190,7 @@ function Predefined_Global_Pricing_Drivers() {
         ...modelRequestData,
         Action: null,
         globalPricingDriverKeyID: null,
+        addedFor: activeTab === "GlobalProspectDriver" ? "GlobalProspect" : null
       });
     }
   };
@@ -344,7 +352,8 @@ function Predefined_Global_Pricing_Drivers() {
         1,
         searchKeyword,
         sortValue,
-        GlobalDriverSortType
+        GlobalDriverSortType,
+        modelRequestData.addedFor
       );
     } else if (GlobalDriverSortType == "ProfessionType") {
       setPrimarySortDirection(sortValue);
@@ -357,7 +366,8 @@ function Predefined_Global_Pricing_Drivers() {
         1,
         searchKeyword,
         sortValue,
-        GlobalDriverSortType
+        GlobalDriverSortType,
+        modelRequestData.addedFor
       );
     } else if (GlobalDriverSortType == "DriverTypeName") {
       setPrimarySortDirection(sortValue);
@@ -370,7 +380,8 @@ function Predefined_Global_Pricing_Drivers() {
         1,
         searchKeyword,
         sortValue,
-        GlobalDriverSortType
+        GlobalDriverSortType,
+        modelRequestData.addedFor
       );
     }
   };
@@ -380,7 +391,7 @@ function Predefined_Global_Pricing_Drivers() {
     const searchKeywordValue = e.target.value;
     setSearchKeyword(searchKeywordValue);
     setCurrentPage(1);
-    GetGlobalPricingDriverListData(1, searchKeywordValue);
+    GetGlobalPricingDriverListData(1, searchKeywordValue, null, null, modelRequestData.addedFor);
   };
 
   const handleClose = () => {
@@ -388,6 +399,64 @@ function Predefined_Global_Pricing_Drivers() {
     $("#" + "RecordsAvailablePopupModel").modal("hide");
     setOpenSuccessModal(false);
     setOpenErrorModal(false);
+  };
+
+  const TabHandle = async (tab) => {
+    if (tab === "GlobalPricingDriver") {
+      setActiveTab(tab);
+      if (common.organisationKeyID !== null) {
+        GetGlobalPricingDriverListData(1, null, null, null);
+      }
+    }
+    //   else if (tab === "ProspectVariables") {
+    //   setActiveTab(tab);
+    //   setLoader(true);
+    //   try {
+    //     const data = await GetGlobalProspectVariables(common.organisationKeyID);
+    //     if(data?.data?.statusCode === 200) {
+    //       setLoader(false);
+    //       const responseData = data?.data?.responseData?.data;
+    //       console.log(responseData);
+    //       const formatted = responseData.map(item => ({
+    //         globalVariableID: item.globalVariableID,
+    //         globalVariableKeyID: item.globalVariableKeyID,
+    //         globalVariableName: item.globalVariableName,
+    //         dataType: item.dataType,
+    //         isRequired: item.isRequired,
+    //         isActive: item.isActive,
+    //         status: item.status
+    //         // isExisting: true
+    //       }));
+
+    //       setVariables(formatted);
+    //       console.log(formatted);
+    //     }
+
+    //   } catch (error) {
+    //     setLoader(false);
+    //     console.error(error);
+    //     setVariables([]);
+    //   }
+    // }
+    else if (tab === "GlobalProspectDriver") {
+      try {
+        const data = await GetGlobalPricingDriverListData(
+          1,
+          null,
+          null,
+          null,
+          "GlobalProspect",
+        );
+        setModelRequestData({
+          ...modelRequestData,
+          addedFor: "GlobalProspect"
+        });
+      } catch (error) {
+        setLoader(false);
+        console.log(error);
+        setErrorMessage(true);
+      }
+    }
   };
 
   //Design part :
@@ -406,7 +475,50 @@ function Predefined_Global_Pricing_Drivers() {
                       <div class="bg-light border-bottom px-2">
                           <div className="row">
                             <div className="col-md-6 p-0 ">
-                  <div class="page-title-cls">Global Pricing Drivers</div>
+                  {/* <div class="page-title-cls">Global Pricing Drivers</div> */}
+                  <div class="container">
+              <ul className="nav nav-tabs" role="tablist">
+              {/* <div class="page-title-cls">Pricing Settings</div> */}
+              <li className="nav-item">
+                                <a
+                                  className={`nav-link tab_nav ${
+                                    activeTab === "GlobalPricingDriver" ? "active" : ""
+                                  }`}
+                                  data-bs-toggle="tab"
+                                  href="#GlobalPricingDriver"
+                                  role="tab"
+                                  aria-selected={activeTab === "GlobalPricingDriver"}
+                                  onClick={() => {
+                                    setActiveTab("GlobalPricingDriver");
+                                    // setSelectedRows([]);
+                                    TabHandle("GlobalPricingDriver");
+                                  }}
+                                >
+                                  <b>Global Pricing Drivers{" "}</b>
+                                </a>
+                              </li>
+                               <li className="nav-item">
+                                  <a
+                                    className={`nav-link tab_nav ${
+                                      activeTab === "GlobalProspectDriver"
+                                        ? "active"
+                                        : ""
+                                    }`}
+                                    data-bs-toggle="tab"
+                                    href="#GlobalProspectDriver"
+                                    role="tab"
+                                    aria-selected={activeTab === "GlobalProspectDriver"}
+                                    onClick={() => {
+                                      setActiveTab("GlobalProspectDriver");
+                                      // setSelectedRows([]);
+                                      TabHandle("GlobalProspectDriver");
+                                    }}
+                                  >
+                                    <b>Global Prospect Variables{" "}</b>
+                                  </a>
+                                </li>
+                        </ul>
+            </div>
                 </div>
                 <div className="col-auto ms-auto">
                   <div className="d-flex justify-content-sm-end add-new-letter">
@@ -415,13 +527,17 @@ function Predefined_Global_Pricing_Drivers() {
                       (userAccessData.SuperAdmin_Config_Global_Driver_CanAdd &&
                         common.organisationKeyID === null)) && (
                         <CommonButtonComponent
-                          title={getCrudButtonToolTipName("Add", moduleName)}
+                          title={getCrudButtonToolTipName("Add",
+                            activeTab === "GlobalProspectDriver"
+                              ? moduleNameGlobalProspect : moduleName)}
                           dataBsTarget="#GlobalPricingModel"
                           data_bs_toggle="modal"
                           AddBtn={() => {
                             GlobalPricingDriverAddBtnClicked();
                           }}
-                          name={getCrudButtonTextName("Add", moduleName)}
+                          name={getCrudButtonTextName("Add",
+                            activeTab === "GlobalProspectDriver"
+                              ? moduleNameGlobalProspect : moduleName)}
                         />
                       )}
                   </div>
@@ -454,7 +570,7 @@ function Predefined_Global_Pricing_Drivers() {
                             placeholder={
                               isMobile
                                 ? "Search"
-                                : getPlaceholderTextName("Search", moduleName)
+                                : getPlaceholderTextName("Search", activeTab === "GlobalProspectDriver" ? moduleNameGlobalProspect : moduleName)
                             }
                           />
                         </div>
@@ -473,7 +589,8 @@ function Predefined_Global_Pricing_Drivers() {
                                 className="tr-table-class text-white"
                                 style={{ width: "40%" }}
                               >
-                                Driver Name{" "}
+                                {activeTab === "GlobalPricingDriver"
+                                  ? "Driver Name " : "Variable Name "}
                                 {primarySortDirectionObj.DriverNameSort ===
                                   "desc" && (
                                     <i
@@ -854,7 +971,7 @@ function Predefined_Global_Pricing_Drivers() {
                         </table>
                         {totalRecords <= 0 && (
                           <NoResultFoundModel
-                            name={moduleName}
+                            name={activeTab === "GlobalProspectDriver" ? moduleNameGlobalProspect : moduleName}
                             totalRecords={totalRecords}
                           />
                         )}

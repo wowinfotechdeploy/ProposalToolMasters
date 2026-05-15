@@ -206,3 +206,10 @@ export const DeleteSingleApiQuote = async (params) => {
     );
     return res;
 };
+
+export const ArchiveQuotation = async (QuoteKeyID, UserKeyID) => {
+  const res = await postApiWithAuthenticated(
+    `${ProposalBaseUrlQuote}/ArchiveQuotation?QuoteKeyID=${QuoteKeyID}&UserKeyID=${UserKeyID}`,
+  );
+  return res;
+};

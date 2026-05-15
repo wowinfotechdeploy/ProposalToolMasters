@@ -571,7 +571,8 @@ const MySubscription = () => {
                                               <CardBody
                                                 style={{
                                                   padding: "10px",
-                                                  height: "55vh",
+                                                  maxHeight: "65vh",
+                                                  height: "auto",
                                                 }}
                                               >
                                                 <div className="media ">

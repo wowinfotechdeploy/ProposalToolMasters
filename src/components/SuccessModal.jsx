@@ -37,7 +37,7 @@ const SuccessModal = (props) => {
         >
           <div class="modal-content">
             <div class="modal-header" style={{ paddingBottom: "10px" }}></div>
-            <div class="modal-body">
+            {/* <div class="modal-body"> */}
               <div class="mt-2 text-center">
                 <div className="modallogo">
                   <div className="modallogo1"></div>
@@ -136,6 +136,12 @@ const SuccessModal = (props) => {
                     {props.modelAction === "Send"
                       ? `${props.message} with ${props.refIdStore} successfully sent!`
                       : null}
+                    {props.modelAction === "ResendAddUpdateQuote"
+                      ? `${props.message} sent successfully!`
+                      : null}
+                    {props.modelAction === "ResendAddUpdateContract"
+                      ? `${props.message} sent successfully!`
+                      : null}
                     {props.modelAction === "Resend"
                       ? `${props.message} with ${props.refIdStore} successfully re-sent!`
                       : null}
@@ -158,8 +164,14 @@ const SuccessModal = (props) => {
                     {props.modelAction === "Delete"
                       ? `${props.message} has been deleted successfully!`
                       : null}
+                    {props.modelAction === "Archive"
+                      ? `${props.message} has been archived successfully!`
+                      : null}
                     {props.modelAction === "DeleteContract"
                       ? `${props.message} has been deleted successfully!`
+                      : null}
+                    {props.modelAction === "ArchiveContract"
+                      ? `${props.message} has been archived successfully!`
                       : null}
                     {props.modelAction === "Copy" ? `${props.message}` : null}
                     {props.modelAction === "Void" ? `${props.message}` : null}
@@ -244,7 +256,7 @@ const SuccessModal = (props) => {
                   </div>
                 </p>
               </div>
-            </div>
+            {/* </div> */}
           </div>
         </div>
       </Modal>

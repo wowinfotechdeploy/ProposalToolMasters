@@ -15,6 +15,7 @@ import SuperTemplateTypeVariable from "../../Database/VariableHelpers/SuperTempl
 import ServicePricingVariables from "../../Database/VariableHelpers/ServicePricingVariables";
 import { AuthContextProvider } from "../../AuthContext/AuthContext";
 import ProspectTypeVariables from "../../Database/VariableHelpers/ProspectTypeVariables";
+import { useProspectTypeVariables } from "../../Database/VariableHelpers/ProspectTypeVariables";
 const AccountantVariables = ({
   businessTypeId,
   ClintType,
@@ -24,6 +25,7 @@ const AccountantVariables = ({
   ClintTypeID,
 }) => {
   const common = useSelector((state) => state.Storage);
+  const { GlobalClientVariables } = useProspectTypeVariables();
   const { prospectName } = useContext(AuthContextProvider);
   if (businessTypeId == CLIENT_TYPES.Sole_Trader && ModuleName === "Template") {
     return (
@@ -40,6 +42,12 @@ const AccountantVariables = ({
               texts={ProspectTypeVariables.CommonClientVariables}
               heading={`${prospectName}:`}
             />
+            {GlobalClientVariables.length > 0 && (
+              <CopyToClipboard
+                texts={GlobalClientVariables}
+                heading={`Global Prospect Variables:`}
+            />
+            )}
           </>
         )}
 

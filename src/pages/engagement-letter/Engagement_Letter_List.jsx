@@ -26,6 +26,7 @@ import {
   GetEngagementList,
   GetOldEngagementList,
   VoidContract,
+  ArchiveContract
 } from "../../redux/Services/EngagementLetter/EngagementLetterApi";
 import PaginationComponent from "../../components/PaginationModel";
 import {
@@ -675,6 +676,38 @@ const Engagement_Letter = () => {
       }
     }
   };
+
+  // Archive Contract
+  const ArchiveContractData = async() => {
+    try {
+      setLoader(true);
+      const data = await ArchiveContract(
+        modelRequestData.contractKeyID,
+        common.userKeyID
+      );
+      if(data?.data?.statusCode === 200) {
+        setLoader(false);
+        setOpenSuccessModal(true);
+      } else {
+        setLoader(false);
+        setErrorMessage(data?.response?.data?.errorMessage);
+        setOpenErrorModal(true);
+      }
+      GetEngagementListData(
+      currentPage,
+      searchKeyword,
+      status,
+      fromDate,
+      toDate,
+      businessNatureID,
+      prospectType,
+    );
+    }
+    catch(error) {
+      console.error(error);
+    }
+  }
+
   // el seacrh function
   const handleSearch = (e) => {
     const searchKeywordValue = e.target.value;
@@ -2639,6 +2672,33 @@ const Engagement_Letter = () => {
                                                                     </li>
                                                                   </>
                                                                 )}
+                                                                {/* Archive */}
+                                                            {!engagement.isArchived && (
+                                                              <li>
+                                                                <a
+                                                                  class="dropdown-item"
+                                                                  data-bs-toggle="modal"
+                                                                  data-bs-target="#ConfirmModel"
+                                                                  onClick={() =>
+                                                                    setModelRequestData(
+                                                                      {
+                                                                        ...modelRequestData,
+                                                                        Action:
+                                                                          "ArchiveContract",
+                                                                        refId: engagement.prefix,
+                                                                        contractKeyID:
+                                                                          engagement.contractKeyID,
+                                                                      })
+                                                                  }
+                                                                >
+                                                                  <i class="bi-archive-fill"></i>{" "}
+                                                                  Archive{" "}
+                                                                  {
+                                                                    EngagementName
+                                                                  }
+                                                                </a>
+                                                              </li>
+                                                            )}
                                                             </ul>
                                                           </div>
                                                         </div>
@@ -3611,9 +3671,11 @@ const Engagement_Letter = () => {
                                 ? DeleteSingleApiContractData
                                 : modelRequestData.Action === "DeleteContract"
                                   ? HandleDeleteDraftContractData
-                                  : modelRequestData.Action === "Copy"
-                                    ? CopyContractData
-                                    : () => CopyContractData(null, true)
+                                    : modelRequestData.Action === "ArchiveContract"
+                                    ? ArchiveContractData
+                                      : modelRequestData.Action === "Copy"
+                                        ? CopyContractData
+                                        : () => CopyContractData(null, true)
                       }
                     />
                     <SuccessModal
@@ -3636,7 +3698,9 @@ const Engagement_Letter = () => {
                                     : ""
                                   : modelRequestData.Action === "DeleteContract"
                                     ? EngagementName
-                                    : ""
+                                      : modelRequestData.Action === "ArchiveContract"
+                                        ? EngagementName
+                                        : ""
                       }
                       refIdStore={modelRequestData.refId}
                     />

@@ -146,7 +146,7 @@ function Modal(props) {
     driverValue: null,
     driverTypeID: null,
     isPredefined: null,
-    addedFor: null,
+    addedFor: props.modelRequestData?.addedFor || null,
     professionTypeList: [],
     variation: variations,
     slab: slabs,
@@ -1128,7 +1128,7 @@ function Modal(props) {
               CreatedByID: common.userId,
               driverName: ModelData.driverName,
               driverTypeID: ModelData.driverTypeID,
-              addedFor: ModelData.addedFor,
+              addedFor: props?.modelRequestData?.addedFor || ModelData.addedFor,
               professionTypeList: ModelData.professionTypeList,
 
               isDefault: ModelData.isDefault,
@@ -1230,6 +1230,8 @@ function Modal(props) {
 
   // 2) Add Update Button Click Function
   const GlobalPricingDriverAddUpdateBtnClicked = (Accept) => {
+
+    console.log(props?.modelRequestData?.addedFor);
     let hasError = false;
     const variationData =
       globalPricingDriverObj.driverTypeID === 3 ? variations : null;
@@ -1265,7 +1267,7 @@ function Modal(props) {
       globalPricingDriverKeyID: globalPricingDriverObj.globalPricingDriverKeyID,
       driverName: globalPricingDriverObj.driverName,
       driverTypeID: globalPricingDriverObj.driverTypeID,
-      addedFor: globalPricingDriverObj.addedFor,
+      addedFor: props?.modelRequestData?.addedFor || globalPricingDriverObj.addedFor,
       acceptSAChanges: Accept,
       professionTypeList:
         common.professionTypeLists?.length > 1 ||

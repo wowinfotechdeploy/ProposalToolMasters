@@ -417,6 +417,22 @@ const Organisation = () => {
       });
       setCurrentPage(1);
       GetOrganisationListData(1, searchKeywordUsers, sortValue, UserSort, businessTypeID,professionTypeID,fromDate,toDate);
+    } else if (UserSort === "CreatedOnDate") {
+      setPrimarySortDirectionUsers(sortValue);
+      setPrimaryUserSortDirectionObj({
+        ...primaryUserSortDirectionObj,
+        RoleTypeSort: sortValue,
+      });
+      setCurrentPage(1);
+      GetOrganisationListData(1, searchKeywordUsers, sortValue, UserSort, businessTypeID,professionTypeID,fromDate,toDate);
+    } else if (UserSort === "LastLoginDate") {
+      setPrimarySortDirectionUsers(sortValue);
+      setPrimaryUserSortDirectionObj({
+        ...primaryUserSortDirectionObj,
+        RoleTypeSort: sortValue,
+      });
+      setCurrentPage(1);
+      GetOrganisationListData(1, searchKeywordUsers, sortValue, UserSort, businessTypeID,professionTypeID,fromDate,toDate);
     }
     setUserSortType(UserSort);
   };
@@ -590,7 +606,7 @@ const Organisation = () => {
                                 className="tr-table-class text-white"
                                 style={{ width: "30%" }}
                               >
-                                Organisation/Practice Name{" "}
+                                Organisation{" "}
                                 {primaryUserSortDirectionObj.UserNameTypeSort ===
                                   "desc" && (
                                     <i
@@ -625,9 +641,9 @@ const Organisation = () => {
                               </td>
                               <td
                                 className="tr-table-class text-white"
-                                style={{ width: "20%" }}
+                                style={{ width: "15%" }}
                               >
-                                Created By{" "}
+                                Created By
                                 {primaryUserSortDirectionObj.RoleTypeSort ===
                                   "desc" && (
                                     <i
@@ -658,7 +674,7 @@ const Organisation = () => {
                                   )}
                               </td>
                               <td className="tr-table-class text-white">
-                                Number Of User
+                                Users
                               </td>
 
                               <td className="tr-table-class text-white">
@@ -666,10 +682,66 @@ const Organisation = () => {
                               </td>
                               <td className="tr-table-class text-white">
                                 Created Date
-                              </td>
+                              {primaryUserSortDirectionObj.RoleTypeSort ===
+                                  "desc" && (
+                                    <i
+                                      onClick={() => {
+                                        handleUserSort("asc", "CreatedOnDate");
+                                      }}
+                                      style={{ cursor: "pointer" }}
+                                      class="fas fa-sort-alpha-up ml-1"
+                                    ></i>
+                                  )}
+                                {(primaryUserSortDirectionObj.RoleTypeSort ===
+                                  null ||
+                                  primaryUserSortDirectionObj.RoleTypeSort ===
+                                  "asc") && (
+                                    <i
+                                      onClick={() => {
+                                        handleUserSort(
+                                          primaryUserSortDirectionObj.RoleTypeSort ===
+                                            null
+                                            ? "asc"
+                                            : "desc",
+                                          "CreatedOnDate"
+                                        );
+                                      }}
+                                      style={{ cursor: "pointer" }}
+                                      class="fas fa-sort-alpha-down ml-1"
+                                    ></i>
+                                  )}
+                                </td>
                               <td className="tr-table-class text-white">
                                 Last Login Date
-                              </td>
+                              {primaryUserSortDirectionObj.RoleTypeSort ===
+                                  "desc" && (
+                                    <i
+                                      onClick={() => {
+                                        handleUserSort("asc", "LastLoginDate");
+                                      }}
+                                      style={{ cursor: "pointer" }}
+                                      class="fas fa-sort-alpha-up ml-1"
+                                    ></i>
+                                  )}
+                                {(primaryUserSortDirectionObj.RoleTypeSort ===
+                                  null ||
+                                  primaryUserSortDirectionObj.RoleTypeSort ===
+                                  "asc") && (
+                                    <i
+                                      onClick={() => {
+                                        handleUserSort(
+                                          primaryUserSortDirectionObj.RoleTypeSort ===
+                                            null
+                                            ? "asc"
+                                            : "desc",
+                                          "LastLoginDate"
+                                        );
+                                      }}
+                                      style={{ cursor: "pointer" }}
+                                      class="fas fa-sort-alpha-down ml-1"
+                                    ></i>
+                                  )}
+                                </td>
                               <td className="tr-table-class text-white">
                                 Status
                               </td>

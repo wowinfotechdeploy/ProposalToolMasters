@@ -21,6 +21,7 @@ import {
   GetOldProposalList,
   GetProposalList,
   ResendProposal,
+  ArchiveQuotation
 } from "../../redux/Services/Proposal/ProposalApi";
 import DropDown from "../../components/DropDown";
 import { useSelector } from "react-redux";
@@ -64,6 +65,7 @@ const Proposals = () => {
     SearchKeyword: "",
     quoteKeyID: null,
     RefId: null,
+    contracts: []
   });
 
   const [openEmailFailurePopUp, setOpenEmailFailurePopUp] = useState(false);
@@ -1234,6 +1236,7 @@ const Proposals = () => {
           setOpenErrorModal(true);
         }
       } else {
+        debugger
         const data = await DeleteQuotation(
           modelRequestData.quoteKeyID,
           common.userKeyID,
@@ -1243,15 +1246,56 @@ const Proposals = () => {
           setOpenSuccessModal(true);
           // GetProposalListData(currentPage);
         } else {
+          $("#" + "ConfirmModel").modal("hide");
           setLoader(false);
-          setErrorMessage(data?.data?.errorMessage);
           setOpenErrorModal(true);
+          setErrorMessage(data?.response?.data?.errorMessage);
         }
       }
     } catch (error) {
       console.error(error);
     }
   };
+  
+  const ArchiveQuotationData = async() => {
+    try {
+      // show popup saying all linked ELs will be archived too.
+      // if(modelRequestData.Action === "ArchiveLinkedELs") {
+      //   console.log("Pan")
+      //   console.log(modelRequestData.Action)
+      //   const contractList = modelRequestData.contracts
+      //   .map(contract => `<li>${contract.RefID}</li>`).join('');
+
+      //   setModelRequestData({
+      //     ...modelRequestData,
+      //     message: `Archiving this record would archive all the linked ${EngagementName} too:
+      //     <ul>${contractList}</ul>`
+      //   });
+      //   $("#ConfirmModel").modal("show");
+      //   return;
+      // }
+      setLoader(true);
+      const data = await ArchiveQuotation(
+        modelRequestData.quoteKeyID,
+        common.userKeyID
+      );
+      if(data?.data?.statusCode === 200) {
+        setLoader(false);
+        setOpenSuccessModal(true);
+      } else {
+          setLoader(false);
+          setErrorMessage(data?.data?.errorMessage);
+          setOpenErrorModal(true);
+      }
+      GetProposalListData(
+        currentPage,null,status,fromDate,toDate,businessNatureID,prospectType,
+      );
+    }
+    catch(error) {
+      console.error(error);
+    }
+  }
+
   const ApplyFilter = () => {
     if (
       (businessNatureID !== null && businessNatureID !== "") ||
@@ -2056,12 +2100,12 @@ const Proposals = () => {
                                             </tr>
                                           </thead>
                                           <tbody class="list form-check-all">
-                                            {ProposalList.slice(
+                                            {ProposalList?.slice(
                                               0,
                                               isMobile
                                                 ? isMobileRecords
                                                 : desktopRecords,
-                                            ).map((item, index) => {
+                                            )?.map((item, index) => {
                                               return (
                                                 <tr class="table_new">
                                                   <td className="table-content-font">
@@ -2496,44 +2540,6 @@ const Proposals = () => {
                                                                   </a>
                                                                   {/* </Tooltip> */}
                                                                 </li>
-                                                                <li>
-                                                                  {/* <Tooltip title={`Delete ${proposalName}`} placement="right"> */}
-                                                                  <a
-                                                                    class="dropdown-item"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#ConfirmModel"
-                                                                    onClick={() => {
-                                                                      setModelRequestData(
-                                                                        {
-                                                                          ...modelRequestData,
-                                                                          Action:
-                                                                            "Delete",
-                                                                          RefId:
-                                                                            item.prefix,
-                                                                          quoteKeyID:
-                                                                            item.quoteKeyID,
-                                                                          userKeyID:
-                                                                            common.userKeyID,
-                                                                          message:
-                                                                            "Are you sure you want to delete this quote?",
-                                                                        },
-                                                                      );
-                                                                    }}
-                                                                  >
-                                                                    <i
-                                                                      className="ri-delete-bin-5-fill"
-                                                                      style={{
-                                                                        marginRight:
-                                                                          "2px",
-                                                                      }}
-                                                                    ></i>{" "}
-                                                                    Delete{" "}
-                                                                    {
-                                                                      proposalName
-                                                                    }
-                                                                  </a>
-                                                                  {/* </Tooltip> */}
-                                                                </li>
                                                               </>
                                                             )}
 
@@ -2651,6 +2657,92 @@ const Proposals = () => {
                                                                   Re-send{" "}
                                                                   {proposalName}
                                                                 </a>
+                                                              </li>
+                                                            )}
+                                                            {/*Archive*/}
+                                                          {!item.isArchived && (
+                                                            <li>
+                                                              {/* <Tooltip title={`Delete ${proposalName}`} placement="right"> */}
+                                                              <a
+                                                                class="dropdown-item"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#ConfirmModel"
+                                                                onClick={() => {
+                                                                  setModelRequestData(
+                                                                    {
+                                                                      ...modelRequestData,
+                                                                      Action: item.contracts?.length === 0
+                                                                      ? "Archive" : "ArchiveLinkedELs",
+                                                                      RefId:
+                                                                        item.prefix,
+                                                                      quoteKeyID:
+                                                                        item.quoteKeyID,
+                                                                      userKeyID:
+                                                                        common.userKeyID,
+                                                                      contracts:
+                                                                        item.contracts,
+                                                                      message: item?.contracts?.length === 0
+                                                                       ? "Are you sure you want to archive this quote?"
+                                                                        : `Archiving this record would archive all the linked ${EngagementName} too:`,
+                                                                    },
+                                                                  );
+                                                                }}
+                                                              >
+                                                                <i
+                                                                  className="ri-archive-fill"
+                                                                  style={{
+                                                                    marginRight:
+                                                                      "2px",
+                                                                  }}
+                                                                ></i>{" "}
+                                                                Archive{" "}
+                                                                {proposalName}
+                                                              </a>
+                                                              {/* </Tooltip> */}
+                                                            </li>
+                                                          )}
+                                                          {(
+                                                              item.statusID === 1 ||
+                                                              (item.statusID === 2 && (
+                                                                item.contracts?.length === 0 ||
+                                                                !item.contracts?.some(c => c.StatusID === 5 || c.StatusID === 7)
+                                                              ))
+                                                              ) && (
+                                                              <li>
+                                                                {/* <Tooltip title={`Delete ${proposalName}`} placement="right"> */}
+                                                                <a
+                                                                  class="dropdown-item"
+                                                                  data-bs-toggle="modal"
+                                                                  data-bs-target="#ConfirmModel"
+                                                                  onClick={() => {
+                                                                    setModelRequestData(
+                                                                      {
+                                                                        ...modelRequestData,
+                                                                        Action:
+                                                                          "Delete",
+                                                                        RefId:
+                                                                          item.prefix,
+                                                                        quoteKeyID:
+                                                                          item.quoteKeyID,
+                                                                        userKeyID:
+                                                                          common.userKeyID,
+                                                                        message:
+                                                                          "Are you sure you want to delete this quote?",
+                                                                      },
+                                                                    );
+                                                                  }}
+                                                                >
+                                                                  <i
+                                                                    className="ri-delete-bin-5-fill"
+                                                                    style={{
+                                                                      marginRight:
+                                                                        "2px",
+                                                                    }}
+                                                                  ></i>{" "}
+                                                                  Delete{" "}
+                                                                  {proposalName}
+                                                                </a>
+                                                                {/* </Tooltip> */}
                                                               </li>
                                                             )}
                                                         </ul>
@@ -3179,6 +3271,7 @@ const Proposals = () => {
                                       },
                                       true,
                                     )
+                                  : modelRequestData.Action === "Archive" || modelRequestData.Action === "ArchiveLinkedELs" ? ArchiveQuotationData
                                 : DeleteQuotationData
                     }
                   />
@@ -3198,6 +3291,10 @@ const Proposals = () => {
                             ? "Status has been changed successfully!"
                             : modelRequestData.Action === "Resend"
                               ? proposalName
+                              : modelRequestData.Action === "Archive"
+                                ? proposalName
+                                : modelRequestData.Action === "ArchiveLinkedELs"
+                                  ? `${proposalName} and all the linked ${EngagementName} have been archived successfully`
                               : ""
                     }
                     refIdStore={modelRequestData.RefId}
