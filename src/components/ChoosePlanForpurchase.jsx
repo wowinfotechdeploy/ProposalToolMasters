@@ -81,23 +81,25 @@ const ChoosePlanForPurchase = (props) => {
     setDiscountedMonthsYearly([]);
   };
   const handleButtonClick = async (i, subscriptionPackageKeyID) => {
+    debugger;
     // Pass the value of 'i' and 'searchKeywordValue' into the BuyPlanData function
     BuyPlanData(i, subscriptionPackageKeyID);
     // Your logic after BuyPlanData completes, if needed
   };
 
   const BuyPlanData = async (i, subscriptionPackageKeyIDForPurchase) => {
+    debugger;
     setLoader(true);
     try {
       const subscriptionPackageData =
         subscriptionPackageKeyIDForPurchase ===
-        selectedOfferID?.subscriptionPackageKeyID
-          ? selectedOfferID.subscriptionPackageKeyID
+        selectedOfferID[0]?.subscriptionPackageKeyID
+          ? selectedOfferID[0].subscriptionPackageKeyID
           : subscriptionPackageKeyIDForPurchase;
       const offerData =
         subscriptionPackageKeyIDForPurchase ===
-        selectedOfferID?.subscriptionPackageKeyID
-          ? selectedOfferID.value
+        selectedOfferID[0]?.subscriptionPackageKeyID
+          ? selectedOfferID[0].value
           : null;
       const data = await BuyPlan({
         organisationKeyID: organizationKeyId,
@@ -136,6 +138,7 @@ const ChoosePlanForPurchase = (props) => {
     userKeyID,
     InvoiceKeyID,
   ) => {
+    debugger;
     setLoader(true);
 
     try {
@@ -178,6 +181,7 @@ const ChoosePlanForPurchase = (props) => {
     yearlyOffer,
     monthlyOffer,
   ) => {
+    debugger;
     // Extract the offerID and label from the selected option
     const selectedOfferID = selectedOption.value;
     const selectedName = selectedOption.label;
@@ -388,6 +392,8 @@ const ChoosePlanForPurchase = (props) => {
       }
     }
   };
+
+  console.log("selectedOfferID", selectedOfferID);
 
   const HandleGetDiscountedRate = (actualRate, offer) => {
     // offer -> offerId
