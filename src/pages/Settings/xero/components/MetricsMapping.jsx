@@ -2,7 +2,6 @@ import { useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
 
-import {} from "../../../../redux/reducer/quickBookSlice";
 import ErrorModel from "../../../../components/ErrorModel";
 import { AuthContextProvider } from "../../../../AuthContext/AuthContext";
 import { SaveMetricMapping } from "../../../../redux/reducer/metricsSlice";
@@ -12,6 +11,7 @@ export default function MappingUI({
   metrics = [],
   metricMappings = [],
 }) {
+  console.log("metric mappings ==>>", metricMappings);
   const dispatch = useDispatch();
   const auth = useSelector((state) => state?.Storage);
   const { handleErrorMessage } = useContext(AuthContextProvider);
@@ -23,6 +23,7 @@ export default function MappingUI({
   const [openErrorModal, setOpenErrorModal] = useState(false);
   const formattedErrorMessage = handleErrorMessage(errorMessage);
   const [successMapping, setSuccessMapping] = useState({});
+  const [expandedServices, setExpandedServices] = useState({});
   //================ STYLES =================
   const headingStyle = { color: "#182031ff" };
   const labelStyle = { color: "#000000ff" };
@@ -32,6 +33,7 @@ export default function MappingUI({
     label: d.name,
   }));
 
+  //================ PRELOAD EXISTING MAPPINGS =================
   //================ PRELOAD EXISTING MAPPINGS =================
   useEffect(() => {
     if (!metricMappings?.length || !drivers?.length) return;
@@ -73,8 +75,21 @@ export default function MappingUI({
           serviceId: driverItem.serviceId || null,
         });
 
-        // services UI
-        if (driverItem.serviceName) {
+        // ================= GLOBAL SERVICES =================
+        if (
+          driverItem.scope === "global" &&
+          Array.isArray(driverItem.services)
+        ) {
+          driverItem.services.forEach((service) => {
+            services.push({
+              serviceID: service.serviceId,
+              serviceName: service.serviceName,
+            });
+          });
+        }
+
+        // ================= LOCAL SERVICES =================
+        if (driverItem.scope === "local" && driverItem.serviceName) {
           services.push({
             serviceID: driverItem.serviceId,
             serviceName: driverItem.serviceName,
@@ -82,6 +97,16 @@ export default function MappingUI({
         }
       });
 
+      // REMOVE DUPLICATE SERVICES
+      const uniqueServices = services.filter(
+        (service, index, self) =>
+          index ===
+          self.findIndex(
+            (s) => Number(s.serviceID) === Number(service.serviceID),
+          ),
+      );
+
+      // IMPORTANT: THIS SHOULD BE OUTSIDE drivers.forEach
       formattedMapping[item.metricKey] = {
         metricKey: item.metricKey,
 
@@ -91,7 +116,7 @@ export default function MappingUI({
 
         drivers: payloadDrivers,
 
-        services,
+        services: uniqueServices,
       };
     });
 
@@ -99,6 +124,7 @@ export default function MappingUI({
 
     setSavedMapping(formattedMapping);
   }, [metricMappings, drivers]);
+
   //================ HANDLE SAVE =================
   const handleSave = async (metricKey) => {
     try {
@@ -275,18 +301,73 @@ export default function MappingUI({
               </div>
 
               {/* SERVICES */}
-              <p className="mb-2 small fw-semibold" style={labelStyle}>
-                Proposal Services
-              </p>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <p className="mb-2 small fw-semibold" style={labelStyle}>
+                  Proposal Services
+                </p>
+
+                {data?.services?.length > 3 && (
+                  <button
+                    type="button"
+                    className="btn btn-sm p-0 border-0 bg-transparent"
+                    title={
+                      expandedServices[metricKey]
+                        ? "Collapse services"
+                        : "View all services"
+                    }
+                    onClick={() =>
+                      setExpandedServices((prev) => ({
+                        ...prev,
+                        [metricKey]: !prev[metricKey],
+                      }))
+                    }
+                  >
+                    <i
+                      className={`bi ${
+                        expandedServices[metricKey]
+                          ? "bi-chevron-up"
+                          : "bi-chevron-down"
+                      }`}
+                      style={{ fontSize: "14px", color: "#6b7280" }}
+                    />
+                  </button>
+                )}
+              </div>
 
               {data?.services?.length > 0 ? (
                 <>
-                  <div className="d-flex flex-wrap gap-2 mb-3">
-                    {data.services.map((service, i) => (
+                  <div
+                    className={`d-flex flex-wrap gap-2 mb-3 ${
+                      expandedServices[metricKey] ? "" : "overflow-hidden"
+                    }`}
+                    style={{
+                      maxHeight: expandedServices[metricKey] ? "unset" : "34px",
+                      transition: "max-height 0.3s ease",
+                    }}
+                  >
+                    {(expandedServices[metricKey]
+                      ? data.services
+                      : data.services.slice(0, 3)
+                    ).map((service, i) => (
                       <span key={i} className="service-tag">
                         {service.serviceName}
                       </span>
                     ))}
+
+                    {!expandedServices[metricKey] &&
+                      data.services.length > 3 && (
+                        <span
+                          className="service-tag"
+                          style={{
+                            background: "#eef2ff",
+                            color: "#4338ca",
+                            cursor: "pointer",
+                          }}
+                          title="Click expand icon to view all services"
+                        >
+                          +{data.services.length - 3}
+                        </span>
+                      )}
                   </div>
 
                   <div>
