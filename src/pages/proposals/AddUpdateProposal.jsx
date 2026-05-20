@@ -27,7 +27,7 @@ import {
 } from "../../Middleware/enums";
 
 import { AuthContextProvider } from "../../AuthContext/AuthContext";
-import { AdditionalInformation } from "../../components/AdditionalInformation";
+// import { AdditionalInformation } from "../../components/AdditionalInformation";
 import {
   GetAdditionalInformationList,
   GetPackageServicesList,
@@ -72,6 +72,9 @@ import {
 const SelectServices = lazy(() => import("../../components/SelectServices"));
 const PreviewComponentPdf = lazy(
   () => import("../../components/PreviewComponentpdf"),
+);
+const AdditionalInformation = lazy(
+  () => import("../../components/AdditionalInformation"),
 );
 // const PricingTableCustomizationModal = lazy(
 //   () => import("../../components/PricingTableCustomizationModal"),
@@ -20856,6 +20859,7 @@ const Add_Update_Proposal = (props) => {
                 />
               )} */}
               {activeTab === ProposalHeader.AdditionalInformation && (
+                <Suspense>
                 <AdditionalInformation
                   DisableTabOnChange={DisableTabOnChange}
                   HandleTabChange={HandleTabChange}
@@ -20872,6 +20876,7 @@ const Add_Update_Proposal = (props) => {
                   moduleName={"Quote"}
                   proposalName={proposalName}
                 />
+                </Suspense>
               )}
 
               {activeTab === ProposalHeader.ReviewServices && (

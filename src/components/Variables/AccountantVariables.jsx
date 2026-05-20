@@ -26,6 +26,7 @@ const AccountantVariables = ({
 }) => {
   const common = useSelector((state) => state.Storage);
   const { GlobalClientVariables } = useProspectTypeVariables();
+  console.log("GlobalClientVariables", GlobalClientVariables);
   const { prospectName } = useContext(AuthContextProvider);
   if (businessTypeId == CLIENT_TYPES.Sole_Trader && ModuleName === "Template") {
     return (
@@ -102,6 +103,12 @@ const AccountantVariables = ({
               texts={ProspectTypeVariables.CommonClientVariables}
               heading={`${prospectName}:`}
             />
+            {GlobalClientVariables.length > 0 && (
+              <CopyToClipboard
+                texts={GlobalClientVariables}
+                heading={`Global Prospect Variables:`}
+            />
+            )}
           </>
         )}
 
@@ -153,6 +160,12 @@ const AccountantVariables = ({
               texts={ProspectTypeVariables.CommonClientVariables}
               heading={`${prospectName}:`}
             />
+            {GlobalClientVariables?.length > 0 && (
+              <CopyToClipboard
+                texts={GlobalClientVariables}
+                heading={`Global Prospect Variables:`}
+            />
+            )}
           </>
         )}
 
@@ -205,6 +218,12 @@ const AccountantVariables = ({
               texts={ProspectTypeVariables.CommonClientVariables}
               heading={`${prospectName}:`}
             />
+            {GlobalClientVariables.length > 0 && (
+              <CopyToClipboard
+                texts={GlobalClientVariables}
+                heading={`Global Prospect Variables:`}
+            />
+            )}
           </>
         )}
 
@@ -253,6 +272,12 @@ const AccountantVariables = ({
           texts={BusinessTypeVariables.commonVariablesForOrganisation}
           heading="Organisation:"
         />
+        {GlobalClientVariables.length > 0 && (
+          <CopyToClipboard
+            texts={GlobalClientVariables}
+            heading={`Global Prospect Variables:`}
+          />
+        )}
         {ClintType !== null && <hr />}
         <CopyToClipboard
           texts={BusinessTypeVariables.TncCustomBusinessPartnerShipVariables}
@@ -271,6 +296,12 @@ const AccountantVariables = ({
           texts={BusinessTypeVariables.commonVariablesForOrganisation}
           heading="Organisation:"
         />
+        {GlobalClientVariables.length > 0 && (
+              <CopyToClipboard
+                texts={GlobalClientVariables}
+                heading={`Global Prospect Variables:`}
+            />
+        )}
         {ClintType !== null && <hr />}
         <CopyToClipboard
           texts={BusinessTypeVariables.TncCustomBusinessCompanyVariables}
@@ -289,6 +320,12 @@ const AccountantVariables = ({
           texts={BusinessTypeVariables.commonVariablesForOrganisation}
           heading="Organisation:"
         />
+        {GlobalClientVariables.length > 0 && (
+          <CopyToClipboard
+            texts={GlobalClientVariables}
+            heading={`Global Prospect Variables:`}
+          />
+        )}
         {ClintType !== null && <hr />}
         <CopyToClipboard
           texts={BusinessTypeVariables.TncCustomBusinessSoleTraderVariables}
@@ -307,6 +344,12 @@ const AccountantVariables = ({
           texts={BusinessTypeVariables.commonVariablesForOrganisation}
           heading="Organisation:"
         />
+        {GlobalClientVariables.length > 0 && (
+          <CopyToClipboard
+            texts={GlobalClientVariables}
+            heading={`Global Prospect Variables:`}
+          />
+        )}
         {ClintType !== null && <hr />}
         <CopyToClipboard
           texts={BusinessTypeVariables.TncCustomBusinessLLpVariables}
@@ -325,6 +368,12 @@ const AccountantVariables = ({
           texts={BusinessTypeVariables.commonVariablesForOrganisation}
           heading="Organisation:"
         />
+        {GlobalClientVariables.length > 0 && (
+          <CopyToClipboard
+            texts={GlobalClientVariables}
+            heading={`Global Prospect Variables:`}
+          />
+        )}
       </div>
     );
   } else if (
@@ -341,7 +390,13 @@ const AccountantVariables = ({
         <CopyToClipboard
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
-        />
+          />
+        {GlobalClientVariables.length > 0 && (
+          <CopyToClipboard
+            texts={GlobalClientVariables}
+            heading={`Global Prospect Variables:`}
+          />
+        )}
         <hr />
         <CopyToClipboard texts={TemplateTypeVariables.Quote} />
       </div>
@@ -361,6 +416,12 @@ const AccountantVariables = ({
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
         />
+        {GlobalClientVariables.length > 0 && (
+          <CopyToClipboard
+            texts={GlobalClientVariables}
+            heading={`Global Prospect Variables:`}
+          />
+        )}
         <hr />
         <CopyToClipboard texts={TemplateTypeVariables.Contract} />
       </div>
@@ -376,7 +437,12 @@ const AccountantVariables = ({
           texts={BusinessTypeVariables.commonVariablesForOrganisation}
           heading="Organisation:"
         />
-
+        {GlobalClientVariables.length > 0 && (
+          <CopyToClipboard
+            texts={GlobalClientVariables}
+            heading={`Global Prospect Variables:`}
+          />
+        )}
         <hr />
         <CopyToClipboard texts={TemplateTypeVariables.EmailInvite} />
       </div>
@@ -396,6 +462,12 @@ const AccountantVariables = ({
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
         />
+        {GlobalClientVariables.length > 0 && (
+          <CopyToClipboard
+            texts={GlobalClientVariables}
+            heading={`Global Prospect Variables:`}
+          />
+        )}
         <hr />
         <CopyToClipboard texts={TemplateTypeVariables.ContractAccepted} />
       </div>
@@ -415,6 +487,12 @@ const AccountantVariables = ({
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
         />
+        {GlobalClientVariables.length > 0 && (
+          <CopyToClipboard
+            texts={GlobalClientVariables}
+            heading={`Global Prospect Variables:`}
+          />
+        )}
         <hr />
         <CopyToClipboard texts={TemplateTypeVariables.ContractDeclined} />
       </div>
@@ -434,6 +512,12 @@ const AccountantVariables = ({
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
         />
+        {GlobalClientVariables.length > 0 && (
+          <CopyToClipboard
+            texts={GlobalClientVariables}
+            heading={`Global Prospect Variables:`}
+          />
+        )}
         <hr />
         <CopyToClipboard texts={TemplateTypeVariables.ContractViewed} />
       </div>
@@ -453,6 +537,12 @@ const AccountantVariables = ({
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
         />
+        {GlobalClientVariables.length > 0 && (
+          <CopyToClipboard
+            texts={GlobalClientVariables}
+            heading={`Global Prospect Variables:`}
+          />
+        )}
         <hr />
         <CopyToClipboard texts={TemplateTypeVariables.QuotePdf} />
       </div>
@@ -484,6 +574,12 @@ const AccountantVariables = ({
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
         />
+        {GlobalClientVariables.length > 0 && (
+          <CopyToClipboard
+            texts={GlobalClientVariables}
+            heading={`Global Prospect Variables:`}
+          />
+        )}
         <hr />
         <CopyToClipboard texts={TemplateTypeVariables.QuoteAccepted} />
       </div>
@@ -503,6 +599,12 @@ const AccountantVariables = ({
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
         />
+        {GlobalClientVariables.length > 0 && (
+          <CopyToClipboard
+            texts={GlobalClientVariables}
+            heading={`Global Prospect Variables:`}
+          />
+        )}
         <hr />
         <CopyToClipboard texts={TemplateTypeVariables.QuoteDecline} />
       </div>
@@ -518,6 +620,12 @@ const AccountantVariables = ({
           texts={BusinessTypeVariables.commonVariablesForOrganisation}
           heading="Organisation:"
         />
+        {GlobalClientVariables.length > 0 && (
+          <CopyToClipboard
+            texts={GlobalClientVariables}
+              heading={`Global Prospect Variables:`}
+          />
+        )}
         <hr />
         <CopyToClipboard
           texts={TemplateTypeVariables.EmailInviteForOrganisation}
@@ -540,6 +648,12 @@ const AccountantVariables = ({
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
         />
+        {GlobalClientVariables.length > 0 && (
+          <CopyToClipboard
+            texts={GlobalClientVariables}
+              heading={`Global Prospect Variables:`}
+          />
+        )}
         <hr />
         <CopyToClipboard
           texts={TemplateTypeVariables.QuoteAcceptedDeclinedEmailSendToSender}
@@ -561,6 +675,12 @@ const AccountantVariables = ({
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
         />
+        {GlobalClientVariables.length > 0 && (
+          <CopyToClipboard
+            texts={GlobalClientVariables}
+              heading={`Global Prospect Variables:`}
+          />
+        )}
         <hr />
         <CopyToClipboard
           texts={
@@ -580,6 +700,12 @@ const AccountantVariables = ({
           texts={BusinessTypeVariables.commonVariablesForOrganisation}
           heading="Organisation:"
         />
+        {GlobalClientVariables.length > 0 && (
+          <CopyToClipboard
+            texts={GlobalClientVariables}
+              heading={`Global Prospect Variables:`}
+          />
+        )}
         <hr />
         <CopyToClipboard
           texts={ProspectTypeVariables.CommonClientVariables}
@@ -607,6 +733,12 @@ const AccountantVariables = ({
               texts={ProspectTypeVariables.CommonClientVariables}
               heading={`${prospectName}:`}
             />
+            {GlobalClientVariables.length > 0 && (
+              <CopyToClipboard
+                texts={GlobalClientVariables}
+                  heading={`Global Prospect Variables:`}
+              />
+            )}
           </>
         )}
         <hr />

@@ -44,7 +44,7 @@ import {
   GetTemplateModelData,
 } from "../../redux/Services/Config/TemplateApi";
 // import { SelectServices } from "../../components/SelectServices";
-import { AdditionalInformation } from "../../components/AdditionalInformation";
+// import { AdditionalInformation } from "../../components/AdditionalInformation";
 // import PreviewComponentPdf from "../../components/PreviewComponentpdf";
 import { GetOrganisationInformationModel } from "../../redux/Services/Setting/Organisation";
 import BackButtonSvg from "../../components/BackButtonSvg";
@@ -71,6 +71,9 @@ import Text_Editor from "../../components/Text_Editor";
 const SelectServices = lazy(() => import("../../components/SelectServices"));
 const PreviewComponentPdf = lazy(
   () => import("../../components/PreviewComponentpdf"),
+);
+const AdditionalInformation = lazy(
+  () => import("../../components/AdditionalInformation"),
 );
 // const PricingTableTemplatesModal = lazy(
 //   () => import("../../components/PricingTableTemplatesModal"),
@@ -15173,6 +15176,7 @@ const Add_Update_Engagement_Letter = () => {
                 </Suspense>
               )}
               {activeTab === EngagementLetterHeader.AdditionalInformation && (
+                <Suspense>
                 <AdditionalInformation
                   DisableTabOnChange={DisableTabOnChange}
                   HandleTabChange={HandleTabChange}
@@ -15201,6 +15205,7 @@ const Add_Update_Engagement_Letter = () => {
                   getCrudPopUpTitleName={getCrudPopUpTitleName}
                   handleCancel={handleCancel}
                 />
+                </Suspense>
               )}
               {activeTab === EngagementLetterHeader.ReviewPackages && (
                 <ReviewPackagesComponent
