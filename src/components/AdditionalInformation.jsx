@@ -12,7 +12,7 @@ import { parse, isValid, format, isAfter, isBefore, isEqual } from 'date-fns';
 import "react-datepicker/dist/react-datepicker.css";
 import "react-calendar/dist/Calendar.css";
 import dayjs from 'dayjs';
-export const AdditionalInformation = (props) => {
+export default function AdditionalInformation(props) {
 
     useEffect(() => {
         if (!props.additionalInformationList || props.additionalInformationList.length === 0) {
