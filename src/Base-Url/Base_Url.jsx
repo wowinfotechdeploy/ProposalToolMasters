@@ -6,6 +6,7 @@
 
 //Master Api
 export const Base_Url = "https://api.master.proposal.ust.outbooks.com/api";
+export const Frontend_Url = "master.proposal.outbooks.com";
 
 // //temporyBAseURl;
 // export const Base_Url = "https://angry-blackburn.101-53-133-129.plesk.page/api"
