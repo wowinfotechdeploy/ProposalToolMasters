@@ -5,6 +5,7 @@ import {
 } from "../../redux/Services/Proposal/ProposalApi";
 import { Base_Url, Frontend_Url } from "../../Base-Url/Base_Url";
 import { ServiceChargeTypeEnum } from "../../Middleware/enums";
+import ViewAiProposalPdfGenerator from "./ViewAIProposalPDFGenerator";
 
 export default function ViewAiProposal() {
   const [proposalData, setProposalData] = useState(null);
@@ -564,7 +565,6 @@ export default function ViewAiProposal() {
           justifyContent: "space-between",
         }}
       >
-        {/* Empty div to balance layout */}
         <div style={{ width: "120px" }} />
 
         <h1
@@ -579,25 +579,65 @@ export default function ViewAiProposal() {
           AI-Built Proposal
         </h1>
 
-        <button
-          type="button"
-          onClick={() =>
-            proposalData?.quotePDFUrl &&
-            window.open(proposalData.quotePDFUrl, "_blank")
-          }
-          style={{
-            backgroundColor: "#00BFFF",
-            color: "#fff",
-            border: "none",
-            borderRadius: "8px",
-            padding: "12px 24px",
-            fontSize: "16px",
-            fontWeight: "600",
-            cursor: "pointer",
+        <ViewAiProposalPdfGenerator
+          userKeyID={proposalData.userKeyID}
+          moduleName="Quote"
+          proposalName="AI-Built Proposal"
+          brandColor="#00BFFF"
+          proposalData={proposalData}
+          onPdfGenerated={(url) => {
+            console.log("Generated PDF URL:", url);
           }}
         >
-          View PDF
-        </button>
+          <div
+            style={{
+              maxWidth: "1000px",
+              margin: "0 auto",
+            }}
+          >
+            {isPackageProposal ? (
+              <>
+                {recurringServices?.length > 0 && (
+                  <PackageProposalTable
+                    title={`Recurring Fees (${paymentFrequencyLabel})`}
+                    services={recurringServices}
+                    packages={selectedPackagesList}
+                    serviceChargeTypeID={1}
+                  />
+                )}
+
+                {oneOffServices?.length > 0 && (
+                  <PackageProposalTable
+                    title="One-Off Fees"
+                    services={oneOffServices}
+                    packages={selectedPackagesList}
+                    serviceChargeTypeID={2}
+                  />
+                )}
+              </>
+            ) : (
+              <>
+                {recurringServices.length > 0 && (
+                  <ProposalTable
+                    title={`Recurring Fees (${paymentFrequencyLabel})`}
+                    services={recurringServices}
+                    pricing={getPricing(1)}
+                    serviceChargeTypeID={1}
+                  />
+                )}
+
+                {oneOffServices.length > 0 && (
+                  <ProposalTable
+                    title="One-Off Fees"
+                    services={oneOffServices}
+                    pricing={getPricing(2)}
+                    serviceChargeTypeID={2}
+                  />
+                )}
+              </>
+            )}
+          </div>
+        </ViewAiProposalPdfGenerator>
       </div>
 
       <div
