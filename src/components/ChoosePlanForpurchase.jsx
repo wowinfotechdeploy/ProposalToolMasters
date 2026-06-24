@@ -61,7 +61,7 @@ const ChoosePlanForPurchase = (props) => {
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
           const ModelData = data?.data?.responseData?.data;
- 
+
           setChooseApiData(ModelData);
         }
       } else {
@@ -908,7 +908,7 @@ const ChoosePlanForPurchase = (props) => {
                                                       </span>
                                                     </div>
 
-                                                     <div>
+                                                    <div>
                                                       {PurchasePlanList?.enableXERO ==
                                                       true ? (
                                                         <span
@@ -935,7 +935,7 @@ const ChoosePlanForPurchase = (props) => {
                                                       </span>
                                                     </div>
 
-                                                     <div>
+                                                    <div>
                                                       {PurchasePlanList?.enableQBO ==
                                                       true ? (
                                                         <span
@@ -961,7 +961,35 @@ const ChoosePlanForPurchase = (props) => {
                                                         Quickbooks Subscription
                                                       </span>
                                                     </div>
-                                                    
+
+                                                    {/* ai agent enable start  */}
+                                                    <div>
+                                                      {PurchasePlanList?.enableAIAgent ==
+                                                      true ? (
+                                                        <span
+                                                          style={{
+                                                            color: "green",
+                                                          }}
+                                                          className="fa fa-check"
+                                                        ></span>
+                                                      ) : (
+                                                        <span
+                                                          style={{
+                                                            color: "red",
+                                                          }}
+                                                          className="fa fa-times"
+                                                        ></span>
+                                                      )}
+                                                      <span
+                                                        style={{
+                                                          marginLeft: "10px",
+                                                        }}
+                                                      >
+                                                        {" "}
+                                                        Ai Agent Subscription
+                                                      </span>
+                                                    </div>
+
                                                     {PurchasePlanList && (
                                                       <div
                                                         className="d-flex flex-column"

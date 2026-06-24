@@ -39,7 +39,6 @@ import {
 const TopbarClone = () => {
   //localstorage values
   const bookkeeping = JSON.parse(localStorage.getItem("subscriptionPlan"));
-  console.log("bookkeeping localstorage bookkeeping===>", bookkeeping);
   // A] States Declaration
   const {
     currentCardColor,

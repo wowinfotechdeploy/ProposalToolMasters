@@ -1007,6 +1007,7 @@ function AppContent() {
 // -----------------------------------Routes Component------------------------------------------------
 function Index() {
   const common = useSelector((state) => state.Storage);
+  const subscriptionPlan = JSON.parse(localStorage.getItem("subscriptionPlan"));
   const {
     loginLoader,
     loader,
@@ -1372,7 +1373,7 @@ function Index() {
                         </Routes>
                       </div>
                       <AppContent />
-                      <ChatWidget />
+                      {subscriptionPlan?.enableAIAgent && <ChatWidget />}
                     </div>
                   </ColorProvider>
                 )}
