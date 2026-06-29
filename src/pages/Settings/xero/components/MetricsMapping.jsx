@@ -404,7 +404,7 @@ export default function MappingUI({
                 </>
               ) : (
                 <p className="small" style={{ color: "#9ca3af" }}>
-                  No services selected
+                  No drivers selected
                 </p>
               )}
             </div>
