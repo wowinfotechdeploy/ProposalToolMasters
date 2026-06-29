@@ -10,7 +10,6 @@ function ConfirmModel({
   openSuccessModal,
   modelAction,
 }) {
-
   return (
     <div
       style={{ display: openSuccessModal || openErrorModal ? "block" : "none" }}
@@ -44,21 +43,22 @@ function ConfirmModel({
             ></button>
           </div>
           <div
-            className={`custom-style modal-body ${modelRequestData.Action === "PaymentStatus"
-              ? "payment-status"
-              : ""
-              }`}
+            className={`custom-style modal-body ${
+              modelRequestData.Action === "PaymentStatus"
+                ? "payment-status"
+                : ""
+            }`}
           >
             <div class="  text-center">
               {(modelRequestData.Action === "Status" ||
                 modelRequestData.Action === "EnableApiIntegration") && (
-                  <img
-                    src={editGif}
-                    trigger="loop"
-                    colors="primary:#f7b84b,secondary:#f06548"
-                    style={{ width: "85px", height: "50px" }}
-                  />
-                )}
+                <img
+                  src={editGif}
+                  trigger="loop"
+                  colors="primary:#f7b84b,secondary:#f06548"
+                  style={{ width: "85px", height: "50px" }}
+                />
+              )}
               {modelRequestData.Action === "Delete" && (
                 <lord-icon
                   src="https://cdn.lordicon.com/gsqxdxog.json"
@@ -69,13 +69,12 @@ function ConfirmModel({
               )}
               {modelRequestData.Action === "Redirect" && (
                 <lord-icon
-                  src="https://cdn.lordicon.com/gsqxdxog.json"
+                  src="https://cdn.lordicon.com/uecgmesg.json"
                   trigger="loop"
                   colors="primary:#f7b84b,secondary:#f06548"
                   style={{ width: "75px", height: "60px" }}
                 ></lord-icon>
               )}
-
 
               {modelRequestData.Action === "Disconnected" && (
                 <lord-icon
@@ -228,10 +227,10 @@ function ConfirmModel({
                 )}
                 {modelRequestData.Action ===
                   "ResetEmailConfigurationChange" && (
-                    <span class="text-muted mb-0">
-                      Are you sure you want to reset email configuration?
-                    </span>
-                  )}
+                  <span class="text-muted mb-0">
+                    Are you sure you want to reset email configuration?
+                  </span>
+                )}
                 {modelRequestData.Action === "ResetPaymentGatewayChange" && (
                   <span class="text-muted mb-0">
                     {`Are you sure you want to reset ${modelRequestData.moduleName}?`}
@@ -386,7 +385,7 @@ function ConfirmModel({
                             {modelRequestData.dependingList?.map(
                               (item, idx) => (
                                 <li key={`dep-${idx}`}>{item}</li>
-                              )
+                              ),
                             )}
                           </ul>
                         </div>
@@ -406,7 +405,7 @@ function ConfirmModel({
                             {modelRequestData.prerequisiteList?.map(
                               (item, idx) => (
                                 <li key={`pre-${idx}`}>{item}</li>
-                              )
+                              ),
                             )}
                           </ul>
                         </div>
@@ -467,12 +466,12 @@ function ConfirmModel({
                 type="button"
                 class="btn btn-md btn-light cancel-item-btn"
                 data-bs-dismiss="modal"
-              // onClick={() => modelRequestData.Action === "PaymentStatus" ? handleClose() : null}
+                // onClick={() => modelRequestData.Action === "PaymentStatus" ? handleClose() : null}
               >
                 {modelRequestData.Action === "Warning" ||
-                  modelRequestData.Action === "PracticeWarning" ||
-                  modelRequestData.Action === "Upload" ||
-                  modelRequestData.Action === "PaymentStatus" ? (
+                modelRequestData.Action === "PracticeWarning" ||
+                modelRequestData.Action === "Upload" ||
+                modelRequestData.Action === "PaymentStatus" ? (
                   <span>No</span>
                 ) : (
                   <span>Cancel</span>
@@ -505,74 +504,74 @@ function ConfirmModel({
                 modelRequestData.Action === "Add Contact" ||
                 modelRequestData.Action === "Add Contact Mapping" ||
                 modelRequestData.Action === "ResetPaymentGatewayChange") && (
-                  <button
-                    onClick={() => {
-                      UpdatedStatus();
-                    }}
-                    type="button"
-                    class="btn btn-md btn-success create-item-btn"
-                  >
-                    {(modelRequestData.Action === "Status" ||
-                      modelRequestData.Action === "vatStatus" ||
-                      modelRequestData.Action === "UnpaidUser" ||
-                      modelRequestData.Action === "EnableApiIntegration" ||
-                      modelRequestData.Action === "ReminderStatus" ||
-                      modelRequestData.Action === "PaidUser" ||
-                      modelRequestData.Action === "2FaStatusChange" ||
-                      modelRequestData.Action === "ELStatusChange" ||
-                      modelRequestData.Action === "emailStatusChange") && (
-                        <span>Yes, Change It!</span>
-                      )}
+                <button
+                  onClick={() => {
+                    UpdatedStatus();
+                  }}
+                  type="button"
+                  class="btn btn-md btn-success create-item-btn"
+                >
+                  {(modelRequestData.Action === "Status" ||
+                    modelRequestData.Action === "vatStatus" ||
+                    modelRequestData.Action === "UnpaidUser" ||
+                    modelRequestData.Action === "EnableApiIntegration" ||
+                    modelRequestData.Action === "ReminderStatus" ||
+                    modelRequestData.Action === "PaidUser" ||
+                    modelRequestData.Action === "2FaStatusChange" ||
+                    modelRequestData.Action === "ELStatusChange" ||
+                    modelRequestData.Action === "emailStatusChange") && (
+                    <span>Yes, Change It!</span>
+                  )}
 
-                    {modelRequestData.Action === "Delete" && (
-                      <span>Yes, Delete It!</span>
-                    )}
+                  {modelRequestData.Action === "Delete" && (
+                    <span>Yes, Delete It!</span>
+                  )}
 
-                    {modelRequestData.Action === "Disconnect" && (
-                      <span>Yes, Please</span>
-                    )}
-                    {modelRequestData.Action === "Redirect" && (
-                      <span>Yes, Please!</span>
-                    )}
-                    {modelRequestData.Action === "Add Contact" && (
-                      <span>Yes, Please Add!</span>
-                    )}
-                    {modelRequestData.Action === "Add Contact Mapping" && (
-                      <span>Yes, Please Add!</span>
-                    )}
-                    {modelRequestData.Action === "DeleteContract" && (
-                      <span>Yes, Delete It!</span>
-                    )}
-                    {modelRequestData.Action === "Void" && (
-                      <span>Yes, Void It!</span>
-                    )}
-                    {(modelRequestData.Action ===
-                      "ResetEmailConfigurationChange" ||
-                      modelRequestData.Action ===
+                  {modelRequestData.Action === "Disconnect" && (
+                    <span>Yes, Please</span>
+                  )}
+                  {modelRequestData.Action === "Redirect" && (
+                    <span>Yes, Please!</span>
+                  )}
+                  {modelRequestData.Action === "Add Contact" && (
+                    <span>Yes, Please Add!</span>
+                  )}
+                  {modelRequestData.Action === "Add Contact Mapping" && (
+                    <span>Yes, Please Add!</span>
+                  )}
+                  {modelRequestData.Action === "DeleteContract" && (
+                    <span>Yes, Delete It!</span>
+                  )}
+                  {modelRequestData.Action === "Void" && (
+                    <span>Yes, Void It!</span>
+                  )}
+                  {(modelRequestData.Action ===
+                    "ResetEmailConfigurationChange" ||
+                    modelRequestData.Action ===
                       "ResetPaymentGatewayChange") && (
-                        <span>Yes, Reset It!</span>
-                      )}
-                    {modelRequestData.Action === "ClearCcBcc" && (
-                      <span>Yes, Reset It!</span>
-                    )}
-                    {modelRequestData.Action === "Resend" && (
-                      <span>Yes, Re-send It!</span>
-                    )}
-                    {modelRequestData.Action === "Warning" && <span>Yes</span>}
-                    {modelRequestData.Action === "ServiceWarning" && (
-                      <span>Yes</span>
-                    )}
-                    {modelRequestData.Action === "ServiceWarningEL" && (
-                      <span>Yes</span>
-                    )}
-                    {modelRequestData.Action === "Copy" && <span>Yes! Copy</span>}
-                    {(modelRequestData.Action == "PracticeWarning" ||
-                      modelRequestData.Action === "Upload" ||
-                      modelRequestData.Action === "PaymentStatus") && (
-                        <span>Yes</span>
-                      )}
-                  </button>
-                )}
+                    <span>Yes, Reset It!</span>
+                  )}
+                  {modelRequestData.Action === "ClearCcBcc" && (
+                    <span>Yes, Reset It!</span>
+                  )}
+                  {modelRequestData.Action === "Resend" && (
+                    <span>Yes, Re-send It!</span>
+                  )}
+                  {modelRequestData.Action === "Warning" && <span>Yes</span>}
+                  {modelRequestData.Action === "ServiceWarning" && (
+                    <span>Yes</span>
+                  )}
+                  {modelRequestData.Action === "ServiceWarningEL" && (
+                    <span>Yes</span>
+                  )}
+                  {modelRequestData.Action === "Copy" && <span>Yes! Copy</span>}
+                  {(modelRequestData.Action == "PracticeWarning" ||
+                    modelRequestData.Action === "Upload" ||
+                    modelRequestData.Action === "PaymentStatus") && (
+                    <span>Yes</span>
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </div>
