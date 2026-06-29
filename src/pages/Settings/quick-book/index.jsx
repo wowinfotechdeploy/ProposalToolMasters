@@ -122,10 +122,10 @@ function QuickBookAuthentication() {
         <AuthButton
           onAuthenticate={handleAuthenticate}
           onDisconnect={handleDisconnect}
-          activeBtn={activePlatform == "QuickBooks" ? true : false}
+          activeBtn={activePlatform === "QuickBooks" ? true : false}
           activePlatform={activePlatform}
           moduleName="QuickBooks"
-          tooltipLabel="Namaste"
+          tooltipLabel="Authenticate Quickbook"
         />
       </div>
 
