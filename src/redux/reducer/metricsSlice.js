@@ -6,16 +6,15 @@ export const GetMetricMappings = createAsyncThunk(
   "metrics/GetMetricMappings",
   async (organisationKeyID, thunkAPI) => {
     try {
-         
       const res = await apiClient.get(
-        `${DeviationBaseUrlv2}mappings/${organisationKeyID}`
+        `${DeviationBaseUrlv2}mappings/${organisationKeyID}`,
       );
- 
+
       return res.data?.mappings || [];
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data);
     }
-  }
+  },
 );
 
 //drivers list (global and local )
@@ -25,14 +24,12 @@ export const GetAllDrivers = createAsyncThunk(
   async (organisationKeyID, thunkAPI) => {
     try {
       const res = await apiClient.get(
-        `${DeviationBaseUrlv2}driver-options/${organisationKeyID}`
+        `${DeviationBaseUrlv2}driver-options/${organisationKeyID}`,
       );
 
-      const globalDrivers =
-        res.data?.globalPricingDrivers || [];
+      const globalDrivers = res.data?.globalPricingDrivers || [];
 
-      const localDrivers =
-        res.data?.localPricingDrivers || [];
+      const localDrivers = res.data?.localPricingDrivers || [];
 
       // ================= GLOBAL DRIVERS =================
       const formattedGlobalDrivers = globalDrivers.map((d) => ({
@@ -66,45 +63,40 @@ export const GetAllDrivers = createAsyncThunk(
       }));
 
       // ================= MERGED ARRAY =================
-      const formatted = [
-        ...formattedGlobalDrivers,
-        ...formattedLocalDrivers,
-      ];
+      const formatted = [...formattedGlobalDrivers, ...formattedLocalDrivers];
 
       return formatted;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data);
     }
-  }
+  },
 );
 
 //save metric mapping
 export const SaveMetricMapping = createAsyncThunk(
   "metrics/SaveMetricMapping",
 
-   async ({ organisationKeyID, payload }, thunkAPI) => {
+  async ({ organisationKeyID, payload }, thunkAPI) => {
     try {
       const res = await apiClient.post(
         `${DeviationBaseUrlv2}mappings/${organisationKeyID}`,
-        payload
+        payload,
       );
 
       return res.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(
-        err?.response?.data || "Something went wrong"
+        err?.response?.data || "Something went wrong",
       );
     }
-  }
+  },
 );
-
-
 
 const initialState = {
   metricMappings: [],
   metrics: [],
-  drivers:[],
-   loading: {
+  drivers: [],
+  loading: {
     metricMappings: false,
     drivers: false,
   },
@@ -119,25 +111,24 @@ const metricsSlice = createSlice({
   name: "metrics",
   initialState,
   reducers: {},
-  
 
   extraReducers: (builder) => {
     builder
-    //================ METRIC MAPPINGS =================
+      //================ METRIC MAPPINGS =================
       .addCase(GetMetricMappings.pending, (state) => {
-        state.loading.metricMappings  = true;
+        state.loading.metricMappings = true;
       })
 
       .addCase(GetMetricMappings.fulfilled, (state, action) => {
-        state.loading.metricMappings  = false;
+        state.loading.metricMappings = false;
         state.metricMappings = action.payload || [];
       })
 
       .addCase(GetMetricMappings.rejected, (state, action) => {
-        state.loading.metricMappings  = false;
+        state.loading.metricMappings = false;
         state.error = action.payload;
       })
-       //================ DRIVERS =================
+      //================ DRIVERS =================
       .addCase(GetAllDrivers.pending, (state) => {
         state.loading.drivers = true;
       })

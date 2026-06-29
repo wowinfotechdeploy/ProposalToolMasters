@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from "react";
-import Select from "react-select";
 import { useDispatch, useSelector } from "react-redux";
 
 import { ConnectionAuthentication } from "../../../redux/Services/Xero/XeroApi";
@@ -7,7 +6,6 @@ import AuthButton from "../../../components/Sidebar/AuthenticationButton";
 import {
   DisconnectIntegration,
   GetAllMetricsList,
-  SaveMetricMapping,
 } from "../../../redux/reducer/quickBookSlice";
 import ErrorModel from "../../../components/ErrorModel";
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";

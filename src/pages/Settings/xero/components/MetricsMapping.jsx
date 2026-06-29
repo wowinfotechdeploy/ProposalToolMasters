@@ -1,3 +1,4 @@
+/* global $ */
 import { useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
@@ -5,13 +6,13 @@ import Select from "react-select";
 import ErrorModel from "../../../../components/ErrorModel";
 import { AuthContextProvider } from "../../../../AuthContext/AuthContext";
 import { SaveMetricMapping } from "../../../../redux/reducer/metricsSlice";
+import SuccessModal from "../../../../components/SuccessModal";
 
 export default function MappingUI({
   drivers = [],
   metrics = [],
   metricMappings = [],
 }) {
-  console.log("metric mappings ==>>", metricMappings);
   const dispatch = useDispatch();
   const auth = useSelector((state) => state?.Storage);
   const { handleErrorMessage } = useContext(AuthContextProvider);
@@ -24,6 +25,19 @@ export default function MappingUI({
   const formattedErrorMessage = handleErrorMessage(errorMessage);
   const [successMapping, setSuccessMapping] = useState({});
   const [expandedServices, setExpandedServices] = useState({});
+
+  //success modal states
+  const [openSuccessModal, setOpenSuccessModal] = useState(false);
+  const [modelRequestData, setModelRequestData] = useState({
+    message: null,
+    status: null,
+    Action: null,
+    ProposalId: null,
+    keyID: null,
+    SearchKeyword: "",
+    quoteKeyID: null,
+    RefId: null,
+  });
   //================ STYLES =================
   const headingStyle = { color: "#182031ff" };
   const labelStyle = { color: "#000000ff" };
@@ -127,6 +141,7 @@ export default function MappingUI({
 
   //================ HANDLE SAVE =================
   const handleSave = async (metricKey) => {
+    debugger;
     try {
       const payload = {
         metricKey: mapping[metricKey]?.metricKey,
@@ -142,6 +157,7 @@ export default function MappingUI({
         }),
       ).unwrap();
 
+      setOpenSuccessModal(true);
       setSuccessMapping((prev) => ({
         ...prev,
         [metricKey]: true,
@@ -161,6 +177,7 @@ export default function MappingUI({
 
   const handleClose = () => {
     setOpenErrorModal(false);
+    setOpenSuccessModal(false);
   };
 
   //================ UI =================
@@ -416,6 +433,14 @@ export default function MappingUI({
         ErrorModel={openErrorModal}
         handleClose={handleClose}
         ErrorMessage={formattedErrorMessage}
+      />
+
+      <SuccessModal
+        handleClose={handleClose}
+        setOpenSuccessModal={setOpenSuccessModal}
+        openSuccessModal={openSuccessModal}
+        modelAction={modelRequestData.Action}
+        message="Changes Saved Successfully"
       />
     </div>
   );
