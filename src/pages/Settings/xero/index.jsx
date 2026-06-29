@@ -123,7 +123,7 @@ function XeroAuthentication() {
           activePlatform={activePlatform}
           activeBtn={activePlatform == "Xero" ? true : false}
           moduleName="Xero"
-          tooltipLabel="Namaste India"
+          tooltipLabel="Authenticate Xero"
           key={getActivePlatform()}
         />
       </div>
