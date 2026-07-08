@@ -20,12 +20,20 @@ export default function ViewAiProposal() {
   const ContractSignatoryKeyID = urlParams.get("ContractSignatoryKeyID");
 
   const taxName = "VAT";
-  const id = "944f6852-233d-49c9-81b6-26cc78928e98";
+  // const id = "944f6852-233d-49c9-81b6-26cc78928e98";
 
   const [loading, setLoading] = useState(false);
 
   const paymentFrequencyLabel =
-    proposalData?.paymentFrequencyID === 4 ? "Monthly" : "";
+    proposalData?.paymentFrequencyID === 4
+      ? "Monthly"
+      : proposalData?.paymentFrequencyID === 3
+        ? "Quarterly"
+        : proposalData?.paymentFrequencyID === 2
+          ? "Half Yearly"
+          : proposalData?.paymentFrequencyID === 1
+            ? "Yearly"
+            : "";
 
   useEffect(() => {
     getAiProposal();
@@ -580,7 +588,7 @@ export default function ViewAiProposal() {
         </h1>
 
         <ViewAiProposalPdfGenerator
-          userKeyID={proposalData.userKeyID}
+          userKeyID={proposalData?.userKeyID || ""}
           moduleName="Quote"
           proposalName="AI-Built Proposal"
           brandColor="#00BFFF"
