@@ -232,6 +232,21 @@ function ConfirmModel({
                     Are you sure you want to copy this record?
                   </span>
                 )}
+                {modelRequestData.Action === "FeeInflationWarning" && (
+                  <span class="text-muted mb-0">
+                    {modelRequestData.message}
+                  </span>
+                )}
+                {modelRequestData.Action === "DeleteServiceFeeInflationConfig" && (
+                  <span class="text-muted mb-0">
+                    {modelRequestData.message}
+                  </span>
+                )}
+                {modelRequestData.Action === "DeleteServiceFeeInflationRule" && (
+                  <span class="text-muted mb-0">
+                    {modelRequestData.message}
+                  </span>
+                )}
                 {modelRequestData.Action === "ServiceWarning" && (
                   <div
                     className="text-muted mb-1"
@@ -455,6 +470,9 @@ function ConfirmModel({
                 // onClick={() => modelRequestData.Action === "PaymentStatus" ? handleClose() : null}
               >
                 {modelRequestData.Action === "Warning" ||
+                modelRequestData.Action === "FeeInflationWarning" ||
+                modelRequestData.Action === "DeleteServiceFeeInflationConfig" ||
+                modelRequestData.Action === "DeleteServiceFeeInflationRule" ||
                 modelRequestData.Action === "PracticeWarning" ||
                 modelRequestData.Action === "Upload" ||
                 modelRequestData.Action === "PaymentStatus" ? (
@@ -466,6 +484,9 @@ function ConfirmModel({
               {(modelRequestData.Action === "UnpaidUser" ||
                 modelRequestData.Action === "ServiceWarning" ||
                 modelRequestData.Action === "ServiceWarningEL" ||
+                modelRequestData.Action === "FeeInflationWarning" ||
+                modelRequestData.Action === "DeleteServiceFeeInflationConfig" ||
+                modelRequestData.Action === "DeleteServiceFeeInflationRule" ||
                 modelRequestData.Action === "Resend" ||
                 modelRequestData.Action === "PaidUser" ||
                 modelRequestData.Action === "Warning" ||
@@ -540,6 +561,15 @@ function ConfirmModel({
                     <span>Yes</span>
                   )}
                   {modelRequestData.Action === "ServiceWarningEL" && (
+                    <span>Yes</span>
+                  )}
+                  {modelRequestData.Action === "FeeInflationWarning" && (
+                    <span>Yes</span>
+                  )}
+                  {modelRequestData.Action === "DeleteServiceFeeInflationConfig" && (
+                    <span>Yes</span>
+                  )}
+                  {modelRequestData.Action === "DeleteServiceFeeInflationRule" && (
                     <span>Yes</span>
                   )}
                   {modelRequestData.Action === "Copy" && <span>Yes! Copy</span>}

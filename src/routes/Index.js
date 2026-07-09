@@ -271,6 +271,9 @@ const Activity_Logs = Loadable(
 const Pricing_Settings = Loadable(
   lazy(() => import("../pages/Settings/Pricing-settings/PricingSetting"))
 );
+const Fee_Inflation_Page = Loadable(
+  lazy(() => import("../pages/Settings/FeeInflation/FeeInflationView"))
+);
 
 const Add_New_Proposals = Loadable(
   lazy(() => import("../pages/proposals/AddUpdateProposal"))
@@ -669,6 +672,9 @@ function AppContent() {
       break;
     case "/pricing-setting":
       title = `Pricing | ` + title;
+      break;
+    case "/fee-inflation":
+      title = `Fee Inflation | ` + title;
       break;
     case "/activity-logs":
       title = `Activity Logs | ` + title;
@@ -1184,6 +1190,10 @@ function Index() {
                       <Route
                         path="/pricing-setting"
                         element={<Pricing_Settings />}
+                      />
+                      <Route
+                        path="/fee-inflation"
+                        element={<Fee_Inflation_Page />}
                       />
                       <Route path="/access-key" element={<Access_Keys />} />
                       <Route path="/prospects" element={<Prospects />} />

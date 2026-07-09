@@ -6,15 +6,28 @@ import {
   AddUpdatePricingSetting,
   GetPricingSettingModel,
 } from "../../../redux/Services/Setting/PricingSettingApi";
+import { 
+  GetServiceFeeInflationList,
+  AddUpdateServiceFeeInflation,
+  DeleteAllServiceFeeInflationConfiguration,
+  AcceptServiceFeeInflationSAChanges,
+  DeclineServiceFeeInflation
+ }  
+ from "../../../redux/Services/Config/ServicesApi";
 import { useSelector } from "react-redux";
 import SuccessModal from "../../../components/SuccessModal";
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
 import Footer from "../../../components/Footer";
 import Select from "react-select";
 import Utils from "../../../Middleware/Utils";
+import ConfirmModel from "../../../components/ConfirmationBox";
+import SAPredefinedChangesNotifyMessageModel from "../../../components/SAPredefinedChangesNotifyMessageModel";
+import ConfirmSAChangesModel from "../../../components/AcceptSuperAdminChangesConfirmation";
 
 const Pricing_Settings = () => {
+  const moduleName = "FeeInflation";
   // A] States Declaration :
+  const [activeTab, setActiveTab] = useState("PricingSetting");
   const [requireErrorMessage, setRequireErrorMessage] = useState(false);
   const [isAddUpdateActionDone, setIsAddUpdateActionDone] = useState(false);
   const [dismissModal, setDismissModal] = useState(null);
@@ -31,6 +44,28 @@ const Pricing_Settings = () => {
     enableMasterProposalType: false,
     defaultProposalFormatID: null,
   });
+  const [ServiceFeeInflationConfig, setServiceFeeInflationConfig] = useState({
+    OrganisationKeyID: null,
+    UserKeyID: null,
+    ServiceFeeInflationList: [],        // full list from API
+    HasExistingConfig: false,
+    SelectionError: "",                // error message related to service selection
+    SelectedServices: [],               // array of selected service objects
+    InflationRule: {                    // single rule applied to all selected services
+      operator: null,                 // '+' | '-' | '*' | '/' | null
+      value: null,                    // decimal or null
+    },
+  });
+  const [modelRequestData, setModelRequestData] = useState({
+    message: null,
+    status: null,
+    Action: null,
+    keyID: null,
+    SearchKeyword: "",
+    RefId: null
+  });
+  const [SAConfirmStatus, setSAConfirmStatus] = useState(true); // true = accept, false = decline
+  const [SAConfirmBatchID, setSAConfirmBatchID] = useState(null);
 // const ProposalObject = {
   //   Payment_Frequency: 2 // Example initial value, adjust as needed
   // };
@@ -134,6 +169,115 @@ const Pricing_Settings = () => {
       console.log(error);
     }
   };
+
+  const GetServiceFeeInflationConfigData = async () => {
+    if (!common.organisationKeyID || !common.userKeyID) {
+        return;
+    }
+    try {
+        const data = await GetServiceFeeInflationList({
+            organisationKeyID: common.organisationKeyID,
+            userKeyID: common.userKeyID,
+        });
+        if (data?.data?.statusCode === 200) {
+            if (data?.data?.responseData?.data) {
+                const ListData = data?.data?.responseData?.data;
+                console.log("ListData", ListData);
+              setServiceFeeInflationConfig((prev) => ({
+                ...prev,
+                OrganisationKeyID: common.organisationKeyID,
+                UserKeyID: common.userKeyID,
+                ServiceFeeInflationList: ListData,
+
+                // auto select configured services
+                SelectedServices:[],
+                HasExistingConfig: ListData.some(
+                  (s) => s.operator !== null && s.value !== null
+                ),
+                // auto populate first rule
+                InflationRule:
+                {
+                  operator: null,
+                  value: null,
+                },
+              }));
+            }
+        } else {
+            setServiceFeeInflationConfig({
+                ...ServiceFeeInflationConfig,
+                // IsLoading: false,
+            });
+            setErrorMessage(data?.data?.errorMessage);
+        }
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+// Submit Service Fee Inflation rules
+const SubmitServiceFeeInflation = async () => {
+  setErrorMessage("");
+  if (!ServiceFeeInflationConfig.SelectedServices || ServiceFeeInflationConfig.SelectedServices.length === 0) {
+    setErrorMessage("Please select one or more services to configure.");
+    return;
+  }
+  if (!ServiceFeeInflationConfig.InflationRule.operator || ServiceFeeInflationConfig.InflationRule.value === null) {
+    setErrorMessage("Please choose an operator and enter a value for the rule.");
+    return;
+  }
+
+  setLoader(true);
+  try {
+    const serviceIDs = ServiceFeeInflationConfig.SelectedServices.map(
+      (s) => s.serviceID ?? s.serviceID ?? s.ServiceID
+    ).join(",");
+
+    const apiParams = {
+      organisationKeyID: common.organisationKeyID,
+      userKeyID: common.userKeyID,
+      operator: ServiceFeeInflationConfig.InflationRule.operator,
+      value: ServiceFeeInflationConfig.InflationRule.value,
+      serviceIDs: serviceIDs,
+    };
+
+    const response = await AddUpdateServiceFeeInflation(apiParams);
+    setLoader(false);
+    if (response?.data?.statusCode === 200) {
+      setOpenSuccessModal(true);
+      setIsAddUpdateActionDone(true);
+      // refresh list
+      GetServiceFeeInflationConfigData();
+    } else {
+      setErrorMessage(response?.data?.errorMessage || response?.response?.data?.errorMessage);
+    }
+  } catch (error) {
+    setLoader(false);
+    console.error(error);
+  }
+};
+
+// Delete all Services and Configurations
+  const DeleteServiceFeeInflationConfig = async () => {
+    console.log("DeleteServiceFeeInflationConfig", modelRequestData);
+    if (!common.organisationKeyID || !common.userKeyID) {
+        return;
+    }
+    try {
+      const data = await DeleteAllServiceFeeInflationConfiguration(common.organisationKeyID,common.userKeyID, modelRequestData.batchID);
+      if (data?.data?.statusCode === 200) {
+        setOpenSuccessModal(true);
+        setIsAddUpdateActionDone(true);
+        GetServiceFeeInflationConfigData();
+        $("#" + "confirm").modal("hide");
+      } else {
+        setErrorMessage(data?.data?.errorMessage || data?.response?.data?.errorMessage);
+      }
+    }
+    catch(error) {
+      console.error(error);
+      setLoader(false);
+    }
+  }
   // 2) Add Update Button Click Function
   const PricingSettingAddUpdateBtnClicked = () => {
     if (
@@ -201,6 +345,25 @@ const Pricing_Settings = () => {
     }
   };
 
+const TabHandle = async (tab) => {
+    if (tab === "PricingSetting") {
+      setActiveTab(tab);
+      if(common.organisationKeyID !== null) {
+        GetPricingSettingModelData(common.organisationKeyID);
+      }
+    } 
+    else if (tab === "FeeInflation") {
+      try {
+        const data = await GetServiceFeeInflationConfigData(common.organisationKeyID);
+      }
+      catch(error) {
+        setLoader(false);
+        console.log(error);
+        setErrorMessage(true);
+      }
+    }
+  };
+
   // handle Function
   const handleClose = () => {
     $("#" + "confirm").modal("hide");
@@ -218,10 +381,51 @@ const Pricing_Settings = () => {
   //Design part :
   return (
     <div>
-        <div class="page-content mt-2 page-background">
-            <div class="container">
-              <div class="page-title-cls">Pricing Settings</div>
+      <div class="page-content mt-2 page-background">
+        <div class="container">
+        <ul className="nav nav-tabs" role="tablist">
+              {/* <div class="page-title-cls">Pricing Settings</div> */}
+          <li className="nav-item">
+            <a
+              className={`nav-link tab_nav ${activeTab === "PricingSetting" ? "active" : ""
+                }`}
+              data-bs-toggle="tab"
+              href="#PricingSetting"
+              role="tab"
+              aria-selected={activeTab === "PricingSetting"}
+              onClick={() => {
+                setActiveTab("PricingSetting");
+                // setSelectedRows([]);
+                TabHandle("PricingSetting");
+              }}
+            >
+              <b>Pricing Setting{" "}</b>
+            </a>
+          </li>
+          {common.organisationKeyID !== null && (
+            <li className="nav-item">
+              <a
+                className={`nav-link tab_nav ${activeTab === "FeeInflation"
+                    ? "active"
+                    : ""
+                  }`}
+                data-bs-toggle="tab"
+                href="#FeeInflation"
+                role="tab"
+                aria-selected={activeTab === "FeeInflation"}
+                onClick={() => {
+                  setActiveTab("FeeInflation");
+                  // setSelectedRows([]);
+                  TabHandle("FeeInflation");
+                }}
+              >
+                <b>Service Fee Inflation{" "}</b>
+              </a>
+            </li>
+          )}
+          </ul>
             </div>
+          {activeTab === "PricingSetting" && (
           <div class="container">
             <div class="row">
               <div class="col-12 pricing_settings Pricing-container-card" >
@@ -443,11 +647,391 @@ const Pricing_Settings = () => {
               </div>
             </div>
           </div>
+          )}
+          {activeTab === "FeeInflation" && (
+  <div className="container">
+    <SAPredefinedChangesNotifyMessageModel
+      Params={{
+        SAChanges: ServiceFeeInflationConfig.ServiceFeeInflationList.some(
+          (s) => s.notifySAChanges
+        ),
+      }}
+    />
+    {/* ── Header ── */}
+    <div className="row">
+      <div className="col-12 mt-3">
+        <strong>
+          Configure a price adjustment rule for one or more services.<br />
+          Select the services you want to apply an inflation rule to, then choose an operator and value:
+        </strong>
+      </div>
+    </div>
+
+    {/* ── Service Select ── */}
+    <div className="row mt-3">
+      <div className="col-md-3">
+        <label className="form-label">Select Services</label>
+      </div>
+      <div className="col-md-6">
+        <Select
+          isMulti
+          options={ServiceFeeInflationConfig.ServiceFeeInflationList
+            .filter((s) => {
+              // Fixed price services (pricingTypeID !== formula type) that are
+              // already configured must not appear in the dropdown again
+              const isFixed = s.pricingTypeID !== 2; // use your actual constant
+              const isAlreadyConfigured = s.operator !== null && s.value !== null;
+              if (isFixed && isAlreadyConfigured) return false;
+              return true;
+            })
+            .map((s) => ({
+              value: s.serviceID,
+              label: s.serviceName,
+              isConfigured: s.operator !== null && s.value !== null,
+              data: s,
+            }))}
+          value={ServiceFeeInflationConfig.SelectedServices.map((s) => ({
+            value: s.serviceID,
+            label: s.serviceName,
+            isConfigured: s.operator !== null && s.value !== null,
+            data: s,
+          }))}
+          onChange={(selected) => {
+            // const isDeselectAll =
+            //   (!selected || selected.length === 0) &&
+            //   ServiceFeeInflationConfig.HasExistingConfig;
+
+            // if (isDeselectAll) {
+            //   setServiceFeeInflationConfig((prev) => ({
+            //     ...prev,
+            //     SelectionError: "At least one service must be selected.",
+            //   }));
+            //   return;
+            // }
+
+            setServiceFeeInflationConfig((prev) => ({
+              ...prev,
+              SelectedServices: selected ? selected.map((s) => s.data) : [],
+              SelectionError: "",
+            }));
+          }}
+          formatOptionLabel={(option) => (
+            <div className="d-flex align-items-center justify-content-between">
+              <span>{option.label}</span>
+              {option.isConfigured && (
+                <span className="badge bg-success ms-2">Configured</span>
+              )}
+            </div>
+          )}
+          isClearable
+          placeholder="Search and select services..."
+        />
+      </div>
+      {ServiceFeeInflationConfig.SelectionError && (
+        <label className="validation">
+          {ServiceFeeInflationConfig.SelectionError}
+        </label>
+      )}
+    </div>
+
+    {/* ── Inflation Rule Config ── */}
+    {ServiceFeeInflationConfig.SelectedServices.length > 0 && (
+      <div className="row mt-4">
+        <div className="col-12 mb-2">
+          <label className="form-label">Inflation Configuration</label>
+        </div>
+
+        {/* Operator Buttons */}
+        <div className="col-12 mb-3">
+          <div className="d-flex gap-2">
+            {[
+              { symbol: "+", label: "Add" },
+              { symbol: "-", label: "Subtract" },
+              { symbol: "*", label: "Markup %" },
+              { symbol: "/", label: "Discount %" },
+            ].map((op) => (
+              <button
+                key={op.symbol}
+                type="button"
+                className={`btn ${
+                  ServiceFeeInflationConfig.InflationRule.operator === op.symbol
+                    ? "btn-primary"
+                    : "btn-outline-secondary"
+                }`}
+                onClick={() =>
+                  setServiceFeeInflationConfig({
+                    ...ServiceFeeInflationConfig,
+                    InflationRule: {
+                      ...ServiceFeeInflationConfig.InflationRule,
+                      operator: op.symbol,
+                      value: null,
+                    },
+                  })
+                }
+              >
+                <div>{op.symbol}</div>
+                <small>{op.label}</small>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Value Input */}
+        {ServiceFeeInflationConfig.InflationRule.operator && (
+          <div className="col-md-4 col-12 mb-3">
+            <label className="form-label">
+              {ServiceFeeInflationConfig.InflationRule.operator === "+" ||
+              ServiceFeeInflationConfig.InflationRule.operator === "-"
+                ? "Amount"
+                : "Percentage (%)"}
+            </label>
+            <input
+              type="number"
+              className="form-control"
+              min={0}
+              placeholder={
+                ServiceFeeInflationConfig.InflationRule.operator === "+" ||
+                ServiceFeeInflationConfig.InflationRule.operator === "-"
+                  ? "Enter flat amount"
+                  : "Enter percentage e.g. 10"
+              }
+              value={ServiceFeeInflationConfig.InflationRule.value ?? ""}
+              onChange={(e) =>
+                setServiceFeeInflationConfig({
+                  ...ServiceFeeInflationConfig,
+                  InflationRule: {
+                    ...ServiceFeeInflationConfig.InflationRule,
+                    value:
+                      e.target.value === ""
+                        ? null
+                        : parseFloat(e.target.value),
+                  },
+                })
+              }
+            />
+            {ServiceFeeInflationConfig.InflationRule.value > 0 && (
+              <small className="text-muted mt-1 d-block">
+                {ServiceFeeInflationConfig.InflationRule.operator === "+" &&
+                  `price + ${ServiceFeeInflationConfig.InflationRule.value}`}
+                {ServiceFeeInflationConfig.InflationRule.operator === "-" &&
+                  `price − ${ServiceFeeInflationConfig.InflationRule.value}`}
+                {ServiceFeeInflationConfig.InflationRule.operator === "*" &&
+                  `price × ${(1 + ServiceFeeInflationConfig.InflationRule.value / 100).toFixed(2)}`}
+                {ServiceFeeInflationConfig.InflationRule.operator === "/" &&
+                  `price ÷ ${(1 + ServiceFeeInflationConfig.InflationRule.value / 100).toFixed(2)}`}
+              </small>
+            )}
+          </div>
+        )}
+      </div>
+    )}
+
+    {/* ── Submit / Delete Buttons ── */}
+    {userAccessData.Admin_Setting_Practice_Config_CanEdit && (
+      <div className="col-12 text-end mt-3">
+        <label className="validation">{errorMessage}</label>
+        <button
+          style={{ fontSize: "14px", marginTop: "10px", marginRight: "10px" }}
+          className="btn btn-primary create-item-btn"
+          onClick={() => SubmitServiceFeeInflation()}
+        >
+          <span>Submit</span>
+        </button>
+
+        {/* {(ServiceFeeInflationConfig.HasExistingConfig ||
+          ServiceFeeInflationConfig.SelectedServices.length > 0) && (
+          <button
+            className="btn btn-danger btn-sm mt-2"
+            data-bs-toggle="modal"
+            data-bs-target="#ConfirmModel"
+            onClick={() =>
+              setModelRequestData({
+                Action: "DeleteServiceFeeInflationConfig",
+                message:
+                  "This will delete all existing service fee inflation configurations. Are you sure you want to proceed?",
+              })
+            }
+          >
+            Delete Configuration
+          </button>
+        )} */}
+      </div>
+    )}
+
+    {/* ── Configured Rules Table ── */}
+    {(() => {
+      const configured = ServiceFeeInflationConfig.ServiceFeeInflationList.filter(
+        (s) => s.operator !== null && s.value !== null
+      );
+
+      if (configured.length === 0) return null;
+
+      // Group by batchID alone now — operator/value are guaranteed identical
+      // within a batch (they were submitted together), and batchID is the
+      // true unit of accept/delete/decline.
+      const grouped = configured.reduce((acc, s) => {
+        const key = s.batchID;
+        if (!acc[key]) {
+          acc[key] = {
+            operator: s.operator,
+            value: s.value,
+            batchID: s.batchID,
+            isPredefined: s.isPredefined,
+            notifySAChanges: false,
+            services: [],
+          };
+        }
+        if (s.notifySAChanges) acc[key].notifySAChanges = true;
+        acc[key].services.push({ serviceID: s.serviceID, serviceName: s.serviceName });
+        return acc;
+      }, {});
+
+      const rows = Object.values(grouped);
+
+      const operatorLabel = (op, val) => {
+        if (op === "+") return `+ ${val} (flat add)`;
+        if (op === "-") return `− ${val} (flat subtract)`;
+        if (op === "*") return `× ${(1 + val / 100).toFixed(2)} (${val}% markup)`;
+        if (op === "/") return `÷ ${(1 + val / 100).toFixed(2)} (${val}% discount)`;
+        return `${op} ${val}`;
+      };
+
+      return (
+        <div className="row mt-4">
+          <div className="col-12">
+            <label className="form-label">Configured Inflation Rules</label>
+            <table className="table table-bordered table-sm">
+              <thead className="table-light">
+                <tr>
+                  <th style={{ width: "35%", color: "white" }}>Inflation Rule</th>
+                  <th style={{ color: "white" }}>Services</th>
+                  {userAccessData.Admin_Setting_Practice_Config_CanEdit && (
+                    <th style={{ width: "160px", color: "white" }} className="text-center">Action</th>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <tr key={row.batchID}>
+                    <td className="align-middle" style={{ fontSize: "14px" }}>
+                      <code className="fw-bold">{operatorLabel(row.operator, row.value)}</code>
+                      {row.notifySAChanges && (
+                        <span className="badge bg-warning text-dark ms-2">
+                          Removed by Superadmin
+                        </span>
+                      )}
+                    </td>
+                    <td className="align-middle text-white" style={{ fontSize: "14px" }}>
+                      <div className="d-flex flex-wrap gap-1">
+                        {row.services.map((svc) => (
+                          <span key={svc.serviceID} className="badge bg-secondary text-white">
+                            {svc.serviceName}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    {userAccessData.Admin_Setting_Practice_Config_CanEdit && (
+                      <td className="text-center align-middle">
+                        {row.notifySAChanges ? (
+                          <div className="d-flex gap-1 justify-content-center">
+                            <button
+                              className="btn btn-success btn-sm"
+                              onClick={() => {
+                                setSAConfirmStatus(true); // Accept
+                                setSAConfirmBatchID(row.batchID);
+                                $("#" + "ConfirmSAChangesModel").modal("show");
+                              }}
+                            >
+                              Accept &amp; Remove
+                            </button>
+                            <button
+                              className="btn btn-outline-danger btn-sm"
+                              onClick={() => {
+                                setSAConfirmStatus(false); // Decline
+                                setSAConfirmBatchID(row.batchID);
+                                $("#" + "ConfirmSAChangesModel").modal("show");
+                              }}
+                            >
+                              Decline &amp; Keep Anyway
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            className="btn btn-danger text-white btn-outline-danger btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#ConfirmModel"
+                            onClick={() =>
+                              setModelRequestData({
+                                Action: "DeleteServiceFeeInflationRule",
+                                batchID: row.batchID,
+                                message: `This will delete the inflation rule. Are you sure?`,
+                              })
+                            }
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    })()}
+
+    <ConfirmSAChangesModel
+      ModelId={null}
+      Status={SAConfirmStatus}
+      modelRequestData={{ Action: "Update" }}
+      openSuccessModal={false}
+      openErrorModal={false}
+      UpdatedChanges={async () => {
+        $("#" + "ConfirmSAChangesModel").modal("hide");
+        setLoader(true);
+        try {
+          const apiCall = SAConfirmStatus
+            ? AcceptServiceFeeInflationSAChanges
+            : DeclineServiceFeeInflation;
+
+          const response = await apiCall({
+            organisationKeyID: common.organisationKeyID,
+            userKeyID: common.userKeyID,
+            batchID: SAConfirmBatchID,
+          });
+
+          if (response?.data?.statusCode === 200) {
+            GetServiceFeeInflationConfigData(); // re-fetch to reflect new state
+          } else {
+            setErrorMessage(response?.data?.errorMessage || "Unable to process this action.");
+          }
+        } catch (error) {
+          console.error(error);
+          setErrorMessage("Unable to process this action.");
+        } finally {
+          setLoader(false);
+        }
+      }}
+    />
+
+  </div>
+)}
         </div>
         <Footer />
       <button class="btn btn-danger btn-icon" id="back-to-top">
         <i class="ri-arrow-up-line"></i>
       </button>
+      <ConfirmModel
+        openSuccessModal={openSuccessModal}
+        modelRequestData={modelRequestData}
+        setModelRequestData={setModelRequestData}
+        UpdatedStatus={ 
+          modelRequestData.Action === "DeleteServiceFeeInflationRule"
+            ? DeleteServiceFeeInflationConfig : null
+        }
+       />
       <SuccessModal
         handleClose={handleClose}
         setDismissModal={setDismissModal}

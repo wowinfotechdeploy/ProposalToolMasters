@@ -2701,11 +2701,49 @@ const Proposals = () => {
                                                               {/* </Tooltip> */}
                                                             </li>
                                                           )}
+                                                          {/* {item?.isArchived && (
+                                                            <li>
+                                                              <a
+                                                                class="dropdown-item"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#ConfirmModel"
+                                                                onClick={() => {
+                                                                  setModelRequestData(
+                                                                    {
+                                                                      ...modelRequestData,
+                                                                      Action: item?.contracts?.length === 0
+                                                                      ? "Archive" : "ArchiveLinkedELs",
+                                                                      RefId:
+                                                                        item.prefix,
+                                                                      quoteKeyID:
+                                                                        item.quoteKeyID,
+                                                                      userKeyID:
+                                                                        common.userKeyID,
+                                                                      contracts:
+                                                                        item.contracts,
+                                                                      message: "Are you sure you want to Unarchive this quote?",
+                                                                    },
+                                                                  );
+                                                                }}
+                                                              >
+                                                                <i
+                                                                  className="ri-archive-fill"
+                                                                  style={{
+                                                                    marginRight:
+                                                                      "2px",
+                                                                  }}
+                                                                ></i>
+                                                                Unarchive{" "}
+                                                                {proposalName}
+                                                              </a>
+                                                            </li>
+                                                          )} */}
+
                                                           {(
-                                                              item.statusID === 1 ||
-                                                              (item.statusID === 2 && (
+                                                              item.statusID === statusID.Draft ||
+                                                              (item.statusID === statusID.Sent && (
                                                                 item.contracts?.length === 0 ||
-                                                                !item.contracts?.some(c => c.StatusID === 5 || c.StatusID === 7)
+                                                                !item.contracts?.some(c => c.StatusID === statusID.Signed || c.StatusID === statusID.Declined)
                                                               ))
                                                               ) && (
                                                               <li>

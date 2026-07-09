@@ -22,7 +22,9 @@ import {
   AddUpdateService,
   GetServiceModel,
   ServiceCategoryList,
-  GetServiceDependencyList
+  GetServiceDependencyList,
+  DeleteServiceFeeInflation,
+  GetServiceFeeInflationActiveForService
 } from "../../../redux/Services/Config/ServicesApi";
 import { useDispatch, useSelector } from "react-redux";
 import { ServiceChargeTypeList } from "../../../redux/Services/Master/ServiceChargeTypeLookupList";
@@ -52,6 +54,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { parse, format, isValid,differenceInCalendarDays, addDays, getTime } from "date-fns";
 import Utils from "../../../Middleware/Utils";
+import FeeInflationTab from "./FeeInflationTab";
 //Tab Custom Component Created
 const BasicInformationComponent = (props) => {
   const ServiceDivContainerRef = useRef(null);
@@ -78,42 +81,157 @@ const BasicInformationComponent = (props) => {
       label: pricingTypeFilter.pricingTypeName,
     }
     : null;
-  const handleChangePricingType = async (selectedOption) => {
+  // const handleChangePricingType = async (selectedOption) => {
+  //   let shouldExecuteElse = true;
+  //   props.setLoader(true)
+  //   for (let i = 0; i < props.pricingDriver.length; i++) {
+  //     const item = props.pricingDriver[i];
+
+  //     // Extract variationKeyIDs and slabKeyIDs for the current item
+  //     let variationKeyIDs = [];
+  //     let slabKeyIDs = [];
+  //     let dateKeyIDs = [];
+  //     let textKeyIDs = [];
+  //     if (item.variation && item.variation.length > 0) {
+  //       item.variation.forEach(variation => {
+  //         variationKeyIDs.push(variation.variationKeyID);
+  //       });
+  //     }
+
+  //     if (item.slab && item.slab.length > 0) {
+  //       item.slab.forEach(slab => {
+  //         slabKeyIDs.push(slab.slabKeyID);
+  //       });
+  //     }
+
+  //     if (item.date && item.date.length > 0) {
+  //       item.date.forEach(date => {
+  //         dateKeyIDs.push(date.dateKeyID);
+  //       });
+  //     }
+
+  //     if (item.text && item.text.length > 0) {
+  //       item.text.forEach(text => {
+  //         textKeyIDs.push(text.textKeyID);
+  //       });
+  //     }
+
+  //     // Join arrays into comma-separated strings
+  //     variationKeyIDs = variationKeyIDs.join(',');
+  //     slabKeyIDs = slabKeyIDs.join(',');
+  //     dateKeyIDs = dateKeyIDs.join(',');
+  //     textKeyIDs = textKeyIDs.join(',');
+
+  //     const pricingDriverDelete = await GetPricingDriverUsedInModules(
+  //       item.globalPricingDriverKeyID,
+  //       props.common.userKeyID,
+  //       props.servicesObj.serviceKeyID,
+  //       variationKeyIDs,
+  //       slabKeyIDs,
+  //       dateKeyIDs,
+  //       textKeyIDs
+  //     );
+
+  //     if (pricingDriverDelete.data.statusCode === 200) {
+  //       props.setLoader(false);
+  //       let moduleList = pricingDriverDelete.data.responseData.moduleList;
+  //       if (moduleList.length > 0) {
+  //         shouldExecuteElse = false;
+
+  //         props.setModelRequestData({
+  //           ...props.modelRequestData,
+  //           Action: "PricingDriverDelete",
+  //           message: `This service is being used in the module below and cannot be changed. Please remove it from there first.`,
+  //           ServiceName: moduleList,
+  //         });
+  //         $("#" + "DeleteDriverModel").modal("show");
+  //         props.setLoader(false)
+  //         break;
+  //       }
+  //     }
+  //   }
+
+  //   if (shouldExecuteElse) {
+  //     props.setLoader(false)
+  //     props.setPricingDriver([]);
+  //     props.setserviceError({
+  //       ...props.serviceError,
+  //       priceError: false,
+  //     });
+  //     props.setServicesObj({
+  //       ...props.servicesObj,
+  //       pricingTypeID: selectedOption.value,
+  //       price: null, // Resetting the price here
+  //       description: null,
+  //       pricingFormula: null,
+  //       isPredefined: true,
+  //       pricingDriverList: [],
+  //       pricingFormulaGlobalPricingDriverList: [],
+  //     });
+  //   }
+  //   props.setLoader(false)
+  // }
+
+  const mergeModuleLists = (existing, incoming) => {
+  const merged = existing.map((m) => ({ ...m, recordList: [...m.recordList] }));
+  incoming.forEach((incomingModule) => {
+    const match = merged.find((m) => m.moduleName === incomingModule.moduleName);
+    if (match) {
+      const existingKeyIDs = new Set(match.recordList.map((r) => r.keyID));
+      const newRecords = incomingModule.recordList.filter((r) => !existingKeyIDs.has(r.keyID));
+      match.recordList = [...match.recordList, ...newRecords];
+    } else {
+      merged.push({ ...incomingModule, recordList: [...incomingModule.recordList] });
+    }
+  });
+  return merged;
+};
+
+const handleChangePricingType = async (selectedOption) => {
     let shouldExecuteElse = true;
-    props.setLoader(true)
+    props.setLoader(true);
+
+    // 1) SFI check - unconditional, runs regardless of direction or whether
+    // props.pricingDriver has any entries.
+    const sfiCheck = await GetServiceFeeInflationActiveForService(
+      props.servicesObj.serviceKeyID,
+    );
+    const sfiRuleList = sfiCheck?.data?.responseData?.ruleList || [];
+    const distinctBatches = [...new Set(sfiRuleList.map((r) => r.batchID))];
+
+    // 2) GPD-usage loop - checks EVERY driver (no early break, so both
+    // checks can be reported together), but now MERGES results instead of
+    // naively concatenating, so the same proposal/quote referenced by
+    // multiple drivers of this service only shows up once.
+    let moduleList = [];
     for (let i = 0; i < props.pricingDriver.length; i++) {
       const item = props.pricingDriver[i];
 
-      // Extract variationKeyIDs and slabKeyIDs for the current item
       let variationKeyIDs = [];
       let slabKeyIDs = [];
       let dateKeyIDs = [];
       let textKeyIDs = [];
       if (item.variation && item.variation.length > 0) {
-        item.variation.forEach(variation => {
+        item.variation.forEach((variation) => {
           variationKeyIDs.push(variation.variationKeyID);
         });
       }
-
       if (item.slab && item.slab.length > 0) {
-        item.slab.forEach(slab => {
+        item.slab.forEach((slab) => {
           slabKeyIDs.push(slab.slabKeyID);
         });
       }
-
       if (item.date && item.date.length > 0) {
-        item.date.forEach(date => {
+        item.date.forEach((date) => {
           dateKeyIDs.push(date.dateKeyID);
         });
       }
-
       if (item.text && item.text.length > 0) {
-        item.text.forEach(text => {
+        item.text.forEach((text) => {
           textKeyIDs.push(text.textKeyID);
         });
       }
 
-      // Join arrays into comma-separated strings
       variationKeyIDs = variationKeyIDs.join(',');
       slabKeyIDs = slabKeyIDs.join(',');
       dateKeyIDs = dateKeyIDs.join(',');
@@ -129,27 +247,46 @@ const BasicInformationComponent = (props) => {
         textKeyIDs
       );
 
-      if (pricingDriverDelete.data.statusCode === 200) {
-        props.setLoader(false);
-        let moduleList = pricingDriverDelete.data.responseData.moduleList;
-        if (moduleList.length > 0) {
-          shouldExecuteElse = false;
-
-          props.setModelRequestData({
-            ...props.modelRequestData,
-            Action: "PricingDriverDelete",
-            message: `This service is being used in the module below and cannot be changed. Please remove it from there first.`,
-            ServiceName: moduleList,
-          });
-          $("#" + "DeleteDriverModel").modal("show");
-          props.setLoader(false)
-          break;
+      if (pricingDriverDelete?.data?.statusCode === 200) {
+        const thisModuleList = pricingDriverDelete?.data?.responseData?.moduleList || [];
+        if (thisModuleList.length > 0) {
+          moduleList = mergeModuleLists(moduleList, thisModuleList);
         }
       }
     }
 
+    // 3) Decide, with BOTH results in hand
+    if (sfiRuleList.length > 0 || moduleList.length > 0) {
+      shouldExecuteElse = false;
+      props.setLoader(false);
+
+      const messageLines = [];
+      if (sfiRuleList.length > 0) {
+        messageLines.push(
+          `This service has ${distinctBatches.length} fee inflation rule${
+            distinctBatches.length > 1 ? "s" : ""
+          } configured. Please delete ${
+            distinctBatches.length > 1 ? "them" : "it"
+          } from the Fee Inflation settings before changing the pricing type.`
+        );
+      }
+      if (moduleList.length > 0) {
+        messageLines.push(
+          `This service is being used in the module below and cannot be changed. Please remove it from there first.`
+        );
+      }
+
+      props.setModelRequestData({
+        ...props.modelRequestData,
+        Action: "PricingDriverDelete",
+        message: messageLines.join("\n\n"),
+        ServiceName: moduleList,
+      });
+      $("#" + "DeleteDriverModel").modal("show");
+    }
+
     if (shouldExecuteElse) {
-      props.setLoader(false)
+      props.setLoader(false);
       props.setPricingDriver([]);
       props.setserviceError({
         ...props.serviceError,
@@ -158,7 +295,7 @@ const BasicInformationComponent = (props) => {
       props.setServicesObj({
         ...props.servicesObj,
         pricingTypeID: selectedOption.value,
-        price: null, // Resetting the price here
+        price: null,
         description: null,
         pricingFormula: null,
         isPredefined: true,
@@ -166,7 +303,7 @@ const BasicInformationComponent = (props) => {
         pricingFormulaGlobalPricingDriverList: [],
       });
     }
-    props.setLoader(false)
+    props.setLoader(false);
   }
 
 
@@ -543,6 +680,55 @@ const BasicInformationComponent = (props) => {
                   ) : (
                     ""
                   )}
+                  {/* Inflation breakdown */}
+    {props.servicesObj.serviceFeeInflationList?.length > 0 && (() => {
+      const basePrice = parseFloat(props.servicesObj.price) || 0;
+      const effectivePrice = props.servicesObj.serviceFeeInflationList
+        .reduce((price, rule) => {
+          switch (rule.operator) {
+            case "+": return price + (rule.value || 0);
+            case "-": return price - (rule.value || 0);
+            case "*": return price * (1 + (rule.value || 0) / 100);
+            case "/": return price * (1 - (rule.value || 0) / 100);
+            default:  return price;
+          }
+        }, basePrice);
+
+      return (
+        <div className="mb-3">
+          <label className="form-label">Inflation</label>
+          <div className="input-group input-height">
+            <input
+              type="text"
+              className="input-text"
+              value={props.servicesObj.serviceFeeInflationList
+                .map(r => {
+                  switch (r.operator) {
+                    case "+": return `Addition by ${r.value}`;
+                    case "-": return `Subtraction by ${r.value}`;
+                    case "*": return `Markup by ${r.value}%`;
+                    case "/": return `Discount by ${r.value}%`;
+                    default:  return `${r.operator} ${r.value}`;
+                  }
+                })
+                .join(" | ")}
+              disabled
+            />
+          </div>
+          <label className="form-label mt-2">Effective Price</label>
+          <div className="input-group input-height">
+            <input
+              type="text"
+              className="input-text"
+              value={effectivePrice
+                .toFixed(2)
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+              disabled
+            />
+          </div>
+        </div>
+      );
+    })()}
                 </div>
               </div>
             )}
@@ -576,7 +762,7 @@ const BasicInformationComponent = (props) => {
             </>)}
             <button
               class="btn btn-md btn-success create-item-btn"
-              onClick={() => props.GlobalPricingDriverAddUpdateBtnClicked(2)}
+              onClick={() => props.GlobalPricingDriverAddUpdateBtnClicked(ServiceHeader.Description)}
             >
               <span>Next</span>
             </button>
@@ -645,7 +831,7 @@ const DescriptionComponent = (props) => {
                 <button
                   class="btn btn-md btn-success create-item-btn"
                   onClick={() =>
-                    props.GlobalPricingDriverAddUpdateBtnClicked(3)
+                    props.GlobalPricingDriverAddUpdateBtnClicked(ServiceHeader.PricingDrivers)
                   }
                 >
                   <span>Next</span>
@@ -3426,7 +3612,8 @@ const PricingDriversComponent = (props) => {
                 );
               })}{" "}
               {/* End Global Pricing Driver */}
-
+              {/* Fee Inflation Indexes */}
+              {/* Fee inflation list moved to its own tab when applicable */}
             </div>
           </div>
         </div>
@@ -3520,7 +3707,12 @@ const PricingDriversComponent = (props) => {
             </button>
             <button
               class="btn btn-md btn-success create-item-btn"
-              onClick={() => props.GlobalPricingDriverAddUpdateBtnClicked(4)}
+              onClick={() => props.GlobalPricingDriverAddUpdateBtnClicked(
+                props.servicesObj.pricingTypeID === 2 &&
+                props.servicesObj?.serviceFeeInflationList?.length > 0
+                  ? ServiceHeader.FeeInflation
+                  : ServiceHeader.PricingFormula
+              )}
             >
               <span>Next</span>
             </button>
@@ -3560,6 +3752,27 @@ const PricingFormulaComponent = (props) => {
                       servicesObj={props.servicesObj}
                       setServicesObj={props.setServicesObj}
                     />
+                  </div>
+                  <div className="mb-3 mt-2">
+                    <label className="form-label">Floor Value</label>
+                    <div className="input-group input-height">
+                      <input
+                        type="text"
+                        className="input-text"
+                        placeholder="Enter Floor Value"
+                        value={props.servicesObj?.floorValue ?? ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+
+                          if (/^\d*$/.test(value)) {
+                            props.setServicesObj((prev) => ({
+                              ...prev,
+                              floorValue: value,
+                            }));
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                   { }
                   {props.serviceError.pricingFormula &&
@@ -3605,16 +3818,20 @@ const PricingFormulaComponent = (props) => {
                 <span>{props.getCrudButtonTextName("Cancel")}</span>
               </button>
             </>)}
-            <button
-              onClick={() => {
-                props.handleBackButton(3);
-                // props.setActiveTab(3)
-              }}
-              style={{ paddingTop: "5px", marginRight: "4px" }}
-              className="btn btn-md btn-success create-item-btn"
-            >
-              <span>Back</span>
-            </button>
+              <button
+                onClick={() => {
+                  const prev = props.servicesObj.pricingTypeID === 2 &&
+                    props.servicesObj?.serviceFeeInflationList?.length > 0
+                    ? props.ServiceHeader.FeeInflation
+                    : props.ServiceHeader.PricingDrivers;
+                  props.handleBackButton(prev);
+                  // props.setActiveTab(prev)
+                }}
+                style={{ paddingTop: "5px", marginRight: "4px" }}
+                className="btn btn-md btn-success create-item-btn"
+              >
+                <span>Back</span>
+              </button>
             {props.modelRequestData.Type ? (<>
               <button
                 type="submit"
@@ -3767,11 +3984,13 @@ const Add_Update_Service = (props) => {
     price: null,
     description: null,
     pricingFormula: "",
+    floorValue: null,
     isPredefined: true,
     professionTypeList: [],
     serviceCategoryList: [],
     pricingDriverList: [],
     pricingFormulaGlobalPricingDriverList: [],
+    serviceFeeInflationList: []
   });
 
   const [originalServicesObj,setOriginalServicesObj]= useState({});
@@ -3787,6 +4006,7 @@ const Add_Update_Service = (props) => {
   const navigate = useNavigate();
   const [EditPricingFormulaValue, setEditPricingFormulaValue] = useState(null);
   const [pricingFormulaError, setPricingFormulaError] = useState("");
+  const [pendingInflationDelete, setPendingInflationDelete] = useState(null);
   const [isDropdownEnabled, setIsDropdownEnabled] = useState(false);
   // Get Service Category Type Lookup List Data
   const professionTypeInputValue = professionTypeLookupList.filter(
@@ -4106,11 +4326,13 @@ const Add_Update_Service = (props) => {
               price: ModelData.price,
               description: ModelData.description,
               pricingFormula: ModelData.pricingFormula,
+              floorValue: ModelData.floorValue,
               isPredefined: true,
               professionTypeList: ModelData.professionTypeList,
               serviceCategoryList: ModelData.serviceCategoryList,
               pricingDriverList: updatedData,
               pricingFormulaGlobalPricingDriverList: ModelData.pricingFormulaGlobalPricingDriverList,
+              serviceFeeInflationList: ModelData.serviceFeeInflationList
             };
 
             setServicesObj(newServiceObj);
@@ -4286,12 +4508,19 @@ const Add_Update_Service = (props) => {
 
   // 3) Global Pricing Driver Add And Update Data
   const GlobalPricingDriverAddUpdateBtnClicked = (NextTab, SAChanges) => {
+    console.log("activeTab:", activeTab, typeof activeTab);
+      console.log("FeeInflation:", ServiceHeader.FeeInflation, typeof ServiceHeader.FeeInflation);
     if (SAChanges === "Accept") {
       $("#" + "ConfirmSAChangesModel").modal("show");
       setStatus(true)
       return
     }
     setErrorMessage("")
+    // If currently on Fee Inflation tab just navigate to NextTab (no extra validation)
+    if (activeTab === ServiceHeader.FeeInflation) {
+      setActiveTab(NextTab);
+      return;
+    }
     const pricingDriverCopy = pricingDriver;
     const pricingDriverList = servicesObj.pricingDriverList?.map((driver) => ({
       ...driver,
@@ -4337,6 +4566,7 @@ const Add_Update_Service = (props) => {
       price: servicesObj.price,
       description: servicesObj.description,
       pricingFormula: EditPricingFormulaValue,
+      floorValue: servicesObj.floorValue,
       isPredefined: true,
       isServiceDependentandModified: common.organisationKeyID !== null ? isServiceDependentandModified : null,
       acceptSAChanges: SAChanges === true ? SAChanges : undefined,
@@ -5056,7 +5286,8 @@ const Add_Update_Service = (props) => {
         setActiveTab(NextTab);
       }
     } else if (activeTab === ServiceHeader.PricingFormula) {
-      if (NextTab === 3) {
+      debugger;
+      if (NextTab === ServiceHeader.PricingDrivers) {
         setActiveTabForm({
           ...activeTabForm,
           activeBasicInformationForm: true,
@@ -7194,16 +7425,70 @@ const Add_Update_Service = (props) => {
     }
   };
 
+  // Handle Delete Fee Inflation
+  const handleDeleteFeeInflation = (serviceID, inflationIndex) => {
+    const inflationToken = `feeInflation(${inflationIndex})`;
+
+    if (EditPricingFormulaValue?.includes(inflationToken)) {
+      setModelRequestData({
+        ...modelRequestData,
+        Action: "ServiceFeeInflation",
+        message: `Fee Inflation ${inflationIndex} is currently being used in the Pricing Formula. Please remove it from the formula before deleting.`,
+      });
+      $("#DeleteDriverModel").modal("show");
+      return;
+    }
+
+    // Store what needs to be deleted, don't call API yet
+    setPendingInflationDelete({ serviceID, inflationIndex });
+
+    setModelRequestData({
+      ...modelRequestData,
+      Action: "FeeInflationWarning",
+      message: 'Are you sure you want to delete this Fee Inflation?',
+    });
+    $("#ConfirmModel").modal("show");
+  };
+
+  const handleConfirmAction = () => {
+    if (modelRequestData.Action === "FeeInflationWarning" && pendingInflationDelete) {
+      DeleteServiceFeeInflationData(
+        pendingInflationDelete.serviceID,
+        pendingInflationDelete.inflationIndex
+      );
+      setPendingInflationDelete(null);
+      return;
+    }
+    // existing confirm logic
+    GlobalPricingDriverAddUpdateBtnClicked("ConfirmedToSave");
+  };
+
+  const DeleteServiceFeeInflationData = async (serviceID, inflationIndex) => {
+    try {
+      setLoader(true);
+      const response = await DeleteServiceFeeInflation(serviceID, inflationIndex);
+      if (response.data.statusCode === 200) {
+        setLoader(false);
+        $("#" + "ConfirmModel").modal("hide");
+        setOpenSuccessModal(true);
+      }
+    } catch (error) {
+      console.error(error);
+      setLoader(false);
+    }
+  }
   const findDriverTypeID = pricingDriver?.filter((i) => i.driverTypeID === 3);
 
   // E] Sorting & handle Function
   let parseFormula;
   const handleChange = (e, eventName) => {
+    console.log("eventName", eventName);
+    console.log("tags", e?.detail?.tagify?.value);
     // debugger
     // console.log("eventName : ", eventName)
     setPricingFormulaError("");
     let isValidFormula = true;
-    const TagTextContent = e.detail.tagify.value;
+    const TagTextContent = e?.detail?.tagify?.value;
     if (TagTextContent === "" || TagTextContent.length === 0) {
       isValidFormula = false;
     }
@@ -7252,9 +7537,10 @@ const Add_Update_Service = (props) => {
       formulaParse = formulaParse.filter((elem) => elem != "");
       formulaParse = formulaParse.map((elem) => elem.trim());
       formulaParse = formulaParse.filter((elem) => elem !== "");
-      const GetKeyId = TagTextContent.map((i) =>
-        i.key === null ? i.tempId : i.key
-      );
+      // const GetKeyId = TagTextContent.map((i) =>
+      //   i.key === null ? i.tempId : i.key
+      // );
+      const FormulaTags = [...TagTextContent];
 
       parseFormula = GetKey;
       // Replace placeholders with GetKeyId values
@@ -7265,16 +7551,41 @@ const Add_Update_Service = (props) => {
         const startIndex = parseFormula.indexOf("_[[{_");
         const endIndex = parseFormula.indexOf("_}]]_") + 5;
         const placeholder = parseFormula.substring(startIndex, endIndex);
-        const keyId = GetKeyId.shift(); // Get and remove the first keyId from the array
+        // const keyId = GetKeyId.shift(); // Get and remove the first keyId from the array
+        const tag = FormulaTags.shift();
+        // const isKeyIdInteger = Number.isInteger(keyId);
 
-        const isKeyIdInteger = Number.isInteger(keyId);
-
+        // let KeyFormat = null;
+        // if (isKeyIdInteger) {
+        //   KeyFormat = `var("${keyId}")`;
+        // } else {
+        //   KeyFormat = `var${keyId}`;
+        // }
         let KeyFormat = null;
-        if (isKeyIdInteger) {
-          KeyFormat = `var("${keyId}")`;
-        } else {
-          KeyFormat = `var${keyId}`;
-        }
+if (!tag) break;
+if (tag.type === "Inflation") {
+
+  KeyFormat =
+    `${tag.operator} feeInflation(${tag.key})`;
+
+}
+else {
+
+  const keyId =
+    tag.key === null
+      ? tag.tempId
+      : tag.key;
+
+  const isKeyIdInteger =
+    Number.isInteger(keyId);
+
+  if (isKeyIdInteger) {
+    KeyFormat = `var("${keyId}")`;
+  }
+  else {
+    KeyFormat = `var${keyId}`;
+  }
+}
         parseFormula = parseFormula.replace(
           placeholder,
           " " + KeyFormat.replace(/\\/g, "") + " "
@@ -7296,10 +7607,12 @@ const Add_Update_Service = (props) => {
       }
     }
 
-    const selectedGlobalConstant = e.detail.tagify.value.map((item) => ({
-      globalPricingDriverKeyID: item.key,
-      temp_GlobalPricingDriverID_ForDependancy: item.tempId,
-    }));
+    const selectedGlobalConstant = e.detail.tagify.value
+      .filter(item => item.type !== "Inflation")
+      .map((item) => ({
+        globalPricingDriverKeyID: item.key,
+        temp_GlobalPricingDriverID_ForDependancy: item.tempId,
+      }));
 
     // setServicesObj({
     //   ...servicesObj,
@@ -7340,8 +7653,17 @@ const Add_Update_Service = (props) => {
       }
     } else {
 
-
+      console.log(parseFormula);
       TagTextContent.forEach(tag => {
+        // if (tag.type === "Inflation") {
+
+        //   parseFormula = parseFormula.replace(
+        //     tag.value,
+        //     `feeInflation(${tag.inflationIndex})`
+        //   );
+
+        //   return;
+        // }
         const isKeyIdInteger = Number.isInteger(tag.key == null ? tag.tempId : tag.key);
         let KeyFormat = null;
         if (isKeyIdInteger) {
@@ -7352,7 +7674,7 @@ const Add_Update_Service = (props) => {
         parseFormula = parseFormula.replace(tag.value, " " + KeyFormat + " ");
         parseFormula = parseFormula.replace("varUndefined", "");
       });
-
+      console.log("parseFormula", parseFormula);
       setEditPricingFormulaValue(parseFormula);
       setServicesObj({
         ...servicesObj,
@@ -7371,10 +7693,19 @@ const Add_Update_Service = (props) => {
     const constantValue = 1;
 
     // Replace variables with the constant value
-    const formulaToEvaluate = trimmedFormula.replace(
-      /var\("[^"]+"\)|var[0-9A-Fa-f-]+/g,
-      constantValue
-    );
+    // const formulaToEvaluate = trimmedFormula.replace(
+    //   /var\("[^"]+"\)|var[0-9A-Fa-f-]+/g,
+    //   constantValue
+    // );
+    const formulaToEvaluate = trimmedFormula
+  .replace(
+    /var\("[^"]+"\)|var[0-9A-Fa-f-]+/g,
+    "(1)"
+  )
+  .replace(
+    /feeInflation\(\d+\)/g,
+    "(1)"
+  );
 
     try {
       // Attempt to evaluate the formula using eval()
@@ -7404,6 +7735,20 @@ const Add_Update_Service = (props) => {
     if (!isValid(date)) return "";
     return format(date, formatStr);
   };
+  const showFeeInflationTab = servicesObj?.serviceFeeInflationList?.length > 0;
+
+  const getStepNumber = (tabValue) => {
+    if (tabValue === ServiceHeader.FeeInflation) {
+      return showFeeInflationTab ? 4 : null;
+    }
+
+    if (tabValue === ServiceHeader.PricingFormula) {
+      return showFeeInflationTab ? 5 : 4;
+    }
+
+    return tabValue;
+  };
+
   // Handle Tab Change 
   const handleChangeTab = (newTab, clickedTabID) => {
     setserviceError({
@@ -7599,11 +7944,30 @@ const Add_Update_Service = (props) => {
                             )}
                         </div>
                       </li>
+                      {servicesObj?.serviceFeeInflationList?.length > 0 && (
+                        <li>
+                          <div
+                            id="ServiceFeeInflation"
+                            onClick={() =>
+                              handleChangeTab(4, "ServiceFeeInflation")
+                            }
+                            className={`${activeTab == ServiceHeader.FeeInflation
+                              ? "step tab-field-center"
+                              : activeTabForm.activePricingDrivers === true
+                                ? "step tab-field-center"
+                                : "step disabled cursor-not-allowed tab-field-center"
+                              } w-90`}
+                          >
+                            <span className="stepCount">{getStepNumber(ServiceHeader.FeeInflation)}</span>
+                            <span className="stepTitle">Fee Inflation</span>
+                          </div>
+                        </li>
+                      )}
                       <li>
                         <div
                           id="ServicePricingFormula"
                           onClick={() =>
-                            handleChangeTab(4, "ServicePricingFormula")
+                            handleChangeTab(5, "ServicePricingFormula")
                           }
                           className={`${activeTab === ServiceHeader.PricingFormula
                             ? "step tab-field-center"
@@ -7612,7 +7976,7 @@ const Add_Update_Service = (props) => {
                               : "step disabled cursor-not-allowed tab-field-center"
                             } w-90`}
                         >
-                          <span className="stepCount">4</span>
+                          <span className="stepCount">{getStepNumber(ServiceHeader.PricingFormula)}</span>
                           <span className="stepTitle">Pricing Formula</span>
                           {activeTab == ServiceHeader.PricingFormula &&
                             serviceError.pricingFormula && (
@@ -7723,6 +8087,10 @@ const Add_Update_Service = (props) => {
               )}
               {activeTab === ServiceHeader.PricingDrivers && (
                 <PricingDriversComponent
+                  servicesObj={servicesObj}
+                  setModelRequestData={setModelRequestData}
+                  modelRequestData={modelRequestData}
+                  handleDeleteFeeInflation={handleDeleteFeeInflation}
                   setOpenErrorModal={setOpenErrorModal}
                   setIsDriverDelete={setIsDriverDelete}
                   setActiveTab={setActiveTab}
@@ -7778,6 +8146,17 @@ const Add_Update_Service = (props) => {
                   OnDependantOnDriver={OnDependantOnDriver}
                 />
               )}
+              {servicesObj?.serviceFeeInflationList?.length > 0 && activeTab === ServiceHeader.FeeInflation && (
+                <FeeInflationTab
+                  servicesObj={servicesObj}
+                  handleDeleteFeeInflation={handleDeleteFeeInflation}
+                  handleBackButton={handleBackButton}
+                  handleCancelButton={handleCancelButton}
+                  GlobalPricingDriverAddUpdateBtnClicked={GlobalPricingDriverAddUpdateBtnClicked}
+                  getCrudButtonTextName={getCrudButtonTextName}
+                  ServiceHeader={ServiceHeader}
+                />
+              )}
               {activeTab === ServiceHeader.PricingFormula && (
                 <PricingFormulaComponent
                   modelAction={modelAction}
@@ -7793,6 +8172,7 @@ const Add_Update_Service = (props) => {
                   DeclineSuperAdminChangesData={DeclineSuperAdminChangesData}
                   modelRequestData={location.state}
                   handleBackButton={handleBackButton}
+                  ServiceHeader={ServiceHeader}
                   moduleName={moduleName}
                   getCrudButtonTextName={getCrudButtonTextName}
                   getCrudPopUpTitleName={getCrudPopUpTitleName}
@@ -7834,9 +8214,10 @@ const Add_Update_Service = (props) => {
         openErrorModal={openErrorModal}
         openSuccessModal={openSuccessModal}
         modelRequestData={modelRequestData}
-        UpdatedStatus={() =>
-          GlobalPricingDriverAddUpdateBtnClicked("ConfirmedToSave")
-        }
+        // UpdatedStatus={() =>
+        //   GlobalPricingDriverAddUpdateBtnClicked("ConfirmedToSave")
+        // }
+        UpdatedStatus={handleConfirmAction}
         modelAction={modelAction}
       />
 

@@ -164,6 +164,9 @@ const SuccessModal = (props) => {
                     {props.modelAction === "Delete"
                       ? `${props.message} has been deleted successfully!`
                       : null}
+                    {props.modelAction === "DeleteFeeInflation"
+                      ? `${props.message} has been deleted successfully!`
+                      : null}
                     {props.modelAction === "Archive"
                       ? `${props.message} has been archived successfully!`
                       : null}

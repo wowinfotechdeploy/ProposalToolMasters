@@ -22,7 +22,8 @@ export const ServiceHeader = {
   BasicInformation: 1,
   Description: 2,
   PricingDrivers: 3,
-  PricingFormula: 4,
+  FeeInflation: 4,
+  PricingFormula: 5,
 };
 export const CREATE_PRACTICE_DETAILS = {
   BasicInformation: 1,

@@ -124,11 +124,23 @@ const TagIfy = ({
     };
   });
 
+  // Fee inflation
+  const InflationVariables =
+  servicesObj?.serviceFeeInflationList?.map((item) => ({
+    value: `Fee Inflation_${item.inflationIndex}`,
+    key: item.sfid ?? item.inflationIndex,
+    class: "inflation-tag",
+    type: "Inflation",
+    operator: item.operator,
+    inflationValue: item.value,
+  })) || [];
+
   let WhiteListVariables = [];
   WhiteListVariables = [
     ...LocalWhiteListVariables,
     ...GlobalWhiteListVariables1,
     ...GlobalWhiteListVariables2,
+    ...InflationVariables
   ];
 
   WhiteListVariables.map((elem) => {
@@ -151,7 +163,16 @@ const TagIfy = ({
       }
       return `[[{"value":"${value}","key":${globalPricingDriverId},"tempId":"${tempId}","class":"${type.toLowerCase()}-tag","type":"${type}","prefix":"@"}]]`;
     };
+    const formatInflationTag = (value, key, operator, inflationValue) => {
 
+      return `[[{"value":"${value}",
+             "key":${key},
+             "operator":"${operator}",
+             "inflationValue":${inflationValue},
+             "class":"inflation-tag",
+             "type":"Inflation",
+             "prefix":"@"}]]`;
+    };
     if (editFormulaCount === 0) {
       PricingFormulaValue = EditPricingFormulaValue?.split(" ");
     } else {
@@ -162,6 +183,29 @@ const TagIfy = ({
     let insideArray = false;
 
     PricingFormulaValue = PricingFormulaValue?.map((i) => {
+      const inflationMatch =
+        i.match(/feeInflation\((\d+)\)/i);
+        console.log("inflationMatch", inflationMatch);
+      if (inflationMatch) {
+
+        const inflationKey =
+          Number(inflationMatch[1]);
+
+        const inflationObj =
+          servicesObj?.serviceFeeInflationList?.find(
+            x => x.inflationIndex === inflationKey
+          );
+
+        if (inflationObj) {
+
+          return formatInflationTag(
+            `Fee_Inflation_${inflationObj.inflationIndex}`,
+            inflationObj.inflationIndex,
+            inflationObj.operator,
+            inflationObj.value
+          )
+        }
+      }
       const match =
         i.match(/Var\("?(.*?)"?\)/) ||
         i.match(/var\("?.*?"?\)/) ||
@@ -281,6 +325,7 @@ const TagIfy = ({
       },
       select: function (e) {
         // debugger
+        console.log("SELECT", e.detail);
         handleChange(e, "select");
       },
     },
