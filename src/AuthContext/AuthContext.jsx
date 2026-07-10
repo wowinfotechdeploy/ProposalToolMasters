@@ -30,6 +30,7 @@ const AuthContext = ({ children }) => {
   const [loginLoader, setLoginLoader] = useState(false);
   const [professionTypeListData, setProfessionTypeList] = useState([]);
   const [prospectName, setProspectName] = useState("");
+  const [bookKeepingGateway, setBookKeepingGateway] = useState("");
   const [updatedProspectName, setUpdatedProspectName] = useState("");
   const [proposalName, setProposalName] = useState("");
   const [updatedProposalName, setUpdatedProposalName] = useState("");
@@ -382,7 +383,7 @@ const AuthContext = ({ children }) => {
       dispatch(
         updateState({
           isUpdateRole: false,
-        })
+        }),
       );
     }
   }, [common.isUpdateRole, common.userKeyID]);
@@ -390,7 +391,7 @@ const AuthContext = ({ children }) => {
   useEffect(() => {
     if (common.token) {
       let userThemeSettingLocalStorage = localStorage.getItem(
-        "userThemeSettingLocalStorage"
+        "userThemeSettingLocalStorage",
       );
       if (
         userThemeSettingLocalStorage === undefined ||
@@ -586,7 +587,7 @@ const AuthContext = ({ children }) => {
   const GetUserPersonalizeSettingDataFromLocalStorage = () => {
     // Get the JSON-formatted string from localStorage
     let userThemeSettingLocalStorage = localStorage.getItem(
-      "userThemeSettingLocalStorage"
+      "userThemeSettingLocalStorage",
     );
 
     if (userThemeSettingLocalStorage) {
@@ -599,13 +600,13 @@ const AuthContext = ({ children }) => {
         //alert(JSON.stringify(userThemeSettings));
 
         engagementSetting = userThemeSettings.find(
-          (item) => item.settingName === "VariableEngagementName"
+          (item) => item.settingName === "VariableEngagementName",
         );
         proposalSetting = userThemeSettings.find(
-          (item) => item.settingName === "VariableProposalName"
+          (item) => item.settingName === "VariableProposalName",
         );
         prospectSetting = userThemeSettings.find(
-          (item) => item.settingName === "VariableProspectName"
+          (item) => item.settingName === "VariableProspectName",
         );
       }
     }
@@ -727,7 +728,7 @@ const AuthContext = ({ children }) => {
     localStorage.setItem("accessCount", newAccessCount);
 
     const action = userAccess?.find(
-      (act) => act.mActionId === mActionId && act.moduleID === moduleId
+      (act) => act.mActionId === mActionId && act.moduleID === moduleId,
     );
 
     if (action && action.setDefaultAction === true) {
@@ -880,7 +881,7 @@ const AuthContext = ({ children }) => {
       SuperAdmin_Config_Subscription_Invoices_CanEdit: hasActionAccess(13, 50),
       SuperAdmin_Config_Subscription_Invoices_CanDelete: hasActionAccess(
         13,
-        51
+        51,
       ),
       SuperAdmin_Config_Subscription_Invoices_CanView: hasActionAccess(13, 52),
 
@@ -1154,7 +1155,7 @@ const AuthContext = ({ children }) => {
 
     // Format the value with comma separators
     const formattedValue = `${currencySymbol}${Number(
-      valueWithExactTwoPrecision
+      valueWithExactTwoPrecision,
     )
       .toFixed(2)
       .toString()
@@ -1250,7 +1251,7 @@ const AuthContext = ({ children }) => {
     // Check if valueLength is defined and has a length of at least 2
     if (valueLength && valueLength.length > decimalPlace) {
       valueWithExactPrecision = (Math.floor(value * 100) / 100).toFixed(
-        decimalPlace
+        decimalPlace,
       );
     }
 
@@ -1296,7 +1297,7 @@ const AuthContext = ({ children }) => {
     // Check if valueLength is defined and has a length of at least 2
     if (valueLength && valueLength.length > 2) {
       valueWithExactTwoPrecision = Number(
-        Math.floor(value * 100) / 100
+        Math.floor(value * 100) / 100,
       ).toFixed(2);
     }
     return Number(valueWithExactTwoPrecision);
@@ -1305,7 +1306,7 @@ const AuthContext = ({ children }) => {
     const pattern = /(\d)-/g;
     let sanitizedText = text.replace(pattern, "$1"); // Remove hyphen if it follows a digit
     sanitizedText = sanitizedText.replace(/-/g, (match, index) =>
-      index === 0 ? match : ""
+      index === 0 ? match : "",
     ); // Keep hyphen only at the start
     return sanitizedText;
   }
@@ -1313,7 +1314,7 @@ const AuthContext = ({ children }) => {
   const getValidationMessage = (
     requireMessage,
     maxDiscountForQC,
-    defaultDiscount
+    defaultDiscount,
   ) => {
     if (!requireMessage) return "";
 
@@ -1366,7 +1367,7 @@ const AuthContext = ({ children }) => {
 
     // Use querySelectorAll to find all elements with the 'style' attribute containing 'font-family' or 'font-size'
     const elementsWithFontStyles = tempElement.querySelectorAll(
-      '[style*="font-family"], [style*="font-size"]'
+      '[style*="font-family"], [style*="font-size"]',
     );
 
     // Extract the font-family and font-size values
@@ -1438,7 +1439,7 @@ const AuthContext = ({ children }) => {
   const SingleServiceWithCombinedTableView = (
     Type,
     RecurringValue,
-    OneOffValue
+    OneOffValue,
   ) => {
     return `
       <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
@@ -1471,7 +1472,7 @@ const AuthContext = ({ children }) => {
   const GetReplacePackageTableView = (
     RecurringPricingInfo,
     Type,
-    servicePackageList
+    servicePackageList,
   ) => {
     let PackageOneValue = null;
     let PackageTwoValue = null;
@@ -1480,19 +1481,19 @@ const AuthContext = ({ children }) => {
     if (Type === "Net Total") {
       PackageOneValue = Number(
         RecurringPricingInfo.packageOneNetTotal >
-          Number(RecurringPricingInfo.packageOneDisCountedTotal)
+          Number(RecurringPricingInfo.packageOneDisCountedTotal),
       )
         ? RecurringPricingInfo.packageOneNetTotal
         : RecurringPricingInfo.packageOneDisCountedTotal;
       PackageTwoValue = Number(
         RecurringPricingInfo.packageTwoNetTotal >
-          Number(RecurringPricingInfo.packageTwoDisCountedTotal)
+          Number(RecurringPricingInfo.packageTwoDisCountedTotal),
       )
         ? RecurringPricingInfo.packageTwoNetTotal
         : RecurringPricingInfo.packageTwoDisCountedTotal;
       PackageThreeValue = Number(
         RecurringPricingInfo.packageThreeNetTotal >
-          Number(RecurringPricingInfo.packageThreeDisCountedTotal)
+          Number(RecurringPricingInfo.packageThreeDisCountedTotal),
       )
         ? RecurringPricingInfo.packageThreeNetTotal
         : RecurringPricingInfo.packageThreeDisCountedTotal;
@@ -1529,34 +1530,34 @@ const AuthContext = ({ children }) => {
     const headers = servicePackageList
       .map(
         (item) =>
-          `<th style="border: 1px solid black; padding: 8px; width: 25%;">${item.servicePackageName}</th>`
+          `<th style="border: 1px solid black; padding: 8px; width: 25%;">${item.servicePackageName}</th>`,
       )
       .join("");
 
     let rowValues = "";
     if (servicePackageList.length === 1) {
       rowValues = `<td style="border: 1px solid black; padding: 8px;text-align:center;width: 25%;">${formatValue(
-        PackageOneValue
+        PackageOneValue,
       )}</td>`;
     } else if (servicePackageList.length === 2) {
       rowValues = `
         <td style="border: 1px solid black; padding: 8px;text-align:right;width: 25%;">${formatValue(
-          PackageOneValue
+          PackageOneValue,
         )}</td>
         <td style="border: 1px solid black; padding: 8px;text-align:right;width: 25%;">${formatValue(
-          PackageTwoValue
+          PackageTwoValue,
         )}</td>
       `;
     } else if (servicePackageList.length === 3) {
       rowValues = `
         <td style="border: 1px solid black; padding: 8px;text-align: right;width: 25%;">${formatValue(
-          PackageOneValue
+          PackageOneValue,
         )}</td>
         <td style="border: 1px solid black; padding: 8px;text-align: right;width: 25%;">${formatValue(
-          PackageTwoValue
+          PackageTwoValue,
         )}</td>
         <td style="border: 1px solid black; padding: 8px;text-align: right;width: 25%;">${formatValue(
-          PackageThreeValue
+          PackageThreeValue,
         )}</td>
       `;
     }
@@ -1577,7 +1578,7 @@ const AuthContext = ({ children }) => {
     RecurringPricingInfo,
     OneOffPricingInfo,
     Type,
-    servicePackageList
+    servicePackageList,
   ) => {
     let PackageOneValue = null;
     let PackageTwoValue = null;
@@ -1685,7 +1686,7 @@ const AuthContext = ({ children }) => {
     const headers = servicePackageList
       .map(
         (item) =>
-          `<th style="border: 1px solid black; padding: 8px;">${item.servicePackageName}</th>`
+          `<th style="border: 1px solid black; padding: 8px;">${item.servicePackageName}</th>`,
       )
       .join("");
 
@@ -1741,11 +1742,11 @@ const AuthContext = ({ children }) => {
     OneOffValue,
     selectedProposalTypeValue,
     servicePackageList,
-    Type
+    Type,
   ) => {
     if (selectedProposalTypeValue === 3) {
       return `Recurring Services: ${formatValue(
-        RecurringValue
+        RecurringValue,
       )}, One-Off Services: ${formatValue(OneOffValue)}`;
     } else {
       let PackageOneValue = "";
@@ -1757,38 +1758,38 @@ const AuthContext = ({ children }) => {
       if (Type === "Net Total") {
         PackageOneValue = Number(
           RecurringValue.packageOneNetTotal >
-            Number(RecurringValue.packageOneDisCountedTotal)
+            Number(RecurringValue.packageOneDisCountedTotal),
         )
           ? RecurringValue.packageOneNetTotal
           : RecurringValue.packageOneDisCountedTotal;
         PackageTwoValue = Number(
           RecurringValue.packageTwoNetTotal >
-            Number(RecurringValue.packageTwoDisCountedTotal)
+            Number(RecurringValue.packageTwoDisCountedTotal),
         )
           ? RecurringValue.packageTwoNetTotal
           : RecurringValue.packageTwoDisCountedTotal;
         PackageThreeValue = Number(
           RecurringValue.packageThreeNetTotal >
-            Number(RecurringValue.packageThreeDisCountedTotal)
+            Number(RecurringValue.packageThreeDisCountedTotal),
         )
           ? RecurringValue.packageThreeNetTotal
           : RecurringValue.packageThreeDisCountedTotal;
 
         PackageOneOneOffValue = Number(
           OneOffValue.packageOneNetTotal >
-            Number(OneOffValue.packageOneDisCountedTotal)
+            Number(OneOffValue.packageOneDisCountedTotal),
         )
           ? OneOffValue.packageOneNetTotal
           : OneOffValue.packageOneDisCountedTotal;
         PackageTwoOneOffValue = Number(
           OneOffValue.packageTwoNetTotal >
-            Number(OneOffValue.packageTwoDisCountedTotal)
+            Number(OneOffValue.packageTwoDisCountedTotal),
         )
           ? OneOffValue.packageTwoNetTotal
           : OneOffValue.packageTwoDisCountedTotal;
         PackageThreeOneOffValue = Number(
           OneOffValue.packageThreeNetTotal >
-            Number(OneOffValue.packageThreeDisCountedTotal)
+            Number(OneOffValue.packageThreeDisCountedTotal),
         )
           ? OneOffValue.packageThreeNetTotal
           : OneOffValue.packageThreeDisCountedTotal;
@@ -1856,14 +1857,14 @@ const AuthContext = ({ children }) => {
             `<b>${
               item.servicePackageName
             }</b>: Recurring Services: ${formatValue(
-              [PackageOneValue, PackageTwoValue, PackageThreeValue][index]
+              [PackageOneValue, PackageTwoValue, PackageThreeValue][index],
             )}, One-Off Services: ${formatValue(
               [
                 PackageOneOneOffValue,
                 PackageTwoOneOffValue,
                 PackageThreeOneOffValue,
-              ][index]
-            )}`
+              ][index],
+            )}`,
         )
         .join(", ");
     }
@@ -1874,7 +1875,7 @@ const AuthContext = ({ children }) => {
     OneOffValue,
     selectedProposalTypeValue,
     servicePackageList,
-    Type
+    Type,
   ) => {
     if (selectedProposalTypeValue === 3) {
       return `
@@ -1893,38 +1894,38 @@ const AuthContext = ({ children }) => {
       if (Type === "Net Total") {
         PackageOneValue = Number(
           RecurringValue.packageOneNetTotal >
-            Number(RecurringValue.packageOneDisCountedTotal)
+            Number(RecurringValue.packageOneDisCountedTotal),
         )
           ? RecurringValue.packageOneNetTotal
           : RecurringValue.packageOneDisCountedTotal;
         PackageTwoValue = Number(
           RecurringValue.packageTwoNetTotal >
-            Number(RecurringValue.packageTwoDisCountedTotal)
+            Number(RecurringValue.packageTwoDisCountedTotal),
         )
           ? RecurringValue.packageTwoNetTotal
           : RecurringValue.packageTwoDisCountedTotal;
         PackageThreeValue = Number(
           RecurringValue.packageThreeNetTotal >
-            Number(RecurringValue.packageThreeDisCountedTotal)
+            Number(RecurringValue.packageThreeDisCountedTotal),
         )
           ? RecurringValue.packageThreeNetTotal
           : RecurringValue.packageThreeDisCountedTotal;
 
         PackageOneOneOffValue = Number(
           OneOffValue.packageOneNetTotal >
-            Number(OneOffValue.packageOneDisCountedTotal)
+            Number(OneOffValue.packageOneDisCountedTotal),
         )
           ? OneOffValue.packageOneNetTotal
           : OneOffValue.packageOneDisCountedTotal;
         PackageTwoOneOffValue = Number(
           OneOffValue.packageTwoNetTotal >
-            Number(OneOffValue.packageTwoDisCountedTotal)
+            Number(OneOffValue.packageTwoDisCountedTotal),
         )
           ? OneOffValue.packageTwoNetTotal
           : OneOffValue.packageTwoDisCountedTotal;
         PackageThreeOneOffValue = Number(
           OneOffValue.packageThreeNetTotal >
-            Number(OneOffValue.packageThreeDisCountedTotal)
+            Number(OneOffValue.packageThreeDisCountedTotal),
         )
           ? OneOffValue.packageThreeNetTotal
           : OneOffValue.packageThreeDisCountedTotal;
@@ -1991,15 +1992,15 @@ const AuthContext = ({ children }) => {
             .map(
               (item, index) => `
             <li>${item.servicePackageName}: Recurring Services: ${formatValue(
-                [PackageOneValue, PackageTwoValue, PackageThreeValue][index]
-              )}, One-Off Services: ${formatValue(
-                [
-                  PackageOneOneOffValue,
-                  PackageTwoOneOffValue,
-                  PackageThreeOneOffValue,
-                ][index]
-              )}</li>
-          `
+              [PackageOneValue, PackageTwoValue, PackageThreeValue][index],
+            )}, One-Off Services: ${formatValue(
+              [
+                PackageOneOneOffValue,
+                PackageTwoOneOffValue,
+                PackageThreeOneOffValue,
+              ][index],
+            )}</li>
+          `,
             )
             .join("")}
         </ul>
@@ -2034,7 +2035,7 @@ const AuthContext = ({ children }) => {
     PricingInfo,
     selectedProposalTypeValue,
     SelectedPackageList,
-    Type
+    Type,
   ) => {
     if (!SelectedServiceList || SelectedServiceList.length === 0) {
       return "";
@@ -2065,7 +2066,7 @@ const AuthContext = ({ children }) => {
                         ${formatValue(value)}
                       </td>
                     </tr>
-                  `
+                  `,
                 )
                 .join("")}
             </table>
@@ -2119,7 +2120,7 @@ const AuthContext = ({ children }) => {
               <th style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
                 ${pkg.servicePackageName}
               </th>
-            `
+            `,
           ).join("")}
         </tr>
       `
@@ -2135,7 +2136,7 @@ const AuthContext = ({ children }) => {
               <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
                 ${formatValue(packageData[index]?.netTotal || 0)}
               </td>
-            `
+            `,
             ).join("")}
           </tr>
           <tr>
@@ -2145,7 +2146,7 @@ const AuthContext = ({ children }) => {
               <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
                 ${formatValue(packageData[index]?.discount || 0)}
               </td>
-            `
+            `,
             ).join("")}
           </tr>
           <tr>
@@ -2155,7 +2156,7 @@ const AuthContext = ({ children }) => {
               <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
                 ${formatValue(packageData[index]?.discountedTotal || 0)}
               </td>
-            `
+            `,
             ).join("")}
           </tr>
           <tr>
@@ -2165,7 +2166,7 @@ const AuthContext = ({ children }) => {
               <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
                 ${formatValue(packageData[index]?.vatPrice || 0)}
               </td>
-            `
+            `,
             ).join("")}
           </tr>
           <tr>
@@ -2175,7 +2176,7 @@ const AuthContext = ({ children }) => {
               <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; text-align: right; width: 25%;">
                 ${formatValue(packageData[index]?.grandTotal || 0)}
               </td>
-            `
+            `,
             ).join("")}
           </tr>
         
@@ -2188,7 +2189,7 @@ const AuthContext = ({ children }) => {
   const GetReplaceServiceWithTableView = (
     selectedRecurringServiceList,
     selectedOneOffServiceList,
-    servicePackageList
+    servicePackageList,
   ) => {
     const generateTableRows = (serviceList) => {
       if (!servicePackageList) {
@@ -2214,9 +2215,9 @@ const AuthContext = ({ children }) => {
                       
                     </tr>
                     
-                  `
+                  `,
                  )
-                 .join("")
+                 .join(""),
              )
              .join("")}
             </table>
@@ -2234,23 +2235,25 @@ const AuthContext = ({ children }) => {
                 return (
                   (packageIndex === 0 &&
                     subService?.servicePackageIDs.includes(
-                      subService.packageOneID
+                      subService.packageOneID,
                     ) &&
                     subService.packageOneValue !== null) ||
                   (packageIndex === 1 &&
                     subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
+                      subService.packageTwoID,
                     ) &&
                     subService.packageTwoValue !== null) ||
                   (packageIndex === 2 &&
                     subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
+                      subService.packageThreeID,
                     ) &&
                     subService.packageThreeValue !== null)
                 );
-              })
+              }),
             );
 
+            // Skip rendering the package if no services are available
+            if (validServices?.length === 0) return "";
             // Skip rendering the package if no services are available
             if (validServices.length === 0) return "";
 
@@ -2278,7 +2281,7 @@ const AuthContext = ({ children }) => {
                           ${subService.serviceName}
                         </td>
                       </tr>
-                    `
+                    `,
                   )
                   .join("")}
               </table>
@@ -2294,13 +2297,29 @@ const AuthContext = ({ children }) => {
 
     return `
     <div>
+  ${
+    selectedRecurringServiceList?.length !== 0
+      ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+        Recurring Services
+      </p>`
+      : ""
+  }
+
+   
+      ${recurringServices}
+
+       ${
+         selectedOneOffServiceList?.length !== 0
+           ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
     <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               Recurring Services
             </p>
       ${recurringServices}   
     <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               One-Off Services
-            </p>
+            </p>`
+           : ""
+       }
       ${oneOffServices}
     </div>
   `;
@@ -2309,7 +2328,7 @@ const AuthContext = ({ children }) => {
   const GetReplaceServiceWithTableViewWithPrice = (
     selectedRecurringServiceList,
     selectedOneOffServiceList,
-    servicePackageList
+    servicePackageList,
   ) => {
     const generateTableRows = (serviceList) => {
       if (!servicePackageList) {
@@ -2346,9 +2365,9 @@ const AuthContext = ({ children }) => {
                         </td>
                     </tr>
                   
-                  `
+                  `,
                 )
-                .join("")
+                .join(""),
             )
             .join("")}
               </table>
@@ -2366,25 +2385,25 @@ const AuthContext = ({ children }) => {
                 return (
                   (packageIndex === 0 &&
                     subService?.servicePackageIDs.includes(
-                      subService.packageOneID
+                      subService.packageOneID,
                     ) &&
                     subService.packageOneValue !== null) ||
                   (packageIndex === 1 &&
                     subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
+                      subService.packageTwoID,
                     ) &&
                     subService.packageTwoValue !== null) ||
                   (packageIndex === 2 &&
                     subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
+                      subService.packageThreeID,
                     ) &&
                     subService.packageThreeValue !== null)
                 );
-              })
+              }),
             );
 
             // Skip rendering the package if no services are available
-            if (validServices.length === 0) return "";
+            if (validServices?.length === 0) return "";
 
             return `
               <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;page-break-inside: avoid; break-inside: avoid;">
@@ -2409,8 +2428,8 @@ const AuthContext = ({ children }) => {
                       packageIndex === 0
                         ? subService.packageOneValue
                         : packageIndex === 1
-                        ? subService.packageTwoValue
-                        : subService.packageThreeValue;
+                          ? subService.packageTwoValue
+                          : subService.packageThreeValue;
 
                     return `
      
@@ -2438,13 +2457,23 @@ const AuthContext = ({ children }) => {
 
     return `
     <div>
-    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
-              Recurring Services
-            </p>
+     ${
+       selectedRecurringServiceList?.length !== 0
+         ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+        Recurring Services
+      </p>`
+         : ""
+     }
       ${recurringServices}   
-    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+
+       ${
+         selectedOneOffServiceList?.length !== 0
+           ? `    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               One-Off Services
-            </p>
+            </p>`
+           : ""
+       }
+
       ${oneOffServices}
     </div>
   `;
@@ -2453,7 +2482,7 @@ const AuthContext = ({ children }) => {
   const GetReplaceServiceWithCommaView = (
     selectedRecurringServiceList,
     selectedOneOffServiceList,
-    servicePackageList
+    servicePackageList,
   ) => {
     const generateTableRows = (serviceList) => {
       if (!servicePackageList) {
@@ -2465,7 +2494,7 @@ const AuthContext = ({ children }) => {
             .map((item) =>
               item.servicesList
                 .map((subService) => subService.serviceName)
-                .join(", ")
+                .join(", "),
             )
             .join(", ")}
         </p>
@@ -2483,25 +2512,25 @@ const AuthContext = ({ children }) => {
                 return (
                   (packageIndex === 0 &&
                     subService?.servicePackageIDs.includes(
-                      subService.packageOneID
+                      subService.packageOneID,
                     ) &&
                     subService.packageOneValue !== null) ||
                   (packageIndex === 1 &&
                     subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
+                      subService.packageTwoID,
                     ) &&
                     subService.packageTwoValue !== null) ||
                   (packageIndex === 2 &&
                     subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
+                      subService.packageThreeID,
                     ) &&
                     subService.packageThreeValue !== null)
                 );
-              })
+              }),
             );
 
             // Skip rendering the package if no services are available
-            if (validServices.length === 0) return "";
+            if (validServices?.length === 0) return "";
 
             return `
               <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
@@ -2524,13 +2553,23 @@ const AuthContext = ({ children }) => {
 
     return `
     <div>
-    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+     ${
+       selectedRecurringServiceList?.length !== 0
+         ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               Recurring Services
-            </p>
+            </p>`
+         : ""
+     }
+
       ${recurringServices}   
-    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+      ${
+        selectedOneOffServiceList?.length !== 0
+          ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               One-Off Services
-            </p>
+            </p>`
+          : ""
+      }
+   
       ${oneOffServices}
     </div>
   `;
@@ -2539,7 +2578,7 @@ const AuthContext = ({ children }) => {
   const GetReplaceServiceWithCommaViewWithPrice = (
     selectedRecurringServiceList,
     selectedOneOffServiceList,
-    servicePackageList
+    servicePackageList,
   ) => {
     const generateTableRows = (serviceList) => {
       if (!servicePackageList) {
@@ -2556,9 +2595,9 @@ const AuthContext = ({ children }) => {
                       subService.price == undefined
                         ? formatValue(subService.quotationPrice)
                         : formatValue(subService.price)
-                    }`
+                    }`,
                 )
-                .join(", ")
+                .join(", "),
             )
             .join(", ")}
         </p>
@@ -2576,25 +2615,25 @@ const AuthContext = ({ children }) => {
                 return (
                   (packageIndex === 0 &&
                     subService?.servicePackageIDs.includes(
-                      subService.packageOneID
+                      subService.packageOneID,
                     ) &&
                     subService.packageOneValue !== null) ||
                   (packageIndex === 1 &&
                     subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
+                      subService.packageTwoID,
                     ) &&
                     subService.packageTwoValue !== null) ||
                   (packageIndex === 2 &&
                     subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
+                      subService.packageThreeID,
                     ) &&
                     subService.packageThreeValue !== null)
                 );
-              })
+              }),
             );
 
             // Skip rendering the package if no services are available
-            if (validServices.length === 0) return "";
+            if (validServices?.length === 0) return "";
 
             return `
   <p style="margin: 8px 0; line-height: 1.5;">
@@ -2606,8 +2645,8 @@ const AuthContext = ({ children }) => {
         packageIndex === 0
           ? subService.packageOneValue
           : packageIndex === 1
-          ? subService.packageTwoValue
-          : subService.packageThreeValue;
+            ? subService.packageTwoValue
+            : subService.packageThreeValue;
 
       return `${subService.serviceName}: ${formatValue(packageValue)}`;
     })
@@ -2625,13 +2664,24 @@ const AuthContext = ({ children }) => {
 
     return `
       <div>
-      <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+      ${
+        selectedRecurringServiceList?.length !== 0
+          ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                 Recurring Services
-              </p>
-        ${recurringServices}   
-      <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+              </p>`
+          : ""
+      }
+      
+        ${recurringServices}
+
+        ${
+          selectedOneOffServiceList?.length !== 0
+            ? `<p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                 One-Off Services
-              </p>
+              </p>`
+            : ""
+        }
+      
         ${oneOffServices}
       </div>
     `;
@@ -2640,7 +2690,7 @@ const AuthContext = ({ children }) => {
   const GetReplaceServiceWithBulletListView = (
     selectedRecurringServiceList,
     selectedOneOffServiceList,
-    servicePackageList
+    servicePackageList,
   ) => {
     const generateTableRows = (serviceList) => {
       if (!servicePackageList) {
@@ -2652,7 +2702,7 @@ const AuthContext = ({ children }) => {
       .map((item) =>
         item.servicesList
           .map((subService) => `<li>${subService.serviceName}</li>`)
-          .join("")
+          .join(""),
       )
       .join("")}
   </ul>
@@ -2670,25 +2720,25 @@ const AuthContext = ({ children }) => {
                 return (
                   (packageIndex === 0 &&
                     subService?.servicePackageIDs.includes(
-                      subService.packageOneID
+                      subService.packageOneID,
                     ) &&
                     subService.packageOneValue !== null) ||
                   (packageIndex === 1 &&
                     subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
+                      subService.packageTwoID,
                     ) &&
                     subService.packageTwoValue !== null) ||
                   (packageIndex === 2 &&
                     subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
+                      subService.packageThreeID,
                     ) &&
                     subService.packageThreeValue !== null)
                 );
-              })
+              }),
             );
 
             // Skip rendering the package if no services are available
-            if (validServices.length === 0) return "";
+            if (validServices?.length === 0) return "";
 
             return `
               <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
@@ -2699,7 +2749,7 @@ const AuthContext = ({ children }) => {
       .map((item) =>
         item.servicesList
           .map((subService) => `<li>${subService.serviceName}</li>`)
-          .join("")
+          .join(""),
       )
       .join("")}
   </ul>
@@ -2715,13 +2765,22 @@ const AuthContext = ({ children }) => {
 
     return `
     <div>
-    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+    ${
+      selectedRecurringServiceList?.length !== 0
+        ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               Recurring Services
-            </p>
+            </p>`
+        : ""
+    }
       ${recurringServices}   
-    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+      ${
+        selectedOneOffServiceList?.length !== 0
+          ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
               One-Off Services
-            </p>
+            </p>`
+          : ""
+      }
+    
       ${oneOffServices}
     </div>
   `;
@@ -2730,7 +2789,7 @@ const AuthContext = ({ children }) => {
   const GetReplaceServiceWithBulletListViewWithPrice = (
     selectedRecurringServiceList,
     selectedOneOffServiceList,
-    servicePackageList
+    servicePackageList,
   ) => {
     const generateTableRows = (serviceList) => {
       if (!servicePackageList) {
@@ -2747,9 +2806,9 @@ const AuthContext = ({ children }) => {
                       subService.price == undefined
                         ? formatValue(subService.quotationPrice)
                         : formatValue(subService.price)
-                    }</li>`
+                    }</li>`,
                 )
-                .join("")
+                .join(""),
             )
             .join("")}
         </ul>
@@ -2767,25 +2826,25 @@ const AuthContext = ({ children }) => {
                 return (
                   (packageIndex === 0 &&
                     subService?.servicePackageIDs.includes(
-                      subService.packageOneID
+                      subService.packageOneID,
                     ) &&
                     subService.packageOneValue !== null) ||
                   (packageIndex === 1 &&
                     subService?.servicePackageIDs.includes(
-                      subService.packageTwoID
+                      subService.packageTwoID,
                     ) &&
                     subService.packageTwoValue !== null) ||
                   (packageIndex === 2 &&
                     subService?.servicePackageIDs.includes(
-                      subService.packageThreeID
+                      subService.packageThreeID,
                     ) &&
                     subService.packageThreeValue !== null)
                 );
-              })
+              }),
             );
 
             // Skip rendering the package if no services are available
-            if (validServices.length === 0) return "";
+            if (validServices?.length === 0) return "";
 
             return `
  
@@ -2799,8 +2858,8 @@ const AuthContext = ({ children }) => {
         packageIndex === 0
           ? subService.packageOneValue
           : packageIndex === 1
-          ? subService.packageTwoValue
-          : subService.packageThreeValue;
+            ? subService.packageTwoValue
+            : subService.packageThreeValue;
 
       return `<li>${subService.serviceName}: ${formatValue(packageValue)}</li>`;
     })
@@ -2819,13 +2878,23 @@ const AuthContext = ({ children }) => {
 
     return `
       <div>
-      <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+        ${
+          selectedRecurringServiceList?.length !== 0
+            ? `  <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                 Recurring Services
-              </p>
+              </p>`
+            : ""
+        }
+     
         ${recurringServices}   
-      <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+         ${
+           selectedOneOffServiceList?.length !== 0
+             ? `  <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
                 One-Off Services
-              </p>
+              </p>`
+             : ""
+         }
+      
         ${oneOffServices}
       </div>
     `;
@@ -2838,7 +2907,7 @@ const AuthContext = ({ children }) => {
     selectedProposalTypeValue,
     servicePackageList,
     selectedRecurringServiceList,
-    selectedOneOffServiceList
+    selectedOneOffServiceList,
   ) {
     let ResultTotalVariablesWithValues = {};
     const conditionalRecurringNetTotal =
@@ -2861,7 +2930,7 @@ const AuthContext = ({ children }) => {
             RecurringPricingInfo,
             selectedProposalTypeValue,
             null,
-            null
+            null,
           ),
         AllOneOffResultTotalVariable_WithPackageName:
           ReplaceVariable_WithTableView(
@@ -2869,7 +2938,7 @@ const AuthContext = ({ children }) => {
             OneOffPricingInfo,
             selectedProposalTypeValue,
             null,
-            null
+            null,
           ),
         AllRecurringResultTotalVariable_WithoutPackageName:
           ReplaceVariable_WithTableView(
@@ -2877,7 +2946,7 @@ const AuthContext = ({ children }) => {
             RecurringPricingInfo,
             selectedProposalTypeValue,
             null,
-            null
+            null,
           ),
         AllOneOffResultTotalVariable_WithoutPackageName:
           ReplaceVariable_WithTableView(
@@ -2885,60 +2954,60 @@ const AuthContext = ({ children }) => {
             OneOffPricingInfo,
             selectedProposalTypeValue,
             null,
-            null
+            null,
           ),
         //service Variable
         AllServices_WithTableView: GetReplaceServiceWithTableView(
           selectedRecurringServiceList,
           selectedOneOffServiceList,
-          null
+          null,
         ),
         AllServicesWithPrice_WithTableView:
           GetReplaceServiceWithTableViewWithPrice(
             selectedRecurringServiceList,
             selectedOneOffServiceList,
-            null
+            null,
           ),
 
         AllServices_WithComma: GetReplaceServiceWithCommaView(
           selectedRecurringServiceList,
           selectedOneOffServiceList,
-          null
+          null,
         ),
         AllServicesWithPrice_WithComma: GetReplaceServiceWithCommaViewWithPrice(
           selectedRecurringServiceList,
           selectedOneOffServiceList,
-          null
+          null,
         ),
 
         AllServices_WithBulletList: GetReplaceServiceWithBulletListView(
           selectedRecurringServiceList,
           selectedOneOffServiceList,
-          null
+          null,
         ),
         AllServicesWithPrice_WithBulletList:
           GetReplaceServiceWithBulletListViewWithPrice(
             selectedRecurringServiceList,
             selectedOneOffServiceList,
-            null
+            null,
           ),
 
         //Other services
         Net_Total_Recurring: formatValue(conditionalRecurringNetTotal),
         Discount_Recurring: formatValue(RecurringPricingInfo.Discount),
         Discounted_Total_Recurring: formatValue(
-          RecurringPricingInfo.DiscountedTotal
+          RecurringPricingInfo.DiscountedTotal,
         ),
         VAT_Recurring: formatValue(RecurringPricingInfo.VATPrice),
         Grand_Total_Recurring: formatValue(RecurringPricingInfo.GrandTotal),
         Original_Price_Recurring: formatValue(
-          RecurringPricingInfo.OriginalPrice
+          RecurringPricingInfo.OriginalPrice,
         ),
         Discount_Percentage_Recurring: formatValue(
-          RecurringPricingInfo.DefaultDiscount
+          RecurringPricingInfo.DefaultDiscount,
         ),
         Discounted_Price_Recurring: formatValue(
-          RecurringPricingInfo.DiscountedTotal
+          RecurringPricingInfo.DiscountedTotal,
         ),
         Payment_Frequency_Recurring: getPaymentFrequencyLabel(paymentFrequency),
 
@@ -2949,147 +3018,147 @@ const AuthContext = ({ children }) => {
         Grand_Total_OneOff: formatValue(OneOffPricingInfo.GrandTotal),
         Original_Price_OneOff: formatValue(OneOffPricingInfo.OriginalPrice),
         Discount_Percentage_OneOff: formatValue(
-          OneOffPricingInfo.DefaultDiscount
+          OneOffPricingInfo.DefaultDiscount,
         ),
         Discounted_Price_OneOff: formatValue(OneOffPricingInfo.DiscountedTotal),
         //With Table View
         Net_Total_WithTableView: SingleServiceWithCombinedTableView(
           "Net Total",
           conditionalRecurringNetTotal,
-          conditionalOneOffNetTotal
+          conditionalOneOffNetTotal,
         ),
         Discount_WithTableView: SingleServiceWithCombinedTableView(
           "Discount",
           RecurringPricingInfo.Discount,
-          OneOffPricingInfo.Discount
+          OneOffPricingInfo.Discount,
         ),
         Discounted_Total_WithTableView: SingleServiceWithCombinedTableView(
           "Discounted Total",
           RecurringPricingInfo.DiscountedTotal,
-          OneOffPricingInfo.DiscountedTotal
+          OneOffPricingInfo.DiscountedTotal,
         ),
         VAT_WithTableView: SingleServiceWithCombinedTableView(
           "VAT",
           RecurringPricingInfo.VATPrice,
-          OneOffPricingInfo.VATPrice
+          OneOffPricingInfo.VATPrice,
         ),
         Grand_Total_WithTableView: SingleServiceWithCombinedTableView(
           "Grand Total",
           RecurringPricingInfo.GrandTotal,
-          OneOffPricingInfo.GrandTotal
+          OneOffPricingInfo.GrandTotal,
         ),
         Original_Price_WithTableView: SingleServiceWithCombinedTableView(
           "Original Price",
           RecurringPricingInfo.OriginalPrice,
-          OneOffPricingInfo.OriginalPrice
+          OneOffPricingInfo.OriginalPrice,
         ),
         Discount_Percentage_WithTableView: SingleServiceWithCombinedTableView(
           "Default Percentage",
           RecurringPricingInfo.DefaultDiscount,
-          OneOffPricingInfo.DefaultDiscount
+          OneOffPricingInfo.DefaultDiscount,
         ),
         Discounted_Price_WithTableView: SingleServiceWithCombinedTableView(
           "Discounted Price",
           RecurringPricingInfo.DiscountedPrice,
-          OneOffPricingInfo.DiscountedPrice
+          OneOffPricingInfo.DiscountedPrice,
         ),
         //Comma Seprated
         Net_Total_WithComma: GetReplaceValueByWithComma(
           conditionalRecurringNetTotal,
           conditionalOneOffNetTotal,
           selectedProposalTypeValue,
-          servicePackageList
+          servicePackageList,
         ),
         Discount_WithComma: GetReplaceValueByWithComma(
           RecurringPricingInfo.Discount,
           OneOffPricingInfo.Discount,
           selectedProposalTypeValue,
-          servicePackageList
+          servicePackageList,
         ),
         Discounted_Total_WithComma: GetReplaceValueByWithComma(
           RecurringPricingInfo.DiscountedTotal,
           OneOffPricingInfo.DiscountedTotal,
           selectedProposalTypeValue,
-          servicePackageList
+          servicePackageList,
         ),
         VAT_WithComma: GetReplaceValueByWithComma(
           RecurringPricingInfo.VATPrice,
           OneOffPricingInfo.VATPrice,
           selectedProposalTypeValue,
-          servicePackageList
+          servicePackageList,
         ),
         Grand_Total_WithComma: GetReplaceValueByWithComma(
           RecurringPricingInfo.GrandTotal,
           OneOffPricingInfo.GrandTotal,
           selectedProposalTypeValue,
-          servicePackageList
+          servicePackageList,
         ),
         Original_Price_WithComma: GetReplaceValueByWithComma(
           RecurringPricingInfo.OriginalPrice,
           OneOffPricingInfo.OriginalPrice,
           selectedProposalTypeValue,
-          servicePackageList
+          servicePackageList,
         ),
         Discount_Percentage_WithComma: GetReplaceValueByWithComma(
           RecurringPricingInfo.DefaultDiscount,
           OneOffPricingInfo.DefaultDiscount,
           selectedProposalTypeValue,
-          servicePackageList
+          servicePackageList,
         ),
         Discounted_Price_WithComma: GetReplaceValueByWithComma(
           RecurringPricingInfo.DiscountedPrice,
           OneOffPricingInfo.DiscountedPrice,
           selectedProposalTypeValue,
-          servicePackageList
+          servicePackageList,
         ),
 
         Net_Total_WithBulletList: GetReplaceValueByWithBulletList(
           conditionalRecurringNetTotal,
           conditionalOneOffNetTotal,
           selectedProposalTypeValue,
-          servicePackageList
+          servicePackageList,
         ),
         Discount_WithBulletList: GetReplaceValueByWithBulletList(
           RecurringPricingInfo.Discount,
           OneOffPricingInfo.Discount,
           selectedProposalTypeValue,
-          servicePackageList
+          servicePackageList,
         ),
         Discounted_Total_WithBulletList: GetReplaceValueByWithBulletList(
           RecurringPricingInfo.DiscountedTotal,
           OneOffPricingInfo.DiscountedTotal,
           selectedProposalTypeValue,
-          servicePackageList
+          servicePackageList,
         ),
         VAT_WithBulletList: GetReplaceValueByWithBulletList(
           RecurringPricingInfo.VATPrice,
           OneOffPricingInfo.VATPrice,
           selectedProposalTypeValue,
-          servicePackageList
+          servicePackageList,
         ),
         Grand_Total_WithBulletList: GetReplaceValueByWithBulletList(
           RecurringPricingInfo.GrandTotal,
           OneOffPricingInfo.GrandTotal,
           selectedProposalTypeValue,
-          servicePackageList
+          servicePackageList,
         ),
         Original_Price_WithBulletList: GetReplaceValueByWithBulletList(
           RecurringPricingInfo.OriginalPrice,
           OneOffPricingInfo.OriginalPrice,
           selectedProposalTypeValue,
-          servicePackageList
+          servicePackageList,
         ),
         Discount_Percentage_WithBulletList: GetReplaceValueByWithBulletList(
           RecurringPricingInfo.DefaultDiscount,
           OneOffPricingInfo.DefaultDiscount,
           selectedProposalTypeValue,
-          servicePackageList
+          servicePackageList,
         ),
         Discounted_Price_WithBulletList: GetReplaceValueByWithBulletList(
           RecurringPricingInfo.DiscountedPrice,
           OneOffPricingInfo.DiscountedPrice,
           selectedProposalTypeValue,
-          servicePackageList
+          servicePackageList,
         ),
       };
     } else {
@@ -3101,7 +3170,7 @@ const AuthContext = ({ children }) => {
             RecurringPricingInfo,
             selectedProposalTypeValue,
             servicePackageList,
-            null
+            null,
           ),
         AllOneOffResultTotalVariable_WithPackageName:
           ReplaceVariable_WithTableView(
@@ -3109,7 +3178,7 @@ const AuthContext = ({ children }) => {
             OneOffPricingInfo,
             selectedProposalTypeValue,
             servicePackageList,
-            null
+            null,
           ),
         AllRecurringResultTotalVariable_WithoutPackageName:
           ReplaceVariable_WithTableView(
@@ -3117,7 +3186,7 @@ const AuthContext = ({ children }) => {
             RecurringPricingInfo,
             selectedProposalTypeValue,
             servicePackageList,
-            "WithOutName"
+            "WithOutName",
           ),
         AllOneOffResultTotalVariable_WithoutPackageName:
           ReplaceVariable_WithTableView(
@@ -3125,126 +3194,126 @@ const AuthContext = ({ children }) => {
             OneOffPricingInfo,
             selectedProposalTypeValue,
             servicePackageList,
-            "WithOutName"
+            "WithOutName",
           ),
         //service Price replace variables
         AllServices_WithTableView: GetReplaceServiceWithTableView(
           selectedRecurringServiceList,
           selectedOneOffServiceList,
-          servicePackageList
+          servicePackageList,
         ),
         AllServicesWithPrice_WithTableView:
           GetReplaceServiceWithTableViewWithPrice(
             selectedRecurringServiceList,
             selectedOneOffServiceList,
-            servicePackageList
+            servicePackageList,
           ),
 
         AllServices_WithComma: GetReplaceServiceWithCommaView(
           selectedRecurringServiceList,
           selectedOneOffServiceList,
-          servicePackageList
+          servicePackageList,
         ),
         AllServicesWithPrice_WithComma: GetReplaceServiceWithCommaViewWithPrice(
           selectedRecurringServiceList,
           selectedOneOffServiceList,
-          servicePackageList
+          servicePackageList,
         ),
 
         AllServices_WithBulletList: GetReplaceServiceWithBulletListView(
           selectedRecurringServiceList,
           selectedOneOffServiceList,
-          servicePackageList
+          servicePackageList,
         ),
         AllServicesWithPrice_WithBulletList:
           GetReplaceServiceWithBulletListViewWithPrice(
             selectedRecurringServiceList,
             selectedOneOffServiceList,
-            servicePackageList
+            servicePackageList,
           ),
         //Other Values
         Net_Total_Recurring: GetReplacePackageTableView(
           RecurringPricingInfo,
           "Net Total",
-          servicePackageList
+          servicePackageList,
         ),
         Discount_Recurring: GetReplacePackageTableView(
           RecurringPricingInfo,
           "Discount",
-          servicePackageList
+          servicePackageList,
         ),
         Discounted_Total_Recurring: GetReplacePackageTableView(
           RecurringPricingInfo,
           "Discounted Total",
-          servicePackageList
+          servicePackageList,
         ),
         VAT_Recurring: GetReplacePackageTableView(
           RecurringPricingInfo,
           "VAT",
-          servicePackageList
+          servicePackageList,
         ),
         Grand_Total_Recurring: GetReplacePackageTableView(
           RecurringPricingInfo,
           "Grand Total",
-          servicePackageList
+          servicePackageList,
         ),
         Original_Price_Recurring: GetReplacePackageTableView(
           RecurringPricingInfo,
           "Original Price",
-          servicePackageList
+          servicePackageList,
         ),
         Discount_Percentage_Recurring: GetReplacePackageTableView(
           RecurringPricingInfo,
           "Default Percentage",
-          servicePackageList
+          servicePackageList,
         ),
         Discounted_Price_Recurring: GetReplacePackageTableView(
           RecurringPricingInfo,
           "Discounted Price",
-          servicePackageList
+          servicePackageList,
         ),
         Payment_Frequency_Recurring: getPaymentFrequencyLabel(paymentFrequency),
 
         Net_Total_OneOff: GetReplacePackageTableView(
           OneOffPricingInfo,
           "Net Total",
-          servicePackageList
+          servicePackageList,
         ),
         Discount_OneOff: GetReplacePackageTableView(
           OneOffPricingInfo,
           "Discount",
-          servicePackageList
+          servicePackageList,
         ),
         Discounted_Total_OneOff: GetReplacePackageTableView(
           OneOffPricingInfo,
           "Discounted Total",
-          servicePackageList
+          servicePackageList,
         ),
 
         VAT_OneOff: GetReplacePackageTableView(
           OneOffPricingInfo,
           "VAT",
-          servicePackageList
+          servicePackageList,
         ),
         Grand_Total_OneOff: GetReplacePackageTableView(
           OneOffPricingInfo,
           "Grand Total",
-          servicePackageList
+          servicePackageList,
         ),
         Original_Price_OneOff: GetReplacePackageTableView(
           OneOffPricingInfo,
           "Original Price",
-          servicePackageList
+          servicePackageList,
         ),
         Discount_Percentage_OneOff: GetReplacePackageTableView(
           OneOffPricingInfo,
           "Default Percentage",
-          servicePackageList
+          servicePackageList,
         ),
         Discounted_Price_OneOff: GetReplacePackageTableView(
           OneOffPricingInfo,
           "Discounted Price",
-          servicePackageList
+          servicePackageList,
         ),
 
         //Table view
@@ -3252,49 +3321,49 @@ const AuthContext = ({ children }) => {
           RecurringPricingInfo,
           OneOffPricingInfo,
           "Net Total",
-          servicePackageList
+          servicePackageList,
         ),
         Discount_WithTableView: GetReplacePackageCombinedTableView(
           RecurringPricingInfo,
           OneOffPricingInfo,
           "Discount",
-          servicePackageList
+          servicePackageList,
         ),
         Discounted_Total_WithTableView: GetReplacePackageCombinedTableView(
           RecurringPricingInfo,
           OneOffPricingInfo,
           "Discounted Total",
-          servicePackageList
+          servicePackageList,
         ),
         Discounted_Price_WithTableView: GetReplacePackageCombinedTableView(
           RecurringPricingInfo,
           OneOffPricingInfo,
           "Discounted Price",
-          servicePackageList
+          servicePackageList,
         ),
         VAT_WithTableView: GetReplacePackageCombinedTableView(
           RecurringPricingInfo,
           OneOffPricingInfo,
           "VAT",
-          servicePackageList
+          servicePackageList,
         ),
         Grand_Total_WithTableView: GetReplacePackageCombinedTableView(
           RecurringPricingInfo,
           OneOffPricingInfo,
           "Grand Total",
-          servicePackageList
+          servicePackageList,
         ),
         Original_Price_WithTableView: GetReplacePackageCombinedTableView(
           RecurringPricingInfo,
           OneOffPricingInfo,
           "Original Price",
-          servicePackageList
+          servicePackageList,
         ),
         Discount_Percentage_WithTableView: GetReplacePackageCombinedTableView(
           RecurringPricingInfo,
           OneOffPricingInfo,
           "Default Percentage",
-          servicePackageList
+          servicePackageList,
         ),
 
         Net_Total_WithComma: GetReplaceValueByWithComma(
@@ -3302,55 +3371,55 @@ const AuthContext = ({ children }) => {
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Net Total"
+          "Net Total",
         ),
         Discount_WithComma: GetReplaceValueByWithComma(
           RecurringPricingInfo,
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Discount"
+          "Discount",
         ),
         Discounted_Total_WithComma: GetReplaceValueByWithComma(
           RecurringPricingInfo,
           OneOffPricingInfo,
           selectedProposalTypeValue,
-          servicePackageList
+          servicePackageList,
         ),
         VAT_WithComma: GetReplaceValueByWithComma(
           RecurringPricingInfo,
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "VAT"
+          "VAT",
         ),
         Grand_Total_WithComma: GetReplaceValueByWithComma(
           RecurringPricingInfo,
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Grand Total"
+          "Grand Total",
         ),
         Original_Price_WithComma: GetReplaceValueByWithComma(
           RecurringPricingInfo,
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Original Price"
+          "Original Price",
         ),
         Discount_Percentage_WithComma: GetReplaceValueByWithComma(
           RecurringPricingInfo,
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Default Percentage"
+          "Default Percentage",
         ),
         Discounted_Price_WithComma: GetReplaceValueByWithComma(
           RecurringPricingInfo,
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Default Price"
+          "Default Price",
         ),
 
         Net_Total_WithBulletList: GetReplaceValueByWithBulletList(
@@ -3358,55 +3427,55 @@ const AuthContext = ({ children }) => {
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Net Total"
+          "Net Total",
         ),
         Discount_WithBulletList: GetReplaceValueByWithBulletList(
           RecurringPricingInfo,
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Discount"
+          "Discount",
         ),
         Discounted_Total_WithBulletList: GetReplaceValueByWithBulletList(
           RecurringPricingInfo,
           OneOffPricingInfo,
           selectedProposalTypeValue,
-          servicePackageList
+          servicePackageList,
         ),
         VAT_WithBulletList: GetReplaceValueByWithBulletList(
           RecurringPricingInfo,
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "VAT"
+          "VAT",
         ),
         Grand_Total_WithBulletList: GetReplaceValueByWithBulletList(
           RecurringPricingInfo,
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Grand Total"
+          "Grand Total",
         ),
         Original_Price_WithBulletList: GetReplaceValueByWithBulletList(
           RecurringPricingInfo,
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Original Price"
+          "Original Price",
         ),
         Discount_Percentage_WithBulletList: GetReplaceValueByWithBulletList(
           RecurringPricingInfo,
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Default Percentage"
+          "Default Percentage",
         ),
         Discounted_Price_WithBulletList: GetReplaceValueByWithBulletList(
           RecurringPricingInfo,
           OneOffPricingInfo,
           selectedProposalTypeValue,
           servicePackageList,
-          "Default Price"
+          "Default Price",
         ),
       };
     }
@@ -3446,7 +3515,7 @@ const AuthContext = ({ children }) => {
   //   });
   // };
 
- const replaceUrlInHtml = (htmlContent) => {
+  const replaceUrlInHtml = (htmlContent) => {
     const urlRegex = /\bhttps?:\/\/[^\s<>"']+[\w/]/g;
 
     return htmlContent.replace(urlRegex, (url, offset) => {
@@ -3487,7 +3556,7 @@ const AuthContext = ({ children }) => {
     RecurringPricingInfo,
     OneOffPricingInfo,
     vatPercentage,
-    selectedPackagesList
+    selectedPackagesList,
   ) => {
     // Check main grand totals and discounted values
     if (selectedPackagesList?.length == 0) {
@@ -3599,6 +3668,7 @@ const AuthContext = ({ children }) => {
         setTopbar,
         isPopupOpen,
         prospectName,
+        bookKeepingGateway,
         setIsPopupOpen,
         proposalName,
         EngagementName,
@@ -3628,6 +3698,7 @@ const AuthContext = ({ children }) => {
         DefaultVariables,
         HtmlToPlainText,
         setProspectName,
+        setBookKeepingGateway,
         setOrgLoaderList,
         handleInputChange,
         setEngagementName,

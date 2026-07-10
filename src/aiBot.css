@@ -1,0 +1,292 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+}
+
+/* Table Styles for Markdown */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+  font-size: 0.875em;
+}
+
+.prose th {
+  border: 1px solid var(--tw-prose-th-borders, #3f3f46);
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 0.75rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.prose td {
+  border: 1px solid var(--tw-prose-td-borders, #3f3f46);
+  padding: 0.75rem;
+}
+
+/* Custom Prose Colors for Chat Bubbles */
+.prose-blue {
+  --tw-prose-body: #ffffff;
+  --tw-prose-headings: #ffffff;
+  --tw-prose-lead: #e0e7ff;
+  --tw-prose-links: #ffffff;
+  --tw-prose-bold: #ffffff;
+  --tw-prose-counters: #e0e7ff;
+  --tw-prose-bullets: #e0e7ff;
+  --tw-prose-hr: #93c5fd;
+  --tw-prose-quotes: #e0e7ff;
+  --tw-prose-quote-borders: #93c5fd;
+  --tw-prose-captions: #bfdbfe;
+  --tw-prose-code: #ffffff;
+  --tw-prose-pre-code: #e0e7ff;
+  --tw-prose-pre-bg: rgba(0, 0, 0, 0.2);
+  --tw-prose-th-borders: #93c5fd;
+  --tw-prose-td-borders: #60a5fa;
+}
+
+.prose-zinc {
+  --tw-prose-body: #e4e4e7; /* zinc-200 */
+  --tw-prose-headings: #ffffff;
+  --tw-prose-lead: #a1a1aa; /* zinc-400 */
+  --tw-prose-links: #ffffff;
+  --tw-prose-bold: #ffffff;
+  --tw-prose-counters: #a1a1aa;
+  --tw-prose-bullets: #52525b; /* zinc-600 */
+  --tw-prose-hr: #3f3f46; /* zinc-700 */
+  --tw-prose-quotes: #f4f4f5; /* zinc-100 */
+  --tw-prose-quote-borders: #3f3f46;
+  --tw-prose-captions: #a1a1aa;
+  --tw-prose-code: #ffffff;
+  --tw-prose-pre-code: #e4e4e7;
+  --tw-prose-pre-bg: #18181b; /* zinc-950 */
+  --tw-prose-th-borders: #52525b; /* zinc-600 */
+  --tw-prose-td-borders: #3f3f46; /* zinc-700 */
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  .ai-root * {
+    @apply border-gray-300 outline-none;
+  }
+  .ai-root {
+    @apply bg-white text-black;
+  }
+}
+
+/* Calendar dropdown styling for dark theme */
+[data-slot="calendar"] select {
+  @apply bg-zinc-800 text-zinc-100 border-zinc-700 cursor-pointer;
+  background-color: rgb(39 39 42) !important; /* zinc-800 */
+  color: rgb(244 244 245) !important; /* zinc-100 */
+}
+
+[data-slot="calendar"] select option {
+  background-color: rgb(39 39 42) !important; /* zinc-800 */
+  color: rgb(244 244 245) !important; /* zinc-100 */
+}
+
+[data-slot="calendar"] select:focus {
+  @apply outline-none ring-2 ring-blue-500 border-blue-500;
+}
+
+/* Additional styling for calendar dropdowns */
+.rdp-dropdown select {
+  background-color: rgb(39 39 42) !important; /* zinc-800 */
+  color: rgb(244 244 245) !important; /* zinc-100 */
+}
+
+.rdp-dropdown select option {
+  background-color: rgb(39 39 42) !important; /* zinc-800 */
+  color: rgb(244 244 245) !important; /* zinc-100 */
+}
+
+/* Scrollbar styling for calendar dropdowns */
+[data-slot="calendar"] select::-webkit-scrollbar,
+.rdp-dropdown select::-webkit-scrollbar {
+  width: 8px;
+}
+
+[data-slot="calendar"] select::-webkit-scrollbar-track,
+.rdp-dropdown select::-webkit-scrollbar-track {
+  background: rgb(39 39 42); /* zinc-800 */
+  border-radius: 4px;
+}
+
+[data-slot="calendar"] select::-webkit-scrollbar-thumb,
+.rdp-dropdown select::-webkit-scrollbar-thumb {
+  background: rgb(63 63 70); /* zinc-700 */
+  border-radius: 4px;
+}
+
+[data-slot="calendar"] select::-webkit-scrollbar-thumb:hover,
+.rdp-dropdown select::-webkit-scrollbar-thumb:hover {
+  background: rgb(82 82 91); /* zinc-600 */
+}
+
+/* Firefox scrollbar styling */
+[data-slot="calendar"] select,
+.rdp-dropdown select {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(63 63 70) rgb(39 39 42); /* thumb track */
+}
+
+.dark-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(82, 82, 91) transparent;
+}
+.dark-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.dark-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+.dark-scrollbar::-webkit-scrollbar-thumb {
+  background: rgb(82, 82, 91);
+  border-radius: 4px;
+}
+.dark-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgb(113, 113, 122);
+}
+.dark-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+main::-webkit-scrollbar {
+  width: 8px;
+}
+main::-webkit-scrollbar-track {
+  background: transparent;
+}
+main::-webkit-scrollbar-thumb {
+  background: rgb(82, 82, 91);
+  border-radius: 4px;
+}
+main::-webkit-scrollbar-thumb:hover {
+  background: rgb(113, 113, 122);
+}
+main {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(82, 82, 91) transparent;
+}
+
+.chat-toggle-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  border-radius: 50%;
+  padding: 12px 15px;
+  font-size: 18px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

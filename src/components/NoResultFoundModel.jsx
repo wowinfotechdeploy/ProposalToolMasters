@@ -1,5 +1,6 @@
 import Loader from "../loader/Loader";
 const noResultFoundModel = ({ name, totalRecords }) => {
+
   return (
     <div className="noResult">
       <div className="text-center">

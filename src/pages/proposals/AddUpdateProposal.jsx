@@ -20860,22 +20860,22 @@ const Add_Update_Proposal = (props) => {
               )} */}
               {activeTab === ProposalHeader.AdditionalInformation && (
                 <Suspense>
-                <AdditionalInformation
-                  DisableTabOnChange={DisableTabOnChange}
-                  HandleTabChange={HandleTabChange}
-                  HandleBack={HandleBack}
-                  requireMessage={requireMessage}
-                  additionalInformationList={additionalInformationList}
-                  setAdditionalInformationList={setAdditionalInformationList}
-                  recurringError={recurringError}
-                  hasHyphenAfterNumber={hasHyphenAfterNumber}
-                  handleCancel={handleCancelBtn}
-                  ProposalObject={ProposalObject}
-                  getCrudButtonTextName={getCrudButtonTextName}
-                  handleSaveAsDraft={handleSaveAsDraft}
-                  moduleName={"Quote"}
-                  proposalName={proposalName}
-                />
+                  <AdditionalInformation
+                    DisableTabOnChange={DisableTabOnChange}
+                    HandleTabChange={HandleTabChange}
+                    HandleBack={HandleBack}
+                    requireMessage={requireMessage}
+                    additionalInformationList={additionalInformationList}
+                    setAdditionalInformationList={setAdditionalInformationList}
+                    recurringError={recurringError}
+                    hasHyphenAfterNumber={hasHyphenAfterNumber}
+                    handleCancel={handleCancelBtn}
+                    ProposalObject={ProposalObject}
+                    getCrudButtonTextName={getCrudButtonTextName}
+                    handleSaveAsDraft={handleSaveAsDraft}
+                    moduleName={"Quote"}
+                    proposalName={proposalName}
+                  />
                 </Suspense>
               )}
 

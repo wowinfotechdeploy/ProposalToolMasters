@@ -17,7 +17,7 @@ import Select from "react-select";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import NoResultFoundModel from "../../components/NoResultFoundModel";
 import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   ChangeContractStatus,
   CopyContract,
@@ -26,7 +26,7 @@ import {
   GetEngagementList,
   GetOldEngagementList,
   VoidContract,
-  ArchiveContract
+  ArchiveContract,
 } from "../../redux/Services/EngagementLetter/EngagementLetterApi";
 import PaginationComponent from "../../components/PaginationModel";
 import {
@@ -52,11 +52,14 @@ import Android12Switch from "../../components/AndroidSwitch";
 import {
   ChangeFailedMailLogStatus,
   GetProspectSendMailStatus,
-  ResendAddUpdateQuote,
 } from "../../redux/Services/EmailFailureStatusAPI/EmailFailureStatusAPI";
 import EmailFailurePopUP from "../../components/EmailFailurePopUp";
+import { CreateEngagementInvoice } from "../../redux/reducer/engagementSlice";
+
 const Engagement_Letter = () => {
   let getEngagementListApiCallCount = 0;
+  const dispatch = useDispatch();
+
   // Declare State
   const [modelRequestData, setModelRequestData] = useState({
     message: null,
@@ -678,14 +681,14 @@ const Engagement_Letter = () => {
   };
 
   // Archive Contract
-  const ArchiveContractData = async() => {
+  const ArchiveContractData = async () => {
     try {
       setLoader(true);
       const data = await ArchiveContract(
         modelRequestData.contractKeyID,
-        common.userKeyID
+        common.userKeyID,
       );
-      if(data?.data?.statusCode === 200) {
+      if (data?.data?.statusCode === 200) {
         setLoader(false);
         setOpenSuccessModal(true);
       } else {
@@ -694,19 +697,18 @@ const Engagement_Letter = () => {
         setOpenErrorModal(true);
       }
       GetEngagementListData(
-      currentPage,
-      searchKeyword,
-      status,
-      fromDate,
-      toDate,
-      businessNatureID,
-      prospectType,
-    );
-    }
-    catch(error) {
+        currentPage,
+        searchKeyword,
+        status,
+        fromDate,
+        toDate,
+        businessNatureID,
+        prospectType,
+      );
+    } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   // el seacrh function
   const handleSearch = (e) => {
@@ -2672,33 +2674,91 @@ const Engagement_Letter = () => {
                                                                     </li>
                                                                   </>
                                                                 )}
-                                                                {/* Archive */}
-                                                            {!engagement.isArchived && (
-                                                              <li>
-                                                                <a
-                                                                  class="dropdown-item"
-                                                                  data-bs-toggle="modal"
-                                                                  data-bs-target="#ConfirmModel"
-                                                                  onClick={() =>
-                                                                    setModelRequestData(
-                                                                      {
-                                                                        ...modelRequestData,
-                                                                        Action:
-                                                                          "ArchiveContract",
-                                                                        refId: engagement.prefix,
-                                                                        contractKeyID:
-                                                                          engagement.contractKeyID,
-                                                                      })
-                                                                  }
-                                                                >
-                                                                  <i class="bi-archive-fill"></i>{" "}
-                                                                  Archive{" "}
-                                                                  {
-                                                                    EngagementName
-                                                                  }
-                                                                </a>
-                                                              </li>
-                                                            )}
+                                                              {/* Archive */}
+                                                              {!engagement.isArchived && (
+                                                                <li>
+                                                                  <a
+                                                                    class="dropdown-item"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#ConfirmModel"
+                                                                    onClick={() =>
+                                                                      setModelRequestData(
+                                                                        {
+                                                                          ...modelRequestData,
+                                                                          Action:
+                                                                            "ArchiveContract",
+                                                                          refId:
+                                                                            engagement.prefix,
+                                                                          contractKeyID:
+                                                                            engagement.contractKeyID,
+                                                                        },
+                                                                      )
+                                                                    }
+                                                                  >
+                                                                    <i class="bi-archive-fill"></i>{" "}
+                                                                    Archive{" "}
+                                                                    {
+                                                                      EngagementName
+                                                                    }
+                                                                  </a>
+                                                                </li>
+                                                              )}
+
+                                                              {/* invoice button  */}
+                                                              {engagement.statusName ==
+                                                                "Signed" && (
+                                                                //check prospect synced or not
+                                                                //check organisation sync with xerO/qbo
+                                                                <li>
+                                                                  {/* <Tooltip title={`Delete ${proposalName}`} placement="right"> */}
+                                                                  <a
+                                                                    className="dropdown-item"
+                                                                    // data-bs-toggle="modal"
+                                                                    // data-bs-target="#ConfirmModel"
+                                                                    onClick={async () => {
+                                                                      //add loader on action button later
+                                                                      try {
+                                                                        const res =
+                                                                          await dispatch(
+                                                                            CreateEngagementInvoice(
+                                                                              {
+                                                                                organisationKeyID:
+                                                                                  common.organisationKeyID,
+                                                                                contractKeyId:
+                                                                                  engagement.contractKeyID,
+                                                                              },
+                                                                            ),
+                                                                          ).unwrap();
+
+                                                                        // SUCCESS
+                                                                        setOpenSuccessModal(
+                                                                          true,
+                                                                        );
+                                                                      } catch (error) {
+                                                                        // ERROR
+                                                                        setErrorMessage(
+                                                                          error ||
+                                                                            "Something went wrong",
+                                                                        );
+                                                                        setOpenErrorModal(
+                                                                          true,
+                                                                        );
+                                                                      }
+                                                                    }}
+                                                                  >
+                                                                    <i
+                                                                      className="ri-bill-line"
+                                                                      style={{
+                                                                        marginRight:
+                                                                          "2px",
+                                                                      }}
+                                                                    ></i>{" "}
+                                                                    Create
+                                                                    Invoice
+                                                                  </a>
+                                                                  {/* </Tooltip> */}
+                                                                </li>
+                                                              )}
                                                             </ul>
                                                           </div>
                                                         </div>
@@ -3671,11 +3731,12 @@ const Engagement_Letter = () => {
                                 ? DeleteSingleApiContractData
                                 : modelRequestData.Action === "DeleteContract"
                                   ? HandleDeleteDraftContractData
-                                    : modelRequestData.Action === "ArchiveContract"
+                                  : modelRequestData.Action ===
+                                      "ArchiveContract"
                                     ? ArchiveContractData
-                                      : modelRequestData.Action === "Copy"
-                                        ? CopyContractData
-                                        : () => CopyContractData(null, true)
+                                    : modelRequestData.Action === "Copy"
+                                      ? CopyContractData
+                                      : () => CopyContractData(null, true)
                       }
                     />
                     <SuccessModal
@@ -3698,9 +3759,10 @@ const Engagement_Letter = () => {
                                     : ""
                                   : modelRequestData.Action === "DeleteContract"
                                     ? EngagementName
-                                      : modelRequestData.Action === "ArchiveContract"
-                                        ? EngagementName
-                                        : ""
+                                    : modelRequestData.Action ===
+                                        "ArchiveContract"
+                                      ? EngagementName
+                                      : ""
                       }
                       refIdStore={modelRequestData.refId}
                     />

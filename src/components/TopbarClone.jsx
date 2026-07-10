@@ -30,8 +30,15 @@ import SuccessModal from "./SuccessModal";
 import SetTimeoutComponent from "./SetTimeoutComponent";
 import UserModelNew from "./UserModelNew";
 import ViewPlan from "./ViewPlan";
+import AuthButton from "./Sidebar/AuthenticationButton";
+import {
+  quickBooksConnectionStatus,
+  xeroConnectionStatus,
+} from "../redux/reducer/authSlice";
 
 const TopbarClone = () => {
+  //localstorage values
+  const bookkeeping = JSON.parse(localStorage.getItem("subscriptionPlan"));
   // A] States Declaration
   const {
     currentCardColor,
@@ -123,10 +130,10 @@ const TopbarClone = () => {
     setProspectName,
     setOrgLoaderList,
     setActiveOrganizationSubscriptionPlan,
-    lightenColor
+    lightenColor,
   } = useContext(AuthContextProvider);
-  const listColor = lightenColor(TopbarStyle.backgroundColor,0.35);
-  const subListColor = lightenColor(TopbarStyle.backgroundColor,0.55);
+  const listColor = lightenColor(TopbarStyle.backgroundColor, 0.35);
+  const subListColor = lightenColor(TopbarStyle.backgroundColor, 0.55);
   console.log(subListColor);
   const common = useSelector((state) => state.Storage);
   const navigate = useNavigate();
@@ -153,6 +160,11 @@ const TopbarClone = () => {
   }, [isSidebarOpen]);
 
   useEffect(() => {
+    if (common.organisationKeyID) {
+      dispatch(xeroConnectionStatus(common.organisationKeyID));
+      dispatch(quickBooksConnectionStatus(common.organisationKeyID));
+    }
+
     if (common.token && topbar === "block") {
       NotificationCountData();
     }
@@ -342,7 +354,7 @@ const TopbarClone = () => {
   // };
 
   const toggleSettingDropdown = () => {
-    setIsSettingDropdownOpen(prev => !prev);
+    setIsSettingDropdownOpen((prev) => !prev);
   };
 
   const toggleUserRoleDropdown = (e) => {
@@ -499,12 +511,12 @@ const TopbarClone = () => {
     }
   };
 
- const showConfigList = () => {
-  document.getElementById("config")?.classList.add("show");
-  if (configRef.current) {
-    configRef.current.setAttribute("aria-expanded", "true");
-  }
-};
+  const showConfigList = () => {
+    document.getElementById("config")?.classList.add("show");
+    if (configRef.current) {
+      configRef.current.setAttribute("aria-expanded", "true");
+    }
+  };
 
   const showSubscriptionList = () => {
     const sub = document.getElementById("Subscription");
@@ -519,18 +531,18 @@ const TopbarClone = () => {
 
   const hideSettingList = () => {
     const setting = document.getElementById("Setting");
-  if (!setting) return;
+    if (!setting) return;
 
-  setting.classList.remove("show");
-  if (settingsRef.current) {
-    settingsRef.current.setAttribute("aria-expanded", "false");
-  }
+    setting.classList.remove("show");
+    if (settingsRef.current) {
+      settingsRef.current.setAttribute("aria-expanded", "false");
+    }
 
-  document.querySelectorAll("#Setting .subList").forEach((el) => {
-    el.classList.remove("show");
-    const link = el.parentElement.querySelector(".nav-link");
-    if (link) link.setAttribute("aria-expanded", "false");
-  });
+    document.querySelectorAll("#Setting .subList").forEach((el) => {
+      el.classList.remove("show");
+      const link = el.parentElement.querySelector(".nav-link");
+      if (link) link.setAttribute("aria-expanded", "false");
+    });
   };
 
   const hideSettingSubList = (id) => {
@@ -539,33 +551,33 @@ const TopbarClone = () => {
   };
 
   const toggleWorkflowList = () => {
-  const workflow = document.getElementById("workflow");
-  if (!workflow) return;
+    const workflow = document.getElementById("workflow");
+    if (!workflow) return;
 
-  workflow.classList.toggle("show");
+    workflow.classList.toggle("show");
 
-  const isNowOpen = workflow.classList.contains("show");
-  if (workflowRef.current) {
-    workflowRef.current.setAttribute("aria-expanded", String(isNowOpen));
-  }
-};
+    const isNowOpen = workflow.classList.contains("show");
+    if (workflowRef.current) {
+      workflowRef.current.setAttribute("aria-expanded", String(isNowOpen));
+    }
+  };
 
-const showWorkflowList = () => {
-  document.getElementById("workflow")?.classList.add("show");
-  if (workflowRef.current) {
-    workflowRef.current.setAttribute("aria-expanded", "true");
-  }
-};
+  const showWorkflowList = () => {
+    document.getElementById("workflow")?.classList.add("show");
+    if (workflowRef.current) {
+      workflowRef.current.setAttribute("aria-expanded", "true");
+    }
+  };
 
-const hideWorkflowList = () => {
-  const workflow = document.getElementById("workflow");
-  if (!workflow) return;
+  const hideWorkflowList = () => {
+    const workflow = document.getElementById("workflow");
+    if (!workflow) return;
 
-  workflow.classList.remove("show");
-  if (workflowRef.current) {
-    workflowRef.current.setAttribute("aria-expanded", "false");
-  }
-};
+    workflow.classList.remove("show");
+    if (workflowRef.current) {
+      workflowRef.current.setAttribute("aria-expanded", "false");
+    }
+  };
 
   const hideSubscriptionList = () => {
     const sub = document.getElementById("Subscription");
@@ -584,21 +596,21 @@ const hideWorkflowList = () => {
   //     configs.style.display = "none";
   //   }, 200); // 200ms delay
   // };
- const hideConfigList = () => {
-  const config = document.getElementById("config");
-  if (!config) return;
+  const hideConfigList = () => {
+    const config = document.getElementById("config");
+    if (!config) return;
 
-  config.classList.remove("show");
-  if (configRef.current) {
-    configRef.current.setAttribute("aria-expanded", "false");
-  }
+    config.classList.remove("show");
+    if (configRef.current) {
+      configRef.current.setAttribute("aria-expanded", "false");
+    }
 
-  document.querySelectorAll("#config .subList").forEach((el) => {
-    el.classList.remove("show");
-    const link = el.parentElement.querySelector(".nav-link");
-    if (link) link.setAttribute("aria-expanded", "false");
-  });
-};
+    document.querySelectorAll("#config .subList").forEach((el) => {
+      el.classList.remove("show");
+      const link = el.parentElement.querySelector(".nav-link");
+      if (link) link.setAttribute("aria-expanded", "false");
+    });
+  };
   // const hideConfigSubList = (id) => {
   //   const list = document.getElementById(id);
   //   if (list) list.style.display = "none";
@@ -643,24 +655,23 @@ const hideWorkflowList = () => {
   // };
 
   const toggleConfigSubList = (id) => {
-  const list = document.getElementById(id);
-  if (!list) return;
+    const list = document.getElementById(id);
+    if (!list) return;
 
-  const isOpen = list.classList.contains("show");
+    const isOpen = list.classList.contains("show");
 
-  document.querySelectorAll("#config .subList").forEach((el) => {
-    el.classList.remove("show");
-    const link = el.parentElement.querySelector(".nav-link");
-    if (link) link.setAttribute("aria-expanded", "false");
-    
-  });
+    document.querySelectorAll("#config .subList").forEach((el) => {
+      el.classList.remove("show");
+      const link = el.parentElement.querySelector(".nav-link");
+      if (link) link.setAttribute("aria-expanded", "false");
+    });
 
-  if (!isOpen) {
-    list.classList.add("show");
-    const link = list.parentElement.querySelector(".nav-link");
-    if (link) link.setAttribute("aria-expanded", "true");
-  }
-};
+    if (!isOpen) {
+      list.classList.add("show");
+      const link = list.parentElement.querySelector(".nav-link");
+      if (link) link.setAttribute("aria-expanded", "true");
+    }
+  };
 
   const showUserSettingList = () => {
     const list = document.getElementById("UserRole");
@@ -675,22 +686,22 @@ const hideWorkflowList = () => {
   //show function for setting
   const showSettingList = () => {
     document.getElementById("Setting")?.classList.add("show");
-  if (settingsRef.current) {
-    settingsRef.current.setAttribute("aria-expanded", "true");
-  }
+    if (settingsRef.current) {
+      settingsRef.current.setAttribute("aria-expanded", "true");
+    }
   };
 
   const toggleSettingList = () => {
     const setting = document.getElementById("Setting");
-  if (!setting) return;
+    if (!setting) return;
 
-  setting.classList.toggle("show");
+    setting.classList.toggle("show");
 
-  // arrow follows config state
-  const isNowOpen = setting.classList.contains("show");
-  if (settingsRef.current) {
-    settingsRef.current.setAttribute("aria-expanded", String(isNowOpen));
-  }
+    // arrow follows config state
+    const isNowOpen = setting.classList.contains("show");
+    if (settingsRef.current) {
+      settingsRef.current.setAttribute("aria-expanded", String(isNowOpen));
+    }
   };
 
   const toggleSubscriptionList = () => {
@@ -704,6 +715,18 @@ const hideWorkflowList = () => {
     if (subscriptionRef.current) {
       subscriptionRef.current.setAttribute("aria-expanded", String(isOpen));
     }
+
+    // if (list.style.display !== "block") {
+    //   list.style.display = "block";
+    //   setTimeout(() => {
+    //     list.scrollIntoView({
+    //       behavior: "smooth",
+    //       block: "end",
+    //     });
+    //   }, 100);
+    // } else {
+    //   list.style.display = "none";
+    // }
   };
 
   //show  function for setting sub list
@@ -741,22 +764,21 @@ const hideWorkflowList = () => {
   // };
   const toggleSettingSubList = (id) => {
     const list = document.getElementById(id);
-  if (!list) return;
+    if (!list) return;
 
-  const isOpen = list.classList.contains("show");
+    const isOpen = list.classList.contains("show");
 
-  document.querySelectorAll("#Setting .subList").forEach((el) => {
-    el.classList.remove("show");
-    const link = el.parentElement.querySelector(".nav-link");
-    if (link) link.setAttribute("aria-expanded", "false");
-    
-  });
+    document.querySelectorAll("#Setting .subList").forEach((el) => {
+      el.classList.remove("show");
+      const link = el.parentElement.querySelector(".nav-link");
+      if (link) link.setAttribute("aria-expanded", "false");
+    });
 
-  if (!isOpen) {
-    list.classList.add("show");
-    const link = list.parentElement.querySelector(".nav-link");
-    if (link) link.setAttribute("aria-expanded", "true");
-  }
+    if (!isOpen) {
+      list.classList.add("show");
+      const link = list.parentElement.querySelector(".nav-link");
+      if (link) link.setAttribute("aria-expanded", "true");
+    }
   };
 
   const toggleUserRoleSettingSubList = (id) => {
@@ -769,7 +791,6 @@ const hideWorkflowList = () => {
       el.classList.remove("show");
       const link = el.parentElement.querySelector(".nav-link");
       if (link) link.setAttribute("aria-expanded", "false");
-
     });
 
     if (!isOpen) {
@@ -780,55 +801,57 @@ const hideWorkflowList = () => {
   };
 
   const toggleSAWorkflowList = () => {
-  const el = document.getElementById("superAdminWorkflows");
-  if (!el) return;
-  el.classList.toggle("show");
-  const isNowOpen = el.classList.contains("show");
-  if (saWorkflowRef.current) {
-    saWorkflowRef.current.setAttribute("aria-expanded", String(isNowOpen));
-  }
-};
+    const el = document.getElementById("superAdminWorkflows");
+    if (!el) return;
+    el.classList.toggle("show");
+    const isNowOpen = el.classList.contains("show");
+    if (saWorkflowRef.current) {
+      saWorkflowRef.current.setAttribute("aria-expanded", String(isNowOpen));
+    }
+  };
 
-const showSAWorkflowList = () => {
-  document.getElementById("superAdminWorkflows")?.classList.add("show");
-  if (saWorkflowRef.current) {
-    saWorkflowRef.current.setAttribute("aria-expanded", "true");
-  }
-};
+  const showSAWorkflowList = () => {
+    document.getElementById("superAdminWorkflows")?.classList.add("show");
+    if (saWorkflowRef.current) {
+      saWorkflowRef.current.setAttribute("aria-expanded", "true");
+    }
+  };
 
-const hideSAWorkflowList = () => {
-  const el = document.getElementById("superAdminWorkflows");
-  if (!el) return;
-  el.classList.remove("show");
-  if (saWorkflowRef.current) {
-    saWorkflowRef.current.setAttribute("aria-expanded", "false");
-  }
-  document.querySelectorAll("#superAdminWorkflows .subList").forEach((sub) => {
-    sub.classList.remove("show");
-    const link = sub.parentElement.querySelector(".nav-link");
-    if (link) link.setAttribute("aria-expanded", "false");
-  });
-};
-
-// Same accordion pattern as toggleConfigSubList, scoped to this dropdown
-const toggleSAWorkflowSubList = (id) => {
-  const list = document.getElementById(id);
-  if (!list) return;
-
-  const isOpen = list.classList.contains("show");
-
-  document.querySelectorAll("#superAdminWorkflows .subList").forEach((el) => {
+  const hideSAWorkflowList = () => {
+    const el = document.getElementById("superAdminWorkflows");
+    if (!el) return;
     el.classList.remove("show");
-    const link = el.parentElement.querySelector(".nav-link");
-    if (link) link.setAttribute("aria-expanded", "false");
-  });
+    if (saWorkflowRef.current) {
+      saWorkflowRef.current.setAttribute("aria-expanded", "false");
+    }
+    document
+      .querySelectorAll("#superAdminWorkflows .subList")
+      .forEach((sub) => {
+        sub.classList.remove("show");
+        const link = sub.parentElement.querySelector(".nav-link");
+        if (link) link.setAttribute("aria-expanded", "false");
+      });
+  };
 
-  if (!isOpen) {
-    list.classList.add("show");
-    const link = list.parentElement.querySelector(".nav-link");
-    if (link) link.setAttribute("aria-expanded", "true");
-  }
-};
+  // Same accordion pattern as toggleConfigSubList, scoped to this dropdown
+  const toggleSAWorkflowSubList = (id) => {
+    const list = document.getElementById(id);
+    if (!list) return;
+
+    const isOpen = list.classList.contains("show");
+
+    document.querySelectorAll("#superAdminWorkflows .subList").forEach((el) => {
+      el.classList.remove("show");
+      const link = el.parentElement.querySelector(".nav-link");
+      if (link) link.setAttribute("aria-expanded", "false");
+    });
+
+    if (!isOpen) {
+      list.classList.add("show");
+      const link = list.parentElement.querySelector(".nav-link");
+      if (link) link.setAttribute("aria-expanded", "true");
+    }
+  };
 
   const handleClose = () => {
     $("#" + "SetPersonalizeSettingModal").modal("hide");
@@ -846,18 +869,18 @@ const toggleSAWorkflowSubList = (id) => {
   //     list.style.display = "none";
   //   }
   // };
-const toggleConfigList = () => {
-  const configs = document.getElementById("config");
-  if (!configs) return;
+  const toggleConfigList = () => {
+    const configs = document.getElementById("config");
+    if (!configs) return;
 
-  configs.classList.toggle("show");
+    configs.classList.toggle("show");
 
-  // arrow follows config state
-  const isNowOpen = configs.classList.contains("show");
-  if (configRef.current) {
-    configRef.current.setAttribute("aria-expanded", String(isNowOpen));
-  }
-};
+    // arrow follows config state
+    const isNowOpen = configs.classList.contains("show");
+    if (configRef.current) {
+      configRef.current.setAttribute("aria-expanded", String(isNowOpen));
+    }
+  };
 
   const hideUserRoleList = () => {
     const list = document.getElementById("UserRole");
@@ -1261,7 +1284,7 @@ const toggleConfigList = () => {
           }}
         >
           <div id="scrollbar" className="mb-2" style={TopbarStyle}>
-            <div style={{width: "100%" }}>
+            <div style={{ width: "100%" }}>
               <div id="two-column-menu">
                 <div>
                   <div
@@ -1293,7 +1316,7 @@ const toggleConfigList = () => {
                       </a>
                     </div>
                     <Tooltip
-                      title={isSidebarOpen ? "Close menu" : "Open menu" }
+                      title={isSidebarOpen ? "Close menu" : "Open menu"}
                       disableInteractive
                     >
                       <div
@@ -1386,7 +1409,7 @@ const toggleConfigList = () => {
                     <div className="row"></div>
                   </div>
                 </div>
-                <div className="sidebar-menu-scroll">
+                <div className="sidebar-menu-scroll ">
                   <ul
                     class="navbar-nav d-none d-md-block pt-4"
                     style={{ paddingLeft: "0.5rem" }}
@@ -1406,7 +1429,17 @@ const toggleConfigList = () => {
                             {/* Organisation List */}
                             <select
                               className="nav-select form-select"
-                              onChange={(e) => OnOrganisationsChange(e)}
+                              onChange={(e) => {
+                                OnOrganisationsChange(e);
+                                // xeroConnectionStatus(e.target.value)
+                                try {
+                                  const orgId = e.target.value.split(",")[0];
+                                  dispatch(xeroConnectionStatus(orgId));
+                                  dispatch(quickBooksConnectionStatus(orgId));
+                                } catch (error) {
+                                  console.log("error==>>", error);
+                                }
+                              }}
                               value={`${common.organisationKeyID},${common.businessTypeID},${common.enableEL}`}
                               style={{
                                 cursor: "pointer",
@@ -1522,7 +1555,20 @@ const toggleConfigList = () => {
                             {/* Organisation List */}
                             <select
                               className="nav-select form-select c-select"
-                              onChange={(e) => OnOrganisationsChange(e)}
+                              onChange={(e) => {
+                                OnOrganisationsChange(e);
+                                // xeroConnectionStatus(e.target.value)
+                                try {
+                                  dispatch(
+                                    xeroConnectionStatus(e.target.value),
+                                  );
+                                  dispatch(
+                                    quickBooksConnectionStatus(e.target.value),
+                                  );
+                                } catch (error) {
+                                  console.log("error==>>", error);
+                                }
+                              }}
                               value={`${common.organisationKeyID},${common.businessTypeID},${common.enableEL}`}
                               style={{
                                 cursor: "pointer",
@@ -1820,7 +1866,7 @@ const toggleConfigList = () => {
                               // }}
                             >
                               Configure
-                             <span className="menu-arrow" />
+                              <span className="menu-arrow" />
                             </span>
                           </a>
                           {/* Main dropdown: normal flow */}
@@ -1828,7 +1874,7 @@ const toggleConfigList = () => {
                             id="config"
                             // data-bs-parent="#sidebar"
                             style={{
-                              "--listColor": listColor
+                              "--listColor": listColor,
                             }}
                             className="menu-dropdown menu_dropdown Responsive-Config-service-package"
                           >
@@ -1846,7 +1892,7 @@ const toggleConfigList = () => {
                                       e.stopPropagation();
                                       toggleConfigSubList("servicesAndPackage");
                                     }}
-                                    style={{ cursor: "pointer"}}
+                                    style={{ cursor: "pointer" }}
                                   >
                                     Services/Packages
                                     <span className="sub-arrow"></span>
@@ -1856,7 +1902,7 @@ const toggleConfigList = () => {
                                     id="servicesAndPackage"
                                     className="subList Service-package-bgColor"
                                     style={{
-                                      "--subListColor": subListColor
+                                      "--subListColor": subListColor,
                                     }}
                                     // data-bs-parent="#config"
                                     // style={{
@@ -1936,7 +1982,7 @@ const toggleConfigList = () => {
                                   <div
                                     id="variable"
                                     style={{
-                                      "--subListColor": subListColor
+                                      "--subListColor": subListColor,
                                     }}
                                     className=" subList Service-package-bgColor"
                                   >
@@ -1997,7 +2043,7 @@ const toggleConfigList = () => {
                                   {/* Sublist: normal flow */}
                                   <div
                                     style={{
-                                      "--subListColor": subListColor
+                                      "--subListColor": subListColor,
                                     }}
                                     id="Template"
                                     className=" subList Service-package-bgColor"
@@ -2051,7 +2097,6 @@ const toggleConfigList = () => {
                                   </div>
                                 </li>
                               )}
-                              
                             </ul>
                           </div>
                         </li>
@@ -2100,14 +2145,14 @@ const toggleConfigList = () => {
                               // }}
                             >
                               Settings
-                            <span className="menu-arrow"></span>
+                              <span className="menu-arrow"></span>
                             </span>
                           </a>
                           <div
-                            class="menu-dropdown menu_dropdown Responsive-Config-service-package"
+                            className="menu-dropdown menu_dropdown Responsive-Config-service-package"
                             id="Setting"
-                             style={{
-                              "--listColor": listColor
+                            style={{
+                              "--listColor": listColor,
                             }}
                           >
                             <ul class="nav nav-sm flex-column">
@@ -2161,7 +2206,7 @@ const toggleConfigList = () => {
                                     }
                                   >
                                     <a
-                                    //   href="#sidebarProfile"
+                                      //   href="#sidebarProfile"
                                       class="nav-link"
                                       // data-bs-toggle="collapse"
                                       role="button"
@@ -2170,14 +2215,14 @@ const toggleConfigList = () => {
                                       data-key="t-profile"
                                     >
                                       API Integration
-                                    <span className="sub-arrow"></span>
+                                      <span className="sub-arrow"></span>
                                     </a>
                                     <div
                                       class="subList Service-package-bgColor"
                                       id="WebIntegration"
                                       style={{
-                                      "--subListColor": subListColor
-                                    }}
+                                        "--subListColor": subListColor,
+                                      }}
                                       // style={style}
                                     >
                                       <ul class="nav nav-sm flex-column">
@@ -2238,12 +2283,6 @@ const toggleConfigList = () => {
                               {userAccessData.Admin_Setting_Practice_Config_CanView && (
                                 <li
                                   class="nav-item"
-                                  // onMouseLeave={() =>
-                                  //   hideSettingSubList("PracticeConfig")
-                                  // }
-                                  // onMouseEnter={() =>
-                                  //   showSettingSubList("PracticeConfig")
-                                  // }
                                   onClick={() =>
                                     toggleSettingSubList("PracticeConfig")
                                   }
@@ -2258,13 +2297,13 @@ const toggleConfigList = () => {
                                     // data-key="t-profile"
                                   >
                                     Practice Config
-                                  <span className="sub-arrow"></span>
+                                    <span className="sub-arrow"></span>
                                   </a>
                                   <div
                                     class="subList Responsive-Config-Variables"
                                     id="PracticeConfig"
                                     style={{
-                                      "--subListColor": subListColor
+                                      "--subListColor": subListColor,
                                     }}
                                     // style={{
                                     //       display: "none",      // toggled via toggleConfigSubList
@@ -2294,6 +2333,68 @@ const toggleConfigList = () => {
                                           </a>
                                         </Link>
                                       </li>
+
+                                      <li
+                                        className="nav-item"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          toggleSettingSubList(
+                                            "BookKeepingConfig",
+                                          );
+                                        }}
+                                      >
+                                        <a
+                                          href="#BookKeepingConfig"
+                                          className="nav-link collapsed d-flex justify-content-between align-items-center"
+                                          aria-expanded="false"
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                          }}
+                                          style={{ textDecoration: "none" }}
+                                        >
+                                          <span>Bookkeeping Gateway</span>
+                                        </a>
+
+                                        <div
+                                          className="subList Service-package-bgColor"
+                                          id="BookKeepingConfig"
+                                        >
+                                          <ul className="nav nav-sm flex-column ms-3">
+                                            {bookkeeping?.enableXERO && (
+                                              <li className="nav-item">
+                                                <Link
+                                                  to="/xero"
+                                                  onClick={togglenav}
+                                                  className="nav-link"
+                                                >
+                                                  Xero
+                                                </Link>
+                                              </li>
+                                            )}
+                                            {bookkeeping?.enableQBO && (
+                                              <li className="nav-item">
+                                                <Link
+                                                  to="/quickbooks"
+                                                  onClick={togglenav}
+                                                  className="nav-link"
+                                                >
+                                                  QuickBooks
+                                                </Link>
+                                              </li>
+                                            )}
+                                            <li className="nav-item">
+                                              <Link
+                                                to="/deviation"
+                                                onClick={togglenav}
+                                                className="nav-link"
+                                              >
+                                                Deviation
+                                              </Link>
+                                            </li>
+                                          </ul>
+                                        </div>
+                                      </li>
+
                                       <li class="nav-item">
                                         <Link
                                           to="/pricing-setting"
@@ -2459,46 +2560,46 @@ const toggleConfigList = () => {
                       )}
 
                       {/* PDF to CSV section starts */}
-                    {userAccessData.Admin_Setting_Practice_Config_CanView &&
-                      activeOrganizationSubscriptionPlan?.enablePdfToCsv && (
-                      <li class="nav-item">
-                        <NavLink
-                          to="/pdf-to-csv"
-                          onClick={() => {
-                            NotificationCountData();
-                            togglenav();
-                          }}
-                          activeclassname="active"
-                          className="nav-link menu-link"
-                          onMouseOver={() => setIsHoveredPdfToCsv(true)}
-                          onMouseOut={() => setIsHoveredPdfToCsv(false)}
-                          style={{
-                            color: isHoveredPdfToCsv
-                              ? "#438eff"
-                              : TopTextColor.color,
-                          }}
-                        >
-                          {" "}
-                          <img
-                            src={EngagementSvg}
-                            alt="PdfToCsvSvg"
-                            style={{
-                              width: "16px",
-                              marginRight: "5px",
-                            }}
-                          />
-                          <span
-                            data-key="t-dashboard"
-                            // style={{
-                            //   color: isHoveredPdfToCsv ? "#438eff" : "#fff",
-                            // }}
-                            className="fw-bold"
-                          >
-                            PDF To CSV
-                          </span>{" "}
-                        </NavLink>
-                      </li>
-                      )}
+                      {userAccessData.Admin_Setting_Practice_Config_CanView &&
+                        activeOrganizationSubscriptionPlan?.enablePdfToCsv && (
+                          <li class="nav-item">
+                            <NavLink
+                              to="/pdf-to-csv"
+                              onClick={() => {
+                                NotificationCountData();
+                                togglenav();
+                              }}
+                              activeclassname="active"
+                              className="nav-link menu-link"
+                              onMouseOver={() => setIsHoveredPdfToCsv(true)}
+                              onMouseOut={() => setIsHoveredPdfToCsv(false)}
+                              style={{
+                                color: isHoveredPdfToCsv
+                                  ? "#438eff"
+                                  : TopTextColor.color,
+                              }}
+                            >
+                              {" "}
+                              <img
+                                src={EngagementSvg}
+                                alt="PdfToCsvSvg"
+                                style={{
+                                  width: "16px",
+                                  marginRight: "5px",
+                                }}
+                              />
+                              <span
+                                data-key="t-dashboard"
+                                // style={{
+                                //   color: isHoveredPdfToCsv ? "#438eff" : "#fff",
+                                // }}
+                                className="fw-bold"
+                              >
+                                PDF To CSV
+                              </span>{" "}
+                            </NavLink>
+                          </li>
+                        )}
                       {/* PDF to CSV section ends */}
                     </ul>
                   )}
@@ -2702,7 +2803,7 @@ const toggleConfigList = () => {
                                 //   border: "none",
                                 // }}
                                 style={{
-                                  "--listColor": listColor
+                                  "--listColor": listColor,
                                 }}
                                 class="menu-dropdown menu_dropdown Responsive-Config-service-package"
                               >
@@ -2739,15 +2840,15 @@ const toggleConfigList = () => {
                                         style={{ cursor: "pointer" }}
                                       >
                                         Predefined Services/Packages
-                                      <span className="sub-arrow"></span>
+                                        <span className="sub-arrow"></span>
                                       </a>
                                       <div
                                         class="subList Service-package-bgColor"
                                         id="PredefinedServicesAndPackage"
                                         // style={style}
-                                        style={{  
-                                        "--subListColor": subListColor
-                                    }}
+                                        style={{
+                                          "--subListColor": subListColor,
+                                        }}
                                       >
                                         <ul class="nav nav-sm flex-column">
                                           {/*  Super Admin Config SubList Of SubList Modal Start */}
@@ -2837,9 +2938,9 @@ const toggleConfigList = () => {
                                       </a>
                                       <div
                                         // style={style}
-                                      style={{
-                                        "--subListColor": subListColor
-                                      }}
+                                        style={{
+                                          "--subListColor": subListColor,
+                                        }}
                                         class="subList"
                                         id="PredefinedVariable"
                                       >
@@ -2918,7 +3019,7 @@ const toggleConfigList = () => {
                                         className="subList Service-package-bgColor"
                                         id="PredefinedTemplate"
                                         style={{
-                                          "--subListColor": subListColor
+                                          "--subListColor": subListColor,
                                         }}
                                       >
                                         <ul class="nav nav-sm flex-column">
@@ -2999,9 +3100,9 @@ const toggleConfigList = () => {
                                 // aria-controls="sidebarSignUp2"
                                 // data-key="t-signup"
                                 onClick={(e) => {
-                                   e.preventDefault();
-                                   toggleSubscriptionList();
-                                 }}
+                                  e.preventDefault();
+                                  toggleSubscriptionList();
+                                }}
                                 onMouseOver={() =>
                                   setIsHoveredSubscription(true)
                                 }
@@ -3013,7 +3114,7 @@ const toggleConfigList = () => {
                                     ? "#438eff"
                                     : TopTextColor.color,
                                   fontWeight: "bold",
-                                  cursor: "pointer"
+                                  cursor: "pointer",
                                 }}
                                 // any issue arise ,undo this code
 
@@ -3048,7 +3149,7 @@ const toggleConfigList = () => {
                                 //     : "none",
                                 // }}
                                 style={{
-                                  "--listColor": listColor
+                                  "--listColor": listColor,
                                 }}
                                 className="menu-dropdown menu_dropdown Responsive-Config-service-package"
                                 id="Subscription"
@@ -3148,7 +3249,7 @@ const toggleConfigList = () => {
                                 //     : TopTextColor.color,
                                 //   fontWeight: "bold",
                                 // }}
-                                style={{cursor:"pointer"}}
+                                style={{ cursor: "pointer" }}
                               >
                                 <img
                                   src={SettingSvg}
@@ -3179,9 +3280,9 @@ const toggleConfigList = () => {
                                 //   width: "200px",
                                 // }}
                                 style={{
-                                  "--listColor": listColor
+                                  "--listColor": listColor,
                                 }}
-                                class="menu-dropdown menu_dropdown"
+                                className="menu-dropdown menu_dropdown Responsive-Config-service-package"
                                 id="UserRole"
                               >
                                 <ul class="nav nav-sm flex-column">
@@ -3230,25 +3331,25 @@ const toggleConfigList = () => {
                                     </NavLink>
                                   </li>
                                   {/* )} */}
-                                {common.organisationKeyID == null && (
-                                  <li class="nav-item">
-                                    <Link
-                                      to="/fee-inflation"
-                                      onClick={togglenav}
-                                    >
-                                      <a
-                                        onClick={() => {
-                                          toggleSettingList("Setting");
-                                          NotificationCountData();
-                                        }}
-                                        class="nav-link"
-                                        data-key="t-basic-6"
+                                  {common.organisationKeyID == null && (
+                                    <li class="nav-item">
+                                      <Link
+                                        to="/fee-inflation"
+                                        onClick={togglenav}
                                       >
-                                        Fee Inflation
-                                      </a>
-                                    </Link>
-                                  </li>
-                                )}
+                                        <a
+                                          onClick={() => {
+                                            toggleSettingList("Setting");
+                                            NotificationCountData();
+                                          }}
+                                          class="nav-link"
+                                          data-key="t-basic-6"
+                                        >
+                                          Fee Inflation
+                                        </a>
+                                      </Link>
+                                    </li>
+                                  )}
                                   <li
                                     class="nav-item"
                                     // onMouseLeave={() =>
@@ -3258,7 +3359,9 @@ const toggleConfigList = () => {
                                     //   showSettingSubList("WebIntegration")
                                     // }
                                     onClick={() =>
-                                      toggleUserRoleSettingSubList("WebIntegration")
+                                      toggleUserRoleSettingSubList(
+                                        "WebIntegration",
+                                      )
                                     }
                                   >
                                     <a
@@ -3269,7 +3372,7 @@ const toggleConfigList = () => {
                                       aria-expanded="false"
                                       // aria-controls="sidebarProfile"
                                       data-key="t-profile"
-                                      style={{cursor:"pointer"}}
+                                      style={{ cursor: "pointer" }}
                                     >
                                       API Integration
                                       <span className="sub-arrow"></span>
@@ -3278,8 +3381,8 @@ const toggleConfigList = () => {
                                       class="subList"
                                       id="WebIntegration"
                                       style={{
-                                      "--subListColor": subListColor
-                                    }}
+                                        "--subListColor": subListColor,
+                                      }}
                                       // style={style}
                                     >
                                       <ul class="nav nav-sm flex-column">
@@ -3327,190 +3430,225 @@ const toggleConfigList = () => {
                                       </a>
                                     </li>
                                   )}
-                                 {/* deleted superadmin workflows */}
+                                  {/* deleted superadmin workflows */}
                                 </ul>
                               </div>
                             </li>
                           )}
 
                           {(userAccessData.SuperAdmin_Config_Template_CanView ||
-  userAccessData.SuperAdmin_Setting_Email_Template_CanView) && (
-  <li
-    className="nav-item"
-    onMouseLeave={hideSAWorkflowList}
-    onMouseEnter={showSAWorkflowList}
-  >
-    <a
-      className="nav-link menu-link"
-      role="button"
-      aria-expanded="false"
-      aria-controls="sidebarPages"
-      onClick={() => toggleSAWorkflowList()}
-      onMouseOver={() => setIsHoveredSAWorkflow(true)}
-      onMouseOut={() => setIsHoveredSAWorkflow(false)}
-      ref={saWorkflowRef}
-      style={{ fontWeight: "bold", cursor: "pointer" }}
-    >
-      <img
-        src={SettingSvg}
-        alt="WorkflowSvg"
-        style={{ width: "16px", marginRight: "5px" }}
-      />
-      <span data-key="t-pages">
-        Workflows
-        <span className="menu-arrow" />
-      </span>
-    </a>
+                            userAccessData.SuperAdmin_Setting_Email_Template_CanView) && (
+                            <li
+                              className="nav-item"
+                              onMouseLeave={hideSAWorkflowList}
+                              onMouseEnter={showSAWorkflowList}
+                            >
+                              <a
+                                className="nav-link menu-link"
+                                role="button"
+                                aria-expanded="false"
+                                aria-controls="sidebarPages"
+                                onClick={() => toggleSAWorkflowList()}
+                                onMouseOver={() => setIsHoveredSAWorkflow(true)}
+                                onMouseOut={() => setIsHoveredSAWorkflow(false)}
+                                ref={saWorkflowRef}
+                                style={{
+                                  fontWeight: "bold",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                <img
+                                  src={SettingSvg}
+                                  alt="WorkflowSvg"
+                                  style={{ width: "16px", marginRight: "5px" }}
+                                />
+                                <span data-key="t-pages">
+                                  Workflows
+                                  <span className="menu-arrow" />
+                                </span>
+                              </a>
 
-    <div
-      id="superAdminWorkflows"
-      style={{ "--listColor": listColor }}
-      className="menu-dropdown menu_dropdown Responsive-Config-service-package"
-    >
-      <ul className="nav nav-sm flex-column">
-        {userAccessData.SuperAdmin_Config_Template_CanView && (
-          <li className="nav-item">
-            <a
-              href="#PredefinedReminder"
-              className="nav-link collapsed"
-              aria-expanded="false"
-              data-key="t-profile"
-              style={{ cursor: "pointer" }}
-              onClick={(e) => {
-                e.preventDefault();
-                toggleSAWorkflowSubList("PredefinedReminder");
-              }}
-            >
-              Predefined Workflows
-              <span className="sub-arrow"></span>
-            </a>
+                              <div
+                                id="superAdminWorkflows"
+                                style={{ "--listColor": listColor }}
+                                className="menu-dropdown menu_dropdown Responsive-Config-service-package"
+                              >
+                                <ul className="nav nav-sm flex-column">
+                                  {userAccessData.SuperAdmin_Config_Template_CanView && (
+                                    <li className="nav-item">
+                                      <a
+                                        href="#PredefinedReminder"
+                                        className="nav-link collapsed"
+                                        aria-expanded="false"
+                                        data-key="t-profile"
+                                        style={{ cursor: "pointer" }}
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          toggleSAWorkflowSubList(
+                                            "PredefinedReminder",
+                                          );
+                                        }}
+                                      >
+                                        Predefined Workflows
+                                        <span className="sub-arrow"></span>
+                                      </a>
 
-            <div
-              id="PredefinedReminder"
-              className="subList Service-package-bgColor"
-              style={{ "--subListColor": subListColor }}
-            >
-              <ul className="nav nav-sm flex-column">
-                <li className="nav-item">
-                  <NavLink to="/reminder-email-template">
-                    <a
-                      onClick={() => {
-                        closeDropdown("superAdminWorkflows");
-                        NotificationCountData();
-                      }}
-                      className="nav-link"
-                      data-key="t-simple-page"
-                    >
-                      Predefined Workflows Email Templates
-                    </a>
-                  </NavLink>
-                </li>
-                <li className="nav-item">
-                  <NavLink to="/reminder">
-                    <a
-                      onClick={() => {
-                        closeDropdown("superAdminWorkflows");
-                        NotificationCountData();
-                      }}
-                      className="nav-link"
-                      data-key="t-simple-page"
-                    >
-                      Predefined Reminder
-                    </a>
-                  </NavLink>
-                </li>
-              </ul>
-            </div>
-          </li>
-        )}
+                                      <div
+                                        id="PredefinedReminder"
+                                        className="subList Service-package-bgColor"
+                                        style={{
+                                          "--subListColor": subListColor,
+                                        }}
+                                      >
+                                        <ul className="nav nav-sm flex-column">
+                                          <li className="nav-item">
+                                            <NavLink to="/reminder-email-template">
+                                              <a
+                                                onClick={() => {
+                                                  closeDropdown(
+                                                    "superAdminWorkflows",
+                                                  );
+                                                  NotificationCountData();
+                                                }}
+                                                className="nav-link"
+                                                data-key="t-simple-page"
+                                              >
+                                                Predefined Workflows Email
+                                                Templates
+                                              </a>
+                                            </NavLink>
+                                          </li>
+                                          <li className="nav-item">
+                                            <NavLink to="/reminder">
+                                              <a
+                                                onClick={() => {
+                                                  closeDropdown(
+                                                    "superAdminWorkflows",
+                                                  );
+                                                  NotificationCountData();
+                                                }}
+                                                className="nav-link"
+                                                data-key="t-simple-page"
+                                              >
+                                                Predefined Reminder
+                                              </a>
+                                            </NavLink>
+                                          </li>
+                                        </ul>
+                                      </div>
+                                    </li>
+                                  )}
 
-        {userAccessData.SuperAdmin_Setting_Email_Template_CanView && (
-          <li className="nav-item">
-            <a
-              href="#SASetting"
-              className="nav-link collapsed"
-              aria-expanded="false"
-              data-key="t-profile"
-              style={{ cursor: "pointer" }}
-              onClick={(e) => {
-                e.preventDefault();
-                toggleSAWorkflowSubList("SASetting");
-              }}
-            >
-              Super Admin Workflows
-              <span className="sub-arrow"></span>
-            </a>
+                                  {userAccessData.SuperAdmin_Setting_Email_Template_CanView && (
+                                    <li className="nav-item">
+                                      <a
+                                        href="#SASetting"
+                                        className="nav-link collapsed"
+                                        aria-expanded="false"
+                                        data-key="t-profile"
+                                        style={{ cursor: "pointer" }}
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          toggleSAWorkflowSubList("SASetting");
+                                        }}
+                                      >
+                                        Super Admin Workflows
+                                        <span className="sub-arrow"></span>
+                                      </a>
 
-            <div
-              id="SASetting"
-              className="subList Service-package-bgColor"
-              style={{ "--subListColor": subListColor }}
-            >
-              <ul className="nav nav-sm flex-column">
-                <li className="nav-item">
-                  <Link to="/super-admin-reminder-template-list" onClick={togglenav}>
-                    <a
-                      onClick={() => {
-                        closeDropdown("superAdminWorkflows");
-                        NotificationCountData();
-                      }}
-                      className="nav-link"
-                      data-key="t-basic-3"
-                    >
-                      Super Admin Workflow Email Templates
-                    </a>
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link to="/paid-unpaid-list" onClick={togglenav}>
-                    <a
-                      onClick={() => {
-                        closeDropdown("superAdminWorkflows");
-                        NotificationCountData();
-                      }}
-                      className="nav-link"
-                      data-key="t-basic-6"
-                    >
-                      Account Login/Deletion
-                    </a>
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link to="/subscription-reminder-list" onClick={togglenav}>
-                    <a
-                      onClick={() => {
-                        closeDropdown("superAdminWorkflows");
-                        NotificationCountData();
-                      }}
-                      className="nav-link"
-                      data-key="t-basic-3"
-                    >
-                      Subscription Package Upgrade
-                    </a>
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link to="/marketing-reminder" onClick={togglenav}>
-                    <a
-                      onClick={() => {
-                        closeDropdown("superAdminWorkflows");
-                        NotificationCountData();
-                      }}
-                      className="nav-link"
-                      data-key="t-basic-6"
-                    >
-                      Other Reminders
-                    </a>
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </li>
-        )}
-      </ul>
-    </div>
-  </li>
-)}
+                                      <div
+                                        id="SASetting"
+                                        className="subList Service-package-bgColor"
+                                        style={{
+                                          "--subListColor": subListColor,
+                                        }}
+                                      >
+                                        <ul className="nav nav-sm flex-column">
+                                          <li className="nav-item">
+                                            <Link
+                                              to="/super-admin-reminder-template-list"
+                                              onClick={togglenav}
+                                            >
+                                              <a
+                                                onClick={() => {
+                                                  closeDropdown(
+                                                    "superAdminWorkflows",
+                                                  );
+                                                  NotificationCountData();
+                                                }}
+                                                className="nav-link"
+                                                data-key="t-basic-3"
+                                              >
+                                                Super Admin Workflow Email
+                                                Templates
+                                              </a>
+                                            </Link>
+                                          </li>
+                                          <li className="nav-item">
+                                            <Link
+                                              to="/paid-unpaid-list"
+                                              onClick={togglenav}
+                                            >
+                                              <a
+                                                onClick={() => {
+                                                  closeDropdown(
+                                                    "superAdminWorkflows",
+                                                  );
+                                                  NotificationCountData();
+                                                }}
+                                                className="nav-link"
+                                                data-key="t-basic-6"
+                                              >
+                                                Account Login/Deletion
+                                              </a>
+                                            </Link>
+                                          </li>
+                                          <li className="nav-item">
+                                            <Link
+                                              to="/subscription-reminder-list"
+                                              onClick={togglenav}
+                                            >
+                                              <a
+                                                onClick={() => {
+                                                  closeDropdown(
+                                                    "superAdminWorkflows",
+                                                  );
+                                                  NotificationCountData();
+                                                }}
+                                                className="nav-link"
+                                                data-key="t-basic-3"
+                                              >
+                                                Subscription Package Upgrade
+                                              </a>
+                                            </Link>
+                                          </li>
+                                          <li className="nav-item">
+                                            <Link
+                                              to="/marketing-reminder"
+                                              onClick={togglenav}
+                                            >
+                                              <a
+                                                onClick={() => {
+                                                  closeDropdown(
+                                                    "superAdminWorkflows",
+                                                  );
+                                                  NotificationCountData();
+                                                }}
+                                                className="nav-link"
+                                                data-key="t-basic-6"
+                                              >
+                                                Other Reminders
+                                              </a>
+                                            </Link>
+                                          </li>
+                                        </ul>
+                                      </div>
+                                    </li>
+                                  )}
+                                </ul>
+                              </div>
+                            </li>
+                          )}
                         </ul>
                       </>
                     )}
@@ -3524,6 +3662,9 @@ const toggleConfigList = () => {
               </div>
             </div>
           </div>
+
+          {/* <  AuthButton /> */}
+
           <div
             className="d-flex sidebar-bottom align-items-center justify-content-start"
             style={{

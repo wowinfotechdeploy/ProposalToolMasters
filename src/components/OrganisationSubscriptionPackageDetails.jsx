@@ -123,7 +123,7 @@ function OrganisationSubscriptionPackageDetails(props) {
       // inPriceOfMonthYear: "",
       // inPriceOfMonthMonth: "",
       isMailBox: false,
-      apiIntegration: true
+      apiIntegration: true,
     });
     setErrorMessage("");
     setRequireErrorMessage(false);
@@ -359,7 +359,7 @@ function OrganisationSubscriptionPackageDetails(props) {
       // packageName: props.subscriptionPackageObj.packageName,
       prepareQuote: props.subscriptionPackageObj.prepareQuote,
       sendQuote: props.subscriptionPackageObj.sendQuote,
-      quotesPerMonth: 
+      quotesPerMonth:
         props.subscriptionPackageObj.quotesPerMonth === ""
           ? null
           : props.subscriptionPackageObj.quotesPerMonth,
@@ -378,7 +378,7 @@ function OrganisationSubscriptionPackageDetails(props) {
       yearlyValuePlan:
         props.subscriptionPackageObj.yearlyValuePlan === ""
           ? null
-          : Number(props.subscriptionPackageObj.yearlyValuePlan)
+          : Number(props.subscriptionPackageObj.yearlyValuePlan),
 
       // subscriptionOffers: subscriptionPackageObj.isFreePackage
       //   ? null
@@ -443,7 +443,7 @@ function OrganisationSubscriptionPackageDetails(props) {
     };
     AddUpdateSubscriptionPackageData(ApiRequest_ParamsObj);
     const modalEl = document.getElementById(
-    "OrganisationSubscriptionPackageDetails"
+      "OrganisationSubscriptionPackageDetails",
     );
     window.bootstrap.Modal.getInstance(modalEl)?.hide();
     // console.log("ApiRequest_ParamsObj", ApiRequest_ParamsObj);
@@ -453,10 +453,13 @@ function OrganisationSubscriptionPackageDetails(props) {
   const AddUpdateSubscriptionPackageData = async (ApiRequest_ParamsObj) => {
     setLoader(true);
     try {
-      const response = await UpdateOrganisationSubscriptionPackageFromSuperAdmin(ApiRequest_ParamsObj);
+      const response =
+        await UpdateOrganisationSubscriptionPackageFromSuperAdmin(
+          ApiRequest_ParamsObj,
+        );
       if (response) {
         if (response?.data?.statusCode === 200) {
-          $('#' + props.id).modal('hide')
+          $("#" + props.id).modal("hide");
           // uncomment upper code for hide
           setLoader(false);
         } else {
@@ -465,7 +468,7 @@ function OrganisationSubscriptionPackageDetails(props) {
         }
       }
     } catch (error) {
-      setLoader(false)
+      setLoader(false);
       console.log(error);
     }
   };
@@ -481,8 +484,12 @@ function OrganisationSubscriptionPackageDetails(props) {
     props.setSubscriptionPackageObj({
       ...props.subscriptionPackageObj,
       prepareQuote: prepareQuoteValue,
-      sendQuote: prepareQuoteValue ? props.subscriptionPackageObj.sendQuote : false,
-      quotesPerMonth: prepareQuoteValue ? props.subscriptionPackageObj?.quotesPerMonth : 0
+      sendQuote: prepareQuoteValue
+        ? props.subscriptionPackageObj.sendQuote
+        : false,
+      quotesPerMonth: prepareQuoteValue
+        ? props.subscriptionPackageObj?.quotesPerMonth
+        : 0,
     });
   };
   const handleApiIntegrationChange = (e) => {
@@ -712,59 +719,62 @@ function OrganisationSubscriptionPackageDetails(props) {
                       </div>
                       {subscriptionPackageObj.prepareQuote === true && (
                         <>
-                        <div className=" col-6 p-2">
-                          <TextField
-                            InputLabelProps={{
-                              sx: {
-                                fontWeight: "bold",
-                              },
-                            }}
-                            label="Proposals per month"
-                            id="outlined-basic"
-                            variant="outlined"
-                            type="text"
-                            size="small"
-                            value={
-                              props.subscriptionPackageObj?.quotesPerMonth ===
-                                "" ||
-                              props.subscriptionPackageObj?.quotesPerMonth ===
-                                null
-                                ? ""
-                                : props.subscriptionPackageObj?.quotesPerMonth
-                                    ?.toString()
-                                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                            }
-                            onChange={(e) => {
-                              let inputValue = e.target.value;
-                              // Remove leading zeros
-                              inputValue = inputValue.replace(/^0+(?=\d)/, "");
-                              // Remove non-numeric characters except decimal point
-                              inputValue = inputValue.replace(/[^\d]/g, "");
-                              // Limit to 12 digits before the decimal point
-                              if (inputValue.includes(".")) {
-                                const [integerPart, decimalPart] =
-                                  inputValue.split(".");
-                                inputValue = `${integerPart.slice(
-                                  0,
-                                  7,
-                                )}.${decimalPart.slice(0, 2)}`;
-                              } else {
-                                inputValue = inputValue.slice(0, 7);
+                          <div className=" col-6 p-2">
+                            <TextField
+                              InputLabelProps={{
+                                sx: {
+                                  fontWeight: "bold",
+                                },
+                              }}
+                              label="Proposals per month"
+                              id="outlined-basic"
+                              variant="outlined"
+                              type="text"
+                              size="small"
+                              value={
+                                props.subscriptionPackageObj?.quotesPerMonth ===
+                                  "" ||
+                                props.subscriptionPackageObj?.quotesPerMonth ===
+                                  null
+                                  ? ""
+                                  : props.subscriptionPackageObj?.quotesPerMonth
+                                      ?.toString()
+                                      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                               }
+                              onChange={(e) => {
+                                let inputValue = e.target.value;
+                                // Remove leading zeros
+                                inputValue = inputValue.replace(
+                                  /^0+(?=\d)/,
+                                  "",
+                                );
+                                // Remove non-numeric characters except decimal point
+                                inputValue = inputValue.replace(/[^\d]/g, "");
+                                // Limit to 12 digits before the decimal point
+                                if (inputValue.includes(".")) {
+                                  const [integerPart, decimalPart] =
+                                    inputValue.split(".");
+                                  inputValue = `${integerPart.slice(
+                                    0,
+                                    7,
+                                  )}.${decimalPart.slice(0, 2)}`;
+                                } else {
+                                  inputValue = inputValue.slice(0, 7);
+                                }
 
-                              props.setSubscriptionPackageObj({
-                                ...props.subscriptionPackageObj,
-                                quotesPerMonth: inputValue,
-                              });
-                            }}
-                            disabled={
-                              !(
-                                props.subscriptionPackageObj.sendQuote &&
-                                props.subscriptionPackageObj.prepareQuote
-                              )
-                            }
-                          />
-                        </div>
+                                props.setSubscriptionPackageObj({
+                                  ...props.subscriptionPackageObj,
+                                  quotesPerMonth: inputValue,
+                                });
+                              }}
+                              disabled={
+                                !(
+                                  props.subscriptionPackageObj.sendQuote &&
+                                  props.subscriptionPackageObj.prepareQuote
+                                )
+                              }
+                            />
+                          </div>
                         </>
                       )}
                     </div>
@@ -889,7 +899,8 @@ function OrganisationSubscriptionPackageDetails(props) {
                     </div>
                     {requireErrorMessageForESignature &&
                     props.subscriptionPackageObj.sendContract &&
-                    Number(props.subscriptionPackageObj.eSignaturePerMonth) < 1 ? (
+                    Number(props.subscriptionPackageObj.eSignaturePerMonth) <
+                      1 ? (
                       <label className="validation mb-1">
                         The E-Signature per month must be at least 1.
                       </label>
