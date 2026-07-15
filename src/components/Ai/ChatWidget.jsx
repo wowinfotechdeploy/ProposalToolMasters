@@ -15,7 +15,7 @@ const ChatWidget = () => {
       {/* Floating Toggle */}
       <div
         onClick={() => setOpen((prev) => !prev)}
-        className="fixed bottom-3 right-6 z-[10000] w-14 h-14 rounded-full d-flex align-items-center justify-content-center cursor-pointer shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-2xl"
+        className="fixed bottom-3 right-6 z-[10000] w-12 h-12 rounded-full d-flex align-items-center justify-content-center cursor-pointer shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-2xl"
         style={{
           backgroundColor: "#3ac1f1",
         }}
@@ -23,7 +23,7 @@ const ChatWidget = () => {
         {open ? (
           <span
             style={{
-              fontSize: "30px",
+              fontSize: "22px",
               fontWeight: "600",
               color: "#fff",
               lineHeight: 1,
@@ -35,7 +35,7 @@ const ChatWidget = () => {
         ) : (
           <span
             style={{
-              fontSize: "30px",
+              fontSize: "22px",
               lineHeight: 1,
               userSelect: "none",
             }}

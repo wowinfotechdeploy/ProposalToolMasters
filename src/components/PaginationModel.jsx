@@ -59,7 +59,7 @@ function PaginationComponent({ totalPages, currentPage, onPageChange }) {
   const displayedPageNumbers = getDisplayedPageNumbers();
 
   return (
-    <div className="fixed-bottom container" style={{ bottom: "40px" }}>
+    <div className="fixed-bottom container" style={{ bottom: "30px" }}>
       <div className="row align-items-center gy-2 text-center text-sm-start mb-4">
         <div className="col-sm-auto">
           <ul className="pagination pagination-separated pagination-sm gap-1 justify-content-center justify-content-sm-start">
