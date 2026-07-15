@@ -470,7 +470,6 @@ const Prospects = () => {
           activePlatform,
         );
 
-        debugger;
         if (res?.status === 201) {
           // const url = res.data.connectionUrl;
           // window.open(url, "_blank", "noopener,noreferrer");
@@ -478,8 +477,9 @@ const Prospects = () => {
           setModelRequestData({
             ...modelRequestData,
             Action: "AddContact",
-            message: "Record added successfully.",
+            message: "Record added successfully",
           });
+          dispatch(fetchContactsLookup({ organisationKeyID, activePlatform }));
         } else {
           console.log("res", res);
           setOpenErrorModal(true);
@@ -1693,7 +1693,7 @@ const Prospects = () => {
                                                       </li>
                                                     )}
 
-                                                  <li>
+                                                  {/* <li>
                                                     <a
                                                       className="dropdown-item"
                                                       onClick={() =>
@@ -1707,7 +1707,7 @@ const Prospects = () => {
                                                         Bookkeeping
                                                       </span>
                                                     </a>
-                                                  </li>
+                                                  </li> */}
 
                                                   {bookkeeping &&
                                                     Object.values(
