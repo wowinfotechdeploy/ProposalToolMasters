@@ -10,6 +10,7 @@ import {
   truncateMoney,
   safeNumber,
   toCents,
+  calculateCustomOneOffFooter,
 } from "../../src/Middleware/helpers";
 
 const PricingTableTemplatesModal = ({
@@ -365,6 +366,25 @@ const PricingTableTemplatesModal = ({
 
   const showCustomDiscount =
     customRecurringFooter.discountFees > 0 && ProposalObject.DiscountLines;
+
+  const customOneOffFooter = calculateCustomOneOffFooter({
+    serviceGroups: selectedOneOffServiceList || [],
+
+    discountedPrice: OneOffPricingInfo.DiscountedPrice,
+
+    fallbackVatPercentage: vatPercentageOneOff ?? vatPercentage ?? 0,
+  });
+
+  const hasCustomOneOffVAT = Number(vatPercentage || 0) > 0;
+
+  const customOneOffDescriptionColumnCount = [
+    visibleFieldsCustomTemp.serviceCategory,
+    visibleFieldsCustomTemp.serviceName,
+    visibleFieldsCustomTemp.serviceScope,
+  ].filter(Boolean).length;
+
+  const showCustomOneOffDiscount =
+    customOneOffFooter.hasDiscount && ProposalObject.DiscountLines;
 
   // console.log("selectedOneOffServiceList", selectedOneOffServiceList);
   // console.log("vatPercentage", vatPercentage);
@@ -9701,12 +9721,29 @@ const PricingTableTemplatesModal = ({
                 {selectedOneOffServiceList.map((service, index) => (
                   <>
                     {service.servicesList.map((subService, subIndex) => {
-                      const price = subService.price
-                        ? subService.price
-                        : subService.quotationPrice || 0;
-                      const vat =
-                        (price * subService.service_vat_percentage) / 100;
-                      const total = price + vat;
+                      const priceExact = decimalValue(subService.price);
+
+                      const vatRateExact = decimalValue(
+                        subService.service_vat_percentage ??
+                          vatPercentageOneOff ??
+                          vatPercentage ??
+                          0,
+                      );
+
+                      const vatExact = priceExact.mul(vatRateExact).div(100);
+
+                      const totalExact = priceExact.plus(vatExact);
+
+                      /*
+                       * Truncate only for display.
+                       * Footer calculation continues to use full precision.
+                       */
+                      const price = truncateMoney(priceExact);
+                      const vat = truncateMoney(vatExact);
+                      const total = truncateMoney(totalExact);
+
+                      const vatRate = vatRateExact.toNumber();
+
                       const driverList = subService.pricingDriverList || [];
 
                       return (
@@ -9788,7 +9825,7 @@ const PricingTableTemplatesModal = ({
                           {vatPercentageOneOff !== 0 &&
                             visibleFieldsCustomTemp.vatRate && (
                               <td className="text-center">
-                                {subService.service_vat_percentage}%
+                                {vatRate.toFixed(2)}%
                               </td>
                             )}
 
@@ -9819,206 +9856,139 @@ const PricingTableTemplatesModal = ({
                   </>
                 ))}
 
-                {/* NET TOTAL ROW */}
+                {/* NET TOTAL */}
                 <tr className="head-row">
-                  {/* {visibleFieldsCustomTemp.serviceCategory && (
-                                <td className="tr-table-class text-white">
-                                  Net Total
-                                </td>
-                              )} */}
-                  <td className="tr-table-class text-white">Net Total</td>
-                  {visibleFieldsCustomTemp?.serviceCategory && <td></td>}
-                  {visibleFieldsCustomTemp.serviceScope && <td></td>}
-                  {visibleFieldsCustomTemp.fees && (
-                    <td className="tr-table-class text-white text-center">
-                      {Number(OneOffPricingInfo.OriginalPrice) <
-                        Number(OneOffPricingInfo.DiscountedPrice) ||
-                      (Number(OneOffPricingInfo.Discount) > 0 &&
-                        !ProposalObject.DiscountLines)
-                        ? formatValue(
-                            OneOffPricingInfo.DiscountedPrice,
-                            currencyID,
-                          )
-                        : formatValue(
-                            OneOffPricingInfo.OriginalPrice,
-                            currencyID,
-                          )}
+                  {customOneOffDescriptionColumnCount > 0 && (
+                    <td
+                      colSpan={customOneOffDescriptionColumnCount}
+                      className="tr-table-class text-white"
+                    >
+                      Net Total
                     </td>
                   )}
-                  {vatPercentageOneOff !== 0 &&
-                    visibleFieldsCustomTemp.vatRate && <td></td>}
-                  {vatPercentageOneOff !== 0 && visibleFieldsCustomTemp.vat && (
+
+                  {visibleFieldsCustomTemp.fees && (
+                    <td className="tr-table-class text-white text-center">
+                      {formatValue(customOneOffFooter.netFees, currencyID)}
+                    </td>
+                  )}
+
+                  {hasCustomOneOffVAT && visibleFieldsCustomTemp.vatRate && (
+                    <td className="tr-table-class text-white"></td>
+                  )}
+
+                  {hasCustomOneOffVAT && visibleFieldsCustomTemp.vat && (
+                    <td className="tr-table-class text-white text-center">
+                      {formatValue(customOneOffFooter.netVat, currencyID)}
+                    </td>
+                  )}
+
+                  {hasCustomOneOffVAT && visibleFieldsCustomTemp.feesIncVat && (
                     <td className="tr-table-class text-white text-center">
                       {formatValue(
-                        Number(OneOffPricingInfo.staticTotalVATOneOff),
+                        customOneOffFooter.netFeesIncVat,
                         currencyID,
                       )}
                     </td>
                   )}
-                  {vatPercentageOneOff !== 0 &&
-                    visibleFieldsCustomTemp.feesIncVat && (
-                      <td className="tr-table-class text-white text-center">
-                        {Number(OneOffPricingInfo.OriginalPrice) <
-                          Number(OneOffPricingInfo.DiscountedPrice) ||
-                        (Number(OneOffPricingInfo.Discount) > 0 &&
-                          !ProposalObject.DiscountLines)
-                          ? formatValue(
-                              Number(OneOffPricingInfo.DiscountedPrice) +
-                                Number(OneOffPricingInfo.staticTotalVATOneOff),
-                              currencyID,
-                            )
-                          : formatValue(
-                              Number(OneOffPricingInfo.OriginalPrice) +
-                                Number(OneOffPricingInfo.staticTotalVATOneOff),
-                              currencyID,
-                            )}
-                      </td>
-                    )}
                 </tr>
 
-                {Number(OneOffPricingInfo.Discount) > 0 &&
-                  ProposalObject.DiscountLines && (
-                    <>
-                      <tr class="head-grey-row">
-                        <td className="tr-table-class font-14 text-white">
-                          Discount
-                        </td>
+                {/* DISCOUNT */}
+                {showCustomOneOffDiscount && (
+                  <tr className="head-grey-row">
+                    {customOneOffDescriptionColumnCount > 0 && (
+                      <td
+                        colSpan={customOneOffDescriptionColumnCount}
+                        className="tr-table-class font-14 text-white"
+                      >
+                        Discount
+                      </td>
+                    )}
 
-                        {visibleFieldsCustomTemp?.serviceCategory && <td></td>}
-                        {visibleFieldsCustomTemp.serviceScope && <td></td>}
-                        {visibleFieldsCustomTemp.fees && (
-                          <td className="tr-table-class text-white text-center">
-                            {Number(OneOffPricingInfo.Discount) > 0
-                              ? formatValue(
-                                  OneOffPricingInfo.Discount,
-                                  currencyID,
-                                )
-                              : "-"}
-                          </td>
+                    {visibleFieldsCustomTemp.fees && (
+                      <td className="tr-table-class text-white text-center">
+                        (-){" "}
+                        {formatValue(
+                          customOneOffFooter.discountFees,
+                          currencyID,
                         )}
-                        {vatPercentageOneOff !== 0 &&
-                          visibleFieldsCustomTemp.vatRate && <td></td>}
-                        {vatPercentageOneOff !== 0 &&
-                          visibleFieldsCustomTemp.vat && (
-                            <td className="tr-table-class text-white text-center">
-                              (-){"  "}
-                              {formatValue(
-                                Number(OneOffPricingInfo.staticTotalVATOneOff) -
-                                  Number(
-                                    OneOffPricingInfo.totalServiceWiseVATOneOff,
-                                  ),
-                                currencyID,
-                              )}
-                            </td>
-                          )}
-                        {vatPercentageOneOff !== 0 &&
-                          visibleFieldsCustomTemp.feesIncVat && (
-                            <td className="tr-table-class text-white text-center">
-                              (-){"  "}{" "}
-                              {formatValue(
-                                Number(OneOffPricingInfo.Discount) +
-                                  (Number(
-                                    OneOffPricingInfo.staticTotalVATOneOff,
-                                  ) -
-                                    Number(
-                                      OneOffPricingInfo.totalServiceWiseVATOneOff,
-                                    )),
-                                currencyID,
-                              )}
-                            </td>
-                          )}
-                      </tr>
-                      {vatPercentageOneOff ? (
-                        <tr className="head-row">
-                          <td className="tr-table-class font-14 text-white">
-                            Grand Total
-                          </td>
+                      </td>
+                    )}
 
-                          {visibleFieldsCustomTemp?.serviceCategory && (
-                            <td></td>
-                          )}
-                          {visibleFieldsCustomTemp.serviceScope && <td></td>}
-                          {visibleFieldsCustomTemp.fees && (
-                            <td className="tr-table-class text-white text-center">
-                              {formatValue(
-                                OneOffPricingInfo.DiscountedPrice,
-                                currencyID,
-                              )}
-                            </td>
-                          )}
-                          {vatPercentageOneOff !== 0 &&
-                            visibleFieldsCustomTemp.vatRate && <td></td>}
-                          {vatPercentageOneOff !== 0 &&
-                            visibleFieldsCustomTemp.vat && (
-                              <td className="tr-table-class text-white text-center">
-                                {formatValue(
-                                  Number(
-                                    OneOffPricingInfo.totalServiceWiseVATOneOff,
-                                  ),
-                                  currencyID,
-                                )}
-                              </td>
-                            )}
-                          {vatPercentageOneOff !== 0 &&
-                            visibleFieldsCustomTemp.feesIncVat && (
-                              <td className="tr-table-class text-white text-center">
-                                {formatValue(
-                                  Number(OneOffPricingInfo.DiscountedPrice) +
-                                    Number(
-                                      OneOffPricingInfo.totalServiceWiseVATOneOff,
-                                    ),
-                                  currencyID,
-                                )}
-                              </td>
-                            )}
-                        </tr>
-                      ) : (
-                        <tr className="head-row">
-                          <td className="tr-table-class font-14 text-white">
-                            Discounted Total
-                          </td>
+                    {hasCustomOneOffVAT && visibleFieldsCustomTemp.vatRate && (
+                      <td></td>
+                    )}
 
-                          {visibleFieldsCustomTemp?.serviceCategory && (
-                            <td></td>
+                    {hasCustomOneOffVAT && visibleFieldsCustomTemp.vat && (
+                      <td className="tr-table-class text-white text-center">
+                        (-){" "}
+                        {formatValue(
+                          customOneOffFooter.discountVat,
+                          currencyID,
+                        )}
+                      </td>
+                    )}
+
+                    {hasCustomOneOffVAT &&
+                      visibleFieldsCustomTemp.feesIncVat && (
+                        <td className="tr-table-class text-white text-center">
+                          (-){" "}
+                          {formatValue(
+                            customOneOffFooter.discountFeesIncVat,
+                            currencyID,
                           )}
-                          {visibleFieldsCustomTemp.serviceScope && <td></td>}
-                          {visibleFieldsCustomTemp.fees && (
-                            <td className="tr-table-class text-white text-center">
-                              {formatValue(
-                                OneOffPricingInfo.DiscountedPrice,
-                                currencyID,
-                              )}
-                            </td>
-                          )}
-                          {vatPercentageOneOff !== 0 &&
-                            visibleFieldsCustomTemp.vatRate && <td></td>}
-                          {vatPercentageOneOff !== 0 &&
-                            visibleFieldsCustomTemp.vat && (
-                              <td className="tr-table-class text-white text-center">
-                                {formatValue(
-                                  Number(
-                                    OneOffPricingInfo.totalServiceWiseVATOneOff,
-                                  ),
-                                  currencyID,
-                                )}
-                              </td>
-                            )}
-                          {vatPercentageOneOff !== 0 &&
-                            visibleFieldsCustomTemp.feesIncVat && (
-                              <td className="tr-table-class text-white text-center">
-                                {formatValue(
-                                  Number(OneOffPricingInfo.DiscountedPrice) +
-                                    Number(
-                                      OneOffPricingInfo.totalServiceWiseVATOneOff,
-                                    ),
-                                  currencyID,
-                                )}
-                              </td>
-                            )}
-                        </tr>
+                        </td>
                       )}
-                    </>
-                  )}
+                  </tr>
+                )}
+
+                {/* GRAND TOTAL / DISCOUNTED TOTAL */}
+                {showCustomOneOffDiscount && (
+                  <tr className="head-row">
+                    {customOneOffDescriptionColumnCount > 0 && (
+                      <td
+                        colSpan={customOneOffDescriptionColumnCount}
+                        className="tr-table-class font-14 text-white"
+                      >
+                        {hasCustomOneOffVAT
+                          ? "Grand Total"
+                          : "Discounted Total"}
+                      </td>
+                    )}
+
+                    {visibleFieldsCustomTemp.fees && (
+                      <td className="tr-table-class text-white text-center">
+                        {formatValue(
+                          customOneOffFooter.discountedFees,
+                          currencyID,
+                        )}
+                      </td>
+                    )}
+
+                    {hasCustomOneOffVAT && visibleFieldsCustomTemp.vatRate && (
+                      <td></td>
+                    )}
+
+                    {hasCustomOneOffVAT && visibleFieldsCustomTemp.vat && (
+                      <td className="tr-table-class text-white text-center">
+                        {formatValue(
+                          customOneOffFooter.discountedVat,
+                          currencyID,
+                        )}
+                      </td>
+                    )}
+
+                    {hasCustomOneOffVAT &&
+                      visibleFieldsCustomTemp.feesIncVat && (
+                        <td className="tr-table-class text-white text-center">
+                          {formatValue(
+                            customOneOffFooter.discountedFeesIncVat,
+                            currencyID,
+                          )}
+                        </td>
+                      )}
+                  </tr>
+                )}
               </tbody>
             </table>
             {/* <div

@@ -168,3 +168,91 @@ export const calculateCustomRecurringFooter = ({
     discountedFeesIncVat: truncateMoney(discountedFeesIncVatExact),
   };
 };
+
+export const calculateCustomOneOffFooter = ({
+  serviceGroups = [],
+  discountedPrice = 0,
+  fallbackVatPercentage = 0,
+}) => {
+  const rows = serviceGroups.flatMap((category) =>
+    (category.servicesList || []).map((service) => {
+      const feesExact = decimalValue(service.price);
+
+      const vatRateExact = decimalValue(
+        service.service_vat_percentage ?? fallbackVatPercentage,
+      );
+
+      const vatExact = feesExact.mul(vatRateExact).div(100);
+
+      return {
+        feesExact,
+        vatExact,
+      };
+    }),
+  );
+
+  /*
+   * Constant net values.
+   * These values only change when the service list changes.
+   */
+  const netFeesExact = rows.reduce(
+    (total, row) => total.plus(row.feesExact),
+    new Decimal(0),
+  );
+
+  const netVatExact = rows.reduce(
+    (total, row) => total.plus(row.vatExact),
+    new Decimal(0),
+  );
+
+  const netFeesIncVatExact = netFeesExact.plus(netVatExact);
+
+  /*
+   * Changeable discounted values.
+   */
+  const discountedFeesExact = decimalValue(discountedPrice);
+
+  /*
+   * Supports both common and service-wise VAT rates.
+   */
+  const effectiveVatRatio = netFeesExact.isZero()
+    ? new Decimal(0)
+    : netVatExact.div(netFeesExact);
+
+  const discountedVatExact = discountedFeesExact.mul(effectiveVatRatio);
+
+  const discountedFeesIncVatExact =
+    discountedFeesExact.plus(discountedVatExact);
+
+  /*
+   * Calculate discounts from exact values.
+   * Never subtract displayed or already-truncated values.
+   */
+  const discountFeesExact = netFeesExact.minus(discountedFeesExact);
+
+  const discountVatExact = netVatExact.minus(discountedVatExact);
+
+  const discountFeesIncVatExact = netFeesIncVatExact.minus(
+    discountedFeesIncVatExact,
+  );
+
+  return {
+    // Net Total row
+    netFees: truncateMoney(netFeesExact),
+    netVat: truncateMoney(netVatExact),
+    netFeesIncVat: truncateMoney(netFeesIncVatExact),
+
+    // Discount row
+    discountFees: truncateMoney(discountFeesExact),
+    discountVat: truncateMoney(discountVatExact),
+    discountFeesIncVat: truncateMoney(discountFeesIncVatExact),
+
+    // Grand Total row
+    discountedFees: truncateMoney(discountedFeesExact),
+    discountedVat: truncateMoney(discountedVatExact),
+    discountedFeesIncVat: truncateMoney(discountedFeesIncVatExact),
+
+    hasDiscount: discountFeesExact.greaterThan(0),
+    hasPriceIncrease: discountFeesExact.lessThan(0),
+  };
+};
