@@ -72,6 +72,13 @@ import {
   GetProspectSendMailStatus,
   ResendAddUpdateQuote,
 } from "../../redux/Services/EmailFailureStatusAPI/EmailFailureStatusAPI";
+import {
+  calculateCustomRecurringFooter,
+  calculateVatCents,
+  fromCents,
+  safeNumber,
+  toCents,
+} from "../../Middleware/helpers";
 const SelectServices = lazy(() => import("../../components/SelectServices"));
 const PreviewComponentPdf = lazy(
   () => import("../../components/PreviewComponentpdf"),
@@ -3613,6 +3620,22 @@ const ReviewServicesComponent = (props) => {
     );
   };
 
+  const customRecurringFooter = calculateCustomRecurringFooter({
+    serviceGroups: props.selectedRecurringServiceList,
+    discountedPrice: props.RecurringPricingInfo.DiscountedPrice,
+    fallbackVatPercentage: props.vatPercentage,
+  });
+
+  const customDescriptionColumnCount = [
+    props.visibleFieldsCustomTemp.serviceCategory,
+    props.visibleFieldsCustomTemp.serviceName,
+    props.visibleFieldsCustomTemp.serviceScope,
+  ].filter(Boolean).length;
+
+  const showCustomDiscount =
+    customRecurringFooter.discountFees > 0 &&
+    props.ProposalObject.DiscountLines;
+
   return (
     <>
       <div className="create-practice-height scrollbar">
@@ -4297,14 +4320,26 @@ const ReviewServicesComponent = (props) => {
                                 <>
                                   {service.servicesList.map(
                                     (subService, subIndex) => {
-                                      const price =
-                                        Number(subService.price) || 0;
-                                      const vat =
-                                        (price *
-                                          subService.service_vat_percentage) /
-                                        100;
-                                      console.log(vat);
-                                      const total = price + vat;
+                                      const rowFeesCents = toCents(
+                                        subService.price,
+                                      );
+
+                                      const rowVatRate = safeNumber(
+                                        subService.service_vat_percentage ??
+                                          props.vatPercentage,
+                                      );
+
+                                      const rowVatCents = calculateVatCents(
+                                        rowFeesCents,
+                                        rowVatRate,
+                                      );
+
+                                      const rowFees = fromCents(rowFeesCents);
+                                      const rowVat = fromCents(rowVatCents);
+
+                                      const rowFeesIncVat = fromCents(
+                                        rowFeesCents + rowVatCents,
+                                      );
 
                                       const driverList =
                                         subService.pricingDriverList || [];
@@ -4391,7 +4426,7 @@ const ReviewServicesComponent = (props) => {
                                               {props.ProposalObject
                                                 .feeTypeId === 1 &&
                                                 props.formatValue(
-                                                  price,
+                                                  rowFees,
                                                   props.currencyID,
                                                 )}
                                               {props.ProposalObject
@@ -4404,10 +4439,7 @@ const ReviewServicesComponent = (props) => {
                                             props.visibleFieldsCustomTemp
                                               .vatRate && (
                                               <td className="text-center">
-                                                {
-                                                  subService.service_vat_percentage
-                                                }
-                                                %
+                                                {rowVatRate.toFixed(2)}%
                                               </td>
                                             )}
                                           {props.vatPercentage !== 0 &&
@@ -4417,7 +4449,7 @@ const ReviewServicesComponent = (props) => {
                                                 {props.ProposalObject
                                                   .feeTypeId === 1 &&
                                                   props.formatValue(
-                                                    subService.service_vat_amount,
+                                                    rowVat,
                                                     props.currencyID,
                                                   )}
                                                 {props.ProposalObject
@@ -4433,10 +4465,7 @@ const ReviewServicesComponent = (props) => {
                                                 {props.ProposalObject
                                                   .feeTypeId === 1 &&
                                                   props.formatValue(
-                                                    price +
-                                                      Number(
-                                                        subService.service_vat_amount,
-                                                      ),
+                                                    rowFeesIncVat,
                                                     props.currencyID,
                                                   )}
                                                 {props.ProposalObject
@@ -4453,295 +4482,154 @@ const ReviewServicesComponent = (props) => {
                               ),
                             )}
 
-                            {/* === NET TOTAL ROW === */}
+                            {/* ================= CUSTOM TABLE FOOTER ================= */}
+
+                            {/* NET TOTAL */}
                             <tr className="head-row">
-                              {/* {visibleFieldsCustomTemp.serviceCategory && (
-          <td className="tr-table-class text-white">Net Total</td>
-        )} */}
-                              <td className="tr-table-class text-white">
-                                Net Total
-                              </td>
-                              {props.visibleFieldsCustomTemp
-                                .serviceCategory && (
-                                <td className="tr-table-class text-white"></td>
-                              )}
-                              {props.visibleFieldsCustomTemp.serviceScope && (
-                                <td className="tr-table-class text-white"></td>
-                              )}
-                              {props.visibleFieldsCustomTemp.fees && (
-                                <td className="tr-table-class text-white text-right">
-                                  {" "}
-                                  {
-                                    Number(
-                                      props.RecurringPricingInfo.OriginalPrice,
-                                    ) <
-                                      Number(
-                                        props.RecurringPricingInfo
-                                          .DiscountedPrice,
-                                      ) ||
-                                    (Number(
-                                      props.RecurringPricingInfo.Discount,
-                                    ) > 0 &&
-                                      !props.ProposalObject.DiscountLines)
-                                      ? props.formatValue(
-                                          props.RecurringPricingInfo
-                                            .DiscountedPrice,
-                                          props.currencyID,
-                                        )
-                                      : // Number(props.RecurringPricingInfo.DiscountedPrice)
-                                        //     .toFixed(2)
-                                        //     .toString()
-                                        //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                        props.formatValue(
-                                          props.RecurringPricingInfo
-                                            .OriginalPrice,
-                                          props.currencyID,
-                                        )
-                                    // Number(props.RecurringPricingInfo.OriginalPrice)
-                                    //     .toFixed(2)
-                                    //     .toString()
-                                    //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                  }
+                              {customDescriptionColumnCount > 0 && (
+                                <td
+                                  colSpan={customDescriptionColumnCount}
+                                  className="tr-table-class text-white"
+                                >
+                                  Net Total
                                 </td>
                               )}
+
+                              {props.visibleFieldsCustomTemp.fees && (
+                                <td className="tr-table-class text-white text-right">
+                                  {props.formatValue(
+                                    customRecurringFooter.netFees,
+                                    props.currencyID,
+                                  )}
+                                </td>
+                              )}
+
                               {props.vatPercentage !== 0 &&
                                 props.visibleFieldsCustomTemp.vatRate && (
                                   <td className="tr-table-class text-white"></td>
                                 )}
+
                               {props.vatPercentage !== 0 &&
                                 props.visibleFieldsCustomTemp.vat && (
-                                  <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
+                                  <td className="tr-table-class text-white text-right">
                                     {props.formatValue(
-                                      props.RecurringPricingInfo.NetVATPrice,
+                                      customRecurringFooter.netVat,
                                       props.currencyID,
                                     )}
                                   </td>
                                 )}
+
                               {props.vatPercentage !== 0 &&
                                 props.visibleFieldsCustomTemp.feesIncVat && (
-                                  <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
-                                    {
-                                      props.formatValue(
-                                        props.RecurringPricingInfo
-                                          .NetFeesIncVatPrice,
-                                        props.currencyID,
-                                      )
-                                      // Number(props.RecurringPricingInfo.VATPrice)
-                                      //   .toFixed(2)
-                                      //   .toString()
-                                      //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                    }
+                                  <td className="tr-table-class text-white text-right">
+                                    {props.formatValue(
+                                      customRecurringFooter.netFeesIncVat,
+                                      props.currencyID,
+                                    )}
                                   </td>
                                 )}
                             </tr>
 
-                            {/* === DISCOUNT ROW === */}
-                            {Number(props.RecurringPricingInfo.Discount) > 0 &&
-                              props.ProposalObject.DiscountLines && (
-                                <tr className="head-grey-row">
-                                  {props.visibleFieldsCustomTemp
-                                    .serviceCategory && (
-                                    <td className="tr-table-class font-14 text-white">
-                                      Discount
-                                    </td>
-                                  )}
-                                  {props.visibleFieldsCustomTemp
-                                    .serviceName && <td></td>}
-                                  {props.visibleFieldsCustomTemp
-                                    .serviceScope && <td></td>}
-                                  {props.visibleFieldsCustomTemp.fees && (
-                                    <td className="tr-table-class font-14 text-white text-right">
-                                      (-){"  "}
-                                      {"  "}
-                                      {
-                                        props.formatValue(
-                                          props.RecurringPricingInfo.Discount,
-                                          props.currencyID,
-                                        )
-                                        // Number(props.RecurringPricingInfo.Discount)
-                                        //   .toFixed(2)
-                                        //   .toString()
-                                        //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                      }
-                                    </td>
-                                  )}
-                                  {props.vatPercentage !== 0 &&
-                                    props.visibleFieldsCustomTemp.vatRate && (
-                                      <td></td>
-                                    )}
-                                  {props.vatPercentage !== 0 &&
-                                    props.visibleFieldsCustomTemp.vat && (
-                                      <td className="tr-table-class font-14 text-white text-right">
-                                        {" "}
-                                        {
-                                          props.formatValue(
-                                            props.RecurringPricingInfo
-                                              .VatDiscount,
-                                            props.currencyID,
-                                          )
-                                          // Number(props.RecurringPricingInfo.VATPrice)
-                                          //   .toFixed(2)
-                                          //   .toString()
-                                          //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                        }
-                                      </td>
-                                    )}
-                                  {props.vatPercentage !== 0 &&
-                                    props.visibleFieldsCustomTemp
-                                      .feesIncVat && (
-                                      <td className="tr-table-class font-14 text-white text-right">
-                                        {" "}
-                                        {props.formatValue(
-                                          props.RecurringPricingInfo
-                                            .VatDiscountFeesIncVat,
-                                          props.currencyID,
-                                        )}
-                                      </td>
-                                    )}
-                                </tr>
-                              )}
+                            {/* DISCOUNT */}
+                            {showCustomDiscount && (
+                              <tr className="head-grey-row">
+                                {customDescriptionColumnCount > 0 && (
+                                  <td
+                                    colSpan={customDescriptionColumnCount}
+                                    className="tr-table-class font-14 text-white"
+                                  >
+                                    Discount
+                                  </td>
+                                )}
 
-                            {/* === GRAND TOTAL / DISCOUNTED TOTAL (template 6) — only when discount applies */}
-                            {(Number(props.vatPercentage) || 0) > 0 &&
-                            Number(props.RecurringPricingInfo.Discount) > 0 &&
-                            props.ProposalObject.DiscountLines ? (
-                              <tr className="head-row">
-                                {props.visibleFieldsCustomTemp
-                                  .serviceCategory && (
-                                  <td className="tr-table-class font-14 text-white">
-                                    Grand Total
-                                  </td>
-                                )}
-                                {props.visibleFieldsCustomTemp.serviceName && (
-                                  <td></td>
-                                )}
-                                {props.visibleFieldsCustomTemp.serviceScope && (
-                                  <td></td>
-                                )}
                                 {props.visibleFieldsCustomTemp.fees && (
                                   <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
-                                    {
-                                      props.formatValue(
-                                        props.RecurringPricingInfo.GrandTotal,
-                                        props.currencyID,
-                                      )
-                                      // Number(props.RecurringPricingInfo.GrandTotal)
-                                      //   .toFixed(2)
-                                      //   .toString()
-                                      //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                    }
+                                    (-){" "}
+                                    {props.formatValue(
+                                      customRecurringFooter.discountFees,
+                                      props.currencyID,
+                                    )}
                                   </td>
                                 )}
+
                                 {props.vatPercentage !== 0 &&
                                   props.visibleFieldsCustomTemp.vatRate && (
                                     <td></td>
                                   )}
+
                                 {props.vatPercentage !== 0 &&
                                   props.visibleFieldsCustomTemp.vat && (
                                     <td className="tr-table-class font-14 text-white text-right">
-                                      {" "}
-                                      {
-                                        props.formatValue(
-                                          props.RecurringPricingInfo.VATPrice,
-                                          props.currencyID,
-                                        )
-                                        // Number(props.RecurringPricingInfo.VATPrice)
-                                        //   .toFixed(2)
-                                        //   .toString()
-                                        //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                      }
-                                    </td>
-                                  )}
-                                {props.vatPercentage !== 0 &&
-                                  props.visibleFieldsCustomTemp.feesIncVat && (
-                                    <td className="tr-table-class font-14 text-white text-right">
-                                      {" "}
-                                      {
-                                        props.formatValue(
-                                          props.RecurringPricingInfo
-                                            .GrandFeesIncVat,
-                                          props.currencyID,
-                                        )
-                                        // Number(props.RecurringPricingInfo.GrandTotal)
-                                        //   .toFixed(2)
-                                        //   .toString()
-                                        //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                      }
-                                    </td>
-                                  )}
-                              </tr>
-                            ) : Number(props.RecurringPricingInfo.Discount) >
-                                0 && props.ProposalObject.DiscountLines ? (
-                              <tr className="head-row">
-                                {props.visibleFieldsCustomTemp
-                                  .serviceCategory && (
-                                  <td className="tr-table-class font-14 text-white">
-                                    Discounted Total
-                                  </td>
-                                )}
-                                {props.visibleFieldsCustomTemp.serviceName && (
-                                  <td></td>
-                                )}
-                                {props.visibleFieldsCustomTemp.serviceScope && (
-                                  <td></td>
-                                )}
-                                {props.visibleFieldsCustomTemp.fees && (
-                                  <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
-                                    {
-                                      props.formatValue(
-                                        props.RecurringPricingInfo
-                                          .DiscountedTotal,
+                                      (-){" "}
+                                      {props.formatValue(
+                                        customRecurringFooter.discountVat,
                                         props.currencyID,
-                                      )
-                                      // Number(
-                                      //   props.RecurringPricingInfo.DiscountedTotal
-                                      // )
-                                      //   .toFixed(2)
-                                      //   .toString()
-                                      //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                    }
-                                  </td>
-                                )}
-                                {props.vatPercentage !== 0 &&
-                                  props.visibleFieldsCustomTemp.vatRate && (
-                                    <td></td>
-                                  )}
-                                {props.vatPercentage !== 0 &&
-                                  props.visibleFieldsCustomTemp.vat && (
-                                    <td className="tr-table-class font-14 text-white text-right">
-                                      {" "}
-                                      {
-                                        props.formatValue(
-                                          props.RecurringPricingInfo
-                                            .DiscountedTotal,
-                                          props.currencyID,
-                                        )
-                                        // Number(
-                                        //   props.RecurringPricingInfo.DiscountedTotal
-                                        // )
-                                        //   .toFixed(2)
-                                        //   .toString()
-                                        //   .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                                      }
+                                      )}
                                     </td>
                                   )}
+
                                 {props.vatPercentage !== 0 &&
                                   props.visibleFieldsCustomTemp.feesIncVat && (
-                                    <td className="tr-table-class font-14 text-white text-center">
-                                      {props.formatVATValue(
-                                        Number(
-                                          props.RecurringPricingInfo.GrandTotal,
-                                        ),
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      (-){" "}
+                                      {props.formatValue(
+                                        customRecurringFooter.discountFeesIncVat,
                                         props.currencyID,
                                       )}
                                     </td>
                                   )}
                               </tr>
-                            ) : null}
+                            )}
+
+                            {/* DISCOUNTED / GRAND TOTAL */}
+                            {showCustomDiscount && (
+                              <tr className="head-row">
+                                {customDescriptionColumnCount > 0 && (
+                                  <td
+                                    colSpan={customDescriptionColumnCount}
+                                    className="tr-table-class font-14 text-white"
+                                  >
+                                    {Number(props.vatPercentage) > 0
+                                      ? "Grand Total"
+                                      : "Discounted Total"}
+                                  </td>
+                                )}
+
+                                {props.visibleFieldsCustomTemp.fees && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {props.formatValue(
+                                      customRecurringFooter.discountedFees,
+                                      props.currencyID,
+                                    )}
+                                  </td>
+                                )}
+
+                                {props.vatPercentage !== 0 &&
+                                  props.visibleFieldsCustomTemp.vatRate && (
+                                    <td></td>
+                                  )}
+
+                                {props.vatPercentage !== 0 &&
+                                  props.visibleFieldsCustomTemp.vat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        customRecurringFooter.discountedVat,
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+
+                                {props.vatPercentage !== 0 &&
+                                  props.visibleFieldsCustomTemp.feesIncVat && (
+                                    <td className="tr-table-class font-14 text-white text-right">
+                                      {props.formatValue(
+                                        customRecurringFooter.discountedFeesIncVat,
+                                        props.currencyID,
+                                      )}
+                                    </td>
+                                  )}
+                              </tr>
+                            )}
                           </tbody>
                         </table>
                         {/* <div
