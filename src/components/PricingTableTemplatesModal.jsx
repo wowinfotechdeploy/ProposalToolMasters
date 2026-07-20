@@ -2,6 +2,15 @@ import React, { useState } from "react";
 import { servicePackageTypeID } from "../Middleware/enums";
 import { Tooltip } from "@mui/material";
 import { FormatOverlineSharp } from "@mui/icons-material";
+import {
+  calculateCustomRecurringFooter,
+  calculateVatCents,
+  decimalValue,
+  fromCents,
+  truncateMoney,
+  safeNumber,
+  toCents,
+} from "../../src/Middleware/helpers";
 
 const PricingTableTemplatesModal = ({
   show,
@@ -342,6 +351,21 @@ const PricingTableTemplatesModal = ({
     });
   };
 
+  const customRecurringFooter = calculateCustomRecurringFooter({
+    serviceGroups: selectedRecurringServiceList,
+    discountedPrice: RecurringPricingInfo.DiscountedPrice,
+    fallbackVatPercentage: vatPercentage,
+  });
+
+  const customDescriptionColumnCount = [
+    visibleFieldsCustomTemp.serviceCategory,
+    visibleFieldsCustomTemp.serviceName,
+    visibleFieldsCustomTemp.serviceScope,
+  ].filter(Boolean).length;
+
+  const showCustomDiscount =
+    customRecurringFooter.discountFees > 0 && ProposalObject.DiscountLines;
+
   // console.log("selectedOneOffServiceList", selectedOneOffServiceList);
   // console.log("vatPercentage", vatPercentage);
 
@@ -463,7 +487,7 @@ const PricingTableTemplatesModal = ({
                       </td>
                     </tr>
                   </>
-                ):(
+                ) : (
                   ""
                 )}
               </tbody>
@@ -595,7 +619,9 @@ const PricingTableTemplatesModal = ({
                       </td>
                     </tr>
                   </>
-                ):""}
+                ) : (
+                  ""
+                )}
               </tbody>
             </table>
           </div>
@@ -1199,7 +1225,9 @@ const PricingTableTemplatesModal = ({
                     )}
                   </tr>
                 </>
-              ):""}
+              ) : (
+                ""
+              )}
             </table>
           </div>
         ) : serviceTypeID === servicePackageTypeID.OneOffPackageTypeID ? (
@@ -1777,7 +1805,9 @@ const PricingTableTemplatesModal = ({
                     )}
                   </tr>
                 </>
-              ):""}
+              ) : (
+                ""
+              )}
             </table>
           </div>
         ) : (
@@ -9336,90 +9366,83 @@ const PricingTableTemplatesModal = ({
               </thead>
 
               <tbody>
-                {selectedRecurringServiceList.map(
-                              (service, index) => (
-                                <>
-                                  {service.servicesList.map(
-                                    (subService, subIndex) => {
-                                      const price =
-                                        Number(subService.price) || 0;
-                                      const vat =
-                                        (price *
-                                          subService.service_vat_percentage) /
-                                        100;
-                                      console.log(vat);
-                                      const total = price + vat;
+                {selectedRecurringServiceList.map((service, index) => (
+                  <>
+                    {service.servicesList.map((subService, subIndex) => {
+                      const priceExact = decimalValue(subService.price);
 
-                                      const driverList =
-                                        subService.pricingDriverList || [];
+                      const vatRateExact = decimalValue(
+                        subService.service_vat_percentage ?? vatPercentage,
+                      );
 
-                                      return (
-                                        <tr key={`sub-${index}-${subIndex}`}>
-                                          {visibleFieldsCustomTemp
-                                            .serviceCategory && (
-                                            <td className="text-center">
-                                              {service.serviceCatName}
-                                            </td>
-                                          )}
-                                          {visibleFieldsCustomTemp
-                                            .serviceName && (
-                                            <td className="text-center">
-                                              {subService.serviceName}
-                                            </td>
-                                          )}
-                                          {visibleFieldsCustomTemp
-                                            .serviceScope && (
-                                            <td className="text-center">
-                                              {driverList.length > 0
-                                                ? driverList.map((d, i) => (
-                                                    <div key={i}>
-                                                      {d.variation === null ? (
-                                                        <>
-                                                          {d.driverName} ={" "}
-                                                          {d.driverValue}
-                                                          {i !==
-                                                            driverList.length -
-                                                              1 && "; "}
-                                                        </>
-                                                      ) : (
-                                                        (() => {
-                                                          const matched =
-                                                            d.variation.find(
-                                                              (v) =>
-                                                                Number(
-                                                                  v.variationValue,
-                                                                ) ===
-                                                                Number(
-                                                                  d.driverValue,
-                                                                ),
-                                                            );
+                      const vatExact = priceExact.mul(vatRateExact).div(100);
 
-                                                          return (
-                                                            <>
-                                                              {d.driverName} ={" "}
-                                                              {matched
-                                                                ? matched.variationName
-                                                                : ""}
-                                                              {i !==
-                                                                driverList.length -
-                                                                  1 && "; "}
-                                                            </>
-                                                          );
-                                                        })()
-                                                      )}
+                      const feesIncVatExact = priceExact.plus(vatExact);
 
-                                                      {/* {d.driverName} ={" "}
+                      // Round only for display.
+                      const rowFees = truncateMoney(priceExact);
+                      const rowVat = truncateMoney(vatExact);
+                      const rowFeesIncVat = truncateMoney(feesIncVatExact);
+
+                      const rowVatRate = vatRateExact.toNumber();
+
+                      const driverList = subService.pricingDriverList || [];
+
+                      return (
+                        <tr key={`sub-${index}-${subIndex}`}>
+                          {visibleFieldsCustomTemp.serviceCategory && (
+                            <td className="text-center">
+                              {service.serviceCatName}
+                            </td>
+                          )}
+                          {visibleFieldsCustomTemp.serviceName && (
+                            <td className="text-center">
+                              {subService.serviceName}
+                            </td>
+                          )}
+                          {visibleFieldsCustomTemp.serviceScope && (
+                            <td className="text-center">
+                              {driverList.length > 0
+                                ? driverList.map((d, i) => (
+                                    <div key={i}>
+                                      {d.variation === null ? (
+                                        <>
+                                          {d.driverName} = {d.driverValue}
+                                          {i !== driverList.length - 1 && "; "}
+                                        </>
+                                      ) : (
+                                        (() => {
+                                          const matched = d.variation.find(
+                                            (v) =>
+                                              Number(v.variationValue) ===
+                                              Number(d.driverValue),
+                                          );
+
+                                          return (
+                                            <>
+                                              {d.driverName} ={" "}
+                                              {matched
+                                                ? matched.variationName
+                                                : ""}
+                                              {i !== driverList.length - 1 &&
+                                                "; "}
+                                            </>
+                                          );
+                                        })()
+                                      )}
+
+                                      {/* {d.driverName} ={" "}
                                                       {d.driverValue}
                                                       {i !==
                                                         driverList.length - 1 &&
                                                         "; "} */}
-                                                    </div>
-                                                  ))
-                                                : "-"}
-                                            </td>
-                                          )}
+                                    </div>
+                                  ))
+                                : "-"}
+                            </td>
+                          )}
 
-                                          {/* <td className="text-center">
+                          {/* <td className="text-center">
                                             {driverList.length > 0
                                               ? driverList.map((d, i) => (
                                                   <div key={i}>
@@ -9429,73 +9452,46 @@ const PricingTableTemplatesModal = ({
                                               : "-"}
                                           </td> */}
 
-                                          {visibleFieldsCustomTemp
-                                            .fees && (
-                                            <td className="text-center">
-                                              {ProposalObject
-                                                .feeTypeId === 1 &&
-                                                formatValue(
-                                                  price,
-                                                  currencyID,
-                                                )}
-                                              {ProposalObject
-                                                .feeTypeId === 2 && (
-                                                <span className="fa fa-check"></span>
-                                              )}
-                                            </td>
-                                          )}
-                                          {vatPercentage !== 0 &&
-                                            visibleFieldsCustomTemp
-                                              .vatRate && (
-                                              <td className="text-center">
-                                                {
-                                                  subService.service_vat_percentage
-                                                }
-                                                %
-                                              </td>
-                                            )}
-                                          {vatPercentage !== 0 &&
-                                            visibleFieldsCustomTemp
-                                              .vat && (
-                                              <td className="text-center">
-                                                {ProposalObject
-                                                  .feeTypeId === 1 &&
-                                                  formatValue(
-                                                    subService.service_vat_amount,
-                                                    currencyID,
-                                                  )}
-                                                {ProposalObject
-                                                  .feeTypeId === 2 && (
-                                                  <span className="fa fa-check"></span>
-                                                )}
-                                              </td>
-                                            )}
-                                          {vatPercentage !== 0 &&
-                                            visibleFieldsCustomTemp
-                                              .feesIncVat && (
-                                              <td className="text-center">
-                                                {ProposalObject
-                                                  .feeTypeId === 1 &&
-                                                  formatValue(
-                                                    price +
-                                                      Number(
-                                                        subService.service_vat_amount,
-                                                      ),
-                                                    currencyID,
-                                                  )}
-                                                {ProposalObject
-                                                  .feeTypeId === 2 && (
-                                                  <span className="fa fa-check"></span>
-                                                )}
-                                              </td>
-                                            )}
-                                        </tr>
-                                      );
-                                    },
-                                  )}
-                                </>
-                              ),
+                          {visibleFieldsCustomTemp.fees && (
+                            <td className="text-center">
+                              {ProposalObject.feeTypeId === 1 &&
+                                formatValue(rowFees, currencyID)}
+                              {ProposalObject.feeTypeId === 2 && (
+                                <span className="fa fa-check"></span>
+                              )}
+                            </td>
+                          )}
+                          {vatPercentage !== 0 &&
+                            visibleFieldsCustomTemp.vatRate && (
+                              <td className="text-center">
+                                {rowVatRate.toFixed(2)}%
+                              </td>
                             )}
+                          {vatPercentage !== 0 &&
+                            visibleFieldsCustomTemp.vat && (
+                              <td className="text-center">
+                                {ProposalObject.feeTypeId === 1 &&
+                                  formatValue(rowVat, currencyID)}
+                                {ProposalObject.feeTypeId === 2 && (
+                                  <span className="fa fa-check"></span>
+                                )}
+                              </td>
+                            )}
+                          {vatPercentage !== 0 &&
+                            visibleFieldsCustomTemp.feesIncVat && (
+                              <td className="text-center">
+                                {ProposalObject.feeTypeId === 1 &&
+                                  formatValue(rowFeesIncVat, currencyID)}
+                                {ProposalObject.feeTypeId === 2 && (
+                                  <span className="fa fa-check"></span>
+                                )}
+                              </td>
+                            )}
+                        </tr>
+                      );
+                    })}
+                  </>
+                ))}
 
                 {/* === NET TOTAL ROW === */}
                 <tr className="head-row">
@@ -9507,201 +9503,124 @@ const PricingTableTemplatesModal = ({
                   {visibleFieldsCustomTemp.serviceScope && <td></td>}
                   {visibleFieldsCustomTemp.fees && (
                     <td className="tr-table-class text-white text-center">
-                      {Number(RecurringPricingInfo.OriginalPrice) <
-                        Number(RecurringPricingInfo.DiscountedPrice) ||
-                      (Number(RecurringPricingInfo.Discount) > 0 &&
-                        !ProposalObject.DiscountLines)
-                        ? formatValue(
-                            RecurringPricingInfo.DiscountedPrice,
-                            currencyID,
-                          )
-                        : formatValue(
-                            RecurringPricingInfo.OriginalPrice,
-                            currencyID,
-                          )}
+                      {formatValue(customRecurringFooter.netFees, currencyID)}
                     </td>
                   )}
                   {vatPercentage !== 0 && visibleFieldsCustomTemp.vatRate && (
                     <td></td>
                   )}
                   {vatPercentage !== 0 && visibleFieldsCustomTemp.vat && (
-                    <td className="tr-table-class text-white text-center">
-                      {formatValue(
-                        Number(RecurringPricingInfo.staticTotalVAT, currencyID),
-                      )}
+                    <td className="tr-table-class text-white text-right">
+                      {formatValue(customRecurringFooter.netVat, currencyID)}
                     </td>
                   )}
                   {vatPercentage !== 0 &&
                     visibleFieldsCustomTemp.feesIncVat && (
-                      <td className="tr-table-class text-white text-center">
-                        {Number(RecurringPricingInfo.OriginalPrice) <
-                          Number(RecurringPricingInfo.DiscountedPrice) ||
-                        (Number(RecurringPricingInfo.Discount) > 0 &&
-                          !ProposalObject.DiscountLines)
-                          ? formatValue(
-                              Number(RecurringPricingInfo.DiscountedPrice) +
-                                Number(RecurringPricingInfo.staticTotalVAT),
-                              currencyID,
-                            )
-                          : formatValue(
-                              Number(RecurringPricingInfo.OriginalPrice) +
-                                Number(RecurringPricingInfo.staticTotalVAT),
-                              currencyID,
-                            )}
+                      <td className="tr-table-class text-white text-right">
+                        {formatValue(
+                          customRecurringFooter.netFeesIncVat,
+                          currencyID,
+                        )}
                       </td>
                     )}
                 </tr>
 
-                {/* === DISCOUNT + GRAND TOTAL ROWS === */}
-                {Number(RecurringPricingInfo.Discount) > 0 &&
-                  ProposalObject.DiscountLines && (
-                    <>
-                      <tr className="head-grey-row">
-                        {visibleFieldsCustomTemp?.serviceName && (
-                          <td className="tr-table-class font-14 text-white">
-                            Discount
-                          </td>
+                {/* DISCOUNT */}
+                {showCustomDiscount && (
+                  <tr className="head-grey-row">
+                    {customDescriptionColumnCount > 0 && (
+                      <td
+                        colSpan={customDescriptionColumnCount}
+                        className="tr-table-class font-14 text-white"
+                      >
+                        Discount
+                      </td>
+                    )}
+
+                    {visibleFieldsCustomTemp.fees && (
+                      <td className="tr-table-class font-14 text-white text-right">
+                        (-){" "}
+                        {formatValue(
+                          customRecurringFooter.discountFees,
+                          currencyID,
                         )}
-                        {visibleFieldsCustomTemp.serviceCategory && <td></td>}
-                        {visibleFieldsCustomTemp.serviceScope && <td></td>}
-                        {visibleFieldsCustomTemp.fees && (
-                          <td className="tr-table-class font-14 text-white text-center">
-                            (-){" "}
-                            {formatValue(
-                              RecurringPricingInfo.Discount,
-                              currencyID,
-                            )}
-                          </td>
+                      </td>
+                    )}
+
+                    {vatPercentage !== 0 && visibleFieldsCustomTemp.vatRate && (
+                      <td></td>
+                    )}
+
+                    {vatPercentage !== 0 && visibleFieldsCustomTemp.vat && (
+                      <td className="tr-table-class font-14 text-white text-right">
+                        (-){" "}
+                        {formatValue(
+                          customRecurringFooter.discountVat,
+                          currencyID,
                         )}
-                        {vatPercentage !== 0 &&
-                          visibleFieldsCustomTemp.vatRate && <td></td>}
-                        {vatPercentage !== 0 && visibleFieldsCustomTemp.vat && (
-                          <td className="tr-table-class text-white text-center">
-                            (-){" "}
-                            {formatValue(
-                              Number(RecurringPricingInfo.staticTotalVAT) -
-                                Number(
-                                  RecurringPricingInfo.totalServiceWiseVAT,
-                                ),
-                              currencyID,
-                            )}
-                          </td>
-                        )}
-                        {vatPercentage !== 0 &&
-                          visibleFieldsCustomTemp.feesIncVat && (
-                            <td className="tr-table-class text-white text-center">
-                              (-){" "}
-                              {formatValue(
-                                Number(RecurringPricingInfo.Discount) +
-                                  (Number(RecurringPricingInfo.staticTotalVAT) -
-                                    Number(
-                                      RecurringPricingInfo.totalServiceWiseVAT,
-                                    )),
-                                currencyID,
-                              )}
-                            </td>
+                      </td>
+                    )}
+
+                    {vatPercentage !== 0 &&
+                      visibleFieldsCustomTemp.feesIncVat && (
+                        <td className="tr-table-class font-14 text-white text-right">
+                          (-){" "}
+                          {formatValue(
+                            customRecurringFooter.discountFeesIncVat,
+                            currencyID,
                           )}
-                      </tr>
-{
-  vatPercentage ? (
-<tr className="head-row">
-                        {visibleFieldsCustomTemp?.serviceName && (
-                          <td className="tr-table-class font-14 text-white">
-                            Grand Total
-                          </td>
+                        </td>
+                      )}
+                  </tr>
+                )}
+
+                {/* DISCOUNTED / GRAND TOTAL */}
+                {showCustomDiscount && (
+                  <tr className="head-row">
+                    {customDescriptionColumnCount > 0 && (
+                      <td
+                        colSpan={customDescriptionColumnCount}
+                        className="tr-table-class font-14 text-white"
+                      >
+                        {Number(vatPercentage) > 0
+                          ? "Grand Total"
+                          : "Discounted Total"}
+                      </td>
+                    )}
+
+                    {visibleFieldsCustomTemp.fees && (
+                      <td className="tr-table-class font-14 text-white text-right">
+                        {formatValue(
+                          customRecurringFooter.discountedFees,
+                          currencyID,
                         )}
-                        {visibleFieldsCustomTemp.serviceCategory && <td></td>}
-                        {visibleFieldsCustomTemp.serviceScope && <td></td>}
-                        {visibleFieldsCustomTemp.fees && (
-                          <td className="tr-table-class font-14 text-white text-center">
-                            {Number(RecurringPricingInfo.OriginalPrice) <
-                              Number(RecurringPricingInfo.DiscountedPrice) ||
-                            (Number(RecurringPricingInfo.Discount) > 0 &&
-                              !ProposalObject.DiscountLines)
-                              ? formatValue(
-                                  RecurringPricingInfo.DiscountedPrice -
-                                    RecurringPricingInfo.Discount,
-                                  currencyID,
-                                )
-                              : formatValue(
-                                  RecurringPricingInfo.OriginalPrice -
-                                    RecurringPricingInfo.Discount,
-                                  currencyID,
-                                )}
-                          </td>
+                      </td>
+                    )}
+
+                    {vatPercentage !== 0 && visibleFieldsCustomTemp.vatRate && (
+                      <td></td>
+                    )}
+
+                    {vatPercentage !== 0 && visibleFieldsCustomTemp.vat && (
+                      <td className="tr-table-class font-14 text-white text-right">
+                        {formatValue(
+                          customRecurringFooter.discountedVat,
+                          currencyID,
                         )}
-                        {vatPercentage !== 0 &&
-                          visibleFieldsCustomTemp.vatRate && <td></td>}
-                        {vatPercentage !== 0 && visibleFieldsCustomTemp.vat && (
-                          <td className="tr-table-class font-14 text-white text-center">
-                            {formatValue(
-                              Number(RecurringPricingInfo.totalServiceWiseVAT),
-                              currencyID,
-                            )}
-                          </td>
-                        )}
-                        {vatPercentage !== 0 &&
-                          visibleFieldsCustomTemp.feesIncVat && (
-                            <td className="tr-table-class font-14 text-white text-center">
-                              {formatValue(
-                                RecurringPricingInfo.GrandTotal,
-                                currencyID,
-                              )}
-                            </td>
+                      </td>
+                    )}
+
+                    {vatPercentage !== 0 &&
+                      visibleFieldsCustomTemp.feesIncVat && (
+                        <td className="tr-table-class font-14 text-white text-right">
+                          {formatValue(
+                            customRecurringFooter.discountedFeesIncVat,
+                            currencyID,
                           )}
-                      </tr>
-  ) : (
-<tr className="head-row">
-                        {visibleFieldsCustomTemp?.serviceName && (
-                          <td className="tr-table-class font-14 text-white">
-                            Discounted Total
-                          </td>
-                        )}
-                        {visibleFieldsCustomTemp.serviceCategory && <td></td>}
-                        {visibleFieldsCustomTemp.serviceScope && <td></td>}
-                        {visibleFieldsCustomTemp.fees && (
-                          <td className="tr-table-class font-14 text-white text-center">
-                            {Number(RecurringPricingInfo.OriginalPrice) <
-                              Number(RecurringPricingInfo.DiscountedPrice) ||
-                            (Number(RecurringPricingInfo.Discount) > 0 &&
-                              !ProposalObject.DiscountLines)
-                              ? formatValue(
-                                  RecurringPricingInfo.DiscountedPrice -
-                                    RecurringPricingInfo.Discount,
-                                  currencyID,
-                                )
-                              : formatValue(
-                                  RecurringPricingInfo.OriginalPrice -
-                                    RecurringPricingInfo.Discount,
-                                  currencyID,
-                                )}
-                          </td>
-                        )}
-                        {vatPercentage !== 0 &&
-                          visibleFieldsCustomTemp.vatRate && <td></td>}
-                        {vatPercentage !== 0 && visibleFieldsCustomTemp.vat && (
-                          <td className="tr-table-class font-14 text-white text-center">
-                            {formatValue(
-                              Number(RecurringPricingInfo.totalServiceWiseVAT),
-                              currencyID,
-                            )}
-                          </td>
-                        )}
-                        {vatPercentage !== 0 &&
-                          visibleFieldsCustomTemp.feesIncVat && (
-                            <td className="tr-table-class font-14 text-white text-center">
-                              {formatValue(
-                                RecurringPricingInfo.GrandTotal,
-                                currencyID,
-                              )}
-                            </td>
-                          )}
-                      </tr>
-  )
-}
-                      
-                    </>
-                  )}
+                        </td>
+                      )}
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -10009,94 +9928,95 @@ const PricingTableTemplatesModal = ({
                             </td>
                           )}
                       </tr>
-                      {
-                        vatPercentageOneOff ? (
-<tr className="head-row">
-                        <td className="tr-table-class font-14 text-white">
-                          Grand Total
-                        </td>
-
-                        {visibleFieldsCustomTemp?.serviceCategory && <td></td>}
-                        {visibleFieldsCustomTemp.serviceScope && <td></td>}
-                        {visibleFieldsCustomTemp.fees && (
-                          <td className="tr-table-class text-white text-center">
-                            {formatValue(
-                              OneOffPricingInfo.DiscountedPrice,
-                              currencyID,
-                            )}
+                      {vatPercentageOneOff ? (
+                        <tr className="head-row">
+                          <td className="tr-table-class font-14 text-white">
+                            Grand Total
                           </td>
-                        )}
-                        {vatPercentageOneOff !== 0 &&
-                          visibleFieldsCustomTemp.vatRate && <td></td>}
-                        {vatPercentageOneOff !== 0 &&
-                          visibleFieldsCustomTemp.vat && (
+
+                          {visibleFieldsCustomTemp?.serviceCategory && (
+                            <td></td>
+                          )}
+                          {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                          {visibleFieldsCustomTemp.fees && (
                             <td className="tr-table-class text-white text-center">
                               {formatValue(
-                                Number(
-                                  OneOffPricingInfo.totalServiceWiseVATOneOff,
-                                ),
+                                OneOffPricingInfo.DiscountedPrice,
                                 currencyID,
                               )}
                             </td>
                           )}
-                        {vatPercentageOneOff !== 0 &&
-                          visibleFieldsCustomTemp.feesIncVat && (
-                            <td className="tr-table-class text-white text-center">
-                              {formatValue(
-                                Number(OneOffPricingInfo.DiscountedPrice) +
+                          {vatPercentageOneOff !== 0 &&
+                            visibleFieldsCustomTemp.vatRate && <td></td>}
+                          {vatPercentageOneOff !== 0 &&
+                            visibleFieldsCustomTemp.vat && (
+                              <td className="tr-table-class text-white text-center">
+                                {formatValue(
                                   Number(
                                     OneOffPricingInfo.totalServiceWiseVATOneOff,
                                   ),
-                                currencyID,
-                              )}
-                            </td>
-                          )}
-                      </tr>
-                        ) : (
-                          <tr className="head-row">
-                        <td className="tr-table-class font-14 text-white">
-                          Discounted Total
-                        </td>
-
-                        {visibleFieldsCustomTemp?.serviceCategory && <td></td>}
-                        {visibleFieldsCustomTemp.serviceScope && <td></td>}
-                        {visibleFieldsCustomTemp.fees && (
-                          <td className="tr-table-class text-white text-center">
-                            {formatValue(
-                              OneOffPricingInfo.DiscountedPrice,
-                              currencyID,
+                                  currencyID,
+                                )}
+                              </td>
                             )}
+                          {vatPercentageOneOff !== 0 &&
+                            visibleFieldsCustomTemp.feesIncVat && (
+                              <td className="tr-table-class text-white text-center">
+                                {formatValue(
+                                  Number(OneOffPricingInfo.DiscountedPrice) +
+                                    Number(
+                                      OneOffPricingInfo.totalServiceWiseVATOneOff,
+                                    ),
+                                  currencyID,
+                                )}
+                              </td>
+                            )}
+                        </tr>
+                      ) : (
+                        <tr className="head-row">
+                          <td className="tr-table-class font-14 text-white">
+                            Discounted Total
                           </td>
-                        )}
-                        {vatPercentageOneOff !== 0 &&
-                          visibleFieldsCustomTemp.vatRate && <td></td>}
-                        {vatPercentageOneOff !== 0 &&
-                          visibleFieldsCustomTemp.vat && (
+
+                          {visibleFieldsCustomTemp?.serviceCategory && (
+                            <td></td>
+                          )}
+                          {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                          {visibleFieldsCustomTemp.fees && (
                             <td className="tr-table-class text-white text-center">
                               {formatValue(
-                                Number(
-                                  OneOffPricingInfo.totalServiceWiseVATOneOff,
-                                ),
+                                OneOffPricingInfo.DiscountedPrice,
                                 currencyID,
                               )}
                             </td>
                           )}
-                        {vatPercentageOneOff !== 0 &&
-                          visibleFieldsCustomTemp.feesIncVat && (
-                            <td className="tr-table-class text-white text-center">
-                              {formatValue(
-                                Number(OneOffPricingInfo.DiscountedPrice) +
+                          {vatPercentageOneOff !== 0 &&
+                            visibleFieldsCustomTemp.vatRate && <td></td>}
+                          {vatPercentageOneOff !== 0 &&
+                            visibleFieldsCustomTemp.vat && (
+                              <td className="tr-table-class text-white text-center">
+                                {formatValue(
                                   Number(
                                     OneOffPricingInfo.totalServiceWiseVATOneOff,
                                   ),
-                                currencyID,
-                              )}
-                            </td>
-                          )}
-                      </tr>
-                        )
-                      }
-                      
+                                  currencyID,
+                                )}
+                              </td>
+                            )}
+                          {vatPercentageOneOff !== 0 &&
+                            visibleFieldsCustomTemp.feesIncVat && (
+                              <td className="tr-table-class text-white text-center">
+                                {formatValue(
+                                  Number(OneOffPricingInfo.DiscountedPrice) +
+                                    Number(
+                                      OneOffPricingInfo.totalServiceWiseVATOneOff,
+                                    ),
+                                  currencyID,
+                                )}
+                              </td>
+                            )}
+                        </tr>
+                      )}
                     </>
                   )}
               </tbody>
@@ -10142,10 +10062,9 @@ const PricingTableTemplatesModal = ({
                           pkg.servicePackageName
                         )}
                       </td>
-                      {vatPercentage ?
-                                    visibleFieldsCustomTemp.vat && (
-                                      <td></td>
-                                    ):""}
+                      {vatPercentage
+                        ? visibleFieldsCustomTemp.vat && <td></td>
+                        : ""}
                       {visibleFieldsCustomTemp.serviceScope && <td></td>}
                     </>
                   ))}
@@ -10165,15 +10084,16 @@ const PricingTableTemplatesModal = ({
                         Fees ({currencySymbol})
                       </th>
 
-                      {vatPercentage ?
-                                    visibleFieldsCustomTemp.vat && (
-                                      <th
-                                        className="tr-table-class text-white text-right"
-                                        style={{ width: "16.66%" }}
-                                      >
-                                        {taxName} ({currencySymbol})
-                                      </th>
-                                    ):""}
+                      {vatPercentage
+                        ? visibleFieldsCustomTemp.vat && (
+                            <th
+                              className="tr-table-class text-white text-right"
+                              style={{ width: "16.66%" }}
+                            >
+                              {taxName} ({currencySymbol})
+                            </th>
+                          )
+                        : ""}
 
                       {visibleFieldsCustomTemp.serviceScope && (
                         <th
@@ -10199,27 +10119,24 @@ const PricingTableTemplatesModal = ({
                         )}
 
                         {/* <th></th> */}
-                        {vatPercentage ?
-                                        visibleFieldsCustomTemp.vat && (
-                                          <th></th>
-                                        ):""}
+                        {vatPercentage
+                          ? visibleFieldsCustomTemp.vat && <th></th>
+                          : ""}
                         {visibleFieldsCustomTemp.serviceScope && <th></th>}
                         {packageCount >= 2 && (
                           <>
-                            {vatPercentage ?
-                                        visibleFieldsCustomTemp.vat && (
-                                          <th></th>
-                                        ):""}
+                            {vatPercentage
+                              ? visibleFieldsCustomTemp.vat && <th></th>
+                              : ""}
                             {visibleFieldsCustomTemp.serviceScope && <th></th>}
                           </>
                         )}
 
                         {packageCount === 3 && (
                           <>
-                            {vatPercentage ?
-                                        visibleFieldsCustomTemp.vat && (
-                                          <th></th>
-                                        ):""}
+                            {vatPercentage
+                              ? visibleFieldsCustomTemp.vat && <th></th>
+                              : ""}
                             {visibleFieldsCustomTemp.serviceScope && <th></th>}
                           </>
                         )}
@@ -10340,80 +10257,79 @@ const PricingTableTemplatesModal = ({
 
                             {/* VAT */}
 
-                            {vatPercentage ?
-                                              visibleFieldsCustomTemp
-                                                .vat && (
-                                                <>
-                                                  {/* Package One */}
-                                                  <td className="text-right">
-                                                    <div className="flex-end-item">
-                                                      {ProposalObject
-                                                        .feeTypeId === 1 ? (
-                                                        (subService.packageOneValue ===
-                                                          0 ||
-                                                          subService.packageOneValue ===
-                                                            null) &&
-                                                        !subService.servicePackageIDs.some(
-                                                          (item) =>
-                                                            item ===selectedPackagesList[0].servicePackageID,
-                                                        ) ? (
-                                                          <span className="fa fa-times"></span>
-                                                        ) : !subService?.servicePackageIDs.includes(
-                                                            subService.packageOneID,
-                                                          ) ? (
-                                                          <span className="fa fa-times"></span>
-                                                        ) : (
-                                                          ` ${formatValue(
-                                                            vatOne,
-                                                            currencyID,
-                                                          )}`
-                                                        )
-                                                      ) : Number(
-                                                          subService.packageOneValue,
-                                                        ) !== null &&
-                                                        subService?.servicePackageIDs.includes(
-                                                          subService.packageOneID,
-                                                        ) ? (
-                                                        <span className="fa fa-check"></span>
-                                                      ) : (
-                                                        <span className="fa fa-times"></span>
-                                                      )}
+                            {vatPercentage
+                              ? visibleFieldsCustomTemp.vat && (
+                                  <>
+                                    {/* Package One */}
+                                    <td className="text-right">
+                                      <div className="flex-end-item">
+                                        {ProposalObject.feeTypeId === 1 ? (
+                                          (subService.packageOneValue === 0 ||
+                                            subService.packageOneValue ===
+                                              null) &&
+                                          !subService.servicePackageIDs.some(
+                                            (item) =>
+                                              item ===
+                                              selectedPackagesList[0]
+                                                .servicePackageID,
+                                          ) ? (
+                                            <span className="fa fa-times"></span>
+                                          ) : !subService?.servicePackageIDs.includes(
+                                              subService.packageOneID,
+                                            ) ? (
+                                            <span className="fa fa-times"></span>
+                                          ) : (
+                                            ` ${formatValue(
+                                              vatOne,
+                                              currencyID,
+                                            )}`
+                                          )
+                                        ) : Number(
+                                            subService.packageOneValue,
+                                          ) !== null &&
+                                          subService?.servicePackageIDs.includes(
+                                            subService.packageOneID,
+                                          ) ? (
+                                          <span className="fa fa-check"></span>
+                                        ) : (
+                                          <span className="fa fa-times"></span>
+                                        )}
 
-                                                      {subService?.isAdditionalService !==
-                                                      null ? (
-                                                        <input
-                                                          style={{
-                                                            marginLeft: "5px",
-                                                          }}
-                                                          type="checkbox"
-                                                          disabled={
-                                                            subService?.servicePackageIDs.includes(
-                                                              subService.packageOneID,
-                                                            ) &&
-                                                            subService
-                                                              ?.servicePackageIDs
-                                                              .length === 1
-                                                          }
-                                                          checked={subService?.servicePackageIDs.includes(
-                                                            subService.packageOneID,
-                                                          )}
-                                                          onChange={(e) =>
-                                                            handleAddAndRemoveAdditionalServices(
-                                                              1,
-                                                              service.serviceCatID,
-                                                              subService.serviceID,
-                                                              subService.packageOneID,
-                                                              e.target.checked,
-                                                            )
-                                                          }
-                                                        />
-                                                      ) : (
-                                                        <div>&nbsp;&nbsp;</div>
-                                                      )}
-                                                    </div>
-                                                  </td>
-                                                </>
-                                              ):""}
+                                        {subService?.isAdditionalService !==
+                                        null ? (
+                                          <input
+                                            style={{
+                                              marginLeft: "5px",
+                                            }}
+                                            type="checkbox"
+                                            disabled={
+                                              subService?.servicePackageIDs.includes(
+                                                subService.packageOneID,
+                                              ) &&
+                                              subService?.servicePackageIDs
+                                                .length === 1
+                                            }
+                                            checked={subService?.servicePackageIDs.includes(
+                                              subService.packageOneID,
+                                            )}
+                                            onChange={(e) =>
+                                              handleAddAndRemoveAdditionalServices(
+                                                1,
+                                                service.serviceCatID,
+                                                subService.serviceID,
+                                                subService.packageOneID,
+                                                e.target.checked,
+                                              )
+                                            }
+                                          />
+                                        ) : (
+                                          <div>&nbsp;&nbsp;</div>
+                                        )}
+                                      </div>
+                                    </td>
+                                  </>
+                                )
+                              : ""}
 
                             {/* Service Scope */}
 
@@ -10524,80 +10440,76 @@ const PricingTableTemplatesModal = ({
                                     )}
                                   </div>
                                 </td>
-                                {vatPercentage ?
-                                                  visibleFieldsCustomTemp
-                                                    .vat && (
-                                                    <td className="text-right">
-                                                      <div className="flex-end-item">
-                                                        {ProposalObject
-                                                          .feeTypeId === 1 ? (
-                                                          (subService.packageTwoValue ===
-                                                            0 ||
-                                                            subService.packageTwoValue ===
-                                                              null) &&
-                                                          !subService.servicePackageIDs.some(
-                                                            (item) =>
-                                                              item === selectedPackagesList[0].servicePackageID,
-                                                          ) ? (
-                                                            <span className="fa fa-times"></span>
-                                                          ) : !subService?.servicePackageIDs.includes(
-                                                              subService.packageTwoID,
-                                                            ) ? (
-                                                            <span className="fa fa-times"></span>
-                                                          ) : (
-                                                            ` ${formatValue(
-                                                              vatTwo,
-                                                              currencyID,
-                                                            )}`
-                                                          )
-                                                        ) : Number(
-                                                            subService.packageTwoValue,
-                                                          ) !== null &&
-                                                          subService?.servicePackageIDs.includes(
-                                                            subService.packageTwoID,
-                                                          ) ? (
-                                                          <span className="fa fa-check"></span>
-                                                        ) : (
-                                                          <span className="fa fa-times"></span>
-                                                        )}
+                                {vatPercentage
+                                  ? visibleFieldsCustomTemp.vat && (
+                                      <td className="text-right">
+                                        <div className="flex-end-item">
+                                          {ProposalObject.feeTypeId === 1 ? (
+                                            (subService.packageTwoValue === 0 ||
+                                              subService.packageTwoValue ===
+                                                null) &&
+                                            !subService.servicePackageIDs.some(
+                                              (item) =>
+                                                item ===
+                                                selectedPackagesList[0]
+                                                  .servicePackageID,
+                                            ) ? (
+                                              <span className="fa fa-times"></span>
+                                            ) : !subService?.servicePackageIDs.includes(
+                                                subService.packageTwoID,
+                                              ) ? (
+                                              <span className="fa fa-times"></span>
+                                            ) : (
+                                              ` ${formatValue(
+                                                vatTwo,
+                                                currencyID,
+                                              )}`
+                                            )
+                                          ) : Number(
+                                              subService.packageTwoValue,
+                                            ) !== null &&
+                                            subService?.servicePackageIDs.includes(
+                                              subService.packageTwoID,
+                                            ) ? (
+                                            <span className="fa fa-check"></span>
+                                          ) : (
+                                            <span className="fa fa-times"></span>
+                                          )}
 
-                                                        {subService?.isAdditionalService !==
-                                                        null ? (
-                                                          <input
-                                                            style={{
-                                                              marginLeft: "5px",
-                                                            }}
-                                                            type="checkbox"
-                                                            disabled={
-                                                              subService?.servicePackageIDs.includes(
-                                                                subService.packageTwoID,
-                                                              ) &&
-                                                              subService
-                                                                ?.servicePackageIDs
-                                                                .length === 1
-                                                            }
-                                                            checked={subService?.servicePackageIDs.includes(
-                                                              subService.packageTwoID,
-                                                            )}
-                                                            onChange={(e) =>
-                                                              handleAddAndRemoveAdditionalServices(
-                                                                1,
-                                                                service.serviceCatID,
-                                                                subService.serviceID,
-                                                                subService.packageOneID,
-                                                                e.target
-                                                                  .checked,
-                                                              )
-                                                            }
-                                                          />
-                                                        ) : (
-                                                          <div>
-                                                            &nbsp;&nbsp;
-                                                          </div>
-                                                        )}
-                                                      </div>
-                                                    </td>
-                                                  ):""}
+                                          {subService?.isAdditionalService !==
+                                          null ? (
+                                            <input
+                                              style={{
+                                                marginLeft: "5px",
+                                              }}
+                                              type="checkbox"
+                                              disabled={
+                                                subService?.servicePackageIDs.includes(
+                                                  subService.packageTwoID,
+                                                ) &&
+                                                subService?.servicePackageIDs
+                                                  .length === 1
+                                              }
+                                              checked={subService?.servicePackageIDs.includes(
+                                                subService.packageTwoID,
+                                              )}
+                                              onChange={(e) =>
+                                                handleAddAndRemoveAdditionalServices(
+                                                  1,
+                                                  service.serviceCatID,
+                                                  subService.serviceID,
+                                                  subService.packageOneID,
+                                                  e.target.checked,
+                                                )
+                                              }
+                                            />
+                                          ) : (
+                                            <div>&nbsp;&nbsp;</div>
+                                          )}
+                                        </div>
+                                      </td>
+                                    )
+                                  : ""}
                                 {visibleFieldsCustomTemp.serviceScope && (
                                   <td className="text-right">
                                     {driverList.length > 0
@@ -10706,80 +10618,77 @@ const PricingTableTemplatesModal = ({
                                   </div>
                                 </td>
 
-                                {vatPercentage ?
-                                                  visibleFieldsCustomTemp
-                                                    .vat && (
-                                                    <td className="text-right">
-                                                      <div className="flex-end-item">
-                                                        {ProposalObject
-                                                          .feeTypeId === 1 ? (
-                                                          (subService.packageThreeValue ===
-                                                            0 ||
-                                                            subService.packageThreeValue ===
-                                                              null) &&
-                                                          !subService.servicePackageIDs.some(
-                                                            (item) =>
-                                                              item === selectedPackagesList[0].servicePackageID,
-                                                          ) ? (
-                                                            <span className="fa fa-times"></span>
-                                                          ) : !subService?.servicePackageIDs.includes(
-                                                              subService.packageThreeID,
-                                                            ) ? (
-                                                            <span className="fa fa-times"></span>
-                                                          ) : (
-                                                            ` ${formatValue(
-                                                              vatThree,
-                                                              currencyID,
-                                                            )}`
-                                                          )
-                                                        ) : Number(
-                                                            subService.packageThreeValue,
-                                                          ) !== null &&
-                                                          subService?.servicePackageIDs.includes(
-                                                            subService.packageThreeID,
-                                                          ) ? (
-                                                          <span className="fa fa-check"></span>
-                                                        ) : (
-                                                          <span className="fa fa-times"></span>
-                                                        )}
+                                {vatPercentage
+                                  ? visibleFieldsCustomTemp.vat && (
+                                      <td className="text-right">
+                                        <div className="flex-end-item">
+                                          {ProposalObject.feeTypeId === 1 ? (
+                                            (subService.packageThreeValue ===
+                                              0 ||
+                                              subService.packageThreeValue ===
+                                                null) &&
+                                            !subService.servicePackageIDs.some(
+                                              (item) =>
+                                                item ===
+                                                selectedPackagesList[0]
+                                                  .servicePackageID,
+                                            ) ? (
+                                              <span className="fa fa-times"></span>
+                                            ) : !subService?.servicePackageIDs.includes(
+                                                subService.packageThreeID,
+                                              ) ? (
+                                              <span className="fa fa-times"></span>
+                                            ) : (
+                                              ` ${formatValue(
+                                                vatThree,
+                                                currencyID,
+                                              )}`
+                                            )
+                                          ) : Number(
+                                              subService.packageThreeValue,
+                                            ) !== null &&
+                                            subService?.servicePackageIDs.includes(
+                                              subService.packageThreeID,
+                                            ) ? (
+                                            <span className="fa fa-check"></span>
+                                          ) : (
+                                            <span className="fa fa-times"></span>
+                                          )}
 
-                                                        {subService?.isAdditionalService !==
-                                                        null ? (
-                                                          <input
-                                                            style={{
-                                                              marginLeft: "5px",
-                                                            }}
-                                                            type="checkbox"
-                                                            disabled={
-                                                              subService?.servicePackageIDs.includes(
-                                                                subService.packageThreeID,
-                                                              ) &&
-                                                              subService
-                                                                ?.servicePackageIDs
-                                                                .length === 1
-                                                            }
-                                                            checked={subService?.servicePackageIDs.includes(
-                                                              subService.packageThreeID,
-                                                            )}
-                                                            onChange={(e) =>
-                                                              handleAddAndRemoveAdditionalServices(
-                                                                1,
-                                                                service.serviceCatID,
-                                                                subService.serviceID,
-                                                                subService.packageOneID,
-                                                                e.target
-                                                                  .checked,
-                                                              )
-                                                            }
-                                                          />
-                                                        ) : (
-                                                          <div>
-                                                            &nbsp;&nbsp;
-                                                          </div>
-                                                        )}
-                                                      </div>
-                                                    </td>
-                                                  ):""}
+                                          {subService?.isAdditionalService !==
+                                          null ? (
+                                            <input
+                                              style={{
+                                                marginLeft: "5px",
+                                              }}
+                                              type="checkbox"
+                                              disabled={
+                                                subService?.servicePackageIDs.includes(
+                                                  subService.packageThreeID,
+                                                ) &&
+                                                subService?.servicePackageIDs
+                                                  .length === 1
+                                              }
+                                              checked={subService?.servicePackageIDs.includes(
+                                                subService.packageThreeID,
+                                              )}
+                                              onChange={(e) =>
+                                                handleAddAndRemoveAdditionalServices(
+                                                  1,
+                                                  service.serviceCatID,
+                                                  subService.serviceID,
+                                                  subService.packageOneID,
+                                                  e.target.checked,
+                                                )
+                                              }
+                                            />
+                                          ) : (
+                                            <div>&nbsp;&nbsp;</div>
+                                          )}
+                                        </div>
+                                      </td>
+                                    )
+                                  : ""}
 
                                 {visibleFieldsCustomTemp.serviceScope && (
                                   <td className="text-right">
@@ -10879,8 +10788,9 @@ const PricingTableTemplatesModal = ({
 
                     {packageCount >= 2 && (
                       <>
-                        {vatPercentage ?
-                          visibleFieldsCustomTemp.vat && <th></th>:""}
+                        {vatPercentage
+                          ? visibleFieldsCustomTemp.vat && <th></th>
+                          : ""}
                         {visibleFieldsCustomTemp.serviceScope && <th></th>}
                         <td
                           style={{
@@ -10926,8 +10836,9 @@ const PricingTableTemplatesModal = ({
 
                     {packageCount === 3 && (
                       <>
-                        {vatPercentage ?
-                          visibleFieldsCustomTemp.vat && <th></th>:""}
+                        {vatPercentage
+                          ? visibleFieldsCustomTemp.vat && <th></th>
+                          : ""}
                         {visibleFieldsCustomTemp.serviceScope && <th></th>}
                         <td
                           style={{
@@ -10994,24 +10905,26 @@ const PricingTableTemplatesModal = ({
                         currencyID,
                       )}
                 </td>
-                {vatPercentage? visibleFieldsCustomTemp.vat && (
-                  // <td className="tr-table-class font-14 text-white text-right">
-                  //   {formatValue(
-                  //     RecurringPricingInfo.PackageOneStaticVaTPrice,
-                  //     currencyID,
-                  //   )}
-                  // </td>
-                  <td className="tr-table-class font-14 text-white text-right">
-                    {formatValue(
-                      Number(
-                        RecurringPricingInfo.PackageOneStaticVaTPrice ??
-                          RecurringPricingInfo.PackageOneStaticVaTPrice ??
-                          0,
-                      ) || 0,
-                      currencyID,
-                    )}
-                  </td>
-                ):""}
+                {vatPercentage
+                  ? visibleFieldsCustomTemp.vat && (
+                      // <td className="tr-table-class font-14 text-white text-right">
+                      //   {formatValue(
+                      //     RecurringPricingInfo.PackageOneStaticVaTPrice,
+                      //     currencyID,
+                      //   )}
+                      // </td>
+                      <td className="tr-table-class font-14 text-white text-right">
+                        {formatValue(
+                          Number(
+                            RecurringPricingInfo.PackageOneStaticVaTPrice ??
+                              RecurringPricingInfo.PackageOneStaticVaTPrice ??
+                              0,
+                          ) || 0,
+                          currencyID,
+                        )}
+                      </td>
+                    )
+                  : ""}
                 {visibleFieldsCustomTemp.serviceScope && <td></td>}
                 {packageCount >= 2 && (
                   <>
@@ -11034,15 +10947,17 @@ const PricingTableTemplatesModal = ({
                           )}
                     </td>
 
-                    {vatPercentage ? visibleFieldsCustomTemp.vat && (
-                      <td className="tr-table-class font-14 text-white text-right">
-                        {" "}
-                        {formatValue(
-                          RecurringPricingInfo.PackageTwoStaticVaTPrice,
-                          currencyID,
-                        )}
-                      </td>
-                    ):""}
+                    {vatPercentage
+                      ? visibleFieldsCustomTemp.vat && (
+                          <td className="tr-table-class font-14 text-white text-right">
+                            {" "}
+                            {formatValue(
+                              RecurringPricingInfo.PackageTwoStaticVaTPrice,
+                              currencyID,
+                            )}
+                          </td>
+                        )
+                      : ""}
                     {visibleFieldsCustomTemp.serviceScope && <td></td>}
                   </>
                 )}{" "}
@@ -11067,15 +10982,17 @@ const PricingTableTemplatesModal = ({
                           )}
                     </td>
 
-                    {vatPercentage ? visibleFieldsCustomTemp.vat && (
-                      <td className="tr-table-class font-14 text-white text-right">
-                        {" "}
-                        {formatValue(
-                          RecurringPricingInfo.PackageThreeStaticVaTPrice,
-                          currencyID,
-                        )}
-                      </td>
-                    ):""}
+                    {vatPercentage
+                      ? visibleFieldsCustomTemp.vat && (
+                          <td className="tr-table-class font-14 text-white text-right">
+                            {" "}
+                            {formatValue(
+                              RecurringPricingInfo.PackageThreeStaticVaTPrice,
+                              currencyID,
+                            )}
+                          </td>
+                        )
+                      : ""}
                     {visibleFieldsCustomTemp.serviceScope && <td></td>}
                   </>
                 )}
@@ -11098,44 +11015,43 @@ const PricingTableTemplatesModal = ({
                         )}
                       </td>
 
-                      {vatPercentage ?
-                        visibleFieldsCustomTemp.vat && (
-                          // <td className="tr-table-class font-14 text-white text-right">
-                          //   (-){" "}
-                          //   {formatValue(
-                          //     Number.isNaN(
-                          //       Number(
-                          //         RecurringPricingInfo.PackageOneVaTPriceWithoutDiscount,
-                          //       ) -
-                          //         Number(
-                          //           RecurringPricingInfo.PackageOneVaTPrice,
-                          //         ),
-                          //     )
-                          //       ? 0
-                          //       : Number(
-                          //           RecurringPricingInfo.PackageOneVaTPriceWithoutDiscount,
-                          //         ) -
-                          //           Number(
-                          //             RecurringPricingInfo.PackageOneVaTPrice,
-                          //           ),
-                          //     currencyID,
-                          //   )}
-                          // </td>
-                          <td className="tr-table-class font-14 text-white text-right">
-                            (-){" "}
-                            {formatValue(
-                                          Number(
-                                            RecurringPricingInfo
-                                              .PackageOneStaticVaTPrice,
-                                          ) -
-                                            Number(
-                                              RecurringPricingInfo
-                                                .PackageOneVaTPrice,
-                                            ),
-                                          currencyID,
-                                        )}
-                          </td>
-                        ):""}
+                      {vatPercentage
+                        ? visibleFieldsCustomTemp.vat && (
+                            // <td className="tr-table-class font-14 text-white text-right">
+                            //   (-){" "}
+                            //   {formatValue(
+                            //     Number.isNaN(
+                            //       Number(
+                            //         RecurringPricingInfo.PackageOneVaTPriceWithoutDiscount,
+                            //       ) -
+                            //         Number(
+                            //           RecurringPricingInfo.PackageOneVaTPrice,
+                            //         ),
+                            //     )
+                            //       ? 0
+                            //       : Number(
+                            //           RecurringPricingInfo.PackageOneVaTPriceWithoutDiscount,
+                            //         ) -
+                            //           Number(
+                            //             RecurringPricingInfo.PackageOneVaTPrice,
+                            //           ),
+                            //     currencyID,
+                            //   )}
+                            // </td>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              (-){" "}
+                              {formatValue(
+                                Number(
+                                  RecurringPricingInfo.PackageOneStaticVaTPrice,
+                                ) -
+                                  Number(
+                                    RecurringPricingInfo.PackageOneVaTPrice,
+                                  ),
+                                currencyID,
+                              )}
+                            </td>
+                          )
+                        : ""}
 
                       {visibleFieldsCustomTemp.serviceScope && <td></td>}
 
@@ -11150,29 +11066,30 @@ const PricingTableTemplatesModal = ({
                             )}
                           </td>
 
-                          {vatPercentage ?
-                            visibleFieldsCustomTemp.vat && (
-                              <td className="tr-table-class font-14 text-white text-right">
-                                (-){" "}
-                                {formatValue(
-                                  Number(
-                                    RecurringPricingInfo.PackageTwoStaticVaTPrice,
-                                  ) -
+                          {vatPercentage
+                            ? visibleFieldsCustomTemp.vat && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  (-){" "}
+                                  {formatValue(
                                     Number(
-                                      RecurringPricingInfo.PackageTwoVaTPrice,
-                                    ),
-                                  currencyID,
-                                )}
-                              </td>
-                              // <td className="tr-table-class font-14 text-white text-right">
-                              //   (-){" "}
-                              //   {formatValue(
-                              //     (RecurringPricingInfo.PackageTwoVaTPriceWithoutDiscout *
-                              //       RecurringPricingInfo.DiscountPercentagePackageTwo) /
-                              //       100
-                              //   )}
-                              // </td>
-                            ):""}
+                                      RecurringPricingInfo.PackageTwoStaticVaTPrice,
+                                    ) -
+                                      Number(
+                                        RecurringPricingInfo.PackageTwoVaTPrice,
+                                      ),
+                                    currencyID,
+                                  )}
+                                </td>
+                                // <td className="tr-table-class font-14 text-white text-right">
+                                //   (-){" "}
+                                //   {formatValue(
+                                //     (RecurringPricingInfo.PackageTwoVaTPriceWithoutDiscout *
+                                //       RecurringPricingInfo.DiscountPercentagePackageTwo) /
+                                //       100
+                                //   )}
+                                // </td>
+                              )
+                            : ""}
                           {visibleFieldsCustomTemp.serviceScope && <td></td>}
                         </>
                       )}
@@ -11186,47 +11103,49 @@ const PricingTableTemplatesModal = ({
                             )}
                           </td>
 
-                          {vatPercentage ?
-                            visibleFieldsCustomTemp.vat && (
-                              <td className="tr-table-class font-14 text-white text-right">
-                                (-){" "}
-                                {formatValue(
-                                  Number(
-                                    RecurringPricingInfo.PackageThreeStaticVaTPrice,
-                                  ) -
+                          {vatPercentage
+                            ? visibleFieldsCustomTemp.vat && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  (-){" "}
+                                  {formatValue(
                                     Number(
-                                      RecurringPricingInfo.PackageThreeVaTPrice,
-                                    ),
-                                  currencyID,
-                                )}
-                              </td>
-                              // <td className="tr-table-class font-14 text-white text-right">
-                              //   (-){" "}
-                              //   {formatValue(
-                              //     (RecurringPricingInfo.PackageThreeVaTPriceWithoutDiscout *
-                              //       RecurringPricingInfo.DiscountPercentagePackageThree) /
-                              //       100
-                              //   )}
-                              // </td>
-                            ):""}
+                                      RecurringPricingInfo.PackageThreeStaticVaTPrice,
+                                    ) -
+                                      Number(
+                                        RecurringPricingInfo.PackageThreeVaTPrice,
+                                      ),
+                                    currencyID,
+                                  )}
+                                </td>
+                                // <td className="tr-table-class font-14 text-white text-right">
+                                //   (-){" "}
+                                //   {formatValue(
+                                //     (RecurringPricingInfo.PackageThreeVaTPriceWithoutDiscout *
+                                //       RecurringPricingInfo.DiscountPercentagePackageThree) /
+                                //       100
+                                //   )}
+                                // </td>
+                              )
+                            : ""}
                           {visibleFieldsCustomTemp.serviceScope && <td></td>}
                         </>
                       )}
                     </tr>
 
-                    {
-                      vatPercentage ? (
-                        <tr className="head-row">
-                      <td className="tr-table-class font-14 text-white">
-                        {/* Fees inc VAT (£) */}
-                        Grand Total
-                      </td>
-                      <td className="tr-table-class font-14 text-white text-right">
-                        {" "}
-                        {formatValue(RecurringPricingInfo.PackageOneGrandTotal)}
-                      </td>
+                    {vatPercentage ? (
+                      <tr className="head-row">
+                        <td className="tr-table-class font-14 text-white">
+                          {/* Fees inc VAT (£) */}
+                          Grand Total
+                        </td>
+                        <td className="tr-table-class font-14 text-white text-right">
+                          {" "}
+                          {formatValue(
+                            RecurringPricingInfo.PackageOneGrandTotal,
+                          )}
+                        </td>
 
-                      {/* <td className="tr-table-class font-14 text-white text-right">
+                        {/* <td className="tr-table-class font-14 text-white text-right">
                         {" "}
                         {totalOnePackageValue >
                           Number(RecurringPricingInfo.packageOneNetTotal) ||
@@ -11250,105 +11169,100 @@ const PricingTableTemplatesModal = ({
                               currencyID,
                             )}
                       </td> */}
-                      {vatPercentage !== null &&
-                        visibleFieldsCustomTemp.vat && (
-                          <td className="tr-table-class font-14 text-white text-right">
-                            {formatValue(
-                              RecurringPricingInfo.PackageOneVaTPrice,
-                              currencyID,
-                            )}
-                          </td>
+                        {vatPercentage !== null &&
+                          visibleFieldsCustomTemp.vat && (
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {formatValue(
+                                RecurringPricingInfo.PackageOneVaTPrice,
+                                currencyID,
+                              )}
+                            </td>
+                          )}
+                        {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                        {packageCount >= 2 && (
+                          <>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {formatValue(
+                                RecurringPricingInfo.PackageTwoGrandTotal,
+                                currencyID,
+                              )}
+                            </td>
+                            {vatPercentage !== null &&
+                              visibleFieldsCustomTemp.vat && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {formatValue(
+                                    RecurringPricingInfo.PackageTwoVaTPrice,
+                                    currencyID,
+                                  )}
+                                </td>
+                              )}
+                            {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                          </>
                         )}
-                      {visibleFieldsCustomTemp.serviceScope && <td></td>}
-                      {packageCount >= 2 && (
-                        <>
-                          <td className="tr-table-class font-14 text-white text-right">
-                            {" "}
-                            {formatValue(
-                              RecurringPricingInfo.PackageTwoGrandTotal,
-                              currencyID,
-                            )}
-                          </td>
-                          {vatPercentage !== null &&
-                            visibleFieldsCustomTemp.vat && (
-                              <td className="tr-table-class font-14 text-white text-right">
-                                {formatValue(
-                              RecurringPricingInfo.PackageTwoVaTPrice,
-                              currencyID,
-                            )}
-                              </td>
-                            )}
-                          {visibleFieldsCustomTemp.serviceScope && <td></td>}
-                        </>
-                      )}
-                      {packageCount == 3 && (
-                        <>
-                          <td className="tr-table-class font-14 text-white text-right">
-                            {" "}
-                            {formatValue(
-                              RecurringPricingInfo.PackageThreeGrandTotal,
-                              currencyID,
-                            )}
-                          </td>
-                          {vatPercentage !== null &&
-                            visibleFieldsCustomTemp.vat && (
-                              <td className="tr-table-class font-14 text-white text-right">
-                                {formatValue(
-                              RecurringPricingInfo.PackageThreeVaTPrice,
-                              currencyID,
-                            )}
-                              </td>
-                            )}
-                          {visibleFieldsCustomTemp.serviceScope && <td></td>}
-                        </>
-                      )}
-                    </tr>
-                      ): (
-                        <tr className="head-row">
-                                  <td className="tr-table-class font-14 text-white">
-                                    Discounted Total
-                                  </td>
-                                  <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
-                                    {formatValue(
-                                      RecurringPricingInfo
-                                        .packageOneDisCountedTotal,
-                                      currencyID,
-                                    )}
-                                  </td>
-                                  {visibleFieldsCustomTemp
-                                    .serviceScope && <td></td>}
+                        {packageCount == 3 && (
+                          <>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {formatValue(
+                                RecurringPricingInfo.PackageThreeGrandTotal,
+                                currencyID,
+                              )}
+                            </td>
+                            {vatPercentage !== null &&
+                              visibleFieldsCustomTemp.vat && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  {formatValue(
+                                    RecurringPricingInfo.PackageThreeVaTPrice,
+                                    currencyID,
+                                  )}
+                                </td>
+                              )}
+                            {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                          </>
+                        )}
+                      </tr>
+                    ) : (
+                      <tr className="head-row">
+                        <td className="tr-table-class font-14 text-white">
+                          Discounted Total
+                        </td>
+                        <td className="tr-table-class font-14 text-white text-right">
+                          {" "}
+                          {formatValue(
+                            RecurringPricingInfo.packageOneDisCountedTotal,
+                            currencyID,
+                          )}
+                        </td>
+                        {visibleFieldsCustomTemp.serviceScope && <td></td>}
 
-                                  {packageCount >= 2 && (
-  <>
-    <td className="tr-table-class font-14 text-white text-right">
-      {" "}
-      {formatValue(
-        RecurringPricingInfo.packageTwoDisCountedTotal,
-        currencyID
-      )}
-    </td>
-    {visibleFieldsCustomTemp.serviceScope && <td></td>}
-  </>
-)}
+                        {packageCount >= 2 && (
+                          <>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {formatValue(
+                                RecurringPricingInfo.packageTwoDisCountedTotal,
+                                currencyID,
+                              )}
+                            </td>
+                            {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                          </>
+                        )}
 
-{packageCount === 3 && (
-  <>
-    <td className="tr-table-class font-14 text-white text-right">
-      {" "}
-      {formatValue(
-        RecurringPricingInfo.packageThreeDisCountedTotal,
-        currencyID
-      )}
-    </td>
-    {visibleFieldsCustomTemp.serviceScope && <td></td>}
-  </>
-)}
-                                </tr>
-                      )
-                    }
-
-                    
+                        {packageCount === 3 && (
+                          <>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {formatValue(
+                                RecurringPricingInfo.packageThreeDisCountedTotal,
+                                currencyID,
+                              )}
+                            </td>
+                            {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                          </>
+                        )}
+                      </tr>
+                    )}
                   </>
                 )}
             </table>
@@ -11388,8 +11302,9 @@ const PricingTableTemplatesModal = ({
                           pkg.servicePackageName
                         )}
                       </td>
-                      {vatPercentageOneOff ?
-                        visibleFieldsCustomTemp.vat && <td></td>:""}
+                      {vatPercentageOneOff
+                        ? visibleFieldsCustomTemp.vat && <td></td>
+                        : ""}
                       {visibleFieldsCustomTemp.serviceScope && <td></td>}
                     </>
                   ))}
@@ -11428,15 +11343,16 @@ const PricingTableTemplatesModal = ({
                       >
                         Fees ({currencySymbol})
                       </th>
-                      {vatPercentageOneOff ?
-                        visibleFieldsCustomTemp.vat && (
-                          <th
-                            className="tr-table-class text-white text-right"
-                            style={{ width: "16.66%" }}
-                          >
-                            {taxName} ({currencySymbol})
-                          </th>
-                        ):""}
+                      {vatPercentageOneOff
+                        ? visibleFieldsCustomTemp.vat && (
+                            <th
+                              className="tr-table-class text-white text-right"
+                              style={{ width: "16.66%" }}
+                            >
+                              {taxName} ({currencySymbol})
+                            </th>
+                          )
+                        : ""}
 
                       {visibleFieldsCustomTemp.serviceScope && (
                         <th
@@ -11462,21 +11378,24 @@ const PricingTableTemplatesModal = ({
                         )}
 
                         {/* <th></th> */}
-                        {vatPercentageOneOff ?
-                          visibleFieldsCustomTemp.vat && <th></th>:""}
+                        {vatPercentageOneOff
+                          ? visibleFieldsCustomTemp.vat && <th></th>
+                          : ""}
                         {visibleFieldsCustomTemp.serviceScope && <th></th>}
                         {packageCount >= 2 && (
                           <>
-                            {vatPercentageOneOff ?
-                              visibleFieldsCustomTemp.vat && <th></th>:""}
+                            {vatPercentageOneOff
+                              ? visibleFieldsCustomTemp.vat && <th></th>
+                              : ""}
                             {visibleFieldsCustomTemp.serviceScope && <th></th>}
                           </>
                         )}
 
                         {packageCount === 3 && (
                           <>
-                            {vatPercentageOneOff ?
-                              visibleFieldsCustomTemp.vat && <th></th>:""}
+                            {vatPercentageOneOff
+                              ? visibleFieldsCustomTemp.vat && <th></th>
+                              : ""}
                             {visibleFieldsCustomTemp.serviceScope && <th></th>}
                           </>
                         )}
@@ -11597,72 +11516,74 @@ const PricingTableTemplatesModal = ({
 
                             {/* VAT */}
 
-                            {vatPercentageOneOff ?
-                              visibleFieldsCustomTemp.vat && (
-                                <>
-                                  {/* Package One */}
-                                  <td className="text-right">
-                                    <div className="flex-end-item">
-                                      {ProposalObject.feeTypeId === 1 ? (
-                                        (subService.packageOneValue === 0 ||
-                                          subService.packageOneValue ===
-                                            null) &&
-                                        !subService.servicePackageIDs.some(
-                                          (item) =>
-                                            item ===
-                                            selectedPackagesList[0]
-                                              .servicePackageID,
-                                        ) ? (
-                                          <span className="fa fa-times"></span>
-                                        ) : !subService?.servicePackageIDs.includes(
+                            {vatPercentageOneOff
+                              ? visibleFieldsCustomTemp.vat && (
+                                  <>
+                                    {/* Package One */}
+                                    <td className="text-right">
+                                      <div className="flex-end-item">
+                                        {ProposalObject.feeTypeId === 1 ? (
+                                          (subService.packageOneValue === 0 ||
+                                            subService.packageOneValue ===
+                                              null) &&
+                                          !subService.servicePackageIDs.some(
+                                            (item) =>
+                                              item ===
+                                              selectedPackagesList[0]
+                                                .servicePackageID,
+                                          ) ? (
+                                            <span className="fa fa-times"></span>
+                                          ) : !subService?.servicePackageIDs.includes(
+                                              subService.packageOneID,
+                                            ) ? (
+                                            <span className="fa fa-times"></span>
+                                          ) : (
+                                            ` ${formatValue(vatOne, currencyID)}`
+                                          )
+                                        ) : Number(
+                                            subService.packageOneValue,
+                                          ) !== null &&
+                                          subService?.servicePackageIDs.includes(
                                             subService.packageOneID,
                                           ) ? (
-                                          <span className="fa fa-times"></span>
+                                          <span className="fa fa-check"></span>
                                         ) : (
-                                          ` ${formatValue(vatOne, currencyID)}`
-                                        )
-                                      ) : Number(subService.packageOneValue) !==
-                                          null &&
-                                        subService?.servicePackageIDs.includes(
-                                          subService.packageOneID,
-                                        ) ? (
-                                        <span className="fa fa-check"></span>
-                                      ) : (
-                                        <span className="fa fa-times"></span>
-                                      )}
+                                          <span className="fa fa-times"></span>
+                                        )}
 
-                                      {subService?.isAdditionalService !==
-                                      null ? (
-                                        <input
-                                          style={{ marginLeft: "5px" }}
-                                          type="checkbox"
-                                          disabled={
-                                            subService?.servicePackageIDs.includes(
+                                        {subService?.isAdditionalService !==
+                                        null ? (
+                                          <input
+                                            style={{ marginLeft: "5px" }}
+                                            type="checkbox"
+                                            disabled={
+                                              subService?.servicePackageIDs.includes(
+                                                subService.packageOneID,
+                                              ) &&
+                                              subService?.servicePackageIDs
+                                                .length === 1
+                                            }
+                                            checked={subService?.servicePackageIDs.includes(
                                               subService.packageOneID,
-                                            ) &&
-                                            subService?.servicePackageIDs
-                                              .length === 1
-                                          }
-                                          checked={subService?.servicePackageIDs.includes(
-                                            subService.packageOneID,
-                                          )}
-                                          onChange={(e) =>
-                                            handleAddAndRemoveAdditionalServices(
-                                              1,
-                                              service.serviceCatID,
-                                              subService.serviceID,
-                                              subService.packageOneID,
-                                              e.target.checked,
-                                            )
-                                          }
-                                        />
-                                      ) : (
-                                        <div>&nbsp;&nbsp;</div>
-                                      )}
-                                    </div>
-                                  </td>
-                                </>
-                              ):""}
+                                            )}
+                                            onChange={(e) =>
+                                              handleAddAndRemoveAdditionalServices(
+                                                1,
+                                                service.serviceCatID,
+                                                subService.serviceID,
+                                                subService.packageOneID,
+                                                e.target.checked,
+                                              )
+                                            }
+                                          />
+                                        ) : (
+                                          <div>&nbsp;&nbsp;</div>
+                                        )}
+                                      </div>
+                                    </td>
+                                  </>
+                                )
+                              : ""}
 
                             {/* Service Scope */}
 
@@ -11773,70 +11694,71 @@ const PricingTableTemplatesModal = ({
                                     )}
                                   </div>
                                 </td>
-                                {vatPercentageOneOff ?
-                                  visibleFieldsCustomTemp.vat && (
-                                    <td className="text-right">
-                                      <div className="flex-end-item">
-                                        {ProposalObject.feeTypeId === 1 ? (
-                                          (subService.packageTwoValue === 0 ||
-                                            subService.packageTwoValue ===
-                                              null) &&
-                                          !subService.servicePackageIDs.some(
-                                            (item) =>
-                                              item ===
-                                              selectedPackagesList[0]
-                                                .servicePackageID,
-                                          ) ? (
-                                            <span className="fa fa-times"></span>
-                                          ) : !subService?.servicePackageIDs.includes(
+                                {vatPercentageOneOff
+                                  ? visibleFieldsCustomTemp.vat && (
+                                      <td className="text-right">
+                                        <div className="flex-end-item">
+                                          {ProposalObject.feeTypeId === 1 ? (
+                                            (subService.packageTwoValue === 0 ||
+                                              subService.packageTwoValue ===
+                                                null) &&
+                                            !subService.servicePackageIDs.some(
+                                              (item) =>
+                                                item ===
+                                                selectedPackagesList[0]
+                                                  .servicePackageID,
+                                            ) ? (
+                                              <span className="fa fa-times"></span>
+                                            ) : !subService?.servicePackageIDs.includes(
+                                                subService.packageTwoID,
+                                              ) ? (
+                                              <span className="fa fa-times"></span>
+                                            ) : (
+                                              ` ${formatValue(vatTwo, currencyID)}`
+                                            )
+                                          ) : Number(
+                                              subService.packageTwoValue,
+                                            ) !== null &&
+                                            subService?.servicePackageIDs.includes(
                                               subService.packageTwoID,
                                             ) ? (
-                                            <span className="fa fa-times"></span>
+                                            <span className="fa fa-check"></span>
                                           ) : (
-                                            ` ${formatValue(vatTwo, currencyID)}`
-                                          )
-                                        ) : Number(
-                                            subService.packageTwoValue,
-                                          ) !== null &&
-                                          subService?.servicePackageIDs.includes(
-                                            subService.packageTwoID,
-                                          ) ? (
-                                          <span className="fa fa-check"></span>
-                                        ) : (
-                                          <span className="fa fa-times"></span>
-                                        )}
+                                            <span className="fa fa-times"></span>
+                                          )}
 
-                                        {subService?.isAdditionalService !==
-                                        null ? (
-                                          <input
-                                            style={{ marginLeft: "5px" }}
-                                            type="checkbox"
-                                            disabled={
-                                              subService?.servicePackageIDs.includes(
+                                          {subService?.isAdditionalService !==
+                                          null ? (
+                                            <input
+                                              style={{ marginLeft: "5px" }}
+                                              type="checkbox"
+                                              disabled={
+                                                subService?.servicePackageIDs.includes(
+                                                  subService.packageTwoID,
+                                                ) &&
+                                                subService?.servicePackageIDs
+                                                  .length === 1
+                                              }
+                                              checked={subService?.servicePackageIDs.includes(
                                                 subService.packageTwoID,
-                                              ) &&
-                                              subService?.servicePackageIDs
-                                                .length === 1
-                                            }
-                                            checked={subService?.servicePackageIDs.includes(
-                                              subService.packageTwoID,
-                                            )}
-                                            onChange={(e) =>
-                                              handleAddAndRemoveAdditionalServices(
-                                                1,
-                                                service.serviceCatID,
-                                                subService.serviceID,
-                                                subService.packageOneID,
-                                                e.target.checked,
-                                              )
-                                            }
-                                          />
-                                        ) : (
-                                          <div>&nbsp;&nbsp;</div>
-                                        )}
-                                      </div>
-                                    </td>
-                                  ):""}
+                                              )}
+                                              onChange={(e) =>
+                                                handleAddAndRemoveAdditionalServices(
+                                                  1,
+                                                  service.serviceCatID,
+                                                  subService.serviceID,
+                                                  subService.packageOneID,
+                                                  e.target.checked,
+                                                )
+                                              }
+                                            />
+                                          ) : (
+                                            <div>&nbsp;&nbsp;</div>
+                                          )}
+                                        </div>
+                                      </td>
+                                    )
+                                  : ""}
                                 {visibleFieldsCustomTemp.serviceScope && (
                                   <td className="text-right">
                                     {driverList.length > 0
@@ -11945,70 +11867,72 @@ const PricingTableTemplatesModal = ({
                                   </div>
                                 </td>
 
-                                {vatPercentageOneOff ?
-                                  visibleFieldsCustomTemp.vat && (
-                                    <td className="text-right">
-                                      <div className="flex-end-item">
-                                        {ProposalObject.feeTypeId === 1 ? (
-                                          (subService.packageThreeValue === 0 ||
-                                            subService.packageThreeValue ===
-                                              null) &&
-                                          !subService.servicePackageIDs.some(
-                                            (item) =>
-                                              item ===
-                                              selectedPackagesList[0]
-                                                .servicePackageID,
-                                          ) ? (
-                                            <span className="fa fa-times"></span>
-                                          ) : !subService?.servicePackageIDs.includes(
+                                {vatPercentageOneOff
+                                  ? visibleFieldsCustomTemp.vat && (
+                                      <td className="text-right">
+                                        <div className="flex-end-item">
+                                          {ProposalObject.feeTypeId === 1 ? (
+                                            (subService.packageThreeValue ===
+                                              0 ||
+                                              subService.packageThreeValue ===
+                                                null) &&
+                                            !subService.servicePackageIDs.some(
+                                              (item) =>
+                                                item ===
+                                                selectedPackagesList[0]
+                                                  .servicePackageID,
+                                            ) ? (
+                                              <span className="fa fa-times"></span>
+                                            ) : !subService?.servicePackageIDs.includes(
+                                                subService.packageThreeID,
+                                              ) ? (
+                                              <span className="fa fa-times"></span>
+                                            ) : (
+                                              ` ${formatValue(vatThree, currencyID)}`
+                                            )
+                                          ) : Number(
+                                              subService.packageThreeValue,
+                                            ) !== null &&
+                                            subService?.servicePackageIDs.includes(
                                               subService.packageThreeID,
                                             ) ? (
-                                            <span className="fa fa-times"></span>
+                                            <span className="fa fa-check"></span>
                                           ) : (
-                                            ` ${formatValue(vatThree, currencyID)}`
-                                          )
-                                        ) : Number(
-                                            subService.packageThreeValue,
-                                          ) !== null &&
-                                          subService?.servicePackageIDs.includes(
-                                            subService.packageThreeID,
-                                          ) ? (
-                                          <span className="fa fa-check"></span>
-                                        ) : (
-                                          <span className="fa fa-times"></span>
-                                        )}
+                                            <span className="fa fa-times"></span>
+                                          )}
 
-                                        {subService?.isAdditionalService !==
-                                        null ? (
-                                          <input
-                                            style={{ marginLeft: "5px" }}
-                                            type="checkbox"
-                                            disabled={
-                                              subService?.servicePackageIDs.includes(
+                                          {subService?.isAdditionalService !==
+                                          null ? (
+                                            <input
+                                              style={{ marginLeft: "5px" }}
+                                              type="checkbox"
+                                              disabled={
+                                                subService?.servicePackageIDs.includes(
+                                                  subService.packageThreeID,
+                                                ) &&
+                                                subService?.servicePackageIDs
+                                                  .length === 1
+                                              }
+                                              checked={subService?.servicePackageIDs.includes(
                                                 subService.packageThreeID,
-                                              ) &&
-                                              subService?.servicePackageIDs
-                                                .length === 1
-                                            }
-                                            checked={subService?.servicePackageIDs.includes(
-                                              subService.packageThreeID,
-                                            )}
-                                            onChange={(e) =>
-                                              handleAddAndRemoveAdditionalServices(
-                                                1,
-                                                service.serviceCatID,
-                                                subService.serviceID,
-                                                subService.packageOneID,
-                                                e.target.checked,
-                                              )
-                                            }
-                                          />
-                                        ) : (
-                                          <div>&nbsp;&nbsp;</div>
-                                        )}
-                                      </div>
-                                    </td>
-                                  ):""}
+                                              )}
+                                              onChange={(e) =>
+                                                handleAddAndRemoveAdditionalServices(
+                                                  1,
+                                                  service.serviceCatID,
+                                                  subService.serviceID,
+                                                  subService.packageOneID,
+                                                  e.target.checked,
+                                                )
+                                              }
+                                            />
+                                          ) : (
+                                            <div>&nbsp;&nbsp;</div>
+                                          )}
+                                        </div>
+                                      </td>
+                                    )
+                                  : ""}
 
                                 {visibleFieldsCustomTemp.serviceScope && (
                                   <td className="text-right">
@@ -12108,8 +12032,9 @@ const PricingTableTemplatesModal = ({
 
                     {packageCount >= 2 && (
                       <>
-                        {vatPercentageOneOff ?
-                          visibleFieldsCustomTemp.vat && <th></th>:""}
+                        {vatPercentageOneOff
+                          ? visibleFieldsCustomTemp.vat && <th></th>
+                          : ""}
                         {visibleFieldsCustomTemp.serviceScope && <th></th>}
                         <td
                           style={{
@@ -12155,8 +12080,9 @@ const PricingTableTemplatesModal = ({
 
                     {packageCount === 3 && (
                       <>
-                        {vatPercentageOneOff ?
-                          visibleFieldsCustomTemp.vat && <th></th>:""}
+                        {vatPercentageOneOff
+                          ? visibleFieldsCustomTemp.vat && <th></th>
+                          : ""}
                         {visibleFieldsCustomTemp.serviceScope && <th></th>}
                         <td
                           style={{
@@ -12224,16 +12150,17 @@ const PricingTableTemplatesModal = ({
                       )}
                 </td>
                 {/* Net VAT */}
-                {vatPercentageOneOff ?
-                  visibleFieldsCustomTemp.vat && (
-                    <td className="tr-table-class font-14 text-white text-right">
-                      {" "}
-                      {formatValue(
-                        Number(OneOffPricingInfo.PackageOneStaticVaTPrice),
-                        currencyID,
-                      )}
-                    </td>
-                  ):""}
+                {vatPercentageOneOff
+                  ? visibleFieldsCustomTemp.vat && (
+                      <td className="tr-table-class font-14 text-white text-right">
+                        {" "}
+                        {formatValue(
+                          Number(OneOffPricingInfo.PackageOneStaticVaTPrice),
+                          currencyID,
+                        )}
+                      </td>
+                    )
+                  : ""}
                 {visibleFieldsCustomTemp.serviceScope && <td></td>}
                 {packageCount >= 2 && (
                   <>
@@ -12256,16 +12183,19 @@ const PricingTableTemplatesModal = ({
                           )}
                     </td>
                     {/* Net VAT */}
-                    {vatPercentageOneOff ?
-                      visibleFieldsCustomTemp.vat && (
-                        <td className="tr-table-class font-14 text-white text-right">
-                          {" "}
-                          {formatValue(
-                            Number(OneOffPricingInfo.PackageTwoStaticVaTPrice),
-                            currencyID,
-                          )}
-                        </td>
-                      ):""}
+                    {vatPercentageOneOff
+                      ? visibleFieldsCustomTemp.vat && (
+                          <td className="tr-table-class font-14 text-white text-right">
+                            {" "}
+                            {formatValue(
+                              Number(
+                                OneOffPricingInfo.PackageTwoStaticVaTPrice,
+                              ),
+                              currencyID,
+                            )}
+                          </td>
+                        )
+                      : ""}
                     {visibleFieldsCustomTemp.serviceScope && <td></td>}
                   </>
                 )}{" "}
@@ -12290,13 +12220,16 @@ const PricingTableTemplatesModal = ({
                           )}
                     </td>
                     {/* Net VAT */}
-                    {vatPercentageOneOff ?
-                      visibleFieldsCustomTemp.vat && (
-                        <td className="tr-table-class font-14 text-white text-right">
-                          {" "}
-                          {Number(OneOffPricingInfo.PackageThreeStaticVaTPrice)}
-                        </td>
-                      ):""}
+                    {vatPercentageOneOff
+                      ? visibleFieldsCustomTemp.vat && (
+                          <td className="tr-table-class font-14 text-white text-right">
+                            {" "}
+                            {Number(
+                              OneOffPricingInfo.PackageThreeStaticVaTPrice,
+                            )}
+                          </td>
+                        )
+                      : ""}
                     {visibleFieldsCustomTemp.serviceScope && <td></td>}
                   </>
                 )}
@@ -12320,18 +12253,20 @@ const PricingTableTemplatesModal = ({
                       </td>
                       {/* Discounted VAT */}
 
-                      {vatPercentageOneOff ?
-                        visibleFieldsCustomTemp.vat && (
-                          <td className="tr-table-class font-14 text-white text-right">
-                            (-){" "}
-                            {formatValue(
-                              Number(
-                                OneOffPricingInfo.PackageOneStaticVaTPrice,
-                              ) - Number(OneOffPricingInfo.PackageOneVaTPrice),
-                              currencyID,
-                            )}
-                          </td>
-                        ):""}
+                      {vatPercentageOneOff
+                        ? visibleFieldsCustomTemp.vat && (
+                            <td className="tr-table-class font-14 text-white text-right">
+                              (-){" "}
+                              {formatValue(
+                                Number(
+                                  OneOffPricingInfo.PackageOneStaticVaTPrice,
+                                ) -
+                                  Number(OneOffPricingInfo.PackageOneVaTPrice),
+                                currencyID,
+                              )}
+                            </td>
+                          )
+                        : ""}
                       {visibleFieldsCustomTemp.serviceScope && <td></td>}
 
                       {/* <td className="tr-table-class font-14 text-white text-right"></td> */}
@@ -12345,21 +12280,22 @@ const PricingTableTemplatesModal = ({
                             )}
                           </td>
                           {/* Discounted VAT */}
-                          {vatPercentageOneOff ?
-                            visibleFieldsCustomTemp.vat && (
-                              <td className="tr-table-class font-14 text-white text-right">
-                                (-){" "}
-                                {formatValue(
-                                  Number(
-                                    OneOffPricingInfo.PackageTwoStaticVaTPrice,
-                                  ) -
+                          {vatPercentageOneOff
+                            ? visibleFieldsCustomTemp.vat && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  (-){" "}
+                                  {formatValue(
                                     Number(
-                                      OneOffPricingInfo.PackageTwoVaTPrice,
-                                    ),
-                                  currencyID,
-                                )}
-                              </td>
-                            ):""}
+                                      OneOffPricingInfo.PackageTwoStaticVaTPrice,
+                                    ) -
+                                      Number(
+                                        OneOffPricingInfo.PackageTwoVaTPrice,
+                                      ),
+                                    currencyID,
+                                  )}
+                                </td>
+                              )
+                            : ""}
                           {visibleFieldsCustomTemp.serviceScope && <td></td>}
                         </>
                       )}
@@ -12373,37 +12309,38 @@ const PricingTableTemplatesModal = ({
                             )}
                           </td>
 
-                          {vatPercentageOneOff ?
-                            visibleFieldsCustomTemp.vat && (
-                              <td className="tr-table-class font-14 text-white text-right">
-                                (-){" "}
-                                {formatValue(
-                                  Number(
-                                    OneOffPricingInfo.PackageThreeStaticVaTPrice,
-                                  ) -
+                          {vatPercentageOneOff
+                            ? visibleFieldsCustomTemp.vat && (
+                                <td className="tr-table-class font-14 text-white text-right">
+                                  (-){" "}
+                                  {formatValue(
                                     Number(
-                                      OneOffPricingInfo.PackageThreeVaTPrice,
-                                    ),
-                                  currencyID,
-                                )}
-                              </td>
-                            ):""}
+                                      OneOffPricingInfo.PackageThreeStaticVaTPrice,
+                                    ) -
+                                      Number(
+                                        OneOffPricingInfo.PackageThreeVaTPrice,
+                                      ),
+                                    currencyID,
+                                  )}
+                                </td>
+                              )
+                            : ""}
                           {visibleFieldsCustomTemp.serviceScope && <td></td>}
                         </>
                       )}
                     </tr>
 
                     {vatPercentageOneOff ? (
-                    <tr className="head-row">
-                      <td className="tr-table-class font-14 text-white">
-                        {/* Fees inc VAT (£) */}
-                        Grand Total
-                      </td>
-                      {/* <td className="tr-table-class font-14 text-white text-right">
+                      <tr className="head-row">
+                        <td className="tr-table-class font-14 text-white">
+                          {/* Fees inc VAT (£) */}
+                          Grand Total
+                        </td>
+                        {/* <td className="tr-table-class font-14 text-white text-right">
                         {" "}
                         {formatValue(OneOffPricingInfo.PackageOneGrandTotal)}
                       </td> */}
-                      {/* <td className="tr-table-class font-14 text-white text-right">
+                        {/* <td className="tr-table-class font-14 text-white text-right">
                         {" "}
                         {totalOnePackageValue >
                           Number(OneOffPricingInfo.packageOneNetTotal) ||
@@ -12427,142 +12364,144 @@ const PricingTableTemplatesModal = ({
                               currencyID,
                             )}
                       </td> */}
-                      <td className="tr-table-class font-14 text-white text-right">
-                        {" "}
-                        {formatValue(OneOffPricingInfo.PackageOneGrandTotal)}
-                      </td>
-                      {vatPercentageOneOff ?
-                        visibleFieldsCustomTemp.vat && (
-                          <td className="tr-table-class font-14 text-white text-right">
-                            {totalOnePackageValue >
-                              Number(OneOffPricingInfo.packageOneNetTotal) ||
-                            (Number(OneOffPricingInfo.packageOneDisCount) > 0 &&
-                              !ProposalObject.DiscountLines)
-                              ? Number(OneOffPricingInfo.packageOneDisCount) >
-                                  0 && !ProposalObject.DiscountLines
-                                ? formatValue(
-                                    (OneOffPricingInfo.packageOneDisCountedTotal *
-                                      20) /
-                                      100 -
-                                      (((OneOffPricingInfo.packageOneDisCountedTotal *
-                                        20) /
-                                        100) *
-                                        OneOffPricingInfo.DiscountPercentagePackageOne) /
-                                        100,
-                                    currencyID,
-                                  )
-                                : formatValue(
-                                    (totalOnePackageValue * 20) / 100 -
-                                      (((totalOnePackageValue * 20) / 100) *
-                                        OneOffPricingInfo.DiscountPercentagePackageOne) /
-                                        100,
-                                    currencyID,
-                                  )
-                              : formatValue(
-                                  (OneOffPricingInfo.packageOneNetTotal * 20) /
-                                    100 -
-                                    (((OneOffPricingInfo.packageOneNetTotal *
-                                      20) /
-                                      100) *
-                                      OneOffPricingInfo.DiscountPercentagePackageOne) /
-                                      100,
-                                  currencyID,
-                                )}
-                          </td>
-                        ):""}
-                      {visibleFieldsCustomTemp.serviceScope && <td></td>}
-                      {packageCount >= 2 && (
-                        <>
-                          <td className="tr-table-class font-14 text-white text-right">
-                            {" "}
-                            {formatValue(
-                              OneOffPricingInfo.PackageTwoGrandTotal,
-                              currencyID,
-                            )}
-                          </td>
-                          {vatPercentageOneOff ?
-                            visibleFieldsCustomTemp.vat && (
+                        <td className="tr-table-class font-14 text-white text-right">
+                          {" "}
+                          {formatValue(OneOffPricingInfo.PackageOneGrandTotal)}
+                        </td>
+                        {vatPercentageOneOff
+                          ? visibleFieldsCustomTemp.vat && (
                               <td className="tr-table-class font-14 text-white text-right">
-                                {formatValue(
-                                  Number(OneOffPricingInfo.PackageTwoVaTPrice),
-                                  currencyID,
-                                )}
-                              </td>
-                            ):""}
-                          {visibleFieldsCustomTemp.serviceScope && <td></td>}
-                        </>
-                      )}
-                      {packageCount == 3 && (
-                        <>
-                          <td className="tr-table-class font-14 text-white text-right">
-                            {" "}
-                            {formatValue(
-                              OneOffPricingInfo.PackageThreeGrandTotal,
-                              currencyID,
-                            )}
-                          </td>
-                          {vatPercentageOneOff ?
-                            visibleFieldsCustomTemp.vat && (
-                              <td className="tr-table-class font-14 text-white text-right">
-                                {formatValue(
+                                {totalOnePackageValue >
                                   Number(
-                                    OneOffPricingInfo.PackageThreeVaTPrice,
-                                  ),
-                                  currencyID,
-                                )}
+                                    OneOffPricingInfo.packageOneNetTotal,
+                                  ) ||
+                                (Number(OneOffPricingInfo.packageOneDisCount) >
+                                  0 &&
+                                  !ProposalObject.DiscountLines)
+                                  ? Number(
+                                      OneOffPricingInfo.packageOneDisCount,
+                                    ) > 0 && !ProposalObject.DiscountLines
+                                    ? formatValue(
+                                        (OneOffPricingInfo.packageOneDisCountedTotal *
+                                          20) /
+                                          100 -
+                                          (((OneOffPricingInfo.packageOneDisCountedTotal *
+                                            20) /
+                                            100) *
+                                            OneOffPricingInfo.DiscountPercentagePackageOne) /
+                                            100,
+                                        currencyID,
+                                      )
+                                    : formatValue(
+                                        (totalOnePackageValue * 20) / 100 -
+                                          (((totalOnePackageValue * 20) / 100) *
+                                            OneOffPricingInfo.DiscountPercentagePackageOne) /
+                                            100,
+                                        currencyID,
+                                      )
+                                  : formatValue(
+                                      (OneOffPricingInfo.packageOneNetTotal *
+                                        20) /
+                                        100 -
+                                        (((OneOffPricingInfo.packageOneNetTotal *
+                                          20) /
+                                          100) *
+                                          OneOffPricingInfo.DiscountPercentagePackageOne) /
+                                          100,
+                                      currencyID,
+                                    )}
                               </td>
-                            ):""}
-                          {visibleFieldsCustomTemp.serviceScope && <td></td>}
-                        </>
-                      )}
-                    </tr>
-                    ):(
-                      <tr className="head-row">
-                                  <td className="tr-table-class font-14 text-white">
-                                    Discounted Total
-                                  </td>
+                            )
+                          : ""}
+                        {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                        {packageCount >= 2 && (
+                          <>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {formatValue(
+                                OneOffPricingInfo.PackageTwoGrandTotal,
+                                currencyID,
+                              )}
+                            </td>
+                            {vatPercentageOneOff
+                              ? visibleFieldsCustomTemp.vat && (
                                   <td className="tr-table-class font-14 text-white text-right">
-                                    {" "}
                                     {formatValue(
-                                      OneOffPricingInfo
-                                        .packageOneDisCountedTotal,
+                                      Number(
+                                        OneOffPricingInfo.PackageTwoVaTPrice,
+                                      ),
                                       currencyID,
                                     )}
                                   </td>
-                                  {visibleFieldsCustomTemp
-                                    .serviceScope && <td></td>}
-                                  {packageCount >= 2 && (
-                                    <>
-                                    <td className="tr-table-class font-14 text-white text-right">
-                                      {" "}
-                                      {formatValue(
-                                        OneOffPricingInfo
-                                        .packageTwoDisCountedTotal,
-                                        currencyID,
-                                      )}
-                                    </td>
-                                    {visibleFieldsCustomTemp
-                                    .serviceScope && <td></td>}
-                                      </>
-                                  )}
-                                  {packageCount == 3 && (
-                                    <>
-                                    <td className="tr-table-class font-14 text-white text-right">
-                                      {" "}
-                                      {formatValue(
-                                        OneOffPricingInfo
-                                        .packageThreeDisCountedTotal,
-                                        currencyID,
-                                      )}
-                                    </td>
-                                    {visibleFieldsCustomTemp
-                                    .serviceScope && <td></td>}
-                                    </>
-                                  )}
-                                </tr>
+                                )
+                              : ""}
+                            {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                          </>
+                        )}
+                        {packageCount == 3 && (
+                          <>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {formatValue(
+                                OneOffPricingInfo.PackageThreeGrandTotal,
+                                currencyID,
+                              )}
+                            </td>
+                            {vatPercentageOneOff
+                              ? visibleFieldsCustomTemp.vat && (
+                                  <td className="tr-table-class font-14 text-white text-right">
+                                    {formatValue(
+                                      Number(
+                                        OneOffPricingInfo.PackageThreeVaTPrice,
+                                      ),
+                                      currencyID,
+                                    )}
+                                  </td>
+                                )
+                              : ""}
+                            {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                          </>
+                        )}
+                      </tr>
+                    ) : (
+                      <tr className="head-row">
+                        <td className="tr-table-class font-14 text-white">
+                          Discounted Total
+                        </td>
+                        <td className="tr-table-class font-14 text-white text-right">
+                          {" "}
+                          {formatValue(
+                            OneOffPricingInfo.packageOneDisCountedTotal,
+                            currencyID,
+                          )}
+                        </td>
+                        {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                        {packageCount >= 2 && (
+                          <>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {formatValue(
+                                OneOffPricingInfo.packageTwoDisCountedTotal,
+                                currencyID,
+                              )}
+                            </td>
+                            {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                          </>
+                        )}
+                        {packageCount == 3 && (
+                          <>
+                            <td className="tr-table-class font-14 text-white text-right">
+                              {" "}
+                              {formatValue(
+                                OneOffPricingInfo.packageThreeDisCountedTotal,
+                                currencyID,
+                              )}
+                            </td>
+                            {visibleFieldsCustomTemp.serviceScope && <td></td>}
+                          </>
+                        )}
+                      </tr>
                     )}
-
-                    
                   </>
                 )}
             </table>

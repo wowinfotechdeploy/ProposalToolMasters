@@ -4459,7 +4459,11 @@ const ReviewServicesComponent = (props) => {
                                                   props.formatValue(
                                                     rowVat,
                                                     props.currencyID,
-                                                  )}
+                                                )}
+                                              {props.ProposalObject
+                                                  .feeTypeId === 2 && (
+                                                  <span className="fa fa-check"></span>
+                                                )}
                                               </td>
                                             )}
                                           {props.vatPercentage !== 0 &&
