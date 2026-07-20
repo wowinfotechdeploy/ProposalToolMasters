@@ -75,7 +75,9 @@ import {
 import {
   calculateCustomRecurringFooter,
   calculateVatCents,
+  decimalValue,
   fromCents,
+  truncateMoney,
   safeNumber,
   toCents,
 } from "../../Middleware/helpers";
@@ -4320,26 +4322,30 @@ const ReviewServicesComponent = (props) => {
                                 <>
                                   {service.servicesList.map(
                                     (subService, subIndex) => {
-                                      const rowFeesCents = toCents(
+                                      const priceExact = decimalValue(
                                         subService.price,
                                       );
 
-                                      const rowVatRate = safeNumber(
+                                      const vatRateExact = decimalValue(
                                         subService.service_vat_percentage ??
                                           props.vatPercentage,
                                       );
 
-                                      const rowVatCents = calculateVatCents(
-                                        rowFeesCents,
-                                        rowVatRate,
-                                      );
+                                      const vatExact = priceExact
+                                        .mul(vatRateExact)
+                                        .div(100);
 
-                                      const rowFees = fromCents(rowFeesCents);
-                                      const rowVat = fromCents(rowVatCents);
+                                      const feesIncVatExact =
+                                        priceExact.plus(vatExact);
 
-                                      const rowFeesIncVat = fromCents(
-                                        rowFeesCents + rowVatCents,
-                                      );
+                                      // Round only for display.
+                                      const rowFees = truncateMoney(priceExact);
+                                      const rowVat = truncateMoney(vatExact);
+                                      const rowFeesIncVat =
+                                        truncateMoney(feesIncVatExact);
+
+                                      const rowVatRate =
+                                        vatRateExact.toNumber();
 
                                       const driverList =
                                         subService.pricingDriverList || [];
@@ -4429,6 +4435,7 @@ const ReviewServicesComponent = (props) => {
                                                   rowFees,
                                                   props.currencyID,
                                                 )}
+
                                               {props.ProposalObject
                                                 .feeTypeId === 2 && (
                                                 <span className="fa fa-check"></span>
@@ -4442,6 +4449,7 @@ const ReviewServicesComponent = (props) => {
                                                 {rowVatRate.toFixed(2)}%
                                               </td>
                                             )}
+
                                           {props.vatPercentage !== 0 &&
                                             props.visibleFieldsCustomTemp
                                               .vat && (
@@ -4452,10 +4460,6 @@ const ReviewServicesComponent = (props) => {
                                                     rowVat,
                                                     props.currencyID,
                                                   )}
-                                                {props.ProposalObject
-                                                  .feeTypeId === 2 && (
-                                                  <span className="fa fa-check"></span>
-                                                )}
                                               </td>
                                             )}
                                           {props.vatPercentage !== 0 &&

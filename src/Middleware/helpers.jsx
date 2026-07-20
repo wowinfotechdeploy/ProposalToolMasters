@@ -1,3 +1,29 @@
+import Decimal from "decimal.js";
+
+Decimal.set({
+  precision: 40,
+  rounding: Decimal.ROUND_HALF_UP,
+});
+
+export const decimalValue = (value) => {
+  if (value === null || value === undefined || value === "") {
+    return new Decimal(0);
+  }
+
+  const cleanedValue =
+    typeof value === "string" ? value.replace(/,/g, "") : value;
+
+  try {
+    return new Decimal(cleanedValue);
+  } catch {
+    return new Decimal(0);
+  }
+};
+
+export const truncateMoney = (value) => {
+  return decimalValue(value).toDecimalPlaces(2, Decimal.ROUND_DOWN).toNumber();
+};
+
 export const calc2 = (value) => {
   const num = Number(value || 0);
   return Math.trunc(num * 100) / 100;
@@ -60,86 +86,85 @@ export const calculateCustomRecurringFooter = ({
 }) => {
   const rows = serviceGroups.flatMap((category) =>
     (category.servicesList || []).map((service) => {
-      const feesCents = toCents(service.price);
+      const fees = decimalValue(service.price);
 
-      const vatRate = safeNumber(
+      const vatRate = decimalValue(
         service.service_vat_percentage ?? fallbackVatPercentage,
       );
 
+      // Do not round here.
+      const vat = fees.mul(vatRate).div(100);
+
       return {
-        feesCents,
+        fees,
+        vat,
         vatRate,
       };
     }),
   );
 
-  // Constant original/net values
-  const netFeesCents = rows.reduce((total, row) => total + row.feesCents, 0);
-
-  const netVatCents = rows.reduce(
-    (total, row) => total + calculateVatCents(row.feesCents, row.vatRate),
-    0,
+  /*
+   * Constant original values.
+   * Full service precision is retained until the final result.
+   */
+  const netFeesExact = rows.reduce(
+    (total, row) => total.plus(row.fees),
+    new Decimal(0),
   );
 
-  const netFeesIncVatCents = netFeesCents + netVatCents;
+  const netVatExact = rows.reduce(
+    (total, row) => total.plus(row.vat),
+    new Decimal(0),
+  );
 
-  // Changeable discounted values
-  const discountedFeesCents = toCents(discountedPrice);
+  const netFeesIncVatExact = netFeesExact.plus(netVatExact);
 
-  let discountedVatCents = 0;
+  /*
+   * Discounted fees entered or calculated by the user.
+   */
+  const discountedFeesExact = decimalValue(discountedPrice);
 
-  if (rows.length > 0 && netFeesCents !== 0) {
-    let allocatedFeesCents = 0;
+  /*
+   * Calculate VAT using the effective VAT ratio.
+   *
+   * This supports multiple VAT rates and avoids distributing and
+   * rounding the discount individually across every service.
+   */
+  const effectiveVatRatio = netFeesExact.isZero()
+    ? new Decimal(0)
+    : netVatExact.div(netFeesExact);
 
-    rows.forEach((row, index) => {
-      let rowDiscountedFeesCents;
+  const discountedVatExact = discountedFeesExact.mul(effectiveVatRatio);
 
-      if (index === rows.length - 1) {
-        // Assign the rounding remainder to the final row.
-        rowDiscountedFeesCents = discountedFeesCents - allocatedFeesCents;
-      } else {
-        rowDiscountedFeesCents = Math.round(
-          (discountedFeesCents * row.feesCents) / netFeesCents,
-        );
+  const discountedFeesIncVatExact =
+    discountedFeesExact.plus(discountedVatExact);
 
-        allocatedFeesCents += rowDiscountedFeesCents;
-      }
+  /*
+   * Discounts are calculated from the exact values,
+   * not from already-rounded footer amounts.
+   */
+  const discountFeesExact = netFeesExact.minus(discountedFeesExact);
 
-      discountedVatCents += calculateVatCents(
-        rowDiscountedFeesCents,
-        row.vatRate,
-      );
-    });
-  } else {
-    discountedVatCents = calculateVatCents(
-      discountedFeesCents,
-      fallbackVatPercentage,
-    );
-  }
+  const discountVatExact = netVatExact.minus(discountedVatExact);
 
-  const discountedFeesIncVatCents = discountedFeesCents + discountedVatCents;
-
-  const discountFeesCents = netFeesCents - discountedFeesCents;
-
-  const discountVatCents = netVatCents - discountedVatCents;
-
-  const discountFeesIncVatCents =
-    netFeesIncVatCents - discountedFeesIncVatCents;
+  const discountFeesIncVatExact = netFeesIncVatExact.minus(
+    discountedFeesIncVatExact,
+  );
 
   return {
-    // Net Total row
-    netFees: fromCents(netFeesCents),
-    netVat: fromCents(netVatCents),
-    netFeesIncVat: fromCents(netFeesIncVatCents),
+    // Net Total row — remains constant
+    netFees: truncateMoney(netFeesExact),
+    netVat: truncateMoney(netVatExact),
+    netFeesIncVat: truncateMoney(netFeesIncVatExact),
 
     // Discount row
-    discountFees: fromCents(discountFeesCents),
-    discountVat: fromCents(discountVatCents),
-    discountFeesIncVat: fromCents(discountFeesIncVatCents),
+    discountFees: truncateMoney(discountFeesExact),
+    discountVat: truncateMoney(discountVatExact),
+    discountFeesIncVat: truncateMoney(discountFeesIncVatExact),
 
-    // Grand Total / Discounted Total row
-    discountedFees: fromCents(discountedFeesCents),
-    discountedVat: fromCents(discountedVatCents),
-    discountedFeesIncVat: fromCents(discountedFeesIncVatCents),
+    // Grand Total row
+    discountedFees: truncateMoney(discountedFeesExact),
+    discountedVat: truncateMoney(discountedVatExact),
+    discountedFeesIncVat: truncateMoney(discountedFeesIncVatExact),
   };
 };
