@@ -25,6 +25,12 @@ import {
   GetTemplatePdfList,
 } from "../redux/Services/Config/TemplateApi";
 import { Landscape } from "@mui/icons-material";
+import {
+  calculateCustomOneOffFooter,
+  calculateCustomRecurringFooter,
+  decimalValue,
+  truncateMoney,
+} from "../Middleware/helpers";
 export default function PreviewComponentPdf(props) {
   const moduleNameForSaveAsDraft = "Preview";
   const statusIDForSaveAsDraft = 1;
@@ -91,7 +97,7 @@ export default function PreviewComponentPdf(props) {
     try {
       const data = await GetEmailContent(
         common.organisationKeyID,
-        TemplateTypeID
+        TemplateTypeID,
       );
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
@@ -175,7 +181,7 @@ export default function PreviewComponentPdf(props) {
   //   (item) => props?.ProposalObject?.ProposalFormate == item.value
   // );
   const ProposalFormatValue = Utils.PreviewSelection.find(
-    (x) => x.value === props.ProposalObject?.ProposalFormate
+    (x) => x.value === props.ProposalObject?.ProposalFormate,
   );
   // const ProposalFormatValue = Utils.PreviewSelection.find(x => x.value === props.pricingSettingObj?.defaultProposalFormatID);
   // useEffect(() => {
@@ -192,15 +198,15 @@ export default function PreviewComponentPdf(props) {
     if (driver.driverTypeID === 2) {
       // Quantity
       return Array.isArray(driver.quantity) && driver.quantity.length > 0
-        ? driver.quantity[0].quantityDecimalPlaces ?? 0
-        : driver.quantityDecimalPlaces ?? 0;
+        ? (driver.quantity[0].quantityDecimalPlaces ?? 0)
+        : (driver.quantityDecimalPlaces ?? 0);
     }
 
     if (driver.driverTypeID === 4) {
       // Slab
       return Array.isArray(driver.slab) && driver.slab.length > 0
-        ? driver.slab[0].decimalPlaces ?? 0
-        : driver.decimalPlaces ?? 0;
+        ? (driver.slab[0].decimalPlaces ?? 0)
+        : (driver.decimalPlaces ?? 0);
     }
 
     return 0;
@@ -488,13 +494,13 @@ export default function PreviewComponentPdf(props) {
 
                       const matchedVariation = isVariation
                         ? driver.variation?.find(
-                            (item) => item.variationID === driver.variationID
+                            (item) => item.variationID === driver.variationID,
                           )
                         : null;
 
                       const matchedSlab = isSlab
                         ? driver.slab?.find(
-                            (item) => item.slabID === driver.slabID
+                            (item) => item.slabID === driver.slabID,
                           )
                         : null;
 
@@ -525,10 +531,10 @@ export default function PreviewComponentPdf(props) {
                                   {isVariation && matchedVariation
                                     ? matchedVariation.variationName
                                     : isSlab && matchedSlab
-                                    ? `${matchedSlab.slabFrom} - ${matchedSlab.slabTo}`
-                                    : isQuantity
-                                    ? matchedQuantity
-                                    : ""}
+                                      ? `${matchedSlab.slabFrom} - ${matchedSlab.slabTo}`
+                                      : isQuantity
+                                        ? matchedQuantity
+                                        : ""}
                                 </td>
                               </>
                             )}
@@ -550,23 +556,23 @@ export default function PreviewComponentPdf(props) {
                         !subService.servicePackageIDs.some(
                           (item) =>
                             item ==
-                            props.selectedPackagesList[1]?.servicePackageID
+                            props.selectedPackagesList[1]?.servicePackageID,
                         ) ? (
                           <span>&#10007;</span>
                         ) : !subService?.servicePackageIDs.includes(
-                            subService.packageTwoID
+                            subService.packageTwoID,
                           ) ? (
                           <span>&#10007;</span>
                         ) : (
                           ` ${props.formatValue(
                             subService.packageTwoValue,
-                            props.currencyID
+                            props.currencyID,
                           )}`
                         )}
                       </td>
                     ) : subService.packageTwoValue !== null &&
                       !subService?.servicePackageIDs.includes(
-                        subService.packageTwoID
+                        subService.packageTwoID,
                       ) ? (
                       <td
                         style={{
@@ -602,23 +608,23 @@ export default function PreviewComponentPdf(props) {
                         !subService.servicePackageIDs.some(
                           (item) =>
                             item ==
-                            props.selectedPackagesList[2]?.servicePackageID
+                            props.selectedPackagesList[2]?.servicePackageID,
                         ) ? (
                           <span>&#10007;</span>
                         ) : !subService?.servicePackageIDs.includes(
-                            subService.packageThreeID
+                            subService.packageThreeID,
                           ) ? (
                           <span>&#10007;</span>
                         ) : (
                           `${props.formatValue(
                             subService.packageThreeValue,
-                            props.currencyID
+                            props.currencyID,
                           )}`
                         )}
                       </td>
                     ) : subService.packageThreeValue !== null &&
                       !subService?.servicePackageIDs.includes(
-                        subService.packageThreeID
+                        subService.packageThreeID,
                       ) ? (
                       <td
                         style={{
@@ -982,13 +988,13 @@ export default function PreviewComponentPdf(props) {
 
                       const matchedVariation = isVariation
                         ? driver.variation?.find(
-                            (item) => item.variationID === driver.variationID
+                            (item) => item.variationID === driver.variationID,
                           )
                         : null;
 
                       const matchedSlab = isSlab
                         ? driver.slab?.find(
-                            (item) => item.slabID === driver.slabID
+                            (item) => item.slabID === driver.slabID,
                           )
                         : null;
 
@@ -1019,10 +1025,10 @@ export default function PreviewComponentPdf(props) {
                                   {isVariation && matchedVariation
                                     ? matchedVariation.variationName
                                     : isSlab && matchedSlab
-                                    ? `${matchedSlab.slabFrom} - ${matchedSlab.slabTo}`
-                                    : isQuantity
-                                    ? matchedQuantity
-                                    : ""}
+                                      ? `${matchedSlab.slabFrom} - ${matchedSlab.slabTo}`
+                                      : isQuantity
+                                        ? matchedQuantity
+                                        : ""}
                                 </td>
                               </>
                             )}
@@ -1338,7 +1344,7 @@ export default function PreviewComponentPdf(props) {
 
   const oneOffTableString = ReactDOMServer.renderToString(OneOffPackagesTable);
   const RecurringTableString = ReactDOMServer.renderToString(
-    RecurringPackagesTable
+    RecurringPackagesTable,
   );
 
   useEffect(() => {
@@ -1372,7 +1378,7 @@ export default function PreviewComponentPdf(props) {
     GetTemplatePdfListData();
   }, []);
 
- const toggleLandscape = () => {
+  const toggleLandscape = () => {
     setIsPdfAlreadyGenerated(false);
     setLandscapeMode((prev) => !prev);
   };
@@ -1387,7 +1393,7 @@ export default function PreviewComponentPdf(props) {
     fullAddress,
     color,
     BrandLogo,
-    fontFamily
+    fontFamily,
   ) => {
     const postData = {
       userId: common.userKeyID,
@@ -1416,7 +1422,7 @@ export default function PreviewComponentPdf(props) {
       // headerFooterLastPage: headerFooterLastPage,
       flagForTemplatePdf: flagForTemplatePdf,
       awsPdfHeight: awsPdfHeight,
-      awsPdfWidth: awsPdfWidth
+      awsPdfWidth: awsPdfWidth,
     };
 
     try {
@@ -1553,7 +1559,7 @@ export default function PreviewComponentPdf(props) {
             // flagForTemplatePdf,
             awsPdfHeight,
             awsPdfWidth,
-          )
+          ),
         );
         await Promise.all(promises);
         // setLoader(false);
@@ -1577,7 +1583,7 @@ export default function PreviewComponentPdf(props) {
         generatePdf();
       }
     }
-  }, [generatePdfData,landscapeMode]);
+  }, [generatePdfData, landscapeMode]);
 
   function getPackageName(id, name) {
     const packages = props.lastPaymentFrequencyAndDiscountedPriceForPreview;
@@ -1608,6 +1614,60 @@ export default function PreviewComponentPdf(props) {
       );
     }
   }
+
+  const customRecurringFooter = calculateCustomRecurringFooter({
+    serviceGroups: props.selectedRecurringServiceList,
+    discountedPrice: props.RecurringPricingInfo.DiscountedPrice,
+    fallbackVatPercentage: props.vatPercentage,
+  });
+
+  const customDescriptionColumnCount = [
+    props.visibleFieldsCustomTemp.serviceCategory,
+    props.visibleFieldsCustomTemp.serviceName,
+    props.visibleFieldsCustomTemp.serviceScope,
+  ].filter(Boolean).length;
+
+  const showCustomDiscount =
+    customRecurringFooter.discountFees > 0 &&
+    props.ProposalObject.DiscountLines;
+
+  const customOneOffFooter = calculateCustomOneOffFooter({
+    serviceGroups: props.selectedOneOffServiceList || [],
+
+    discountedPrice: props.OneOffPricingInfo.DiscountedPrice,
+
+    fallbackVatPercentage:
+      props.vatPercentageOneOff ?? props.vatPercentage ?? 0,
+  });
+
+  const hasCustomOneOffVAT =
+    Number(props.vatPercentage || 0) > 0 && props.vatPercentage !== null;
+
+  const customOneOffDescriptionColumnCount = [
+    props.visibleFieldsCustomTemp.serviceCategory,
+    props.visibleFieldsCustomTemp.serviceName,
+    props.visibleFieldsCustomTemp.serviceScope,
+  ].filter(Boolean).length;
+
+  const showCustomOneOffDiscount =
+    customOneOffFooter.hasDiscount && props.ProposalObject.DiscountLines;
+
+  const hasRecurringPdfDiscount =
+    Number(props.RecurringPricingInfo.Discount || 0) > 0 &&
+    props.ProposalObject.DiscountLines;
+
+  const hasRecurringPdfVAT = Number(props.vatPercentage || 0) > 0;
+
+  const recurringPdfDescriptionColumnCount = [
+    props.visibleFieldsCustomTemp.serviceCategory,
+    props.visibleFieldsCustomTemp.serviceName,
+    props.visibleFieldsCustomTemp.serviceScope,
+  ].filter(Boolean).length;
+
+  const recurringPdfLabelColSpan = Math.max(
+    recurringPdfDescriptionColumnCount,
+    1,
+  );
 
   //   function setDefaultFontFamily(htmlContent, fontFamily) {
   //     const parser = new DOMParser();
@@ -1745,7 +1805,7 @@ export default function PreviewComponentPdf(props) {
       const pdfDataArray = [];
       let currentArray = [];
       let TermAndConditionAddedOrNot = props.templateElementList.some(
-        (item) => item.templateElementTypeID === 11
+        (item) => item.templateElementTypeID === 11,
       );
       // Flag to ensure only one pricing table is added
       let prevElementType = null;
@@ -1774,7 +1834,7 @@ export default function PreviewComponentPdf(props) {
           case ElementType.TEXT_BLOCK:
             const appliedFontContent = setDefaultFontFamily(
               element.htmlContent,
-              fontFamily
+              fontFamily,
             );
             if (
               prevElementType !== ElementType.PAGE_BREAK &&
@@ -1783,7 +1843,7 @@ export default function PreviewComponentPdf(props) {
               currentArray.push({
                 // textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(element.htmlContent)}</div>`,
                 textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(
-                  appliedFontContent
+                  appliedFontContent,
                 )}</div>`,
               });
             } else {
@@ -1792,7 +1852,7 @@ export default function PreviewComponentPdf(props) {
                 {
                   // textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(element.htmlContent)}</div>`,
                   textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;">${replaceUrlInHtml(
-                    appliedFontContent
+                    appliedFontContent,
                   )}</div>`,
                 },
               ];
@@ -1804,7 +1864,7 @@ export default function PreviewComponentPdf(props) {
               (item, index) => ({
                 ...item,
                 RowNo: index + 1,
-              })
+              }),
             );
 
             const contractSignatoryRowNoForOfficer =
@@ -1818,10 +1878,10 @@ export default function PreviewComponentPdf(props) {
 
             // Always include contractSignatories
             let rightSignatureList = contractSignatoryRowNo.filter(
-              (x) => x.signaturePositionID === 1
+              (x) => x.signaturePositionID === 1,
             );
             let leftSignatureList = contractSignatoryRowNo.filter(
-              (x) => x.signaturePositionID === 2
+              (x) => x.signaturePositionID === 2,
             );
 
             // Include officers based on image URL and map to opposite side
@@ -1846,7 +1906,7 @@ export default function PreviewComponentPdf(props) {
             let htmlContentForSignatories = "";
             let loopCount = Math.max(
               rightSignatureList.length,
-              leftSignatureList.length
+              leftSignatureList.length,
             );
 
             let orgSignatureInserted = false;
@@ -1967,11 +2027,11 @@ export default function PreviewComponentPdf(props) {
                                     : subService.serviceDescription
                                 }
                             </p>
-                          `
+                          `,
                             )
                             .join("")}
                       </div>
-                  `
+                  `,
                      )
                      .join("")}
                   
@@ -2005,11 +2065,11 @@ export default function PreviewComponentPdf(props) {
                                     : subService.serviceDescription
                                 }
                             </p>
-                          `
+                          `,
                             )
                             .join("")}
                       </div>
-                  `
+                  `,
                      )
                      .join("")}
                 </div>
@@ -2053,11 +2113,11 @@ export default function PreviewComponentPdf(props) {
                                    : subService.serviceDescription
                                }
                             </p>
-                        `
+                        `,
                           )
                           .join("")}
                     </div>
-                `
+                `,
                 )
                 .join("")}
                        ${
@@ -2090,11 +2150,11 @@ export default function PreviewComponentPdf(props) {
                                     : subService.serviceDescription
                                 }
                             </p>
-                          `
+                          `,
                             )
                             .join("")}
                       </div>
-                  `
+                  `,
                   )
                   .join("")}
                 </div>
@@ -2107,7 +2167,7 @@ export default function PreviewComponentPdf(props) {
             if (props?.isDefaultFirstPage) {
               const coloredHtmlContent = changeSpanColor(
                 element.htmlContent,
-                newColorCode
+                newColorCode,
               );
               if (
                 prevElementType !== ElementType.PAGE_BREAK &&
@@ -2183,7 +2243,7 @@ export default function PreviewComponentPdf(props) {
                               ${(subService?.gpdList)
                                 .filter(
                                   (pricingDriver) =>
-                                    pricingDriver.driverTypeID !== 1
+                                    pricingDriver.driverTypeID !== 1,
                                 )
                                 .map(
                                   (pricingDriver) => `
@@ -2194,44 +2254,44 @@ export default function PreviewComponentPdf(props) {
                                        ? props.formatValueWithoutCurrencySymbol_v1(
                                            pricingDriver.value,
                                            pricingDriver.quantity?.[0]
-                                             ?.quantityDecimalPlaces
+                                             ?.quantityDecimalPlaces,
                                          )
                                        : pricingDriver.driverTypeID === 3
-                                       ? pricingDriver.variationName
-                                       : pricingDriver.driverTypeID === 4
-                                       ? pricingDriver.slabTypeID === 2
-                                         ? props.formatValueWithoutCurrencySymbol(
-                                             pricingDriver.value
-                                           )
-                                         : pricingDriver.slabFrom +
-                                           "-" +
-                                           pricingDriver.slabTo
-                                       : pricingDriver.driverTypeID === 5
-                                       ? pricingDriver?.enteredText
-                                       : pricingDriver.driverTypeID === 6
-                                       ? pricingDriver?.enteredDate
-                                       : //  && pricingDriver?.enteredDateFormat
-                                         //     ? (() => {
-                                         //       const dateObj = convertAndParseDate(
-                                         //         pricingDriver.enteredDate,
-                                         //         pricingDriver.enteredDateFormat,
-                                         //         pricingDriver.date?.[0]?.dateFormat
-                                         //       );
-                                         //       return dateObj && isValid(dateObj)
-                                         //         ? format(dateObj, pricingDriver.date?.[0]?.dateFormat)
-                                         //         : "";
-                                         //     })()
-                                         //     : ""
-                                         ""
+                                         ? pricingDriver.variationName
+                                         : pricingDriver.driverTypeID === 4
+                                           ? pricingDriver.slabTypeID === 2
+                                             ? props.formatValueWithoutCurrencySymbol(
+                                                 pricingDriver.value,
+                                               )
+                                             : pricingDriver.slabFrom +
+                                               "-" +
+                                               pricingDriver.slabTo
+                                           : pricingDriver.driverTypeID === 5
+                                             ? pricingDriver?.enteredText
+                                             : pricingDriver.driverTypeID === 6
+                                               ? pricingDriver?.enteredDate
+                                               : //  && pricingDriver?.enteredDateFormat
+                                                 //     ? (() => {
+                                                 //       const dateObj = convertAndParseDate(
+                                                 //         pricingDriver.enteredDate,
+                                                 //         pricingDriver.enteredDateFormat,
+                                                 //         pricingDriver.date?.[0]?.dateFormat
+                                                 //       );
+                                                 //       return dateObj && isValid(dateObj)
+                                                 //         ? format(dateObj, pricingDriver.date?.[0]?.dateFormat)
+                                                 //         : "";
+                                                 //     })()
+                                                 //     : ""
+                                                 ""
                                    }</strong>
                             </li>
-                              `
+                              `,
                                 )
                                 .join("")}
-                          `
+                          `,
                            )
                            .join("")}
-                          `
+                          `,
                             )
                             .join(" ")}
                              ${
@@ -2256,7 +2316,7 @@ export default function PreviewComponentPdf(props) {
                               ${(subService?.gpdList)
                                 .filter(
                                   (pricingDriver) =>
-                                    pricingDriver.driverTypeID !== 1
+                                    pricingDriver.driverTypeID !== 1,
                                 )
                                 .map(
                                   (pricingDriver) => `
@@ -2267,44 +2327,44 @@ export default function PreviewComponentPdf(props) {
                                         ? props.formatValueWithoutCurrencySymbol_v1(
                                             pricingDriver.value,
                                             pricingDriver.quantity?.[0]
-                                              ?.quantityDecimalPlaces
+                                              ?.quantityDecimalPlaces,
                                           )
                                         : pricingDriver.driverTypeID === 3
-                                        ? pricingDriver.variationName
-                                        : pricingDriver.driverTypeID === 4
-                                        ? pricingDriver.slabTypeID === 2
-                                          ? props.formatValueWithoutCurrencySymbol(
-                                              pricingDriver.value
-                                            )
-                                          : pricingDriver.slabFrom +
-                                            "-" +
-                                            pricingDriver.slabTo
-                                        : pricingDriver.driverTypeID === 5
-                                        ? pricingDriver?.enteredText
-                                        : pricingDriver.driverTypeID === 6
-                                        ? pricingDriver?.enteredDate
-                                        : //  && pricingDriver?.enteredDateFormat
-                                          //     ? (() => {
-                                          //       const dateObj = convertAndParseDate(
-                                          //         pricingDriver.enteredDate,
-                                          //         pricingDriver.enteredDateFormat,
-                                          //         pricingDriver.date?.[0]?.dateFormat
-                                          //       );
-                                          //       return dateObj && isValid(dateObj)
-                                          //         ? format(dateObj, pricingDriver.date?.[0]?.dateFormat)
-                                          //         : "";
-                                          //     })()
-                                          //     : ""
-                                          ""
+                                          ? pricingDriver.variationName
+                                          : pricingDriver.driverTypeID === 4
+                                            ? pricingDriver.slabTypeID === 2
+                                              ? props.formatValueWithoutCurrencySymbol(
+                                                  pricingDriver.value,
+                                                )
+                                              : pricingDriver.slabFrom +
+                                                "-" +
+                                                pricingDriver.slabTo
+                                            : pricingDriver.driverTypeID === 5
+                                              ? pricingDriver?.enteredText
+                                              : pricingDriver.driverTypeID === 6
+                                                ? pricingDriver?.enteredDate
+                                                : //  && pricingDriver?.enteredDateFormat
+                                                  //     ? (() => {
+                                                  //       const dateObj = convertAndParseDate(
+                                                  //         pricingDriver.enteredDate,
+                                                  //         pricingDriver.enteredDateFormat,
+                                                  //         pricingDriver.date?.[0]?.dateFormat
+                                                  //       );
+                                                  //       return dateObj && isValid(dateObj)
+                                                  //         ? format(dateObj, pricingDriver.date?.[0]?.dateFormat)
+                                                  //         : "";
+                                                  //     })()
+                                                  //     : ""
+                                                  ""
                                     }</strong>
                             </li>
-                              `
+                              `,
                                 )
                                 .join("")}
-                          `
+                          `,
                            )
                            .join("")}
-                          `
+                          `,
                             )
                             .join(" ")}
 
@@ -2322,38 +2382,37 @@ export default function PreviewComponentPdf(props) {
         <div>
             <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
                 ${serviceCat.driverName}: ${
-                                        serviceCat.driverTypeID === 4
-                                          ? serviceCat.slabTypeID === 2
-                                            ? `<strong>${props.formatValueWithoutCurrencySymbol(
-                                                serviceCat.value
-                                              )}</strong>`
-                                            : `<strong>${props.formatValueWithoutCurrencySymbol(
-                                                serviceCat.slabFrom
-                                              )}-${props.formatValueWithoutCurrencySymbol(
-                                                serviceCat.slabTo
-                                              )}</strong>`
-                                          : serviceCat.driverTypeID === 3
-                                          ? `<strong>${serviceCat.variationName}</strong>`
-                                          : serviceCat.driverTypeID === 5
-                                          ? `<strong>${serviceCat?.enteredText}</strong>` ??
-                                            ""
-                                          : serviceCat.driverTypeID === 6
-                                          ? `<strong>${serviceCat?.enteredDate}</strong>`
-                                          : `${
-                                              serviceCat.driverName
-                                            }: <strong>${props.formatValueWithoutCurrencySymbol(
-                                              serviceCat.value
-                                            )}</strong>`
-                                      }
+                  serviceCat.driverTypeID === 4
+                    ? serviceCat.slabTypeID === 2
+                      ? `<strong>${props.formatValueWithoutCurrencySymbol(
+                          serviceCat.value,
+                        )}</strong>`
+                      : `<strong>${props.formatValueWithoutCurrencySymbol(
+                          serviceCat.slabFrom,
+                        )}-${props.formatValueWithoutCurrencySymbol(
+                          serviceCat.slabTo,
+                        )}</strong>`
+                    : serviceCat.driverTypeID === 3
+                      ? `<strong>${serviceCat.variationName}</strong>`
+                      : serviceCat.driverTypeID === 5
+                        ? (`<strong>${serviceCat?.enteredText}</strong>` ?? "")
+                        : serviceCat.driverTypeID === 6
+                          ? `<strong>${serviceCat?.enteredDate}</strong>`
+                          : `${
+                              serviceCat.driverName
+                            }: <strong>${props.formatValueWithoutCurrencySymbol(
+                              serviceCat.value,
+                            )}</strong>`
+                }
             </p>
         </div>
-    `
+    `,
                                     )
                                     .join("")
                                 : ""
                             }
 
-                        </div>`
+                        </div>`,
                     ).join(" ")}`,
                 });
               } else {
@@ -2388,11 +2447,11 @@ export default function PreviewComponentPdf(props) {
                                 .filter((pricingDriver) =>
                                   subService?.pricingDriverList !== undefined
                                     ? pricingDriver.driverVisibility === true
-                                    : true
+                                    : true,
                                 )
                                 .filter(
                                   (pricingDriver) =>
-                                    pricingDriver.driverTypeID !== 1
+                                    pricingDriver.driverTypeID !== 1,
                                 )
                                 .map(
                                   (pricingDriver) => `
@@ -2402,100 +2461,111 @@ export default function PreviewComponentPdf(props) {
                                       pricingDriver.driverTypeID === 2
                                         ? props.formatValueWithoutCurrencySymbol_v1(
                                             pricingDriver.driverValue,
-                                            getDecimalPlaces(pricingDriver)
+                                            getDecimalPlaces(pricingDriver),
                                           )
                                         : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
-                                        //   /\B(?=(\d{3})+(?!\d))/g,
-                                        //   ","
-                                        // )
-                                        pricingDriver.driverTypeID === 3
-                                        ? subService?.pricingDriverList ==
-                                          undefined
-                                          ? pricingDriver.variationName
-                                          : pricingDriver.variation.find(
-                                              (item) => item.isDefault
-                                            ).variationName
-                                        : pricingDriver.driverTypeID === 4
-                                        ? subService?.pricingDriverList ==
-                                          undefined
-                                          ? pricingDriver.slabTypeID === 2
-                                            ? props.formatValueWithoutCurrencySymbol_v1(
-                                                pricingDriver.driverValue,
-                                                getDecimalPlaces(pricingDriver)
-                                              )
-                                            : props.formatValueWithoutCurrencySymbol_v1(
-                                                pricingDriver.driverValue,
-                                                getDecimalPlaces(pricingDriver)
-                                              ) -
-                                              props.formatValueWithoutCurrencySymbol_v1(
-                                                pricingDriver.driverValue,
-                                                getDecimalPlaces(pricingDriver)
-                                              )
-                                          : pricingDriver.slab.find(
-                                              (item) => item.isDefault
-                                            ).slabTypeID === 2
-                                          ? Number(
-                                              pricingDriver.slab.find(
-                                                (item) => item.isDefault
-                                              ).slabValue
-                                            )
-                                              .toFixed(2)
-                                              .toString()
-                                              .replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                ","
-                                              )
-                                          : Number(
-                                              pricingDriver.slab.find(
-                                                (item) => item.isDefault
-                                              ).slabFrom
-                                            )
-                                              .toFixed(
-                                                getDecimalPlaces(pricingDriver)
-                                              )
-                                              .toString()
-                                              .replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                ","
-                                              ) +
-                                            "-" +
-                                            Number(
-                                              pricingDriver.slab.find(
-                                                (item) => item.isDefault
-                                              ).slabTo
-                                            )
-                                              .toFixed(
-                                                getDecimalPlaces(pricingDriver)
-                                              )
-                                              .toString()
-                                              .replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                ","
-                                              )
-                                        : pricingDriver.driverTypeID === 5
-                                        ? pricingDriver?.enteredText ?? ""
-                                        : pricingDriver.driverTypeID === 6
-                                        ? pricingDriver.enteredDate
-                                        : // ? pricingDriver.date && pricingDriver.date.length > 0
-                                          //   ? (() => {
-                                          //     const inputFormat = pricingDriver.enteredDateFormat;
-                                          //     const outputFormat = pricingDriver.date[0]?.dateFormat;
-                                          //     const dateObj = convertAndParseDate(pricingDriver.enteredDate, inputFormat, outputFormat);
-                                          //     return dateObj && isValid(dateObj) ? format(dateObj, outputFormat) : "";
-                                          //   })()
-                                          //   : pricingDriver.enteredDate
-                                          // : ""
-                                          ""
+                                          //   /\B(?=(\d{3})+(?!\d))/g,
+                                          //   ","
+                                          // )
+                                          pricingDriver.driverTypeID === 3
+                                          ? subService?.pricingDriverList ==
+                                            undefined
+                                            ? pricingDriver.variationName
+                                            : pricingDriver.variation.find(
+                                                (item) => item.isDefault,
+                                              ).variationName
+                                          : pricingDriver.driverTypeID === 4
+                                            ? subService?.pricingDriverList ==
+                                              undefined
+                                              ? pricingDriver.slabTypeID === 2
+                                                ? props.formatValueWithoutCurrencySymbol_v1(
+                                                    pricingDriver.driverValue,
+                                                    getDecimalPlaces(
+                                                      pricingDriver,
+                                                    ),
+                                                  )
+                                                : props.formatValueWithoutCurrencySymbol_v1(
+                                                    pricingDriver.driverValue,
+                                                    getDecimalPlaces(
+                                                      pricingDriver,
+                                                    ),
+                                                  ) -
+                                                  props.formatValueWithoutCurrencySymbol_v1(
+                                                    pricingDriver.driverValue,
+                                                    getDecimalPlaces(
+                                                      pricingDriver,
+                                                    ),
+                                                  )
+                                              : pricingDriver.slab.find(
+                                                    (item) => item.isDefault,
+                                                  ).slabTypeID === 2
+                                                ? Number(
+                                                    pricingDriver.slab.find(
+                                                      (item) => item.isDefault,
+                                                    ).slabValue,
+                                                  )
+                                                    .toFixed(2)
+                                                    .toString()
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ",",
+                                                    )
+                                                : Number(
+                                                    pricingDriver.slab.find(
+                                                      (item) => item.isDefault,
+                                                    ).slabFrom,
+                                                  )
+                                                    .toFixed(
+                                                      getDecimalPlaces(
+                                                        pricingDriver,
+                                                      ),
+                                                    )
+                                                    .toString()
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ",",
+                                                    ) +
+                                                  "-" +
+                                                  Number(
+                                                    pricingDriver.slab.find(
+                                                      (item) => item.isDefault,
+                                                    ).slabTo,
+                                                  )
+                                                    .toFixed(
+                                                      getDecimalPlaces(
+                                                        pricingDriver,
+                                                      ),
+                                                    )
+                                                    .toString()
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ",",
+                                                    )
+                                            : pricingDriver.driverTypeID === 5
+                                              ? (pricingDriver?.enteredText ??
+                                                "")
+                                              : pricingDriver.driverTypeID === 6
+                                                ? pricingDriver.enteredDate
+                                                : // ? pricingDriver.date && pricingDriver.date.length > 0
+                                                  //   ? (() => {
+                                                  //     const inputFormat = pricingDriver.enteredDateFormat;
+                                                  //     const outputFormat = pricingDriver.date[0]?.dateFormat;
+                                                  //     const dateObj = convertAndParseDate(pricingDriver.enteredDate, inputFormat, outputFormat);
+                                                  //     return dateObj && isValid(dateObj) ? format(dateObj, outputFormat) : "";
+                                                  //   })()
+                                                  //   : pricingDriver.enteredDate
+                                                  // : ""
+                                                  ""
                                     }</strong>
                             </li>
-                              `
+                              `,
                                 )
                                 .join("")}
-                          `
+                          `,
                             )
                             .join("")}
                       </div>
-                  `
+                  `,
                     )
                     .join("")}
                     ${
@@ -2527,11 +2597,11 @@ export default function PreviewComponentPdf(props) {
                                 .filter((pricingDriver) =>
                                   subService?.pricingDriverList !== undefined
                                     ? pricingDriver.driverVisibility === true
-                                    : true
+                                    : true,
                                 )
                                 .filter(
                                   (pricingDriver) =>
-                                    pricingDriver.driverTypeID !== 1
+                                    pricingDriver.driverTypeID !== 1,
                                 )
                                 .map(
                                   (pricingDriver) => `
@@ -2541,116 +2611,123 @@ export default function PreviewComponentPdf(props) {
                                       pricingDriver.driverTypeID === 2
                                         ? props.formatValueWithoutCurrencySymbol_v1(
                                             pricingDriver.driverValue,
-                                            getDecimalPlaces(pricingDriver)
+                                            getDecimalPlaces(pricingDriver),
                                           )
                                         : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
-                                        //   /\B(?=(\d{3})+(?!\d))/g,
-                                        //   ","
-                                        // )
-                                        pricingDriver.driverTypeID === 3
-                                        ? subService?.pricingDriverList ==
-                                          undefined
-                                          ? pricingDriver.variationName
-                                          : pricingDriver.variation.find(
-                                              (item) => item.isDefault
-                                            ).variationName
-                                        : pricingDriver.driverTypeID === 4
-                                        ? subService?.pricingDriverList ==
-                                          undefined
-                                          ? pricingDriver.slabTypeID === 2
-                                            ? props.formatValueWithoutCurrencySymbol_v1(
-                                                pricingDriver.driverValue,
-                                                getDecimalPlaces(pricingDriver)
-                                              )
-                                            : props.formatValueWithoutCurrencySymbol_v1(
-                                                pricingDriver.slabFrom,
-                                                getDecimalPlaces(pricingDriver)
-                                              ) +
-                                              "-" +
-                                              props.formatValueWithoutCurrencySymbol_v1(
-                                                pricingDriver.slabTo,
-                                                getDecimalPlaces(pricingDriver)
-                                              )
-                                          : pricingDriver.slab?.find(
-                                              (item) => item.isDefault
-                                            )?.slabTypeID === 2
-                                          ? Number(
-                                              pricingDriver?.slab?.find(
-                                                (item) => item.isDefault
-                                              )?.slabValue ??
-                                                pricingDriver.driverValue
-                                            )
-                                              .toFixed(2)
-                                              .toString()
-                                              .replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                ","
-                                              )
-                                          : Number(
-                                              pricingDriver.slab?.find(
-                                                (item) => item.isDefault
-                                              )?.slabFrom ??
-                                                pricingDriver.driverValue
-                                            )
-                                              .toFixed(
-                                                pricingDriver?.slab?.[0]
-                                                  ?.decimalPlaces ?? 2
-                                              )
-                                              .toString()
-                                              .replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                ","
-                                              ) +
-                                            "-" +
-                                            Number(
-                                              pricingDriver.slab?.find(
-                                                (item) => item.isDefault
-                                              )?.slabTo ??
-                                                pricingDriver.driverValue
-                                            )
-                                              .toFixed(
-                                                pricingDriver?.slab?.[0]
-                                                  ?.decimalPlaces ?? 2
-                                              )
-                                              .toString()
-                                              .replace(
-                                                /\B(?=(\d{3})+(?!\d))/g,
-                                                ","
-                                              )
-                                        : pricingDriver.driverTypeID === 5
-                                        ? pricingDriver?.enteredText ?? ""
-                                        : pricingDriver.driverTypeID === 6
-                                        ? pricingDriver?.enteredDate
-                                        : //  && pricingDriver?.enteredDateFormat
-                                          //   ? (() => {
-                                          //     const dateObj = convertAndParseDate(
-                                          //       pricingDriver.enteredDate,
-                                          //       pricingDriver.enteredDateFormat,
-                                          //       pricingDriver.date?.[0]?.dateFormat
-                                          //     );
-                                          //     return dateObj && isValid(dateObj)
-                                          //       ? format(dateObj, pricingDriver.date?.[0]?.dateFormat)
-                                          //       : "";
-                                          //   })()
-                                          //   : "" ?? ""
-                                          ""
+                                          //   /\B(?=(\d{3})+(?!\d))/g,
+                                          //   ","
+                                          // )
+                                          pricingDriver.driverTypeID === 3
+                                          ? subService?.pricingDriverList ==
+                                            undefined
+                                            ? pricingDriver.variationName
+                                            : pricingDriver.variation.find(
+                                                (item) => item.isDefault,
+                                              ).variationName
+                                          : pricingDriver.driverTypeID === 4
+                                            ? subService?.pricingDriverList ==
+                                              undefined
+                                              ? pricingDriver.slabTypeID === 2
+                                                ? props.formatValueWithoutCurrencySymbol_v1(
+                                                    pricingDriver.driverValue,
+                                                    getDecimalPlaces(
+                                                      pricingDriver,
+                                                    ),
+                                                  )
+                                                : props.formatValueWithoutCurrencySymbol_v1(
+                                                    pricingDriver.slabFrom,
+                                                    getDecimalPlaces(
+                                                      pricingDriver,
+                                                    ),
+                                                  ) +
+                                                  "-" +
+                                                  props.formatValueWithoutCurrencySymbol_v1(
+                                                    pricingDriver.slabTo,
+                                                    getDecimalPlaces(
+                                                      pricingDriver,
+                                                    ),
+                                                  )
+                                              : pricingDriver.slab?.find(
+                                                    (item) => item.isDefault,
+                                                  )?.slabTypeID === 2
+                                                ? Number(
+                                                    pricingDriver?.slab?.find(
+                                                      (item) => item.isDefault,
+                                                    )?.slabValue ??
+                                                      pricingDriver.driverValue,
+                                                  )
+                                                    .toFixed(2)
+                                                    .toString()
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ",",
+                                                    )
+                                                : Number(
+                                                    pricingDriver.slab?.find(
+                                                      (item) => item.isDefault,
+                                                    )?.slabFrom ??
+                                                      pricingDriver.driverValue,
+                                                  )
+                                                    .toFixed(
+                                                      pricingDriver?.slab?.[0]
+                                                        ?.decimalPlaces ?? 2,
+                                                    )
+                                                    .toString()
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ",",
+                                                    ) +
+                                                  "-" +
+                                                  Number(
+                                                    pricingDriver.slab?.find(
+                                                      (item) => item.isDefault,
+                                                    )?.slabTo ??
+                                                      pricingDriver.driverValue,
+                                                  )
+                                                    .toFixed(
+                                                      pricingDriver?.slab?.[0]
+                                                        ?.decimalPlaces ?? 2,
+                                                    )
+                                                    .toString()
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ",",
+                                                    )
+                                            : pricingDriver.driverTypeID === 5
+                                              ? (pricingDriver?.enteredText ??
+                                                "")
+                                              : pricingDriver.driverTypeID === 6
+                                                ? pricingDriver?.enteredDate
+                                                : //  && pricingDriver?.enteredDateFormat
+                                                  //   ? (() => {
+                                                  //     const dateObj = convertAndParseDate(
+                                                  //       pricingDriver.enteredDate,
+                                                  //       pricingDriver.enteredDateFormat,
+                                                  //       pricingDriver.date?.[0]?.dateFormat
+                                                  //     );
+                                                  //     return dateObj && isValid(dateObj)
+                                                  //       ? format(dateObj, pricingDriver.date?.[0]?.dateFormat)
+                                                  //       : "";
+                                                  //   })()
+                                                  //   : "" ?? ""
+                                                  ""
                                     }</strong>
                             </li>
-                              `
+                              `,
                                 )
                                 .join("")}
-                            `
+                            `,
                               )
                               .join("")}
                         </div>
-                    `
+                    `,
                     )
                     .join("")}
                       
                
                       ${
                         props?.additionalInformationList?.filter(
-                          (item) => item.driverTypeID !== 1
+                          (item) => item.driverTypeID !== 1,
                         ).length >
                         0 >
                         0
@@ -2669,48 +2746,48 @@ export default function PreviewComponentPdf(props) {
                           ${
                             serviceCat.driverName
                           }:  <strong> ${props.formatValueWithoutCurrencySymbol(
-                      serviceCat.driverValue
-                    )} </strong > 
+                            serviceCat.driverValue,
+                          )} </strong > 
                       </p>`
                   : serviceCat.driverTypeID === 5 ||
-                    serviceCat.driverTypeID === 6
-                  ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                      serviceCat.driverTypeID === 6
+                    ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
       ${serviceCat.driverName}: <strong>${
-                      serviceCat.driverTypeID === 5
-                        ? serviceCat.enteredText ?? ""
-                        : serviceCat.enteredDate ?? ""
-                    }</strong>
+        serviceCat.driverTypeID === 5
+          ? (serviceCat.enteredText ?? "")
+          : (serviceCat.enteredDate ?? "")
+      }</strong>
     </p>`
-                  : (serviceCat.driverTypeID === 4
-                      ? serviceCat.slab
-                      : serviceCat.driverTypeID === 3
-                      ? serviceCat.variation
-                      : []
-                    )
-                      .filter((item) => item.isDefault)
-                      .map(
-                        (subService) => `
+                    : (serviceCat.driverTypeID === 4
+                        ? serviceCat.slab
+                        : serviceCat.driverTypeID === 3
+                          ? serviceCat.variation
+                          : []
+                      )
+                        .filter((item) => item.isDefault)
+                        .map(
+                          (subService) => `
   <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
       ${serviceCat.driverName}: ${
-                          serviceCat.driverTypeID === 4
-                            ? subService.slabTypeID === 2
-                              ? `<strong>${props.formatValueWithoutCurrencySymbol(
-                                  subService.slabValue
-                                )}</strong>`
-                              : `<strong>${props.formatValueWithoutCurrencySymbol(
-                                  subService.slabFrom
-                                )}-${props.formatValueWithoutCurrencySymbol(
-                                  subService.slabTo
-                                )}</strong>`
-                            : `<strong>${subService.variationName}</strong>`
-                        }
+        serviceCat.driverTypeID === 4
+          ? subService.slabTypeID === 2
+            ? `<strong>${props.formatValueWithoutCurrencySymbol(
+                subService.slabValue,
+              )}</strong>`
+            : `<strong>${props.formatValueWithoutCurrencySymbol(
+                subService.slabFrom,
+              )}-${props.formatValueWithoutCurrencySymbol(
+                subService.slabTo,
+              )}</strong>`
+          : `<strong>${subService.variationName}</strong>`
+      }
   </p>
-  `
-                      )
-                      .join("")
+  `,
+                        )
+                        .join("")
               }
           </div>
-      `
+      `,
                               )
                               .join("")
                           : ""
@@ -2718,7 +2795,7 @@ export default function PreviewComponentPdf(props) {
   
                   ${
                     props?.quoteAdditionalInfoGlobalPricingDriver?.filter(
-                      (item) => item.driverTypeID !== 1
+                      (item) => item.driverTypeID !== 1,
                     ).length > 0
                       ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
         Additional Information
@@ -2734,38 +2811,38 @@ export default function PreviewComponentPdf(props) {
                 ${
                   serviceCat.driverName
                 }: <strong>${props.formatValueWithoutCurrencySymbol(
-                  serviceCat.driverValue
+                  serviceCat.driverValue,
                 )}</strong> 
             </p>`
               : serviceCat.driverTypeID === 3
-              ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
                 ${serviceCat.driverName}: <strong>${serviceCat.variationName}</strong>
             </p>`
-              : serviceCat.driverTypeID === 5
-              ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                : serviceCat.driverTypeID === 5
+                  ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
                 ${serviceCat.driverName}: <strong>${serviceCat?.enteredText}</strong>
             </p>`
-              : serviceCat.driverTypeID === 6
-              ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                  : serviceCat.driverTypeID === 6
+                    ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
                 ${serviceCat.driverName}: <strong>${serviceCat?.enteredDate}</strong>
             </p>`
-              : serviceCat.driverTypeID === 4
-              ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                    : serviceCat.driverTypeID === 4
+                      ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
                 ${serviceCat.driverName}: ${
                   serviceCat.slabTypeID == 2
                     ? `<strong>${props.formatValueWithoutCurrencySymbol(
-                        serviceCat.driverValue
+                        serviceCat.driverValue,
                       )} <strong>`
                     : `<strong>${props.formatValueWithoutCurrencySymbol(
-                        serviceCat.slabFrom
+                        serviceCat.slabFrom,
                       )}</strong> - <strong>${props.formatValueWithoutCurrencySymbol(
-                        serviceCat.slabTo
+                        serviceCat.slabTo,
                       )}</strong>`
                 }
             </p>`
-              : ""
+                      : ""
           }
-        </div>`
+        </div>`,
                           )
                           .join("")
                       : ""
@@ -2814,7 +2891,7 @@ export default function PreviewComponentPdf(props) {
                               ${(subService?.gpdList)
                                 .filter(
                                   (pricingDriver) =>
-                                    pricingDriver.driverTypeID !== 1
+                                    pricingDriver.driverTypeID !== 1,
                                 )
                                 .map(
                                   (pricingDriver) => `
@@ -2825,28 +2902,28 @@ export default function PreviewComponentPdf(props) {
                                         ? props.formatValueWithoutCurrencySymbol_v1(
                                             pricingDriver.value,
                                             pricingDriver.quantity?.[0]
-                                              ?.quantityDecimalPlaces
+                                              ?.quantityDecimalPlaces,
                                           )
                                         : pricingDriver.driverTypeID === 3
-                                        ? pricingDriver.variationName
-                                        : pricingDriver.driverTypeID === 4
-                                        ? pricingDriver.slabTypeID === 2
-                                          ? props.formatValueWithoutCurrencySymbol(
-                                              pricingDriver.value
-                                            )
-                                          : pricingDriver.slabFrom +
-                                            "-" +
-                                            pricingDriver.slabTo
-                                        : ""
+                                          ? pricingDriver.variationName
+                                          : pricingDriver.driverTypeID === 4
+                                            ? pricingDriver.slabTypeID === 2
+                                              ? props.formatValueWithoutCurrencySymbol(
+                                                  pricingDriver.value,
+                                                )
+                                              : pricingDriver.slabFrom +
+                                                "-" +
+                                                pricingDriver.slabTo
+                                            : ""
                                     }</strong>
                             </li>
-                              `
+                              `,
                                 )
                                 .join("")}
-                          `
+                          `,
                            )
                            .join("")}
-                          `
+                          `,
                             )
                             .join(" ")}
                              ${
@@ -2872,7 +2949,7 @@ export default function PreviewComponentPdf(props) {
                               ${(subService?.gpdList)
                                 .filter(
                                   (pricingDriver) =>
-                                    pricingDriver.driverTypeID !== 1
+                                    pricingDriver.driverTypeID !== 1,
                                 )
                                 .map(
                                   (pricingDriver) => `
@@ -2883,28 +2960,28 @@ export default function PreviewComponentPdf(props) {
                                         ? props.formatValueWithoutCurrencySymbol_v1(
                                             pricingDriver.driverValue,
                                             pricingDriver.quantity?.[0]
-                                              ?.quantityDecimalPlaces
+                                              ?.quantityDecimalPlaces,
                                           )
                                         : pricingDriver.driverTypeID === 3
-                                        ? pricingDriver.variationName
-                                        : pricingDriver.driverTypeID === 4
-                                        ? pricingDriver.slabTypeID === 2
-                                          ? props.formatValueWithoutCurrencySymbol(
-                                              pricingDriver.value
-                                            )
-                                          : pricingDriver.slabFrom +
-                                            "-" +
-                                            pricingDriver.slabTo
-                                        : ""
+                                          ? pricingDriver.variationName
+                                          : pricingDriver.driverTypeID === 4
+                                            ? pricingDriver.slabTypeID === 2
+                                              ? props.formatValueWithoutCurrencySymbol(
+                                                  pricingDriver.value,
+                                                )
+                                              : pricingDriver.slabFrom +
+                                                "-" +
+                                                pricingDriver.slabTo
+                                            : ""
                                     }</strong>
                             </li>
-                              `
+                              `,
                                 )
                                 .join("")}
-                          `
+                          `,
                            )
                            .join("")}
-                          `
+                          `,
                             )
                             .join(" ")}
                     
@@ -2922,37 +2999,37 @@ export default function PreviewComponentPdf(props) {
         <div>
             <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
                 ${serviceCat.driverName}: ${
-                                        serviceCat.driverTypeID === 4
-                                          ? serviceCat.slabTypeID === 2
-                                            ? `<strong>${props.formatValueWithoutCurrencySymbol(
-                                                serviceCat.value
-                                              )}</strong>`
-                                            : `<strong>${props.formatValueWithoutCurrencySymbol(
-                                                serviceCat.slabFrom
-                                              )}-${props.formatValueWithoutCurrencySymbol(
-                                                serviceCat.slabTo
-                                              )}</strong>`
-                                          : serviceCat.driverTypeID === 3
-                                          ? `<strong>${serviceCat.variationName}</strong>`
-                                          : serviceCat.driverTypID === 5
-                                          ? `<strong>${serviceCat.enteredText}</strong>`
-                                          : serviceCat.driverTypID === 6
-                                          ? `<strong>${serviceCat.enteredDate}</strong>`
-                                          : `${
-                                              serviceCat.driverName
-                                            }: <strong>${props.formatValueWithoutCurrencySymbol(
-                                              serviceCat.value
-                                            )}</strong>`
-                                      }
+                  serviceCat.driverTypeID === 4
+                    ? serviceCat.slabTypeID === 2
+                      ? `<strong>${props.formatValueWithoutCurrencySymbol(
+                          serviceCat.value,
+                        )}</strong>`
+                      : `<strong>${props.formatValueWithoutCurrencySymbol(
+                          serviceCat.slabFrom,
+                        )}-${props.formatValueWithoutCurrencySymbol(
+                          serviceCat.slabTo,
+                        )}</strong>`
+                    : serviceCat.driverTypeID === 3
+                      ? `<strong>${serviceCat.variationName}</strong>`
+                      : serviceCat.driverTypID === 5
+                        ? `<strong>${serviceCat.enteredText}</strong>`
+                        : serviceCat.driverTypID === 6
+                          ? `<strong>${serviceCat.enteredDate}</strong>`
+                          : `${
+                              serviceCat.driverName
+                            }: <strong>${props.formatValueWithoutCurrencySymbol(
+                              serviceCat.value,
+                            )}</strong>`
+                }
             </p>
         </div>
-    `
+    `,
                                     )
                                     .join("")
                                 : ""
                             }
 
-                        </div>`
+                        </div>`,
                     ).join(" ")}`,
                 });
               } else {
@@ -2988,11 +3065,11 @@ export default function PreviewComponentPdf(props) {
                               .filter((pricingDriver) =>
                                 subService?.pricingDriverList !== undefined
                                   ? pricingDriver.driverVisibility === true
-                                  : true
+                                  : true,
                               )
                               .filter(
                                 (pricingDriver) =>
-                                  pricingDriver.driverTypeID !== 1
+                                  pricingDriver.driverTypeID !== 1,
                               )
                               .map(
                                 (pricingDriver) => `
@@ -3003,109 +3080,115 @@ export default function PreviewComponentPdf(props) {
                                       ? props.formatValueWithoutCurrencySymbol_v1(
                                           pricingDriver.driverValue,
                                           pricingDriver.quantity?.[0]
-                                            ?.quantityDecimalPlaces
+                                            ?.quantityDecimalPlaces,
                                         )
                                       : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
-                                      //   /\B(?=(\d{3})+(?!\d))/g,
-                                      //   ","
-                                      // )
-                                      pricingDriver.driverTypeID === 3
-                                      ? subService?.pricingDriverList ==
-                                        undefined
-                                        ? pricingDriver.variationName
-                                        : pricingDriver.variation.find(
-                                            (item) => item.isDefault
-                                          ).variationName
-                                      : pricingDriver.driverTypeID === 4
-                                      ? subService?.pricingDriverList ==
-                                        undefined
-                                        ? pricingDriver.slabTypeID === 2
-                                          ? props.formatValueWithoutCurrencySymbol_v1(
-                                              pricingDriver.driverValue,
-                                              getDecimalPlaces(pricingDriver)
-                                            )
-                                          : props.formatValueWithoutCurrencySymbol_v1(
-                                              pricingDriver.slabFrom,
-                                              getDecimalPlaces(pricingDriver)
-                                            ) +
-                                            "-" +
-                                            props.formatValueWithoutCurrencySymbol_v1(
-                                              pricingDriver.slabTo,
-                                              getDecimalPlaces(pricingDriver)
-                                            )
-                                        : pricingDriver.slab?.find(
-                                            (item) => item.isDefault
-                                          )?.slabTypeID === 2
-                                        ? Number(
-                                            pricingDriver?.slab?.find(
-                                              (item) => item.isDefault
-                                            )?.slabValue ??
-                                              pricingDriver.driverValue
-                                          )
-                                            .toFixed(2)
-                                            .toString()
-                                            .replace(
-                                              /\B(?=(\d{3})+(?!\d))/g,
-                                              ","
-                                            )
-                                        : Number(
-                                            pricingDriver.slab?.find(
-                                              (item) => item.isDefault
-                                            )?.slabFrom ??
-                                              pricingDriver.driverValue
-                                          )
-                                            .toFixed(
-                                              pricingDriver?.slab?.[0]
-                                                ?.decimalPlaces ?? 2
-                                            )
-                                            .toString()
-                                            .replace(
-                                              /\B(?=(\d{3})+(?!\d))/g,
-                                              ","
-                                            ) +
-                                          "-" +
-                                          Number(
-                                            pricingDriver.slab?.find(
-                                              (item) => item.isDefault
-                                            )?.slabTo ??
-                                              pricingDriver.driverValue
-                                          )
-                                            .toFixed(
-                                              pricingDriver?.slab?.[0]
-                                                ?.decimalPlaces ?? 2
-                                            )
-                                            .toString()
-                                            .replace(
-                                              /\B(?=(\d{3})+(?!\d))/g,
-                                              ","
-                                            )
-                                      : pricingDriver.driverTypeID === 5
-                                      ? pricingDriver?.enteredText ?? ""
-                                      : pricingDriver.driverTypeID === 6
-                                      ? pricingDriver?.enteredDate
-                                      : //  && pricingDriver?.enteredDateFormat
-                                        //   ? (() => {
-                                        //     const dateObj = convertAndParseDate(
-                                        //       pricingDriver.enteredDate,
-                                        //       pricingDriver.enteredDateFormat,
-                                        //       pricingDriver.date?.[0]?.dateFormat
-                                        //     );
-                                        //     return dateObj && isValid(dateObj)
-                                        //       ? format(dateObj, pricingDriver.date?.[0]?.dateFormat)
-                                        //       : "";
-                                        //   })()
-                                        //   : "" ?? ""
-                                        ""
+                                        //   /\B(?=(\d{3})+(?!\d))/g,
+                                        //   ","
+                                        // )
+                                        pricingDriver.driverTypeID === 3
+                                        ? subService?.pricingDriverList ==
+                                          undefined
+                                          ? pricingDriver.variationName
+                                          : pricingDriver.variation.find(
+                                              (item) => item.isDefault,
+                                            ).variationName
+                                        : pricingDriver.driverTypeID === 4
+                                          ? subService?.pricingDriverList ==
+                                            undefined
+                                            ? pricingDriver.slabTypeID === 2
+                                              ? props.formatValueWithoutCurrencySymbol_v1(
+                                                  pricingDriver.driverValue,
+                                                  getDecimalPlaces(
+                                                    pricingDriver,
+                                                  ),
+                                                )
+                                              : props.formatValueWithoutCurrencySymbol_v1(
+                                                  pricingDriver.slabFrom,
+                                                  getDecimalPlaces(
+                                                    pricingDriver,
+                                                  ),
+                                                ) +
+                                                "-" +
+                                                props.formatValueWithoutCurrencySymbol_v1(
+                                                  pricingDriver.slabTo,
+                                                  getDecimalPlaces(
+                                                    pricingDriver,
+                                                  ),
+                                                )
+                                            : pricingDriver.slab?.find(
+                                                  (item) => item.isDefault,
+                                                )?.slabTypeID === 2
+                                              ? Number(
+                                                  pricingDriver?.slab?.find(
+                                                    (item) => item.isDefault,
+                                                  )?.slabValue ??
+                                                    pricingDriver.driverValue,
+                                                )
+                                                  .toFixed(2)
+                                                  .toString()
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ",",
+                                                  )
+                                              : Number(
+                                                  pricingDriver.slab?.find(
+                                                    (item) => item.isDefault,
+                                                  )?.slabFrom ??
+                                                    pricingDriver.driverValue,
+                                                )
+                                                  .toFixed(
+                                                    pricingDriver?.slab?.[0]
+                                                      ?.decimalPlaces ?? 2,
+                                                  )
+                                                  .toString()
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ",",
+                                                  ) +
+                                                "-" +
+                                                Number(
+                                                  pricingDriver.slab?.find(
+                                                    (item) => item.isDefault,
+                                                  )?.slabTo ??
+                                                    pricingDriver.driverValue,
+                                                )
+                                                  .toFixed(
+                                                    pricingDriver?.slab?.[0]
+                                                      ?.decimalPlaces ?? 2,
+                                                  )
+                                                  .toString()
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ",",
+                                                  )
+                                          : pricingDriver.driverTypeID === 5
+                                            ? (pricingDriver?.enteredText ?? "")
+                                            : pricingDriver.driverTypeID === 6
+                                              ? pricingDriver?.enteredDate
+                                              : //  && pricingDriver?.enteredDateFormat
+                                                //   ? (() => {
+                                                //     const dateObj = convertAndParseDate(
+                                                //       pricingDriver.enteredDate,
+                                                //       pricingDriver.enteredDateFormat,
+                                                //       pricingDriver.date?.[0]?.dateFormat
+                                                //     );
+                                                //     return dateObj && isValid(dateObj)
+                                                //       ? format(dateObj, pricingDriver.date?.[0]?.dateFormat)
+                                                //       : "";
+                                                //   })()
+                                                //   : "" ?? ""
+                                                ""
                                   }</strong>
                           </li>
-                            `
+                            `,
                               )
                               .join("")}
-                          `
+                          `,
                             )
                             .join("")}
                       </div>
-                  `
+                  `,
                       )
                       .join("")}
                       ${
@@ -3137,11 +3220,11 @@ export default function PreviewComponentPdf(props) {
                               .filter((pricingDriver) =>
                                 subService?.pricingDriverList !== undefined
                                   ? pricingDriver.driverVisibility === true
-                                  : true
+                                  : true,
                               )
                               .filter(
                                 (pricingDriver) =>
-                                  pricingDriver.driverTypeID !== 1
+                                  pricingDriver.driverTypeID !== 1,
                               )
                               .map(
                                 (pricingDriver) => `
@@ -3150,90 +3233,90 @@ export default function PreviewComponentPdf(props) {
                                   <strong> ${
                                     pricingDriver.driverTypeID === 2
                                       ? props.formatValueWithoutCurrencySymbol(
-                                          pricingDriver.driverValue
+                                          pricingDriver.driverValue,
                                         )
                                       : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
-                                      //   /\B(?=(\d{3})+(?!\d))/g,
-                                      //   ","
-                                      // )
-                                      pricingDriver.driverTypeID === 3
-                                      ? subService?.pricingDriverList ==
-                                        undefined
-                                        ? pricingDriver.variationName
-                                        : pricingDriver.variation.find(
-                                            (item) => item.isDefault
-                                          ).variationName
-                                      : pricingDriver.driverTypeID === 4
-                                      ? subService?.pricingDriverList ==
-                                        undefined
-                                        ? pricingDriver.slabTypeID === 2
-                                          ? props.formatValueWithoutCurrencySymbol(
-                                              pricingDriver.driverValue
-                                            )
-                                          : props.formatValueWithoutCurrencySymbol(
-                                              pricingDriver.slabFrom
-                                            ) -
-                                            props.formatValueWithoutCurrencySymbol(
-                                              pricingDriver.slabTo
-                                            )
-                                        : pricingDriver.slab.find(
-                                            (item) => item.isDefault
-                                          ).slabTypeID === 2
-                                        ? Number(
-                                            pricingDriver.slab.find(
-                                              (item) => item.isDefault
-                                            ).slabValue
-                                          )
-                                            .toFixed(2)
-                                            .toString()
-                                            .replace(
-                                              /\B(?=(\d{3})+(?!\d))/g,
-                                              ","
-                                            )
-                                        : Number(
-                                            pricingDriver.slab.find(
-                                              (item) => item.isDefault
-                                            ).slabFrom
-                                          )
-                                            .toFixed(2)
-                                            .toString()
-                                            .replace(
-                                              /\B(?=(\d{3})+(?!\d))/g,
-                                              ","
-                                            ) +
-                                          "-" +
-                                          Number(
-                                            pricingDriver.slab.find(
-                                              (item) => item.isDefault
-                                            ).slabTo
-                                          )
-                                            .toFixed(2)
-                                            .toString()
-                                            .replace(
-                                              /\B(?=(\d{3})+(?!\d))/g,
-                                              ","
-                                            )
-                                      : pricingDriver.driverTypeID === 5
-                                      ? pricingDriver?.enteredText ?? ""
-                                      : pricingDriver.driverTypeID === 6
-                                      ? pricingDriver?.enteredDate
-                                      : ""
+                                        //   /\B(?=(\d{3})+(?!\d))/g,
+                                        //   ","
+                                        // )
+                                        pricingDriver.driverTypeID === 3
+                                        ? subService?.pricingDriverList ==
+                                          undefined
+                                          ? pricingDriver.variationName
+                                          : pricingDriver.variation.find(
+                                              (item) => item.isDefault,
+                                            ).variationName
+                                        : pricingDriver.driverTypeID === 4
+                                          ? subService?.pricingDriverList ==
+                                            undefined
+                                            ? pricingDriver.slabTypeID === 2
+                                              ? props.formatValueWithoutCurrencySymbol(
+                                                  pricingDriver.driverValue,
+                                                )
+                                              : props.formatValueWithoutCurrencySymbol(
+                                                  pricingDriver.slabFrom,
+                                                ) -
+                                                props.formatValueWithoutCurrencySymbol(
+                                                  pricingDriver.slabTo,
+                                                )
+                                            : pricingDriver.slab.find(
+                                                  (item) => item.isDefault,
+                                                ).slabTypeID === 2
+                                              ? Number(
+                                                  pricingDriver.slab.find(
+                                                    (item) => item.isDefault,
+                                                  ).slabValue,
+                                                )
+                                                  .toFixed(2)
+                                                  .toString()
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ",",
+                                                  )
+                                              : Number(
+                                                  pricingDriver.slab.find(
+                                                    (item) => item.isDefault,
+                                                  ).slabFrom,
+                                                )
+                                                  .toFixed(2)
+                                                  .toString()
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ",",
+                                                  ) +
+                                                "-" +
+                                                Number(
+                                                  pricingDriver.slab.find(
+                                                    (item) => item.isDefault,
+                                                  ).slabTo,
+                                                )
+                                                  .toFixed(2)
+                                                  .toString()
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ",",
+                                                  )
+                                          : pricingDriver.driverTypeID === 5
+                                            ? (pricingDriver?.enteredText ?? "")
+                                            : pricingDriver.driverTypeID === 6
+                                              ? pricingDriver?.enteredDate
+                                              : ""
                                   }</strong>
                           </li>
-                            `
+                            `,
                               )
                               .join("")}
-                            `
+                            `,
                               )
                               .join("")}
                         </div>
-                    `
+                    `,
                     )
                     .join("")}
 
                           ${
                             props?.additionalInformationList?.filter(
-                              (item) => item.driverTypeID !== 1
+                              (item) => item.driverTypeID !== 1,
                             ).length > 0
                               ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
         Additional Information
@@ -3250,47 +3333,47 @@ export default function PreviewComponentPdf(props) {
                         ${
                           serviceCat.driverName
                         }:  <strong> ${props.formatValueWithoutCurrencySymbol(
-                    serviceCat.driverValue
-                  )} </strong > 
+                          serviceCat.driverValue,
+                        )} </strong > 
                     </p>`
                 : serviceCat.driverTypeID === 5 || serviceCat.driverTypeID === 6
-                ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                  ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
       ${serviceCat.driverName}: <strong>${
-                    serviceCat.driverTypeID === 5
-                      ? serviceCat.enteredText ?? ""
-                      : serviceCat.enteredDate ?? ""
-                  }</strong>
+        serviceCat.driverTypeID === 5
+          ? (serviceCat.enteredText ?? "")
+          : (serviceCat.enteredDate ?? "")
+      }</strong>
     </p>`
-                : (serviceCat.driverTypeID === 4
-                    ? serviceCat.slab
-                    : serviceCat.driverTypeID === 3
-                    ? serviceCat.variation
-                    : []
-                  )
-                    .filter((item) => item.isDefault)
-                    .map(
-                      (subService) => `
+                  : (serviceCat.driverTypeID === 4
+                      ? serviceCat.slab
+                      : serviceCat.driverTypeID === 3
+                        ? serviceCat.variation
+                        : []
+                    )
+                      .filter((item) => item.isDefault)
+                      .map(
+                        (subService) => `
 <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
     ${serviceCat.driverName}: ${
-                        serviceCat.driverTypeID === 4
-                          ? subService.slabTypeID === 2
-                            ? `<strong>${props.formatValueWithoutCurrencySymbol(
-                                subService.slabValue
-                              )}</strong>`
-                            : `<strong>${props.formatValueWithoutCurrencySymbol(
-                                subService.slabFrom
-                              )}-${props.formatValueWithoutCurrencySymbol(
-                                subService.slabTo
-                              )}</strong>`
-                          : `<strong>${subService.variationName}</strong>`
-                      }
+      serviceCat.driverTypeID === 4
+        ? subService.slabTypeID === 2
+          ? `<strong>${props.formatValueWithoutCurrencySymbol(
+              subService.slabValue,
+            )}</strong>`
+          : `<strong>${props.formatValueWithoutCurrencySymbol(
+              subService.slabFrom,
+            )}-${props.formatValueWithoutCurrencySymbol(
+              subService.slabTo,
+            )}</strong>`
+        : `<strong>${subService.variationName}</strong>`
+    }
 </p>
-`
-                    )
-                    .join("")
+`,
+                      )
+                      .join("")
             }
         </div>
-    `
+    `,
                                   )
                                   .join("")
                               : ""
@@ -3298,7 +3381,7 @@ export default function PreviewComponentPdf(props) {
 
                     ${
                       props?.quoteAdditionalInfoGlobalPricingDriver?.filter(
-                        (item) => item.driverTypeID !== 1
+                        (item) => item.driverTypeID !== 1,
                       ).length > 0
                         ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
       Additional Information
@@ -3314,30 +3397,30 @@ export default function PreviewComponentPdf(props) {
               ${
                 serviceCat.driverName
               }: <strong>${props.formatValueWithoutCurrencySymbol(
-                serviceCat.driverValue
+                serviceCat.driverValue,
               )}</strong> 
           </p>`
             : serviceCat.driverTypeID === 3
-            ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+              ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
               ${serviceCat.driverName}: <strong>${serviceCat.variationName}</strong>
           </p>`
-            : serviceCat.driverTypeID === 4
-            ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+              : serviceCat.driverTypeID === 4
+                ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
                 ${serviceCat.driverName}: ${
-                serviceCat.slabTypeID == 2
-                  ? `<strong>${props.formatValueWithoutCurrencySymbol(
-                      serviceCat.driverValue
-                    )} <strong>`
-                  : `<strong>${props.formatValueWithoutCurrencySymbol(
-                      serviceCat.slabFrom
-                    )}</strong> - <strong>${props.formatValueWithoutCurrencySymbol(
-                      serviceCat.slabTo
-                    )}</strong>`
-              }
+                  serviceCat.slabTypeID == 2
+                    ? `<strong>${props.formatValueWithoutCurrencySymbol(
+                        serviceCat.driverValue,
+                      )} <strong>`
+                    : `<strong>${props.formatValueWithoutCurrencySymbol(
+                        serviceCat.slabFrom,
+                      )}</strong> - <strong>${props.formatValueWithoutCurrencySymbol(
+                        serviceCat.slabTo,
+                      )}</strong>`
+                }
           </p>`
-            : ""
+                : ""
         }
-      </div>`
+      </div>`,
                             )
                             .join("")
                         : ""
@@ -3380,9 +3463,9 @@ export default function PreviewComponentPdf(props) {
                               (selectedPackagesData) => `
                           <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">${getPackageName(
                             selectedPackagesData.servicePackageID,
-                            selectedPackagesData.servicePackageName
+                            selectedPackagesData.servicePackageName,
                           )}</th>
-                          `
+                          `,
                             )
                             .join("")}
                          
@@ -3427,38 +3510,38 @@ export default function PreviewComponentPdf(props) {
                                               (item) =>
                                                 item ==
                                                 props.selectedPackagesList[0]
-                                                  ?.servicePackageID
+                                                  ?.servicePackageID,
                                             )
                                             ? `<span>&#10007;</span>`
                                             : !subService?.servicePackageIDs.includes(
-                                                subService.packageOneID
-                                              )
-                                            ? `<span>&#10007;</span>`
-                                            : `${props.formatValue(
-                                                subService.packageOneValue,
-                                                props.currencyID
-                                              )}`
+                                                  subService.packageOneID,
+                                                )
+                                              ? `<span>&#10007;</span>`
+                                              : `${props.formatValue(
+                                                  subService.packageOneValue,
+                                                  props.currencyID,
+                                                )}`
                                           : props.formatValue(
                                               subService.price,
-                                              props.currencyID
+                                              props.currencyID,
                                             )
                                       }</td>
                             `
                                     : `${
                                         subService.packageOneValue == undefined
                                           ? Number(
-                                              subService.packageOneValue
+                                              subService.packageOneValue,
                                             ) == 0
                                             ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
                                             : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                           : Number(
-                                              subService.packageOneValue
-                                            ) !== null &&
-                                            !subService?.servicePackageIDs.includes(
-                                              subService.packageOneID
-                                            )
-                                          ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
-                                          : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                                subService.packageOneValue,
+                                              ) !== null &&
+                                              !subService?.servicePackageIDs.includes(
+                                                subService.packageOneID,
+                                              )
+                                            ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
+                                            : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                       }
                             `
                                 }
@@ -3479,20 +3562,20 @@ export default function PreviewComponentPdf(props) {
                                                 (item) =>
                                                   item ==
                                                   props.selectedPackagesList[1]
-                                                    ?.servicePackageID
+                                                    ?.servicePackageID,
                                               )
                                               ? `<span>&#10007;</span>`
                                               : !subService?.servicePackageIDs.includes(
-                                                  subService.packageTwoID
-                                                )
-                                              ? `<span>&#10007;</span>`
-                                              : `${props.formatValue(
-                                                  subService.packageTwoValue,
-                                                  props.currencyID
-                                                )}`
+                                                    subService.packageTwoID,
+                                                  )
+                                                ? `<span>&#10007;</span>`
+                                                : `${props.formatValue(
+                                                    subService.packageTwoValue,
+                                                    props.currencyID,
+                                                  )}`
                                             : props.formatValue(
                                                 subService.price,
-                                                props.currencyID
+                                                props.currencyID,
                                               )
                                         }</td>
                               `
@@ -3500,18 +3583,18 @@ export default function PreviewComponentPdf(props) {
                                           subService.packageTwoValue ==
                                           undefined
                                             ? Number(
-                                                subService.packageTwoValue
+                                                subService.packageTwoValue,
                                               ) == 0
                                               ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
                                               : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                             : Number(
-                                                subService.packageTwoValue
-                                              ) !== null &&
-                                              !subService?.servicePackageIDs.includes(
-                                                subService.packageTwoID
-                                              )
-                                            ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
-                                            : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                                  subService.packageTwoValue,
+                                                ) !== null &&
+                                                !subService?.servicePackageIDs.includes(
+                                                  subService.packageTwoID,
+                                                )
+                                              ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
+                                              : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                         }
                               `
                                   }
@@ -3534,20 +3617,20 @@ export default function PreviewComponentPdf(props) {
                                                 (item) =>
                                                   item ==
                                                   props.selectedPackagesList[2]
-                                                    ?.servicePackageID
+                                                    ?.servicePackageID,
                                               )
                                               ? `<span>&#10007;</span>`
                                               : !subService?.servicePackageIDs.includes(
-                                                  subService.packageThreeID
-                                                )
-                                              ? `<span>&#10007;</span>`
-                                              : `${props.formatValue(
-                                                  subService.packageThreeValue,
-                                                  props.currencyID
-                                                )}`
+                                                    subService.packageThreeID,
+                                                  )
+                                                ? `<span>&#10007;</span>`
+                                                : `${props.formatValue(
+                                                    subService.packageThreeValue,
+                                                    props.currencyID,
+                                                  )}`
                                             : props.formatValue(
                                                 subService.price,
-                                                props.currencyID
+                                                props.currencyID,
                                               )
                                         }</td>
                               `
@@ -3555,18 +3638,18 @@ export default function PreviewComponentPdf(props) {
                                           subService.packageThreeValue ==
                                           undefined
                                             ? Number(
-                                                subService.packageThreeValue
+                                                subService.packageThreeValue,
                                               ) == 0
                                               ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
                                               : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                             : Number(
-                                                subService.packageThreeValue
-                                              ) !== null &&
-                                              !subService?.servicePackageIDs.includes(
-                                                subService.packageThreeID
-                                              )
-                                            ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
-                                            : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                                  subService.packageThreeValue,
+                                                ) !== null &&
+                                                !subService?.servicePackageIDs.includes(
+                                                  subService.packageThreeID,
+                                                )
+                                              ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
+                                              : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                         }
                               `
                                   }
@@ -3574,34 +3657,34 @@ export default function PreviewComponentPdf(props) {
                                   `
                                   : ` `
                               }
-                            </tr>`
+                            </tr>`,
                             )
                             .join("")}
-                        `
+                        `,
                           )
                           .join("")}
                         <tr style="background-color:#808080;">                         
                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">Net Total</td>
                         <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">   ${
                           Number(
-                            props.RecurringPricingInfo.packageOneNetTotal
+                            props.RecurringPricingInfo.packageOneNetTotal,
                           ) <
                             Number(
                               props.RecurringPricingInfo
-                                .packageOneDisCountedTotal
+                                .packageOneDisCountedTotal,
                             ) ||
                           (Number(
-                            props.RecurringPricingInfo.packageOneDisCount
+                            props.RecurringPricingInfo.packageOneDisCount,
                           ) > 0 &&
                             !props.DiscountLines)
                             ? props.formatValue(
                                 props.RecurringPricingInfo
                                   .packageOneDisCountedTotal,
-                                props.currencyID
+                                props.currencyID,
                               )
                             : props.formatValue(
                                 props.RecurringPricingInfo.packageOneNetTotal,
-                                props.currencyID
+                                props.currencyID,
                               )
                         }</td >
                           
@@ -3611,7 +3694,8 @@ export default function PreviewComponentPdf(props) {
                       ${
                         Number(props.RecurringPricingInfo.packageTwoNetTotal) <
                           Number(
-                            props.RecurringPricingInfo.packageTwoDisCountedTotal
+                            props.RecurringPricingInfo
+                              .packageTwoDisCountedTotal,
                           ) ||
                         (Number(props.RecurringPricingInfo.packageTwoDisCount) >
                           0 &&
@@ -3619,11 +3703,11 @@ export default function PreviewComponentPdf(props) {
                           ? props.formatValue(
                               props.RecurringPricingInfo
                                 .packageTwoDisCountedTotal,
-                              props.currencyID
+                              props.currencyID,
                             )
                           : props.formatValue(
                               props.RecurringPricingInfo.packageTwoNetTotal,
-                              props.currencyID
+                              props.currencyID,
                             )
                       }</td>`
                                : ``
@@ -3633,38 +3717,38 @@ export default function PreviewComponentPdf(props) {
                                ? ` <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                           ${
                             Number(
-                              props.RecurringPricingInfo.packageThreeNetTotal
+                              props.RecurringPricingInfo.packageThreeNetTotal,
                             ) <
                               Number(
                                 props.RecurringPricingInfo
-                                  .packageThreeDisCountedTotal
+                                  .packageThreeDisCountedTotal,
                               ) ||
                             (Number(
-                              props.RecurringPricingInfo.packageThreeDisCount
+                              props.RecurringPricingInfo.packageThreeDisCount,
                             ) > 0 &&
                               !props.DiscountLines)
                               ? props.formatValue(
                                   props.RecurringPricingInfo
                                     .packageThreeDisCountedTotal,
-                                  props.currencyID
+                                  props.currencyID,
                                 )
                               : props.formatValue(
                                   props.RecurringPricingInfo
                                     .packageThreeNetTotal,
-                                  props.currencyID
+                                  props.currencyID,
                                 )
                           }</td>`
                                : ` `
                            }
                         ${
                           (Number(
-                            props.RecurringPricingInfo.packageThreeDisCount
+                            props.RecurringPricingInfo.packageThreeDisCount,
                           ) > 0 ||
                             Number(
-                              props.RecurringPricingInfo.packageOneDisCount
+                              props.RecurringPricingInfo.packageOneDisCount,
                             ) > 0 ||
                             Number(
-                              props.RecurringPricingInfo.packageTwoDisCount
+                              props.RecurringPricingInfo.packageTwoDisCount,
                             ) > 0) &&
                           props?.DiscountLines
                             ? `
@@ -3676,7 +3760,7 @@ export default function PreviewComponentPdf(props) {
               (-)    
               ${props.formatValue(
                 props.RecurringPricingInfo.packageOneDisCount,
-                props.currencyID
+                props.currencyID,
               )}
             </td>
             ${
@@ -3686,7 +3770,7 @@ export default function PreviewComponentPdf(props) {
                 (-)    
                 ${props.formatValue(
                   props.RecurringPricingInfo.packageTwoDisCount,
-                  props.currencyID
+                  props.currencyID,
                 )}
               </td>
             `
@@ -3699,7 +3783,7 @@ export default function PreviewComponentPdf(props) {
                 (-)    
                 ${props.formatValue(
                   props.RecurringPricingInfo.packageThreeDisCount,
-                  props.currencyID
+                  props.currencyID,
                 )}
               </td>
             `
@@ -3715,7 +3799,7 @@ export default function PreviewComponentPdf(props) {
                  
               ${props.formatValue(
                 props.RecurringPricingInfo.packageOneDisCountedTotal,
-                props.currencyID
+                props.currencyID,
               )}
             </td>
             ${
@@ -3726,7 +3810,7 @@ export default function PreviewComponentPdf(props) {
                    
                 ${props.formatValue(
                   props.RecurringPricingInfo.packageTwoDisCountedTotal,
-                  props.currencyID
+                  props.currencyID,
                 )}
               </td>
             `
@@ -3740,7 +3824,7 @@ export default function PreviewComponentPdf(props) {
                    
                 ${props.formatValue(
                   props.RecurringPricingInfo.packageThreeDisCountedTotal,
-                  props.currencyID
+                  props.currencyID,
                 )}
               </td>
             `
@@ -3764,7 +3848,7 @@ export default function PreviewComponentPdf(props) {
             ${
               props.formatValue(
                 props.RecurringPricingInfo.PackageOneVaTPrice,
-                props.currencyID
+                props.currencyID,
               )
 
               // Number(props.RecurringPricingInfo.PackageOneVaTPrice).toFixed(2).toString().replace(
@@ -3781,7 +3865,7 @@ export default function PreviewComponentPdf(props) {
               ${
                 props.formatValue(
                   props.RecurringPricingInfo.PackageTwoVaTPrice,
-                  props.currencyID
+                  props.currencyID,
                 )
                 // Number(props.RecurringPricingInfo.PackageTwoVaTPrice).toFixed(2).toString().replace(
                 //         /\B(?=(\d{3})+(?!\d))/g,
@@ -3800,7 +3884,7 @@ export default function PreviewComponentPdf(props) {
               ${
                 props.formatValue(
                   props.RecurringPricingInfo.PackageThreeVaTPrice,
-                  props.currencyID
+                  props.currencyID,
                 )
                 // Number(props.RecurringPricingInfo.PackageThreeVaTPrice).toFixed(2).toString().replace(
                 //         /\B(?=(\d{3})+(?!\d))/g,
@@ -3822,7 +3906,7 @@ export default function PreviewComponentPdf(props) {
             ${
               props.formatValue(
                 props.RecurringPricingInfo.PackageOneGrandTotal,
-                props.currencyID
+                props.currencyID,
               )
               // Number(props.RecurringPricingInfo.PackageOneGrandTotal).toFixed(2).toString().replace(
               //           /\B(?=(\d{3})+(?!\d))/g,
@@ -3838,7 +3922,7 @@ export default function PreviewComponentPdf(props) {
               ${
                 props.formatValue(
                   props.RecurringPricingInfo.PackageTwoGrandTotal,
-                  props.currencyID
+                  props.currencyID,
                 )
                 // Number(props.RecurringPricingInfo.PackageTwoGrandTotal).toFixed(2).toString().replace(
                 //         /\B(?=(\d{3})+(?!\d))/g,
@@ -3857,7 +3941,7 @@ export default function PreviewComponentPdf(props) {
               ${
                 props.formatValue(
                   props.RecurringPricingInfo.PackageThreeGrandTotal,
-                  props.currencyID
+                  props.currencyID,
                 )
                 // Number(props.RecurringPricingInfo.PackageThreeGrandTotal).toFixed(2).toString().replace(
                 //         /\B(?=(\d{3})+(?!\d))/g,
@@ -3893,9 +3977,9 @@ export default function PreviewComponentPdf(props) {
                               (selectedPackagesData) => `
                           <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">${getPackageName(
                             selectedPackagesData.servicePackageID,
-                            selectedPackagesData.servicePackageName
+                            selectedPackagesData.servicePackageName,
                           )}</th>
-                          `
+                          `,
                             )
                             .join("")}                           
                         </tr>
@@ -3942,38 +4026,38 @@ export default function PreviewComponentPdf(props) {
                                               (item) =>
                                                 item ==
                                                 props.selectedPackagesList[0]
-                                                  ?.servicePackageID
+                                                  ?.servicePackageID,
                                             )
                                             ? `<span>&#10007;</span>`
                                             : !subService?.servicePackageIDs.includes(
-                                                subService.packageOneID
-                                              )
-                                            ? `<span>&#10007;</span>`
-                                            : `${props.formatValue(
-                                                subService.packageOneValue,
-                                                props.currencyID
-                                              )}`
+                                                  subService.packageOneID,
+                                                )
+                                              ? `<span>&#10007;</span>`
+                                              : `${props.formatValue(
+                                                  subService.packageOneValue,
+                                                  props.currencyID,
+                                                )}`
                                           : props.formatValue(
                                               subService.price,
-                                              props.currencyID
+                                              props.currencyID,
                                             )
                                       }</td>
                             `
                                     : `${
                                         subService.packageOneValue == undefined
                                           ? Number(
-                                              subService.packageOneValue
+                                              subService.packageOneValue,
                                             ) == 0
                                             ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
                                             : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                           : Number(
-                                              subService.packageOneValue
-                                            ) !== null &&
-                                            !subService?.servicePackageIDs.includes(
-                                              subService.packageOneID
-                                            )
-                                          ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
-                                          : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                                subService.packageOneValue,
+                                              ) !== null &&
+                                              !subService?.servicePackageIDs.includes(
+                                                subService.packageOneID,
+                                              )
+                                            ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
+                                            : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                       }
                             `
                                 }
@@ -3994,20 +4078,20 @@ export default function PreviewComponentPdf(props) {
                                                 (item) =>
                                                   item ==
                                                   props.selectedPackagesList[1]
-                                                    ?.servicePackageID
+                                                    ?.servicePackageID,
                                               )
                                               ? `<span>&#10007;</span>`
                                               : !subService?.servicePackageIDs.includes(
-                                                  subService.packageTwoID
-                                                )
-                                              ? `<span>&#10007;</span>`
-                                              : `${props.formatValue(
-                                                  subService.packageTwoValue,
-                                                  props.currencyID
-                                                )}`
+                                                    subService.packageTwoID,
+                                                  )
+                                                ? `<span>&#10007;</span>`
+                                                : `${props.formatValue(
+                                                    subService.packageTwoValue,
+                                                    props.currencyID,
+                                                  )}`
                                             : props.formatValue(
                                                 subService.price,
-                                                props.currencyID
+                                                props.currencyID,
                                               )
                                         }</td>
                               `
@@ -4015,18 +4099,18 @@ export default function PreviewComponentPdf(props) {
                                           subService.packageTwoValue ==
                                           undefined
                                             ? Number(
-                                                subService.packageTwoValue
+                                                subService.packageTwoValue,
                                               ) == 0
                                               ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
                                               : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                             : Number(
-                                                subService.packageTwoValue
-                                              ) !== null &&
-                                              !subService?.servicePackageIDs.includes(
-                                                subService.packageTwoID
-                                              )
-                                            ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
-                                            : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                                  subService.packageTwoValue,
+                                                ) !== null &&
+                                                !subService?.servicePackageIDs.includes(
+                                                  subService.packageTwoID,
+                                                )
+                                              ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
+                                              : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                         }
                               `
                                   }
@@ -4049,20 +4133,20 @@ export default function PreviewComponentPdf(props) {
                                                 (item) =>
                                                   item ==
                                                   props.selectedPackagesList[2]
-                                                    ?.servicePackageID
+                                                    ?.servicePackageID,
                                               )
                                               ? `<span>&#10007;</span>`
                                               : !subService?.servicePackageIDs.includes(
-                                                  subService.packageThreeID
-                                                )
-                                              ? `<span>&#10007;</span>`
-                                              : `${props.formatValue(
-                                                  subService.packageThreeValue,
-                                                  props.currencyID
-                                                )}`
+                                                    subService.packageThreeID,
+                                                  )
+                                                ? `<span>&#10007;</span>`
+                                                : `${props.formatValue(
+                                                    subService.packageThreeValue,
+                                                    props.currencyID,
+                                                  )}`
                                             : props.formatValue(
                                                 subService.price,
-                                                props.currencyID
+                                                props.currencyID,
                                               )
                                         }</td>
                               `
@@ -4070,18 +4154,18 @@ export default function PreviewComponentPdf(props) {
                                           subService.packageThreeValue ==
                                           undefined
                                             ? Number(
-                                                subService.packageThreeValue
+                                                subService.packageThreeValue,
                                               ) == 0
                                               ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
                                               : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                             : Number(
-                                                subService.packageThreeValue
-                                              ) !== null &&
-                                              !subService?.servicePackageIDs.includes(
-                                                subService.packageThreeID
-                                              )
-                                            ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
-                                            : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
+                                                  subService.packageThreeValue,
+                                                ) !== null &&
+                                                !subService?.servicePackageIDs.includes(
+                                                  subService.packageThreeID,
+                                                )
+                                              ? `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10007;</td>`
+                                              : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                         }
                               `
                                   }
@@ -4089,10 +4173,10 @@ export default function PreviewComponentPdf(props) {
                                   `
                                   : ` `
                               }
-                            </tr>`
+                            </tr>`,
                             )
                             .join("")}
-                        `
+                        `,
                           )
                           .join("")}
                          <tr style="background-color:#808080;">
@@ -4100,7 +4184,7 @@ export default function PreviewComponentPdf(props) {
                         <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">  ${
                           Number(props.OneOffPricingInfo.packageOneNetTotal) <
                             Number(
-                              props.OneOffPricingInfo.packageOneDisCountedTotal
+                              props.OneOffPricingInfo.packageOneDisCountedTotal,
                             ) ||
                           (Number(props.OneOffPricingInfo.packageOneDisCount) >
                             0 &&
@@ -4108,11 +4192,11 @@ export default function PreviewComponentPdf(props) {
                             ? props.formatValue(
                                 props.OneOffPricingInfo
                                   .packageOneDisCountedTotal,
-                                props.currencyID
+                                props.currencyID,
                               )
                             : props.formatValue(
                                 props.OneOffPricingInfo.packageOneNetTotal,
-                                props.currencyID
+                                props.currencyID,
                               )
                         }</td>
                           
@@ -4120,25 +4204,25 @@ export default function PreviewComponentPdf(props) {
                              props?.selectedPackages.length >= 2
                                ? `  <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">   ${
                                    Number(
-                                     props.OneOffPricingInfo.packageTwoNetTotal
+                                     props.OneOffPricingInfo.packageTwoNetTotal,
                                    ) <
                                      Number(
                                        props.OneOffPricingInfo
-                                         .packageTwoDisCountedTotal
+                                         .packageTwoDisCountedTotal,
                                      ) ||
                                    (Number(
-                                     props.OneOffPricingInfo.packageTwoDisCount
+                                     props.OneOffPricingInfo.packageTwoDisCount,
                                    ) > 0 &&
                                      !props.DiscountLines)
                                      ? props.formatValue(
                                          props.OneOffPricingInfo
                                            .packageTwoDisCountedTotal,
-                                         props.currencyID
+                                         props.currencyID,
                                        )
                                      : props.formatValue(
                                          props.OneOffPricingInfo
                                            .packageTwoNetTotal,
-                                         props.currencyID
+                                         props.currencyID,
                                        )
                                  }</td>`
                                : ` `
@@ -4148,26 +4232,26 @@ export default function PreviewComponentPdf(props) {
                                ? ` <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">  ${
                                    Number(
                                      props.OneOffPricingInfo
-                                       .packageThreeNetTotal
+                                       .packageThreeNetTotal,
                                    ) <
                                      Number(
                                        props.OneOffPricingInfo
-                                         .packageThreeDisCountedTotal
+                                         .packageThreeDisCountedTotal,
                                      ) ||
                                    (Number(
                                      props.OneOffPricingInfo
-                                       .packageThreeDisCount
+                                       .packageThreeDisCount,
                                    ) > 0 &&
                                      !props.DiscountLines)
                                      ? props.formatValue(
                                          props.OneOffPricingInfo
                                            .packageThreeDisCountedTotal,
-                                         props.currencyID
+                                         props.currencyID,
                                        )
                                      : props.formatValue(
                                          props.OneOffPricingInfo
                                            .packageThreeNetTotal,
-                                         props.currencyID
+                                         props.currencyID,
                                        )
                                  }
                         </td>`
@@ -4175,7 +4259,7 @@ export default function PreviewComponentPdf(props) {
                            }
                         ${
                           (Number(
-                            props.OneOffPricingInfo.packageThreeDisCount
+                            props.OneOffPricingInfo.packageThreeDisCount,
                           ) > 0 ||
                             Number(props.OneOffPricingInfo.packageOneDisCount) >
                               0 ||
@@ -4191,7 +4275,7 @@ export default function PreviewComponentPdf(props) {
               (-)    
               ${props.formatValue(
                 props.OneOffPricingInfo.packageOneDisCount,
-                props.currencyID
+                props.currencyID,
               )}
             </td>
             ${
@@ -4201,7 +4285,7 @@ export default function PreviewComponentPdf(props) {
                 (-)    
                 ${props.formatValue(
                   props.OneOffPricingInfo.packageTwoDisCount,
-                  props.currencyID
+                  props.currencyID,
                 )}
               </td>
             `
@@ -4214,7 +4298,7 @@ export default function PreviewComponentPdf(props) {
                 (-)    
                 ${props.formatValue(
                   props.OneOffPricingInfo.packageThreeDisCount,
-                  props.currencyID
+                  props.currencyID,
                 )}
               </td>
             `
@@ -4231,7 +4315,7 @@ export default function PreviewComponentPdf(props) {
               ${
                 props.formatValue(
                   props.OneOffPricingInfo.packageOneDisCountedTotal,
-                  props.currencyID
+                  props.currencyID,
                 )
                 // Number(props.OneOffPricingInfo.packageOneDisCountedTotal)
                 //           .toFixed(2).toString().replace(
@@ -4248,7 +4332,7 @@ export default function PreviewComponentPdf(props) {
                 ${
                   props.formatValue(
                     props.OneOffPricingInfo.packageTwoDisCountedTotal,
-                    props.currencyID
+                    props.currencyID,
                   )
                   // Number(props.OneOffPricingInfo.packageTwoDisCountedTotal)
                   //           .toFixed(2).toString().replace(
@@ -4269,7 +4353,7 @@ export default function PreviewComponentPdf(props) {
                 ${
                   props.formatValue(
                     props.OneOffPricingInfo.packageThreeDisCountedTotal,
-                    props.currencyID
+                    props.currencyID,
                   )
                   // Number(props.OneOffPricingInfo.packageThreeDisCountedTotal)
                   //           .toFixed(2).toString().replace(
@@ -4299,7 +4383,7 @@ export default function PreviewComponentPdf(props) {
             ${
               props.formatValue(
                 props.OneOffPricingInfo.PackageOneVaTPrice,
-                props.currencyID
+                props.currencyID,
               )
               // Number(props.OneOffPricingInfo.PackageOneVaTPrice)
               //           .toFixed(2).toString().replace(
@@ -4316,7 +4400,7 @@ export default function PreviewComponentPdf(props) {
               ${
                 props.formatValue(
                   props.OneOffPricingInfo.PackageTwoVaTPrice,
-                  props.currencyID
+                  props.currencyID,
                 )
                 // Number(props.OneOffPricingInfo.PackageTwoVaTPrice)
                 //           .toFixed(2).toString().replace(
@@ -4336,7 +4420,7 @@ export default function PreviewComponentPdf(props) {
               ${
                 props.formatValue(
                   props.OneOffPricingInfo.PackageThreeVaTPrice,
-                  props.currencyID
+                  props.currencyID,
                 )
                 // Number(props.OneOffPricingInfo.PackageThreeVaTPrice)
                 //           .toFixed(2).toString().replace(
@@ -4358,7 +4442,7 @@ export default function PreviewComponentPdf(props) {
             ${
               props.formatValue(
                 props.OneOffPricingInfo.PackageOneGrandTotal,
-                props.currencyID
+                props.currencyID,
               )
               // Number(props.OneOffPricingInfo.PackageOneGrandTotal)
               //           .toFixed(2).toString().replace(
@@ -4375,7 +4459,7 @@ export default function PreviewComponentPdf(props) {
               ${
                 props.formatValue(
                   props.OneOffPricingInfo.PackageTwoGrandTotal,
-                  props.currencyID
+                  props.currencyID,
                 )
                 // Number(props.OneOffPricingInfo.PackageTwoGrandTotal)
                 //           .toFixed(2).toString().replace(
@@ -4395,7 +4479,7 @@ export default function PreviewComponentPdf(props) {
               ${
                 props.formatValue(
                   props.OneOffPricingInfo.PackageThreeGrandTotal,
-                  props.currencyID
+                  props.currencyID,
                 )
                 // Number(props.OneOffPricingInfo.PackageThreeGrandTotal)
                 //           .toFixed(2).toString().replace(
@@ -4427,7 +4511,9 @@ export default function PreviewComponentPdf(props) {
                 props?.engagementObj?.quoteTypeID !== 4
               ) {
                 currentArray.push({
-                  table: `
+                  table:
+                    props.selectedTemplateID === 0
+                      ? `
                     <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
                      
                       <p style="font-family:${fontFamily}; color:${newColorCode}; font-size: 20px; margin-top: 15px;"> Recurring Fees (${getPaymentFrequencyLabel()})</p>
@@ -4435,7 +4521,7 @@ export default function PreviewComponentPdf(props) {
                         <tr style="background-color:${newColorCode};">
                           <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
                           <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (${getCurrencySymbol(
-                            props.currencyID
+                            props.currencyID,
                           )})</th>
                         </tr>
                         ${props.selectedRecurringServiceList
@@ -4460,21 +4546,21 @@ export default function PreviewComponentPdf(props) {
                                         subService.price == undefined
                                           ? props.formatValue(
                                               subService.quotationPrice,
-                                              props.currencyID
+                                              props.currencyID,
                                             )
                                           : props.formatValue(
                                               subService.price,
-                                              props.currencyID
+                                              props.currencyID,
                                             )
                                       }</td>
                             `
                                     : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                 }
                             </tr>
-                          `
+                          `,
                             )
                             .join("")}
-                        `
+                        `,
                           )
                           .join("")}
                         <tr style="background-color:#808080;">
@@ -4482,24 +4568,24 @@ export default function PreviewComponentPdf(props) {
                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">   ${
                             Number(props.RecurringPricingInfo.OriginalPrice) <
                               Number(
-                                props.RecurringPricingInfo.DiscountedPrice
+                                props.RecurringPricingInfo.DiscountedPrice,
                               ) ||
                             (Number(props.RecurringPricingInfo.Discount) > 0 &&
                               !props.DiscountLines)
                               ? Number(
-                                  props.RecurringPricingInfo.DiscountedPrice
+                                  props.RecurringPricingInfo.DiscountedPrice,
                                 ) === 0
                                 ? props.formatValue(
                                     props.RecurringPricingInfo.OriginalPrice,
-                                    props.currencyID
+                                    props.currencyID,
                                   )
                                 : props.formatValue(
                                     props.RecurringPricingInfo.DiscountedPrice,
-                                    props.currencyID
+                                    props.currencyID,
                                   )
                               : props.formatValue(
                                   props.RecurringPricingInfo.OriginalPrice,
-                                  props.currencyID
+                                  props.currencyID,
                                 )
                           }
                     </td>
@@ -4507,7 +4593,7 @@ export default function PreviewComponentPdf(props) {
                    ${
                      Number(
                        props.RecurringPricingInfo.Discount > 0 &&
-                         props?.DiscountLines
+                         props?.DiscountLines,
                      )
                        ? `<tr style="background-color:#DCDCDC ;">
                       <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">
@@ -4517,7 +4603,7 @@ export default function PreviewComponentPdf(props) {
                        
                        (-)     ${props.formatValue(
                          props.RecurringPricingInfo.Discount,
-                         props.currencyID
+                         props.currencyID,
                        )}
                       </td>
                     </tr>
@@ -4530,7 +4616,7 @@ export default function PreviewComponentPdf(props) {
                  
               ${props.formatValue(
                 props.RecurringPricingInfo.DiscountedTotal,
-                props.currencyID
+                props.currencyID,
               )}
             </td>
           </tr>
@@ -4549,7 +4635,7 @@ export default function PreviewComponentPdf(props) {
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;">   ${
               props.formatValue(
                 props.RecurringPricingInfo.VATPrice,
-                props.currencyID
+                props.currencyID,
               )
               // Number(props.RecurringPricingInfo.VATPrice)
               //           .toFixed(2).toString().replace(
@@ -4568,7 +4654,7 @@ export default function PreviewComponentPdf(props) {
               ${
                 props.formatValue(
                   props.RecurringPricingInfo.GrandTotal,
-                  props.currencyID
+                  props.currencyID,
                 )
                 // Number(props.RecurringPricingInfo.GrandTotal)
                 //         .toFixed(2).toString().replace(
@@ -4583,7 +4669,446 @@ export default function PreviewComponentPdf(props) {
    
                       </table>
                     </div>
-                  `,
+                  `
+                      : props.selectedTemplateID === 6
+                        ? `<div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily}; page-break-inside: avoid; break-inside: avoid;">
+  <p style="font-family:${fontFamily}; color:${newColorCode}; font-size: 20px; margin-top: 15px;">
+    Recurring Fees (${getPaymentFrequencyLabel()})'
+  </p>
+
+  <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px; table-layout: fixed;">
+    <tr style="background-color:${newColorCode};">
+      ${
+        props.visibleFieldsCustomTemp.serviceCategory
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Service Category</th>`
+          : ""
+      }
+      ${
+        props.visibleFieldsCustomTemp.serviceName
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Services</th>`
+          : ""
+      }
+      ${
+        props.visibleFieldsCustomTemp.serviceScope
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Service Scope</th>`
+          : ""
+      }
+      ${
+        props.visibleFieldsCustomTemp.fees
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Fees (${props.currencySymbol})</th>`
+          : ""
+      }
+      ${
+        props.vatPercentage !== null && props.visibleFieldsCustomTemp.vatRate
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">${props.taxName} Rate</th>`
+          : ""
+      }
+      ${
+        props.vatPercentage !== null && props.visibleFieldsCustomTemp.vat
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">${props.taxName} (${props.currencySymbol})</th>`
+          : ""
+      }
+      ${
+        props.vatPercentage !== null && props.visibleFieldsCustomTemp.feesIncVat
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Fees inc ${props.taxName} (${props.currencySymbol})</th>`
+          : ""
+      }
+    </tr>
+
+    ${props.selectedRecurringServiceList
+      .map(
+        (serviceCat) => `
+        
+
+        ${serviceCat.servicesList
+          .map((subService) => {
+            const priceExact = decimalValue(subService.price);
+
+            const vatRateExact = decimalValue(
+              subService.service_vat_percentage ?? props.vatPercentage,
+            );
+
+            const vatExact = priceExact.mul(vatRateExact).div(100);
+
+            const feesIncVatExact = priceExact.plus(vatExact);
+
+            // Round only for display.
+            const rowFees = truncateMoney(priceExact);
+            const rowVat = truncateMoney(vatExact);
+            const rowFeesIncVat = truncateMoney(feesIncVatExact);
+
+            const rowVatRate = vatRateExact.toNumber();
+
+            const driverList = subService.pricingDriverList || [];
+
+            return `
+              <tr>
+  ${
+    props.visibleFieldsCustomTemp.serviceCategory
+      ? `<td style="border: 1px solid #dddddd; padding: 8px; font-size: 14px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: left;">${serviceCat.serviceCatName}</td>`
+      : ""
+  }
+  ${
+    props.visibleFieldsCustomTemp.serviceName
+      ? `<td style="border: 1px solid #dddddd; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: left;">${subService.serviceName}</td>`
+      : ""
+  }
+ ${
+   props.visibleFieldsCustomTemp.serviceScope
+     ? `<td style="border: 1px solid #dddddd; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: left;">
+        ${
+          driverList.length > 0
+            ? driverList
+                .map((d, i) => {
+                  // Case 1: No variation
+                  if (!d.variation || d.variation.length === 0) {
+                    return `${d.driverName} = ${d.driverValue}${
+                      i !== driverList.length - 1 ? "; " : ""
+                    }`;
+                  }
+
+                  // Case 2: variation exists → match by variationValue OR variationID
+                  const matched = d.variation.find(
+                    (v) =>
+                      Number(v.variationValue) === Number(d.driverValue) ||
+                      Number(v.variationID) === Number(d.variationID),
+                  );
+
+                  return `${d.driverName} = ${
+                    matched ? matched.variationName : d.driverValue
+                  }${i !== driverList.length - 1 ? "; " : ""}`;
+                })
+                .join("")
+            : "-"
+        }
+      </td>`
+     : ""
+ }
+  ${
+    props.visibleFieldsCustomTemp.fees
+      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">
+          ${
+            props.ProposalObject.feeTypeId === 1
+              ? props.formatValue(rowFees, props.currencyID)
+              : "&#10003;"
+          }
+        </td>`
+      : ""
+  }
+  ${
+    props.vatPercentage !== null && props.visibleFieldsCustomTemp.vatRate
+      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">${rowVatRate.toFixed(2)}%</td>`
+      : ""
+  }
+  ${
+    props.vatPercentage !== null && props.visibleFieldsCustomTemp.vat
+      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">
+          ${
+            props.ProposalObject.feeTypeId === 1
+              ? props.formatValue(rowVat, props.currencyID)
+              : "&#10003;"
+          }
+        </td>`
+      : ""
+  }
+  ${
+    props.vatPercentage !== null && props.visibleFieldsCustomTemp.feesIncVat
+      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">
+          ${
+            props.ProposalObject.feeTypeId === 1
+              ? props.formatValue(rowFeesIncVat, props.currencyID)
+              : "&#10003;"
+          }
+        </td>`
+      : ""
+  }
+</tr>
+
+
+            `;
+          })
+          .join("")}
+      `,
+      )
+      .join("")}
+
+   <!-- NET TOTAL ROW -->
+    <tr style="background-color:#808080;">
+  <td style="border: 1px solid #dddddd; padding: 8px; color: white;">Net Total</td>
+  ${
+    props.visibleFieldsCustomTemp.serviceCategory
+      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;"></td>`
+      : ""
+  }
+  ${
+    props.visibleFieldsCustomTemp.serviceScope
+      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;"></td>`
+      : ""
+  }
+  ${
+    props.visibleFieldsCustomTemp.fees
+      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
+          ${props.formatValue(customRecurringFooter.netFees, props.currencyID)}
+        </td>`
+      : ""
+  }
+  ${
+    props.vatPercentage !== null && props.visibleFieldsCustomTemp.vatRate
+      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;"></td>`
+      : ""
+  }
+  ${
+    props.vatPercentage !== null && props.visibleFieldsCustomTemp.vat
+      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
+          ${props.formatValue(customRecurringFooter.netVat, props.currencyID)}
+        </td>`
+      : ""
+  }
+  ${
+    props.vatPercentage !== null && props.visibleFieldsCustomTemp.feesIncVat
+      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
+          ${props.formatValue(
+            customRecurringFooter.netFeesIncVat,
+            props.currencyID,
+          )}
+        </td>`
+      : ""
+  }
+</tr>
+
+${
+  showCustomDiscount
+    ? `
+      <!-- DISCOUNT ROW -->
+      <tr style="background-color:#DCDCDC;">
+        ${
+          customDescriptionColumnCount > 0
+            ? `
+              <td
+                colspan="${customDescriptionColumnCount}"
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: left;
+                  padding: 8px;
+                  color: black;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                Discount
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: black;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                (-) ${props.formatValue(
+                  customRecurringFooter.discountFees,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.vatPercentage !== null && props.visibleFieldsCustomTemp.vatRate
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: black;
+                "
+              ></td>
+            `
+            : ""
+        }
+
+        ${
+          props.vatPercentage !== null && props.visibleFieldsCustomTemp.vat
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: black;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                (-) ${props.formatValue(
+                  customRecurringFooter.discountVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.vatPercentage !== null &&
+          props.visibleFieldsCustomTemp.feesIncVat
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: black;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                (-) ${props.formatValue(
+                  customRecurringFooter.discountFeesIncVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+      </tr>
+
+       <!-- DISCOUNTED / GRAND TOTAL ROW -->
+      <tr style="background-color:#808080;">
+        ${
+          customDescriptionColumnCount > 0
+            ? `
+              <td
+                colspan="${customDescriptionColumnCount}"
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: left;
+                  padding: 8px;
+                  color: white;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                ${
+                  Number(props.vatPercentage) > 0
+                    ? "Grand Total"
+                    : "Discounted Total"
+                }
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: white;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                ${props.formatValue(
+                  customRecurringFooter.discountedFees,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.vatPercentage !== null && props.visibleFieldsCustomTemp.vatRate
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: white;
+                "
+              ></td>
+            `
+            : ""
+        }
+
+        ${
+          props.vatPercentage !== null && props.visibleFieldsCustomTemp.vat
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: white;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                ${props.formatValue(
+                  customRecurringFooter.discountedVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.vatPercentage !== null &&
+          props.visibleFieldsCustomTemp.feesIncVat
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: white;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                ${props.formatValue(
+                  customRecurringFooter.discountedFeesIncVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+      </tr>
+
+      `
+    : ""
+}
+                      </table>
+                    </div>
+
+`
+                        : "",
                 });
               }
               // Check if selectedOneOffServiceList has items
@@ -4594,14 +5119,16 @@ export default function PreviewComponentPdf(props) {
               ) {
                 // Append the table for selectedOneOffServiceList
                 currentArray.push({
-                  table: `
+                  table:
+                    props.selectedTemplateID === 0
+                      ? `
                       <div style="padding: 40px;font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
                         <p style="font-family:${fontFamily}; color:${newColorCode}; font-size: 20px;">One-Off Fees </p>
                         <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
                           <tr style="background-color:${newColorCode};">
                             <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
                             <th style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; font-size: 18px;">Fees (${getCurrencySymbol(
-                              props.currencyID
+                              props.currencyID,
                             )})</th>
                           </tr>
                           ${props.selectedOneOffServiceList
@@ -4626,21 +5153,21 @@ export default function PreviewComponentPdf(props) {
                                         subService.price == undefined
                                           ? props.formatValue(
                                               subService.quotationPrice,
-                                              props.currencyID
+                                              props.currencyID,
                                             )
                                           : props.formatValue(
                                               subService.price,
-                                              props.currencyID
+                                              props.currencyID,
                                             )
                                       }</td>
                             `
                                     : `<td style="border: 1px solid #DDDDDD; text-align: right; padding: 8px;">&#10003;</td>`
                                 }
                                   </tr>
-                                `
+                                `,
                                   )
                                   .join("")}
-                              `
+                              `,
                             )
                             .join("")}
                           <tr style="background-color:#808080;">
@@ -4655,15 +5182,15 @@ export default function PreviewComponentPdf(props) {
                         ? Number(props.OneOffPricingInfo.DiscountedPrice) === 0
                           ? props.formatValue(
                               props.OneOffPricingInfo.OriginalPrice,
-                              props.currencyID
+                              props.currencyID,
                             )
                           : props.formatValue(
                               props.OneOffPricingInfo.DiscountedPrice,
-                              props.currencyID
+                              props.currencyID,
                             )
                         : props.formatValue(
                             props.OneOffPricingInfo.OriginalPrice,
-                            props.currencyID
+                            props.currencyID,
                           )
                     }
                     </td>
@@ -4672,7 +5199,7 @@ export default function PreviewComponentPdf(props) {
                       ${
                         Number(
                           props.OneOffPricingInfo.Discount > 0 &&
-                            props?.DiscountLines
+                            props?.DiscountLines,
                         )
                           ? `
       
@@ -4684,7 +5211,7 @@ export default function PreviewComponentPdf(props) {
                        
                        (-)      ${props.formatValue(
                          props.OneOffPricingInfo.Discount,
-                         props.currencyID
+                         props.currencyID,
                        )}
                       </td>
                     </tr>
@@ -4696,7 +5223,7 @@ export default function PreviewComponentPdf(props) {
                                 
               ${props.formatValue(
                 props.OneOffPricingInfo.DiscountedTotal,
-                props.currencyID
+                props.currencyID,
               )}
             </td>
           </tr>
@@ -4715,7 +5242,7 @@ export default function PreviewComponentPdf(props) {
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;">   ${
               props.formatValue(
                 props.OneOffPricingInfo.VATPrice,
-                props.currencyID
+                props.currencyID,
               )
               // Number(props.OneOffPricingInfo.VATPrice)
               //           .toFixed(2).toString().replace(
@@ -4735,7 +5262,7 @@ export default function PreviewComponentPdf(props) {
               ${
                 props.formatValue(
                   props.OneOffPricingInfo.GrandTotal,
-                  props.currencyID
+                  props.currencyID,
                 )
                 // Number(props.OneOffPricingInfo.GrandTotal)
                 //         .toFixed(2).toString().replace(
@@ -4752,7 +5279,504 @@ export default function PreviewComponentPdf(props) {
                           </tr>
                         </table>
                       </div>
-                    `,
+                    `
+                      : props.selectedTemplateID === 6
+                        ? `
+<div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily}; page-break-inside: avoid; break-inside: avoid;">
+  <p style="font-family:${fontFamily}; color:${newColorCode}; font-size: 20px; margin-top: 15px;">
+    One-Off Fees
+  </p>
+
+  <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px; ;table-layout: fixed">
+    <tr style="background-color:${newColorCode};">
+      ${
+        props.visibleFieldsCustomTemp.serviceCategory
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Service Category</th>`
+          : ""
+      }
+      ${
+        props.visibleFieldsCustomTemp.serviceName
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Services</th>`
+          : ""
+      }
+      ${
+        props.visibleFieldsCustomTemp.serviceScope
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Service scope</th>`
+          : ""
+      }
+      ${
+        props.visibleFieldsCustomTemp.fees
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Fees (${props.currencySymbol})</th>`
+          : ""
+      }
+      ${
+        props.vatPercentage !== null && props.visibleFieldsCustomTemp.vatRate
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">${props.taxName} Rate</th>`
+          : ""
+      }
+      ${
+        props.vatPercentage !== null && props.visibleFieldsCustomTemp.vat
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">${props.taxName} (${props.currencySymbol})</th>`
+          : ""
+      }
+      ${
+        props.vatPercentage !== null && props.visibleFieldsCustomTemp.feesIncVat
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Fees inc ${props.taxName} (${props.currencySymbol})</th>`
+          : ""
+      }
+    </tr>
+
+    ${props.selectedOneOffServiceList
+      .map(
+        (serviceCat) => `
+
+        ${serviceCat.servicesList
+          .map((subService) => {
+            const priceExact = decimalValue(subService.price);
+
+            const vatRateExact = decimalValue(
+              subService.service_vat_percentage ??
+                props.vatPercentageOneOff ??
+                props.vatPercentage ??
+                0,
+            );
+
+            const vatExact = priceExact.mul(vatRateExact).div(100);
+
+            const totalExact = priceExact.plus(vatExact);
+
+            /*
+             * Truncate only for display.
+             * Footer calculation continues to use full precision.
+             */
+            const price = truncateMoney(priceExact);
+            const vat = truncateMoney(vatExact);
+            const total = truncateMoney(totalExact);
+
+            const vatRate = vatRateExact.toNumber();
+
+            const driverList = subService.pricingDriverList || [];
+
+            return `
+              <tr>
+               ${
+                 props.visibleFieldsCustomTemp.serviceCategory
+                   ? `<td style="border: 1px solid #dddddd; padding: 8px; font-size: 14px;width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: left;">${serviceCat.serviceCatName}</td>`
+                   : ""
+               }
+                ${
+                  props.visibleFieldsCustomTemp.serviceName
+                    ? `<td style="border: 1px solid #dddddd; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: left;">${subService.serviceName}</td>`
+                    : ""
+                }
+                ${
+                  props.visibleFieldsCustomTemp.serviceScope
+                    ? `<td style="border: 1px solid #dddddd; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: left;">
+        ${
+          driverList.length > 0
+            ? driverList
+                .map((d, i) => {
+                  // Case 1: No variation
+                  if (!d.variation || d.variation.length === 0) {
+                    return `${d.driverName} = ${d.driverValue}${
+                      i !== driverList.length - 1 ? "; " : ""
+                    }`;
+                  }
+
+                  // Case 2: variation exists → match by variationValue OR variationID
+                  const matched = d.variation.find(
+                    (v) =>
+                      Number(v.variationValue) === Number(d.driverValue) ||
+                      Number(v.variationID) === Number(d.variationID),
+                  );
+
+                  return `${d.driverName} = ${
+                    matched ? matched.variationName : d.driverValue
+                  }${i !== driverList.length - 1 ? "; " : ""}`;
+                })
+                .join("")
+            : "-"
+        }
+      </td>`
+                    : ""
+                }
+
+                ${
+                  props.visibleFieldsCustomTemp.fees
+                    ? `<td style="border: 1px solid #dddddd; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: right;">
+                        ${
+                          props.ProposalObject.feeTypeId === 1
+                            ? props.formatValue(price, props.currencyID)
+                            : "&#10003;"
+                        }
+                      </td>`
+                    : ""
+                }
+                ${
+                  props.vatPercentage !== null &&
+                  props.visibleFieldsCustomTemp.vatRate
+                    ? `<td style="border: 1px solid #dddddd; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: right; padding: 8px;">${vatRate.toFixed(2)}%</td>`
+                    : ""
+                }
+                ${
+                  props.vatPercentage !== null &&
+                  props.visibleFieldsCustomTemp.vat
+                    ? `<td style="border: 1px solid #dddddd; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: right; padding: 8px;">
+                        ${
+                          props.ProposalObject.feeTypeId === 1
+                            ? props.formatValue(vat, props.currencyID)
+                            : "&#10003;"
+                        }
+                      </td>`
+                    : ""
+                }
+                ${
+                  props.vatPercentage !== null &&
+                  props.visibleFieldsCustomTemp.feesIncVat
+                    ? `<td style="border: 1px solid #dddddd; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: right; padding: 8px;">
+                        ${
+                          props.ProposalObject.feeTypeId === 1
+                            ? props.formatValue(total, props.currencyID)
+                            : "&#10003;"
+                        }
+                      </td>`
+                    : ""
+                }
+          </tr>
+            `;
+          })
+          .join("")}
+      `,
+      )
+      .join("")}
+
+    <!-- NET TOTAL ROW -->
+    <tr style="background-color:#808080;">
+  ${
+    customOneOffDescriptionColumnCount > 0
+      ? `
+        <td
+          colspan="${customOneOffDescriptionColumnCount}"
+          style="
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+            color: white;
+            word-break: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
+          "
+        >
+          Net Total
+        </td>
+      `
+      : ""
+  }
+
+  ${
+    props.visibleFieldsCustomTemp.fees
+      ? `
+        <td
+          style="
+            border: 1px solid #dddddd;
+            text-align: right;
+            padding: 8px;
+            color: white;
+            word-break: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
+          "
+        >
+          ${props.formatValue(customOneOffFooter.netFees, props.currencyID)}
+        </td>
+      `
+      : ""
+  }
+
+  ${
+    hasCustomOneOffVAT && props.visibleFieldsCustomTemp.vatRate
+      ? `
+        <td
+          style="
+            border: 1px solid #dddddd;
+            text-align: right;
+            padding: 8px;
+            color: white;
+          "
+        ></td>
+      `
+      : ""
+  }
+
+  ${
+    hasCustomOneOffVAT && props.visibleFieldsCustomTemp.vat
+      ? `
+        <td
+          style="
+            border: 1px solid #dddddd;
+            text-align: right;
+            padding: 8px;
+            color: white;
+            word-break: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
+          "
+        >
+          ${props.formatValue(customOneOffFooter.netVat, props.currencyID)}
+        </td>
+      `
+      : ""
+  }
+
+  ${
+    hasCustomOneOffVAT && props.visibleFieldsCustomTemp.feesIncVat
+      ? `
+        <td
+          style="
+            border: 1px solid #dddddd;
+            text-align: right;
+            padding: 8px;
+            color: white;
+            word-break: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
+          "
+        >
+          ${props.formatValue(
+            customOneOffFooter.netFeesIncVat,
+            props.currencyID,
+          )}
+        </td>
+      `
+      : ""
+  }
+</tr>
+
+    ${
+      showCustomOneOffDiscount
+        ? `
+      <!-- DISCOUNT ROW -->
+      <tr style="background-color:#DCDCDC;">
+        ${
+          customOneOffDescriptionColumnCount > 0
+            ? `
+              <td
+                colspan="${customOneOffDescriptionColumnCount}"
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: left;
+                  padding: 8px;
+                  color: black;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                Discount
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: black;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                (-) ${props.formatValue(
+                  customOneOffFooter.discountFees,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          hasCustomOneOffVAT && props.visibleFieldsCustomTemp.vatRate
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: black;
+                "
+              ></td>
+            `
+            : ""
+        }
+
+        ${
+          hasCustomOneOffVAT && props.visibleFieldsCustomTemp.vat
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: black;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                (-) ${props.formatValue(
+                  customOneOffFooter.discountVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          hasCustomOneOffVAT && props.visibleFieldsCustomTemp.feesIncVat
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: black;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                (-) ${props.formatValue(
+                  customOneOffFooter.discountFeesIncVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+      </tr>
+
+      <!-- GRAND TOTAL / DISCOUNTED TOTAL ROW -->
+      <tr style="background-color:#808080;">
+        ${
+          customOneOffDescriptionColumnCount > 0
+            ? `
+              <td
+                colspan="${customOneOffDescriptionColumnCount}"
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: left;
+                  padding: 8px;
+                  color: white;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                ${hasCustomOneOffVAT ? "Grand Total" : "Discounted Total"}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: white;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                ${props.formatValue(
+                  customOneOffFooter.discountedFees,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          hasCustomOneOffVAT && props.visibleFieldsCustomTemp.vatRate
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: white;
+                "
+              ></td>
+            `
+            : ""
+        }
+
+        ${
+          hasCustomOneOffVAT && props.visibleFieldsCustomTemp.vat
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: white;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                ${props.formatValue(
+                  customOneOffFooter.discountedVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          hasCustomOneOffVAT && props.visibleFieldsCustomTemp.feesIncVat
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: white;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                ${props.formatValue(
+                  customOneOffFooter.discountedFeesIncVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+      </tr>
+    `
+        : ""
+    }
+
+                        </table>
+</div>`
+                        : "",
                 });
               }
             }
@@ -4783,7 +5807,7 @@ export default function PreviewComponentPdf(props) {
           case ElementType.TermsAndCondition:
             const appliedFontTNCContent = setDefaultFontFamily(
               props.updatedTnCData,
-              fontFamily
+              fontFamily,
             );
             if (
               prevElementType === ElementType.PAGE_BREAK ||
@@ -4843,7 +5867,7 @@ export default function PreviewComponentPdf(props) {
               // Add RowNo to contract signatories
               const appliedFontTNCContent = setDefaultFontFamily(
                 props.updatedTnCData,
-                fontFamily
+                fontFamily,
               );
 
               if (!TermAndConditionAddedOrNot) {
@@ -4903,7 +5927,7 @@ export default function PreviewComponentPdf(props) {
                 (item, index) => ({
                   ...item,
                   RowNo: index + 1,
-                })
+                }),
               );
 
               const contractSignatoryRowNoForOfficer =
@@ -4917,10 +5941,10 @@ export default function PreviewComponentPdf(props) {
 
               // Always include contractSignatories
               let rightSignatureList = contractSignatoryRowNo.filter(
-                (x) => x.signaturePositionID === 1
+                (x) => x.signaturePositionID === 1,
               );
               let leftSignatureList = contractSignatoryRowNo.filter(
-                (x) => x.signaturePositionID === 2
+                (x) => x.signaturePositionID === 2,
               );
 
               // Include officers based on image URL and map to opposite side
@@ -4946,7 +5970,7 @@ export default function PreviewComponentPdf(props) {
               let htmlContentForSignatories = "";
               let loopCount = Math.max(
                 rightSignatureList.length,
-                leftSignatureList.length
+                leftSignatureList.length,
               );
 
               let orgSignatureInserted = false;
@@ -5085,7 +6109,7 @@ export default function PreviewComponentPdf(props) {
           return {
             ...prev,
             selectedAttachments: prev.selectedAttachments.filter(
-              (id) => id !== keyID
+              (id) => id !== keyID,
             ),
           };
         } else {
@@ -5103,7 +6127,7 @@ export default function PreviewComponentPdf(props) {
           return {
             ...prev,
             selectedAttachments: prev.selectedAttachments.filter(
-              (id) => id !== keyID
+              (id) => id !== keyID,
             ),
           };
         } else {
@@ -5131,16 +6155,16 @@ export default function PreviewComponentPdf(props) {
           style={{ height: isMobile ? "" : "54vh" }}
           className="tab-pane active"
         >
-          {!flagForTemplatePdf &&
-          <button
-            onClick={toggleLandscape}
-            className="btn btn-primary btn-sm mt-2"
-            style={{ marginBottom: 10 }}
-          >
-            <Landscape />
-            {landscapeMode ? "Switch to Portrait" : "Switch to Landscape"}
-          </button>
-          }
+          {!flagForTemplatePdf && (
+            <button
+              onClick={toggleLandscape}
+              className="btn btn-primary btn-sm mt-2"
+              style={{ marginBottom: 10 }}
+            >
+              <Landscape />
+              {landscapeMode ? "Switch to Portrait" : "Switch to Landscape"}
+            </button>
+          )}
           {MergePdfUrl &&
             (isMobile ? (
               <PdfViewer isVisible={false} pdfFile={MergePdfUrl} />
@@ -5212,7 +6236,7 @@ export default function PreviewComponentPdf(props) {
                       className="phone-input-country-code selectDropDown"
                       value={Utils.payment_gateway.find(
                         (item) =>
-                          props.ProposalObject.paymentGatewayID === item.value
+                          props.ProposalObject.paymentGatewayID === item.value,
                       )}
                       onChange={(e) => {
                         props.setProposalObject({
@@ -5268,9 +6292,9 @@ export default function PreviewComponentPdf(props) {
                     props.engagementObj.selectSourceId === 3
                       ? 7
                       : props.engagementObj.selectSourceId === 2 &&
-                        props.engagementObj.quoteTypeID === 4
-                      ? 3
-                      : 4
+                          props.engagementObj.quoteTypeID === 4
+                        ? 3
+                        : 4,
                   )
                 }
               >
@@ -5318,7 +6342,7 @@ export default function PreviewComponentPdf(props) {
                   props.handleSaveAsDraft(
                     4,
                     moduleNameForSaveAsDraft,
-                    statusIDForSaveAsDraft
+                    statusIDForSaveAsDraft,
                   )
                 }
               >
@@ -5356,7 +6380,7 @@ export default function PreviewComponentPdf(props) {
                       props.handleSaveAsDraft(
                         4,
                         moduleNameForSaveAsDraft,
-                        statusIDForSendProposal
+                        statusIDForSendProposal,
                       )
                     }
                   >
@@ -5393,7 +6417,7 @@ export default function PreviewComponentPdf(props) {
                           props.handleSaveAsDraft(
                             4,
                             moduleNameForSaveAsDraft,
-                            statusIDForSendProposal
+                            statusIDForSendProposal,
                           )
                         }
                       >
@@ -5467,7 +6491,8 @@ export default function PreviewComponentPdf(props) {
                               className="me-2"
                               checked={props.ProposalObject.selectedAttachments.find(
                                 (att) =>
-                                  att.templatePDFKeyID === item.templatePDFKeyID
+                                  att.templatePDFKeyID ===
+                                  item.templatePDFKeyID,
                               )}
                               onChange={() => handleAttachmentSelect(item)}
                             />
@@ -5497,7 +6522,7 @@ export default function PreviewComponentPdf(props) {
                         props.handleSaveAsDraft(
                           4,
                           moduleNameForSaveAsDraft,
-                          statusIDForSendProposal
+                          statusIDForSendProposal,
                         )
                       }
                     >
@@ -5528,7 +6553,7 @@ export default function PreviewComponentPdf(props) {
                     props.handleSaveAsDraft(
                       4,
                       moduleNameForSaveAsDraft,
-                      statusIDForSkipped
+                      statusIDForSkipped,
                     );
                   }}
                 >
@@ -5666,7 +6691,8 @@ export default function PreviewComponentPdf(props) {
                               className="me-2"
                               checked={props.engagementObj.selectedAttachments.find(
                                 (att) =>
-                                  att.templatePDFKeyID === item.templatePDFKeyID
+                                  att.templatePDFKeyID ===
+                                  item.templatePDFKeyID,
                               )}
                               onChange={() => handleAttachmentSelect(item)}
                             />

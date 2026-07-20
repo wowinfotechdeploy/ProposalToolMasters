@@ -375,7 +375,8 @@ const PricingTableTemplatesModal = ({
     fallbackVatPercentage: vatPercentageOneOff ?? vatPercentage ?? 0,
   });
 
-  const hasCustomOneOffVAT = Number(vatPercentage || 0) > 0;
+  const hasCustomOneOffVAT =
+    Number(vatPercentage || 0) > 0 && vatPercentage !== null;
 
   const customOneOffDescriptionColumnCount = [
     visibleFieldsCustomTemp.serviceCategory,
@@ -9357,15 +9358,16 @@ const PricingTableTemplatesModal = ({
                       Fees ({currencySymbol})
                     </th>
                   )}
-                  {vatPercentage !== 0 && visibleFieldsCustomTemp.vatRate && (
-                    <th
-                      className="tr-table-class text-white text-center"
-                      style={{ width: "16.66%" }}
-                    >
-                      {taxName} Rate
-                    </th>
-                  )}
-                  {vatPercentage !== 0 && visibleFieldsCustomTemp.vat && (
+                  {vatPercentage !== null &&
+                    visibleFieldsCustomTemp.vatRate && (
+                      <th
+                        className="tr-table-class text-white text-center"
+                        style={{ width: "16.66%" }}
+                      >
+                        {taxName} Rate
+                      </th>
+                    )}
+                  {vatPercentage !== null && visibleFieldsCustomTemp.vat && (
                     <th
                       className="tr-table-class text-white text-center"
                       style={{ width: "16.66%" }}
@@ -9373,7 +9375,7 @@ const PricingTableTemplatesModal = ({
                       {taxName} ({currencySymbol})
                     </th>
                   )}
-                  {vatPercentage !== 0 &&
+                  {vatPercentage !== null &&
                     visibleFieldsCustomTemp.feesIncVat && (
                       <th
                         className="tr-table-class text-white text-center"
@@ -9481,13 +9483,13 @@ const PricingTableTemplatesModal = ({
                               )}
                             </td>
                           )}
-                          {vatPercentage !== 0 &&
+                          {vatPercentage !== null &&
                             visibleFieldsCustomTemp.vatRate && (
                               <td className="text-center">
                                 {rowVatRate.toFixed(2)}%
                               </td>
                             )}
-                          {vatPercentage !== 0 &&
+                          {vatPercentage !== null &&
                             visibleFieldsCustomTemp.vat && (
                               <td className="text-center">
                                 {ProposalObject.feeTypeId === 1 &&
@@ -9497,7 +9499,7 @@ const PricingTableTemplatesModal = ({
                                 )}
                               </td>
                             )}
-                          {vatPercentage !== 0 &&
+                          {vatPercentage !== null &&
                             visibleFieldsCustomTemp.feesIncVat && (
                               <td className="text-center">
                                 {ProposalObject.feeTypeId === 1 &&
@@ -9526,15 +9528,14 @@ const PricingTableTemplatesModal = ({
                       {formatValue(customRecurringFooter.netFees, currencyID)}
                     </td>
                   )}
-                  {vatPercentage !== 0 && visibleFieldsCustomTemp.vatRate && (
-                    <td></td>
-                  )}
-                  {vatPercentage !== 0 && visibleFieldsCustomTemp.vat && (
+                  {vatPercentage !== null &&
+                    visibleFieldsCustomTemp.vatRate && <td></td>}
+                  {vatPercentage !== null && visibleFieldsCustomTemp.vat && (
                     <td className="tr-table-class text-white text-right">
                       {formatValue(customRecurringFooter.netVat, currencyID)}
                     </td>
                   )}
-                  {vatPercentage !== 0 &&
+                  {vatPercentage !== null &&
                     visibleFieldsCustomTemp.feesIncVat && (
                       <td className="tr-table-class text-white text-right">
                         {formatValue(
@@ -9567,11 +9568,10 @@ const PricingTableTemplatesModal = ({
                       </td>
                     )}
 
-                    {vatPercentage !== 0 && visibleFieldsCustomTemp.vatRate && (
-                      <td></td>
-                    )}
+                    {vatPercentage !== null &&
+                      visibleFieldsCustomTemp.vatRate && <td></td>}
 
-                    {vatPercentage !== 0 && visibleFieldsCustomTemp.vat && (
+                    {vatPercentage !== null && visibleFieldsCustomTemp.vat && (
                       <td className="tr-table-class font-14 text-white text-right">
                         (-){" "}
                         {formatValue(
@@ -9581,7 +9581,7 @@ const PricingTableTemplatesModal = ({
                       </td>
                     )}
 
-                    {vatPercentage !== 0 &&
+                    {vatPercentage !== null &&
                       visibleFieldsCustomTemp.feesIncVat && (
                         <td className="tr-table-class font-14 text-white text-right">
                           (-){" "}
@@ -9617,11 +9617,10 @@ const PricingTableTemplatesModal = ({
                       </td>
                     )}
 
-                    {vatPercentage !== 0 && visibleFieldsCustomTemp.vatRate && (
-                      <td></td>
-                    )}
+                    {vatPercentage !== null &&
+                      visibleFieldsCustomTemp.vatRate && <td></td>}
 
-                    {vatPercentage !== 0 && visibleFieldsCustomTemp.vat && (
+                    {vatPercentage !== null && visibleFieldsCustomTemp.vat && (
                       <td className="tr-table-class font-14 text-white text-right">
                         {formatValue(
                           customRecurringFooter.discountedVat,
@@ -9630,7 +9629,7 @@ const PricingTableTemplatesModal = ({
                       </td>
                     )}
 
-                    {vatPercentage !== 0 &&
+                    {vatPercentage !== null &&
                       visibleFieldsCustomTemp.feesIncVat && (
                         <td className="tr-table-class font-14 text-white text-right">
                           {formatValue(
@@ -9688,7 +9687,7 @@ const PricingTableTemplatesModal = ({
                       Fees ({currencySymbol})
                     </th>
                   )}
-                  {vatPercentageOneOff !== 0 &&
+                  {vatPercentage !== null &&
                     visibleFieldsCustomTemp.vatRate && (
                       <th
                         className="tr-table-class text-white text-center"
@@ -9697,7 +9696,7 @@ const PricingTableTemplatesModal = ({
                         {taxName} Rate
                       </th>
                     )}
-                  {vatPercentageOneOff !== 0 && visibleFieldsCustomTemp.vat && (
+                  {vatPercentage !== null && visibleFieldsCustomTemp.vat && (
                     <th
                       className="tr-table-class text-white text-center"
                       style={{ width: "16.66%" }}
@@ -9705,7 +9704,7 @@ const PricingTableTemplatesModal = ({
                       {taxName} ({currencySymbol})
                     </th>
                   )}
-                  {vatPercentageOneOff !== 0 &&
+                  {vatPercentage !== null &&
                     visibleFieldsCustomTemp.feesIncVat && (
                       <th
                         className="tr-table-class text-white text-center"
@@ -9822,14 +9821,14 @@ const PricingTableTemplatesModal = ({
                             </td>
                           )}
 
-                          {vatPercentageOneOff !== 0 &&
+                          {vatPercentage !== null &&
                             visibleFieldsCustomTemp.vatRate && (
                               <td className="text-center">
                                 {vatRate.toFixed(2)}%
                               </td>
                             )}
 
-                          {vatPercentageOneOff !== 0 &&
+                          {vatPercentage !== null &&
                             visibleFieldsCustomTemp.vat && (
                               <td className="text-center">
                                 {ProposalObject.feeTypeId === 1 &&
@@ -9840,7 +9839,7 @@ const PricingTableTemplatesModal = ({
                               </td>
                             )}
 
-                          {vatPercentageOneOff !== 0 &&
+                          {vatPercentage !== null &&
                             visibleFieldsCustomTemp.feesIncVat && (
                               <td className="text-center">
                                 {ProposalObject.feeTypeId === 1 &&

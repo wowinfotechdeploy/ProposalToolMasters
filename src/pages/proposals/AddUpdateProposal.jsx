@@ -22531,6 +22531,14 @@ const Add_Update_Proposal = (props) => {
                     statementOfFactsHTML={statementOfFactsHTML}
                     statementOfFactsObj={statementOfFactsObj}
                     serviceDescriptionObj={serviceDescriptionObj}
+                    selectedTemplateIDOneOff={selectedTemplateIDOneOff}
+                    selectedTemplateID={selectedTemplateID}
+                    visibleFieldsCustomTemp={visibleFieldsCustomTemp}
+                    currencyID={currencyID}
+                    taxName={taxName}
+                    currencySymbol={currencySymbol}
+                    pricingSettingObj={pricingSettingObj}
+                    vatPercentageOneOff={vatPercentageOneOff}
                   />
                 </Suspense>
               )}
