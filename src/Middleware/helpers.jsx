@@ -256,3 +256,478 @@ export const calculateCustomOneOffFooter = ({
     hasPriceIncrease: discountFeesExact.lessThan(0),
   };
 };
+
+const CUSTOM_PACKAGE_FIELDS = [
+  {
+    valueKey: "packageOneValue",
+    originalValueKey: "originalPackageOneValue",
+    packageIDKey: "packageOneID",
+  },
+  {
+    valueKey: "packageTwoValue",
+    originalValueKey: "originalPackageTwoValue",
+    packageIDKey: "packageTwoID",
+  },
+  {
+    valueKey: "packageThreeValue",
+    originalValueKey: "originalPackageThreeValue",
+    packageIDKey: "packageThreeID",
+  },
+];
+
+const createEmptyPackageFooter = () => ({
+  net: 0,
+  vat: 0,
+  feesIncVat: 0,
+
+  discount: 0,
+  vatDiscount: 0,
+  feesIncVatDiscount: 0,
+
+  finalNet: 0,
+  finalVat: 0,
+  finalFeesIncVat: 0,
+
+  hasPositiveDiscount: false,
+  hasPriceIncrease: false,
+});
+
+export const calculateCustomRecurringPackageFooter = ({
+  serviceGroups = [],
+  packageIndex = 0,
+  selectedPackageID = null,
+  discountPercentage = 0,
+  fallbackVatPercentage = 0,
+}) => {
+  const packageFields = CUSTOM_PACKAGE_FIELDS[packageIndex];
+
+  if (!packageFields) {
+    return createEmptyPackageFooter();
+  }
+
+  const { valueKey, originalValueKey, packageIDKey } = packageFields;
+
+  let netFeesExact = new Decimal(0);
+  let netVatExact = new Decimal(0);
+
+  serviceGroups.forEach((category) => {
+    (category.servicesList || []).forEach((service) => {
+      const mappedPackageIDs = Array.isArray(service.servicePackageIDs)
+        ? service.servicePackageIDs.map(String)
+        : [];
+
+      const servicePackageID = service[packageIDKey] ?? selectedPackageID;
+
+      /*
+       * Only include the service when it belongs to this package.
+       * This also respects additional-service checkbox changes.
+       */
+      const isIncludedInPackage =
+        servicePackageID !== null &&
+        servicePackageID !== undefined &&
+        mappedPackageIDs.includes(String(servicePackageID));
+
+      if (!isIncludedInPackage) {
+        return;
+      }
+
+      /*
+       * originalPackage...Value retains full precision after
+       * payment-frequency division.
+       *
+       * package...Value may already contain toFixed(2).
+       */
+      const originalValue = service[originalValueKey];
+
+      const displayedValue = service[valueKey];
+
+      const rawPackageValue =
+        originalValue !== null &&
+        originalValue !== undefined &&
+        originalValue !== ""
+          ? originalValue
+          : displayedValue;
+
+      if (
+        rawPackageValue === null ||
+        rawPackageValue === undefined ||
+        rawPackageValue === ""
+      ) {
+        return;
+      }
+
+      const feesExact = decimalValue(rawPackageValue);
+
+      const vatRateExact = decimalValue(
+        service.service_vat_percentage ?? fallbackVatPercentage,
+      );
+
+      const vatExact = feesExact.mul(vatRateExact).div(100);
+
+      netFeesExact = netFeesExact.plus(feesExact);
+
+      netVatExact = netVatExact.plus(vatExact);
+    });
+  });
+
+  const netFeesIncVatExact = netFeesExact.plus(netVatExact);
+
+  const discountPercentageExact = decimalValue(discountPercentage);
+
+  const discountFactor = new Decimal(1).minus(discountPercentageExact.div(100));
+
+  /*
+   * Apply the package discount to the exact package totals.
+   * Do not discount each displayed/rounded service row.
+   */
+  const finalNetExact = netFeesExact.mul(discountFactor);
+
+  const finalVatExact = netVatExact.mul(discountFactor);
+
+  const finalFeesIncVatExact = finalNetExact.plus(finalVatExact);
+
+  /*
+   * Calculate discount values from exact amounts.
+   * Truncation occurs only when returning the footer.
+   */
+  const discountExact = netFeesExact.minus(finalNetExact);
+
+  const vatDiscountExact = netVatExact.minus(finalVatExact);
+
+  const feesIncVatDiscountExact =
+    netFeesIncVatExact.minus(finalFeesIncVatExact);
+
+  return {
+    // Constant Net Total row
+    net: truncateMoney(netFeesExact),
+    vat: truncateMoney(netVatExact),
+    feesIncVat: truncateMoney(netFeesIncVatExact),
+
+    // Discount row
+    discount: truncateMoney(discountExact),
+    vatDiscount: truncateMoney(vatDiscountExact),
+    feesIncVatDiscount: truncateMoney(feesIncVatDiscountExact),
+
+    // Grand Total / Discounted Total row
+    finalNet: truncateMoney(finalNetExact),
+    finalVat: truncateMoney(finalVatExact),
+    finalFeesIncVat: truncateMoney(finalFeesIncVatExact),
+
+    hasPositiveDiscount: discountExact.greaterThan(0),
+
+    hasPriceIncrease: discountExact.lessThan(0),
+  };
+};
+
+const CUSTOM_PACKAGE_ROW_FIELDS = [
+  {
+    valueKey: "packageOneValue",
+    originalValueKey: "originalPackageOneValue",
+    packageIDKey: "packageOneID",
+  },
+  {
+    valueKey: "packageTwoValue",
+    originalValueKey: "originalPackageTwoValue",
+    packageIDKey: "packageTwoID",
+  },
+  {
+    valueKey: "packageThreeValue",
+    originalValueKey: "originalPackageThreeValue",
+    packageIDKey: "packageThreeID",
+  },
+];
+
+export const calculateCustomPackageRow = ({
+  service,
+  packageIndex,
+  fallbackVatPercentage = 0,
+}) => {
+  const packageFields = CUSTOM_PACKAGE_ROW_FIELDS[packageIndex];
+
+  if (!packageFields) {
+    return {
+      isIncluded: false,
+      fees: 0,
+      vatRate: 0,
+      vat: 0,
+      feesIncVat: 0,
+    };
+  }
+
+  const { valueKey, originalValueKey, packageIDKey } = packageFields;
+
+  const packageID = service?.[packageIDKey];
+
+  const servicePackageIDs = Array.isArray(service?.servicePackageIDs)
+    ? service.servicePackageIDs.map(String)
+    : [];
+
+  const isMappedToPackage =
+    packageID !== null &&
+    packageID !== undefined &&
+    servicePackageIDs.includes(String(packageID));
+
+  /*
+   * Prefer full-precision value.
+   * package...Value may already have been converted using toFixed(2).
+   */
+  const originalValue = service?.[originalValueKey];
+
+  const displayedValue = service?.[valueKey];
+
+  const rawValue =
+    originalValue !== null &&
+    originalValue !== undefined &&
+    originalValue !== ""
+      ? originalValue
+      : displayedValue;
+
+  const hasValidValue =
+    rawValue !== null &&
+    rawValue !== undefined &&
+    rawValue !== "" &&
+    decimalValue(rawValue).isFinite();
+
+  const isIncluded = isMappedToPackage && hasValidValue;
+
+  if (!isIncluded) {
+    return {
+      isIncluded: false,
+      fees: 0,
+      vatRate: 0,
+      vat: 0,
+      feesIncVat: 0,
+    };
+  }
+
+  const feesExact = decimalValue(rawValue);
+
+  const vatRateExact = decimalValue(
+    service?.service_vat_percentage ?? fallbackVatPercentage,
+  );
+
+  const vatExact = feesExact.mul(vatRateExact).div(100);
+
+  const feesIncVatExact = feesExact.plus(vatExact);
+
+  return {
+    isIncluded: true,
+
+    fees: truncateMoney(feesExact),
+
+    vatRate: vatRateExact.toNumber(),
+
+    vat: truncateMoney(vatExact),
+
+    feesIncVat: truncateMoney(feesIncVatExact),
+  };
+};
+
+const CUSTOM_ONE_OFF_PACKAGE_FIELDS = [
+  {
+    valueKey: "packageOneValue",
+    originalValueKey: "originalPackageOneValue",
+    packageIDKey: "packageOneID",
+  },
+  {
+    valueKey: "packageTwoValue",
+    originalValueKey: "originalPackageTwoValue",
+    packageIDKey: "packageTwoID",
+  },
+  {
+    valueKey: "packageThreeValue",
+    originalValueKey: "originalPackageThreeValue",
+    packageIDKey: "packageThreeID",
+  },
+];
+
+export const createEmptyOneOffPackageRow = () => ({
+  isIncluded: false,
+
+  feesExact: new Decimal(0),
+  vatExact: new Decimal(0),
+  feesIncVatExact: new Decimal(0),
+
+  fees: 0,
+  vatRate: 0,
+  vat: 0,
+  feesIncVat: 0,
+});
+
+export const createEmptyOneOffPackageFooter = () => ({
+  net: 0,
+  vat: 0,
+  feesIncVat: 0,
+
+  discount: 0,
+  vatDiscount: 0,
+  feesIncVatDiscount: 0,
+
+  finalNet: 0,
+  finalVat: 0,
+  finalFeesIncVat: 0,
+
+  hasPositiveDiscount: false,
+  hasPriceIncrease: false,
+});
+
+export const calculateCustomOneOffPackageRow = ({
+  service,
+  packageIndex,
+  selectedPackageID = null,
+  fallbackVatPercentage = 0,
+}) => {
+  const packageFields = CUSTOM_ONE_OFF_PACKAGE_FIELDS[packageIndex];
+
+  if (!packageFields || !service) {
+    return createEmptyOneOffPackageRow();
+  }
+
+  const { valueKey, originalValueKey, packageIDKey } = packageFields;
+
+  const packageID = service?.[packageIDKey] ?? selectedPackageID;
+
+  const mappedPackageIDs = Array.isArray(service?.servicePackageIDs)
+    ? service.servicePackageIDs.map(String)
+    : [];
+
+  const isMappedToPackage =
+    packageID !== null &&
+    packageID !== undefined &&
+    mappedPackageIDs.includes(String(packageID));
+
+  const originalValue = service?.[originalValueKey];
+
+  const currentValue = service?.[valueKey];
+
+  const hasOriginalValue =
+    originalValue !== null &&
+    originalValue !== undefined &&
+    originalValue !== "";
+
+  const rawFeesValue = hasOriginalValue ? originalValue : currentValue;
+
+  const hasFeesValue =
+    rawFeesValue !== null && rawFeesValue !== undefined && rawFeesValue !== "";
+
+  if (!isMappedToPackage || !hasFeesValue) {
+    return createEmptyOneOffPackageRow();
+  }
+
+  const feesExact = decimalValue(rawFeesValue);
+
+  if (!feesExact.isFinite()) {
+    return createEmptyOneOffPackageRow();
+  }
+
+  let vatRateExact = decimalValue(
+    service?.service_vat_percentage ?? fallbackVatPercentage,
+  );
+
+  if (!vatRateExact.isFinite()) {
+    vatRateExact = new Decimal(0);
+  }
+
+  const vatExact = feesExact.mul(vatRateExact).div(100);
+
+  const feesIncVatExact = feesExact.plus(vatExact);
+
+  return {
+    isIncluded: true,
+
+    // Exact values used by the footer
+    feesExact,
+    vatExact,
+    feesIncVatExact,
+
+    // Truncated values used by the table row
+    fees: truncateMoney(feesExact),
+    vatRate: vatRateExact.toNumber(),
+    vat: truncateMoney(vatExact),
+    feesIncVat: truncateMoney(feesIncVatExact),
+  };
+};
+
+export const calculateCustomOneOffPackageFooter = ({
+  serviceGroups = [],
+  packageIndex = 0,
+  selectedPackageID = null,
+  discountPercentage = 0,
+  fallbackVatPercentage = 0,
+}) => {
+  if (!CUSTOM_ONE_OFF_PACKAGE_FIELDS[packageIndex]) {
+    return createEmptyOneOffPackageFooter();
+  }
+
+  let netFeesExact = new Decimal(0);
+  let netVatExact = new Decimal(0);
+
+  serviceGroups.forEach((category) => {
+    (category.servicesList || []).forEach((service) => {
+      const row = calculateCustomOneOffPackageRow({
+        service,
+        packageIndex,
+        selectedPackageID,
+        fallbackVatPercentage,
+      });
+
+      if (!row.isIncluded) {
+        return;
+      }
+
+      netFeesExact = netFeesExact.plus(row.feesExact);
+
+      netVatExact = netVatExact.plus(row.vatExact);
+    });
+  });
+
+  const netFeesIncVatExact = netFeesExact.plus(netVatExact);
+
+  let discountPercentageExact = decimalValue(discountPercentage);
+
+  if (!discountPercentageExact.isFinite()) {
+    discountPercentageExact = new Decimal(0);
+  }
+
+  const discountFactor = new Decimal(1).minus(discountPercentageExact.div(100));
+
+  /*
+   * Apply the package discount once to the exact totals.
+   */
+  const finalNetExact = netFeesExact.mul(discountFactor);
+
+  const finalVatExact = netVatExact.mul(discountFactor);
+
+  const finalFeesIncVatExact = finalNetExact.plus(finalVatExact);
+
+  /*
+   * Calculate discounts before truncation.
+   */
+  const discountExact = netFeesExact.minus(finalNetExact);
+
+  const vatDiscountExact = netVatExact.minus(finalVatExact);
+
+  const feesIncVatDiscountExact =
+    netFeesIncVatExact.minus(finalFeesIncVatExact);
+
+  return {
+    // Constant Net Total
+    net: truncateMoney(netFeesExact),
+    vat: truncateMoney(netVatExact),
+    feesIncVat: truncateMoney(netFeesIncVatExact),
+
+    // Discount
+    discount: truncateMoney(discountExact),
+    vatDiscount: truncateMoney(vatDiscountExact),
+    feesIncVatDiscount: truncateMoney(feesIncVatDiscountExact),
+
+    // Final values
+    finalNet: truncateMoney(finalNetExact),
+    finalVat: truncateMoney(finalVatExact),
+    finalFeesIncVat: truncateMoney(finalFeesIncVatExact),
+
+    hasPositiveDiscount: discountExact.greaterThan(0),
+
+    hasPriceIncrease: discountExact.lessThan(0),
+  };
+};
