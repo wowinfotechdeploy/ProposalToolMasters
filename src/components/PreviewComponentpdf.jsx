@@ -27,7 +27,11 @@ import {
 import { Landscape } from "@mui/icons-material";
 import {
   calculateCustomOneOffFooter,
+  calculateCustomOneOffPackageFooter,
+  calculateCustomOneOffPackageRow,
+  calculateCustomPackageRow,
   calculateCustomRecurringFooter,
+  calculateCustomRecurringPackageFooter,
   decimalValue,
   truncateMoney,
 } from "../Middleware/helpers";
@@ -1636,8 +1640,7 @@ export default function PreviewComponentPdf(props) {
 
     discountedPrice: props.OneOffPricingInfo.DiscountedPrice,
 
-    fallbackVatPercentage:
-      props.vatPercentageOneOff ?? props.vatPercentage ?? 0,
+    fallbackVatPercentage: props.vatPercentage ?? props.vatPercentage ?? 0,
   });
 
   const hasCustomOneOffVAT =
@@ -1668,6 +1671,126 @@ export default function PreviewComponentPdf(props) {
     recurringPdfDescriptionColumnCount,
     1,
   );
+
+  // Recurring package footer calculations:
+
+  const packageDiscountKeys = [
+    "DiscountPercentagePackageOne",
+    "DiscountPercentagePackageTwo",
+    "DiscountPercentagePackageThree",
+  ];
+
+  const getCustomPackageDiscount = (packageIndex) => {
+    const discountKey = packageDiscountKeys[packageIndex];
+
+    if (!discountKey) {
+      return 0;
+    }
+
+    /*
+     * Prefer the full-precision frequency state.
+     * Fall back to the displayed recurring pricing state.
+     */
+    return (
+      props.RecurringFrequencyPricingInfo?.[discountKey] ??
+      props.RecurringPricingInfo?.[discountKey] ??
+      0
+    );
+  };
+
+  const customRecurringPackageFooters = [0, 1, 2].map((packageIndex) =>
+    calculateCustomRecurringPackageFooter({
+      serviceGroups: props.selectedRecurringServiceList || [],
+
+      packageIndex,
+
+      selectedPackageID:
+        props.selectedPackagesList?.[packageIndex]?.servicePackageID ?? null,
+
+      discountPercentage: getCustomPackageDiscount(packageIndex),
+
+      fallbackVatPercentage: props.vatPercentage || 0,
+    }),
+  );
+
+  /*
+   * Keep the existing variable names so the remaining
+   * JSX/PDF code can use the same footer objects.
+   */
+  const packageOneFooter = customRecurringPackageFooters[0];
+
+  const packageTwoFooter = customRecurringPackageFooters[1];
+
+  const packageThreeFooter = customRecurringPackageFooters[2];
+
+  const activeCustomPackageFooters = customRecurringPackageFooters.slice(
+    0,
+    Math.min(props?.selectedPackagesList?.length, 3),
+  );
+
+  const activeRecurringPackageFooters = [
+    packageOneFooter,
+    packageTwoFooter,
+    packageThreeFooter,
+  ].slice(0, Math.min(Number(props?.selectedPackagesList?.length) || 0, 3));
+
+  const hasRecurringPackageVAT = Number(props.vatPercentage || 0) > 0;
+
+  const hasCustomPackageVAT = Number(props.vatPercentage || 0) > 0;
+
+  const showCustomPackageDiscount =
+    props.ProposalObject.DiscountLines &&
+    activeCustomPackageFooters.some((footer) => footer.hasPositiveDiscount);
+
+  // One-off caculations:
+
+  const oneOffPackageDiscountKeys = [
+    "DiscountPercentagePackageOne",
+    "DiscountPercentagePackageTwo",
+    "DiscountPercentagePackageThree",
+  ];
+
+  const getCustomOneOffPackageDiscount = (packageIndex) => {
+    const discountKey = oneOffPackageDiscountKeys[packageIndex];
+
+    if (!discountKey) {
+      return 0;
+    }
+
+    return (
+      props.OneOffPricingInfoCopy?.[discountKey] ??
+      props.OneOffPricingInfo?.[discountKey] ??
+      0
+    );
+  };
+
+  const customOneOffPackageFooters = [0, 1, 2].map((packageIndex) =>
+    calculateCustomOneOffPackageFooter({
+      serviceGroups: props.selectedOneOffServiceList || [],
+
+      packageIndex,
+
+      selectedPackageID:
+        props.selectedPackagesList?.[packageIndex]?.servicePackageID ?? null,
+
+      discountPercentage: getCustomOneOffPackageDiscount(packageIndex),
+
+      fallbackVatPercentage: props.vatPercentage ?? props.vatPercentage ?? 0,
+    }),
+  );
+
+  const activeCustomOneOffPackageFooters = customOneOffPackageFooters.slice(
+    0,
+    Math.min(Number(props?.selectedPackagesList?.length) || 0, 3),
+  );
+
+  const hasCustomOneOffPackageVAT = Number(props.vatPercentage || 0) > 0;
+
+  const showCustomOneOffPackageDiscount =
+    props.ProposalObject.DiscountLines &&
+    activeCustomOneOffPackageFooters.some(
+      (footer) => footer.hasPositiveDiscount,
+    );
 
   //   function setDefaultFontFamily(htmlContent, fontFamily) {
   //     const parser = new DOMParser();
@@ -3455,7 +3578,9 @@ export default function PreviewComponentPdf(props) {
                     <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily}; page-break-inside: avoid; break-inside: avoid;">
                     
                     <p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: 20px; margin-top: 15px;"> Recurring Fees (${getPaymentFrequencyLabel()})</p>
-                      <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
+                    ${
+                      props.selectedTemplateID === 0
+                        ? `<table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
                         <tr style="background-color:${newColorCode};">
                           <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
                           ${props?.selectedPackagesList
@@ -3958,7 +4083,1135 @@ export default function PreviewComponentPdf(props) {
            : ``
        }
                       
-                      </table>
+                      </table>`
+                        : `<table style="width:100%; border-collapse: collapse; font-family:${fontFamily};">
+  <tr style="background-color:${newColorCode};">
+    <td style="border:1px solid #dddddd; padding:8px;"></td>
+    ${props.selectedPackagesList
+      .map(
+        (pkg, index) => `
+        <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white; font-size:18px;">
+          ${
+            pkg.servicePackageName.length > 10
+              ? `<span title="${pkg.servicePackageName}">
+                  ${pkg.servicePackageName
+                    .substring(0, 10)
+                    .toLowerCase()
+                    .replace(/\b\w/g, (l) => l.toUpperCase())}...
+                </span>`
+              : pkg.servicePackageName
+          }
+        </td>
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.vatRate
+            ? `<td style="border:1px solid #dddddd; padding:8px;"></td>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.vat
+            ? `<td style="border:1px solid #dddddd; padding:8px;"></td>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.feesIncVat
+            ? `<td style="border:1px solid #dddddd; padding:8px;"></td>`
+            : ""
+        }
+        ${
+          props.visibleFieldsCustomTemp.serviceScope
+            ? `<td style="border:1px solid #dddddd; padding:8px;"></td>`
+            : ""
+        }
+      `,
+      )
+      .join("")}
+  </tr>
+  <tr style="background-color:${newColorCode};">
+    ${
+      props.visibleFieldsCustomTemp.serviceName
+        ? `<td style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px;">Services</td>`
+        : ""
+    }
+    ${props.selectedPackagesList
+      .map(
+        () => `
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees (${props.currencySymbol})</th>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.vatRate
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">${props.taxName} Rate</th>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.vat
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">${props.taxName} (${props.currencySymbol})</th>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.feesIncVat
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees inc ${props.taxName} (${props.currencySymbol})</th>`
+            : ""
+        }
+        ${
+          props.visibleFieldsCustomTemp.serviceScope
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Service Scope</th>`
+            : ""
+        }
+      `,
+      )
+      .join("")}
+  </tr>
+  <tbody>
+    ${props.selectedRecurringServiceList
+      .map(
+        (service) => `
+        <tr style="background-color:#DCDCDC;">
+          ${
+            props.visibleFieldsCustomTemp.serviceName
+              ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; font-size:18px;">${service.serviceCatName}</th>`
+              : ""
+          }
+          ${
+            props.visibleFieldsCustomTemp.fees
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+              : ""
+          }
+          ${
+            (Number(props.vatPercentage) || 0) > 0 &&
+            props.visibleFieldsCustomTemp.vatRate
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+              : ""
+          }
+          ${
+            (Number(props.vatPercentage) || 0) > 0 &&
+            props.visibleFieldsCustomTemp.vat
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+              : ""
+          }
+          ${
+            (Number(props.vatPercentage) || 0) > 0 &&
+            props.visibleFieldsCustomTemp.feesIncVat
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+              : ""
+          }
+          ${
+            props.visibleFieldsCustomTemp.serviceScope
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+              : ""
+          }
+          ${
+            props?.selectedPackagesList?.length >= 2
+              ? `${
+                  props.visibleFieldsCustomTemp.fees
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.vatRate
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.vat
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.feesIncVat
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  props.visibleFieldsCustomTemp.serviceScope
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }`
+              : ""
+          }
+          ${
+            props?.selectedPackagesList?.length === 3
+              ? `${
+                  props.visibleFieldsCustomTemp.fees
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.vatRate
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.vat
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.feesIncVat
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  props.visibleFieldsCustomTemp.serviceScope
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }`
+              : ""
+          }
+        </tr>
+     ${service.servicesList
+       .map((subService) => {
+         const packageOneRow = calculateCustomPackageRow({
+           service: subService,
+           packageIndex: 0,
+           fallbackVatPercentage: props.vatPercentage || 0,
+         });
+
+         const packageTwoRow = calculateCustomPackageRow({
+           service: subService,
+           packageIndex: 1,
+           fallbackVatPercentage: props.vatPercentage || 0,
+         });
+
+         const packageThreeRow = calculateCustomPackageRow({
+           service: subService,
+           packageIndex: 2,
+           fallbackVatPercentage: props.vatPercentage || 0,
+         });
+
+         const packageOnePrice = packageOneRow.fees;
+         const packageTwoPrice = packageTwoRow.fees;
+         const packageThreePrice = packageThreeRow.fees;
+
+         const packageOneVatRate = packageOneRow.vatRate;
+         const packageTwoVatRate = packageTwoRow.vatRate;
+         const packageThreeVatRate = packageThreeRow.vatRate;
+
+         const vatOne = packageOneRow.vat;
+         const vatTwo = packageTwoRow.vat;
+         const vatThree = packageThreeRow.vat;
+
+         const totalOne = packageOneRow.feesIncVat;
+         const totalTwo = packageTwoRow.feesIncVat;
+         const totalThree = packageThreeRow.feesIncVat;
+
+         const driverList = subService.pricingDriverList || [];
+
+         return `
+            <tr ${
+              subService?.isAdditionalService !== null
+                ? 'style="background-color:#17a2b8; color:white;"'
+                : ""
+            }>
+              ${
+                props.visibleFieldsCustomTemp.serviceName
+                  ? `<td style="border:1px solid #dddddd; text-align:left; padding:8px;">
+                      ${
+                        subService.serviceName.length > 45
+                          ? `<span title="${subService.serviceName}">
+                              ${subService.serviceName
+                                .substring(0, 45)
+                                .toLowerCase()
+                                .replace(/\b\w/g, (l) => l.toUpperCase())}...
+                            </span>`
+                          : subService.serviceName
+                      }
+                    </td>`
+                  : ""
+              }
+
+              <!-- Package One Fees -->
+              ${
+                props.visibleFieldsCustomTemp.fees
+                  ? `
+      <td
+        style="
+          border:1px solid #dddddd;
+          text-align:right;
+          padding:8px;
+        "
+      >
+        ${
+          props.ProposalObject.feeTypeId === 1
+            ? packageOneRow.isIncluded
+              ? `${props.formatValue(packageOneRow.fees, props.currencyID)}`
+              : `<span>&#10007;</span>`
+            : packageOneRow.isIncluded
+              ? `<span>&#10003;</span>`
+              : `<span>&#10007;</span>`
+        }
+      </td>
+    `
+                  : ""
+              }
+
+${
+  (Number(props.vatPercentage) || 0) > 0 &&
+  props.visibleFieldsCustomTemp.vatRate
+    ? `
+      <td
+        style="
+          border:1px solid #dddddd;
+          text-align:right;
+          padding:8px;
+        "
+      >
+        ${
+          packageOneRow.isIncluded
+            ? `${Number(packageOneRow.vatRate || 0).toFixed(2)}%`
+            : `<span>&#10007;</span>`
+        }
+      </td>
+    `
+    : ""
+}
+
+${
+  (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
+    ? `
+      <td
+        style="
+          border:1px solid #dddddd;
+          text-align:right;
+          padding:8px;
+        "
+      >
+        ${
+          props.ProposalObject.feeTypeId === 1
+            ? packageOneRow.isIncluded
+              ? `${props.formatValue(packageOneRow.vat, props.currencyID)}`
+              : `<span>&#10007;</span>`
+            : packageOneRow.isIncluded
+              ? `<span>&#10003;</span>`
+              : `<span>&#10007;</span>`
+        }
+      </td>
+    `
+    : ""
+}
+
+${
+  (Number(props.vatPercentage) || 0) > 0 &&
+  props.visibleFieldsCustomTemp.feesIncVat
+    ? `
+      <td
+        style="
+          border:1px solid #dddddd;
+          text-align:right;
+          padding:8px;
+        "
+      >
+        ${
+          props.ProposalObject.feeTypeId === 1
+            ? packageOneRow.isIncluded
+              ? `${props.formatValue(
+                  packageOneRow.feesIncVat,
+                  props.currencyID,
+                )}`
+              : `<span>&#10007;</span>`
+            : packageOneRow.isIncluded
+              ? `<span>&#10003;</span>`
+              : `<span>&#10007;</span>`
+        }
+      </td>
+    `
+    : ""
+}
+
+${
+  props.visibleFieldsCustomTemp.serviceScope
+    ? `
+      <td
+        style="
+          border:1px solid #dddddd;
+          text-align:right;
+          padding:8px;
+        "
+      >
+        ${
+          driverList.length > 0
+            ? driverList
+                .filter((driver) => driver.driverValue !== null)
+                .map(
+                  (driver, driverIndex, driverArray) => `
+                    ${
+                      packageOneRow.isIncluded
+                        ? `${driver.driverName} = ${driver.driverValue}${
+                            driverIndex !== driverArray.length - 1 ? ", " : ""
+                          }`
+                        : "-"
+                    }
+                  `,
+                )
+                .join("")
+            : "-"
+        }
+      </td>
+    `
+    : ""
+}
+
+              <!-- Package Two Fees -->
+              ${
+                props?.selectedPackagesList?.length >= 2
+                  ? `
+      <!-- PACKAGE TWO FEES -->
+      ${
+        props.visibleFieldsCustomTemp.fees
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageTwoRow.isIncluded
+                    ? `${props.formatValue(packageTwoPrice, props.currencyID)}`
+                    : `<span>&#10007;</span>`
+                  : packageTwoRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+
+              ${
+                subService?.isAdditionalService !== null
+                  ? `
+                    <input
+                      style="margin-left:5px;"
+                      type="checkbox"
+                      ${
+                        subService?.servicePackageIDs?.includes(
+                          subService.packageTwoID,
+                        ) && subService?.servicePackageIDs?.length === 1
+                          ? "disabled"
+                          : ""
+                      }
+                      ${
+                        subService?.servicePackageIDs?.includes(
+                          subService.packageTwoID,
+                        )
+                          ? "checked"
+                          : ""
+                      }
+                      onchange="handleAddAndRemoveAdditionalServices(
+                        1,
+                        ${service.serviceCatID},
+                        ${subService.serviceID},
+                        ${subService.packageTwoID},
+                        this.checked
+                      )"
+                    />
+                  `
+                  : `<div>&nbsp;&nbsp;</div>`
+              }
+            </td>
+          `
+          : ""
+      }
+
+      <!-- PACKAGE TWO VAT RATE -->
+      ${
+        (Number(props.vatPercentage) || 0) > 0 &&
+        props.visibleFieldsCustomTemp.vatRate
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                packageTwoRow.isIncluded
+                  ? `${Number(packageTwoVatRate || 0).toFixed(2)}%`
+                  : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+          : ""
+      }
+
+      <!-- PACKAGE TWO VAT -->
+      ${
+        (Number(props.vatPercentage) || 0) > 0 &&
+        props.visibleFieldsCustomTemp.vat
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageTwoRow.isIncluded
+                    ? `${props.formatValue(vatTwo, props.currencyID)}`
+                    : `<span>&#10007;</span>`
+                  : packageTwoRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+          : ""
+      }
+
+      <!-- PACKAGE TWO FEES INC VAT -->
+      ${
+        (Number(props.vatPercentage) || 0) > 0 &&
+        props.visibleFieldsCustomTemp.feesIncVat
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageTwoRow.isIncluded
+                    ? `${props.formatValue(totalTwo, props.currencyID)}`
+                    : `<span>&#10007;</span>`
+                  : packageTwoRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+          : ""
+      }
+
+      <!-- PACKAGE TWO SERVICE SCOPE -->
+      ${
+        props.visibleFieldsCustomTemp.serviceScope
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                driverList.length > 0
+                  ? driverList
+                      .filter((driver) => driver.driverValue !== null)
+                      .map(
+                        (driver, driverIndex, driverArray) => `
+                          ${
+                            packageTwoRow.isIncluded
+                              ? `${driver.driverName} = ${driver.driverValue}${
+                                  driverIndex !== driverArray.length - 1
+                                    ? ", "
+                                    : ""
+                                }`
+                              : "-"
+                          }
+                        `,
+                      )
+                      .join("")
+                  : "-"
+              }
+            </td>
+          `
+          : ""
+      }
+    `
+                  : ""
+              }
+
+            ${
+              props?.selectedPackagesList?.length === 3
+                ? `
+      <!-- PACKAGE THREE FEES -->
+      ${
+        props.visibleFieldsCustomTemp.fees
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageThreeRow.isIncluded
+                    ? `${props.formatValue(
+                        packageThreePrice,
+                        props.currencyID,
+                      )}`
+                    : `<span>&#10007;</span>`
+                  : packageThreeRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+
+              ${
+                subService?.isAdditionalService !== null
+                  ? `
+                    <input
+                      style="margin-left:5px;"
+                      type="checkbox"
+                      ${
+                        subService?.servicePackageIDs?.includes(
+                          subService.packageThreeID,
+                        ) && subService?.servicePackageIDs?.length === 1
+                          ? "disabled"
+                          : ""
+                      }
+                      ${
+                        subService?.servicePackageIDs?.includes(
+                          subService.packageThreeID,
+                        )
+                          ? "checked"
+                          : ""
+                      }
+                      onchange="handleAddAndRemoveAdditionalServices(
+                        1,
+                        ${service.serviceCatID},
+                        ${subService.serviceID},
+                        ${subService.packageThreeID},
+                        this.checked
+                      )"
+                    />
+                  `
+                  : `<div>&nbsp;&nbsp;</div>`
+              }
+            </td>
+          `
+          : ""
+      }
+
+      <!-- PACKAGE THREE VAT RATE -->
+      ${
+        (Number(props.vatPercentage) || 0) > 0 &&
+        props.visibleFieldsCustomTemp.vatRate
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                packageThreeRow.isIncluded
+                  ? `${Number(packageThreeVatRate || 0).toFixed(2)}%`
+                  : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+          : ""
+      }
+
+      <!-- PACKAGE THREE VAT -->
+      ${
+        (Number(props.vatPercentage) || 0) > 0 &&
+        props.visibleFieldsCustomTemp.vat
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageThreeRow.isIncluded
+                    ? `${props.formatValue(vatThree, props.currencyID)}`
+                    : `<span>&#10007;</span>`
+                  : packageThreeRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+          : ""
+      }
+
+      <!-- PACKAGE THREE FEES INC VAT -->
+      ${
+        (Number(props.vatPercentage) || 0) > 0 &&
+        props.visibleFieldsCustomTemp.feesIncVat
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageThreeRow.isIncluded
+                    ? `${props.formatValue(totalThree, props.currencyID)}`
+                    : `<span>&#10007;</span>`
+                  : packageThreeRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+          : ""
+      }
+
+      <!-- PACKAGE THREE SERVICE SCOPE -->
+      ${
+        props.visibleFieldsCustomTemp.serviceScope
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                driverList.length > 0
+                  ? driverList
+                      .filter((driver) => driver.driverValue !== null)
+                      .map(
+                        (driver, driverIndex, driverArray) => `
+                          ${
+                            packageThreeRow.isIncluded
+                              ? `${driver.driverName} = ${driver.driverValue}${
+                                  driverIndex !== driverArray.length - 1
+                                    ? ", "
+                                    : ""
+                                }`
+                              : "-"
+                          }
+                        `,
+                      )
+                      .join("")
+                  : "-"
+              }
+            </td>
+          `
+          : ""
+      }
+    `
+                : ""
+            }
+            </tr>
+            `;
+       })
+       .join("")}
+      `,
+      )
+      .join("")}
+  </tbody>
+  <tr style="background-color:#808080;">
+  <td
+    style="
+      border:1px solid #dddddd;
+      text-align:left;
+      padding:8px;
+      color:white;
+    "
+  >
+    Net Total
+  </td>
+
+  ${activeRecurringPackageFooters
+    .map(
+      (footer) => `
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
+                ${props.formatValue(
+                  props.ProposalObject.DiscountLines
+                    ? footer.net
+                    : footer.finalNet,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          hasRecurringPackageVAT && props.visibleFieldsCustomTemp.vatRate
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              ></td>
+            `
+            : ""
+        }
+
+        ${
+          hasRecurringPackageVAT && props.visibleFieldsCustomTemp.vat
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
+                ${props.formatValue(
+                  props.ProposalObject.DiscountLines
+                    ? footer.vat
+                    : footer.finalVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          hasRecurringPackageVAT && props.visibleFieldsCustomTemp.feesIncVat
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
+                ${props.formatValue(
+                  props.ProposalObject.DiscountLines
+                    ? footer.feesIncVat
+                    : footer.finalFeesIncVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.visibleFieldsCustomTemp.serviceScope
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              ></td>
+            `
+            : ""
+        }
+      `,
+    )
+    .join("")}
+</tr>
+      
+${
+  showCustomPackageDiscount
+    ? `
+      <tr style="background-color:#DCDCDC;">
+        <td
+          style="
+            border:1px solid #dddddd;
+            text-align:left;
+            padding:8px;
+            color:black;
+          "
+        >
+          Discount
+        </td>
+
+        ${activeRecurringPackageFooters
+          .map(
+            (footer) => `
+              ${
+                props.visibleFieldsCustomTemp.fees
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                        color:black;
+                      "
+                    >
+                      (-) ${props.formatValue(
+                        footer.discount,
+                        props.currencyID,
+                      )}
+                    </td>
+                  `
+                  : ""
+              }
+
+              ${
+                hasRecurringPackageVAT && props.visibleFieldsCustomTemp.vatRate
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                      "
+                    ></td>
+                  `
+                  : ""
+              }
+
+              ${
+                hasRecurringPackageVAT && props.visibleFieldsCustomTemp.vat
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                        color:black;
+                      "
+                    >
+                      (-) ${props.formatValue(
+                        footer.vatDiscount,
+                        props.currencyID,
+                      )}
+                    </td>
+                  `
+                  : ""
+              }
+
+              ${
+                hasRecurringPackageVAT &&
+                props.visibleFieldsCustomTemp.feesIncVat
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                        color:black;
+                      "
+                    >
+                      (-) ${props.formatValue(
+                        footer.feesIncVatDiscount,
+                        props.currencyID,
+                      )}
+                    </td>
+                  `
+                  : ""
+              }
+
+              ${
+                props.visibleFieldsCustomTemp.serviceScope
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                      "
+                    ></td>
+                  `
+                  : ""
+              }
+            `,
+          )
+          .join("")}
+      </tr>
+
+      ${
+        (Number(props.vatPercentage) || 0) > 0
+          ? `
+<tr style="background-color:#808080;">
+  <td
+    style="
+      border:1px solid #dddddd;
+      text-align:left;
+      padding:8px;
+      color:white;
+    "
+  >
+    Grand Total
+  </td>
+
+  ${activeRecurringPackageFooters
+    .map(
+      (footer) => `
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
+                ${props.formatValue(footer.finalNet, props.currencyID)}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          hasRecurringPackageVAT && props.visibleFieldsCustomTemp.vatRate
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              ></td>
+            `
+            : ""
+        }
+
+        ${
+          hasRecurringPackageVAT && props.visibleFieldsCustomTemp.vat
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
+                ${props.formatValue(footer.finalVat, props.currencyID)}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          hasRecurringPackageVAT && props.visibleFieldsCustomTemp.feesIncVat
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
+                ${props.formatValue(footer.finalFeesIncVat, props.currencyID)}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.visibleFieldsCustomTemp.serviceScope
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              ></td>
+            `
+            : ""
+        }
+      `,
+    )
+    .join("")}
+</tr>
+`
+          : `
+<tr style="background-color:#808080;">
+  <td
+    style="
+      border:1px solid #dddddd;
+      text-align:left;
+      padding:8px;
+      color:white;
+    "
+  >
+    Discounted Total
+  </td>
+
+  ${activeRecurringPackageFooters
+    .map(
+      (footer) => `
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
+                ${props.formatValue(footer.finalNet, props.currencyID)}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.visibleFieldsCustomTemp.serviceScope
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                "
+              ></td>
+            `
+            : ""
+        }
+      `,
+    )
+    .join("")}
+</tr>
+`
+      }
+
+      
+    `
+    : ""
+}
+
+                      
+                      </table>`
+                    }
                     </div>
                   `,
                 });
@@ -3967,9 +5220,12 @@ export default function PreviewComponentPdf(props) {
               if (props.selectedOneOffServiceList.length > 0) {
                 currentArray.push({
                   table: `
-                    <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
-                      <p style="font-family:${fontFamily}; color:${newColorCode}; font-size: 20px; margin-top: 15px;"> One-Off Fees </p>
-                      <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
+                  <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
+                  <p style="font-family:${fontFamily}; color:${newColorCode}; font-size: 20px; margin-top: 15px;"> One-Off Fees </p>
+                  
+                  ${
+                    props.selectedTemplateID === 0
+                      ? `<table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
                         <tr style="background-color:${newColorCode};">
                           <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
                           ${props?.selectedPackagesList
@@ -4499,7 +5755,1066 @@ export default function PreviewComponentPdf(props) {
                       
                          
                         </tr>
-                      </table>
+                      </table>`
+                      : `<table style="width:100%; border-collapse: collapse; font-family:${fontFamily};">
+  <tr style="background-color:${newColorCode};">
+    <td style="border:1px solid #dddddd; padding:8px;"></td>
+    ${props.selectedPackagesList
+      .map(
+        (pkg, index) => `
+        <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white; font-size:18px;">
+          ${
+            pkg.servicePackageName.length > 10
+              ? `<span title="${pkg.servicePackageName}">
+                  ${pkg.servicePackageName
+                    .substring(0, 10)
+                    .toLowerCase()
+                    .replace(/\b\w/g, (l) => l.toUpperCase())}...
+                </span>`
+              : pkg.servicePackageName
+          }
+        </td>
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.vatRate
+            ? `<td style="border:1px solid #dddddd; padding:8px;"></td>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.vat
+            ? `<td style="border:1px solid #dddddd; padding:8px;"></td>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.feesIncVat
+            ? `<td style="border:1px solid #dddddd; padding:8px;"></td>`
+            : ""
+        }
+        ${
+          props.visibleFieldsCustomTemp.serviceScope
+            ? `<td style="border:1px solid #dddddd; padding:8px;"></td>`
+            : ""
+        }
+      `,
+      )
+      .join("")}
+  </tr>
+  <tr style="background-color:${newColorCode};">
+    ${
+      props.visibleFieldsCustomTemp.serviceName
+        ? `<td style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px;">Services</td>`
+        : ""
+    }
+    ${props.selectedPackagesList
+      .map(
+        () => `
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees (${props.currencySymbol})</th>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.vatRate
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">${props.taxName} Rate</th>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.vat
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">${props.taxName} (${props.currencySymbol})</th>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.feesIncVat
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees inc ${props.taxName} (${props.currencySymbol})</th>`
+            : ""
+        }
+        ${
+          props.visibleFieldsCustomTemp.serviceScope
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Service Scope</th>`
+            : ""
+        }
+      `,
+      )
+      .join("")}
+  </tr>
+  <tbody>
+    ${props.selectedOneOffServiceList
+      .map(
+        (service) => `
+         <tr style="background-color:#DCDCDC;">
+        ${
+          props.visibleFieldsCustomTemp.serviceName
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; font-size:16px;">${service.serviceCatName}</th>`
+            : ""
+        }
+          ${
+            props.visibleFieldsCustomTemp.fees
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+              : ""
+          }
+          ${
+            (Number(props.vatPercentage) || 0) > 0 &&
+            props.visibleFieldsCustomTemp.vatRate
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+              : ""
+          }
+          ${
+            (Number(props.vatPercentage) || 0) > 0 &&
+            props.visibleFieldsCustomTemp.vat
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+              : ""
+          }
+          ${
+            (Number(props.vatPercentage) || 0) > 0 &&
+            props.visibleFieldsCustomTemp.feesIncVat
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+              : ""
+          }
+          ${
+            props.visibleFieldsCustomTemp.serviceScope
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+              : ""
+          }
+          ${
+            props?.selectedPackagesList?.length >= 2
+              ? `${
+                  props.visibleFieldsCustomTemp.fees
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.vatRate
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.vat
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.feesIncVat
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  props.visibleFieldsCustomTemp.serviceScope
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }`
+              : ""
+          }
+          ${
+            props?.selectedPackagesList?.length === 3
+              ? `${
+                  props.visibleFieldsCustomTemp.fees
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.vatRate
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.vat
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.feesIncVat
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  props.visibleFieldsCustomTemp.serviceScope
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }`
+              : ""
+          }
+                        </tr>
+        ${service.servicesList
+          .map((subService) => {
+            const packageOneOneOffRow = calculateCustomOneOffPackageRow({
+              service: subService,
+              packageIndex: 0,
+              selectedPackageID:
+                props.selectedPackagesList?.[0]?.servicePackageID ?? null,
+              fallbackVatPercentage:
+                props.vatPercentage ?? props.vatPercentage ?? 0,
+            });
+
+            const packageTwoOneOffRow = calculateCustomOneOffPackageRow({
+              service: subService,
+              packageIndex: 1,
+              selectedPackageID:
+                props.selectedPackagesList?.[1]?.servicePackageID ?? null,
+              fallbackVatPercentage:
+                props.vatPercentage ?? props.vatPercentage ?? 0,
+            });
+
+            const packageThreeOneOffRow = calculateCustomOneOffPackageRow({
+              service: subService,
+              packageIndex: 2,
+              selectedPackageID:
+                props.selectedPackagesList?.[2]?.servicePackageID ?? null,
+              fallbackVatPercentage:
+                props.vatPercentage ?? props.vatPercentage ?? 0,
+            });
+
+            const driverList = Array.isArray(subService?.pricingDriverList)
+              ? subService.pricingDriverList
+              : [];
+
+            return `
+            <tr ${
+              subService?.isAdditionalService !== null
+                ? 'style="background-color:#17a2b8; color:white;"'
+                : ""
+            }>
+              ${
+                props.visibleFieldsCustomTemp.serviceName
+                  ? `<td style="border:1px solid #dddddd; text-align:left; padding:8px;">
+                      ${
+                        subService.serviceName.length > 45
+                          ? `<span title="${subService.serviceName}">
+                              ${subService.serviceName
+                                .substring(0, 45)
+                                .toLowerCase()
+                                .replace(/\b\w/g, (l) => l.toUpperCase())}...
+                            </span>`
+                          : subService.serviceName
+                      }
+                    </td>`
+                  : ""
+              }
+
+              <!-- Package One Fees -->
+              ${
+                props.visibleFieldsCustomTemp.fees
+                  ? `
+      <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+        ${
+          props.ProposalObject.feeTypeId === 1
+            ? packageOneOneOffRow.isIncluded
+              ? `${props.formatValue(
+                  packageOneOneOffRow.fees,
+                  props.currencyID,
+                )}`
+              : `<span>&#10007;</span>`
+            : packageOneOneOffRow.isIncluded
+              ? `<span>&#10003;</span>`
+              : `<span>&#10007;</span>`
+        }
+      </td>
+    `
+                  : ""
+              }
+
+              ${
+                (Number(props.vatPercentage) || 0) > 0 &&
+                props.visibleFieldsCustomTemp.vatRate
+                  ? `
+      <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+        ${
+          packageOneOneOffRow.isIncluded
+            ? `${Number(packageOneOneOffRow.vatRate || 0).toFixed(2)}%`
+            : `<span>&#10007;</span>`
+        }
+      </td>
+    `
+                  : ""
+              }
+
+              ${
+                (Number(props.vatPercentage) || 0) > 0 &&
+                props.visibleFieldsCustomTemp.vat
+                  ? `
+      <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+        ${
+          props.ProposalObject.feeTypeId === 1
+            ? packageOneOneOffRow.isIncluded
+              ? `${props.formatValue(
+                  packageOneOneOffRow.vat,
+                  props.currencyID,
+                )}`
+              : `<span>&#10007;</span>`
+            : packageOneOneOffRow.isIncluded
+              ? `<span>&#10003;</span>`
+              : `<span>&#10007;</span>`
+        }
+      </td>
+    `
+                  : ""
+              }
+
+              ${
+                (Number(props.vatPercentage) || 0) > 0 &&
+                props.visibleFieldsCustomTemp.feesIncVat
+                  ? `
+      <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+        ${
+          props.ProposalObject.feeTypeId === 1
+            ? packageOneOneOffRow.isIncluded
+              ? `${props.formatValue(
+                  packageOneOneOffRow.feesIncVat,
+                  props.currencyID,
+                )}`
+              : `<span>&#10007;</span>`
+            : packageOneOneOffRow.isIncluded
+              ? `<span>&#10003;</span>`
+              : `<span>&#10007;</span>`
+        }
+      </td>
+    `
+                  : ""
+              }
+
+              ${
+                props.visibleFieldsCustomTemp.serviceScope
+                  ? `
+      <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+        ${
+          driverList.length > 0
+            ? driverList
+                .filter((driver) => driver.driverValue !== null)
+                .map(
+                  (driver, driverIndex, driverArray) => `
+                    ${
+                      packageOneOneOffRow.isIncluded
+                        ? `${driver.driverName} = ${driver.driverValue}${
+                            driverIndex !== driverArray.length - 1 ? "; " : ""
+                          }`
+                        : "-"
+                    }
+                  `,
+                )
+                .join("")
+            : "-"
+        }
+      </td>
+    `
+                  : ""
+              }
+
+              <!-- Package Two Fees -->
+              ${
+                props?.selectedPackagesList?.length >= 2
+                  ? `
+                  ${
+                    props.visibleFieldsCustomTemp.fees
+                      ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageTwoOneOffRow.isIncluded
+                    ? `${props.formatValue(
+                        packageTwoOneOffRow.fees,
+                        props.currencyID,
+                      )}`
+                    : `<span>&#10007;</span>`
+                  : packageTwoOneOffRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+
+              ${
+                subService?.isAdditionalService !== null
+                  ? `
+                    <input
+                      style="margin-left:5px;"
+                      type="checkbox"
+                      ${
+                        subService?.servicePackageIDs?.includes(
+                          subService.packageTwoID,
+                        ) && subService?.servicePackageIDs?.length === 1
+                          ? "disabled"
+                          : ""
+                      }
+                      ${
+                        subService?.servicePackageIDs?.includes(
+                          subService.packageTwoID,
+                        )
+                          ? "checked"
+                          : ""
+                      }
+                      onchange="handleAddAndRemoveAdditionalServices(
+                        2,
+                        ${service.serviceCatID},
+                        ${subService.serviceID},
+                        ${subService.packageTwoID},
+                        this.checked
+                      )"
+                    />
+                  `
+                  : `<div>&nbsp;&nbsp;</div>`
+              }
+            </td>
+          `
+                      : ""
+                  }
+
+                  ${
+                    (Number(props.vatPercentage) || 0) > 0 &&
+                    props.visibleFieldsCustomTemp.vatRate
+                      ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                packageTwoOneOffRow.isIncluded
+                  ? `${Number(packageTwoOneOffRow.vatRate || 0).toFixed(2)}%`
+                  : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+                      : ""
+                  }
+
+                  ${
+                    (Number(props.vatPercentage) || 0) > 0 &&
+                    props.visibleFieldsCustomTemp.vat
+                      ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageTwoOneOffRow.isIncluded
+                    ? `${props.formatValue(
+                        packageTwoOneOffRow.vat,
+                        props.currencyID,
+                      )}`
+                    : `<span>&#10007;</span>`
+                  : packageTwoOneOffRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+                      : ""
+                  }
+
+                  ${
+                    (Number(props.vatPercentage) || 0) > 0 &&
+                    props.visibleFieldsCustomTemp.feesIncVat
+                      ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageTwoOneOffRow.isIncluded
+                    ? `${props.formatValue(
+                        packageTwoOneOffRow.feesIncVat,
+                        props.currencyID,
+                      )}`
+                    : `<span>&#10007;</span>`
+                  : packageTwoOneOffRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+                      : ""
+                  }
+
+              ${
+                props.visibleFieldsCustomTemp.serviceScope
+                  ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                driverList.length > 0
+                  ? driverList
+                      .filter((driver) => driver.driverValue !== null)
+                      .map(
+                        (driver, driverIndex, driverArray) => `
+                          ${
+                            packageTwoOneOffRow.isIncluded
+                              ? `${driver.driverName} = ${driver.driverValue}${
+                                  driverIndex !== driverArray.length - 1
+                                    ? "; "
+                                    : ""
+                                }`
+                              : "-"
+                          }
+                        `,
+                      )
+                      .join("")
+                  : "-"
+              }
+            </td>
+          `
+                  : ""
+              }
+                  `
+                  : ""
+              }
+
+            ${
+              props?.selectedPackagesList?.length === 3
+                ? `
+                  ${
+                    props.visibleFieldsCustomTemp.fees
+                      ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageThreeOneOffRow.isIncluded
+                    ? `${props.formatValue(
+                        packageThreeOneOffRow.fees,
+                        props.currencyID,
+                      )}`
+                    : `<span>&#10007;</span>`
+                  : packageThreeOneOffRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+
+              ${
+                subService?.isAdditionalService !== null
+                  ? `
+                    <input
+                      style="margin-left:5px;"
+                      type="checkbox"
+                      ${
+                        subService?.servicePackageIDs?.includes(
+                          subService.packageThreeID,
+                        ) && subService?.servicePackageIDs?.length === 1
+                          ? "disabled"
+                          : ""
+                      }
+                      ${
+                        subService?.servicePackageIDs?.includes(
+                          subService.packageThreeID,
+                        )
+                          ? "checked"
+                          : ""
+                      }
+                      onchange="handleAddAndRemoveAdditionalServices(
+                        2,
+                        ${service.serviceCatID},
+                        ${subService.serviceID},
+                        ${subService.packageThreeID},
+                        this.checked
+                      )"
+                    />
+                  `
+                  : `<div>&nbsp;&nbsp;</div>`
+              }
+            </td>
+          `
+                      : ""
+                  }
+
+                   ${
+                     (Number(props.vatPercentage) || 0) > 0 &&
+                     props.visibleFieldsCustomTemp.vatRate
+                       ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                packageThreeOneOffRow.isIncluded
+                  ? `${Number(packageThreeOneOffRow.vatRate || 0).toFixed(2)}%`
+                  : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+                       : ""
+                   }
+
+      <!-- PACKAGE THREE VAT -->
+      ${
+        (Number(props.vatPercentage) || 0) > 0 &&
+        props.visibleFieldsCustomTemp.vat
+          ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageThreeOneOffRow.isIncluded
+                    ? `${props.formatValue(
+                        packageThreeOneOffRow.vat,
+                        props.currencyID,
+                      )}`
+                    : `<span>&#10007;</span>`
+                  : packageThreeOneOffRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+          : ""
+      }
+
+                  ${
+                    (Number(props.vatPercentage) || 0) > 0 &&
+                    props.visibleFieldsCustomTemp.feesIncVat
+                      ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageThreeOneOffRow.isIncluded
+                    ? `${props.formatValue(
+                        packageThreeOneOffRow.feesIncVat,
+                        props.currencyID,
+                      )}`
+                    : `<span>&#10007;</span>`
+                  : packageThreeOneOffRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+                      : ""
+                  }
+
+      <!-- PACKAGE THREE SERVICE SCOPE -->
+      ${
+        props.visibleFieldsCustomTemp.serviceScope
+          ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                driverList.length > 0
+                  ? driverList
+                      .filter((driver) => driver.driverValue !== null)
+                      .map(
+                        (driver, driverIndex, driverArray) => `
+                          ${
+                            packageThreeOneOffRow.isIncluded
+                              ? `${driver.driverName} = ${driver.driverValue}${
+                                  driverIndex !== driverArray.length - 1
+                                    ? "; "
+                                    : ""
+                                }`
+                              : "-"
+                          }
+                        `,
+                      )
+                      .join("")
+                  : "-"
+              }
+            </td>
+          `
+          : ""
+      }
+                  `
+                : ""
+            }
+            </tr>
+           `;
+          })
+          .join("")}
+      `,
+      )
+      .join("")}
+  </tbody>
+  <tr style="background-color:#808080;">
+  <td
+    style="
+      border:1px solid #dddddd;
+      text-align:left;
+      padding:8px;
+      color:white;
+    "
+  >
+    Net Total
+  </td>
+
+  ${activeCustomOneOffPackageFooters
+    .map(
+      (footer) => `
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
+                ${props.formatValue(
+                  props.ProposalObject.DiscountLines
+                    ? footer.net
+                    : footer.finalNet,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          hasCustomOneOffPackageVAT && props.visibleFieldsCustomTemp.vatRate
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              ></td>
+            `
+            : ""
+        }
+
+        ${
+          hasCustomOneOffPackageVAT && props.visibleFieldsCustomTemp.vat
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
+                ${props.formatValue(
+                  props.ProposalObject.DiscountLines
+                    ? footer.vat
+                    : footer.finalVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          hasCustomOneOffPackageVAT && props.visibleFieldsCustomTemp.feesIncVat
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
+                ${props.formatValue(
+                  props.ProposalObject.DiscountLines
+                    ? footer.feesIncVat
+                    : footer.finalFeesIncVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.visibleFieldsCustomTemp.serviceScope
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              ></td>
+            `
+            : ""
+        }
+      `,
+    )
+    .join("")}
+</tr>
+
+${
+  showCustomOneOffPackageDiscount
+    ? `
+      <!-- ONE-OFF PACKAGE DISCOUNT -->
+      <tr style="background-color:#DCDCDC;">
+        <td
+          style="
+            border:1px solid #dddddd;
+            text-align:left;
+            padding:8px;
+            color:black;
+          "
+        >
+          Discount
+        </td>
+
+        ${activeCustomOneOffPackageFooters
+          .map(
+            (footer) => `
+              ${
+                props.visibleFieldsCustomTemp.fees
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                        color:black;
+                      "
+                    >
+                      (-) ${props.formatValue(
+                        footer.discount,
+                        props.currencyID,
+                      )}
+                    </td>
+                  `
+                  : ""
+              }
+
+              ${
+                hasCustomOneOffPackageVAT &&
+                props.visibleFieldsCustomTemp.vatRate
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                      "
+                    ></td>
+                  `
+                  : ""
+              }
+
+              ${
+                hasCustomOneOffPackageVAT && props.visibleFieldsCustomTemp.vat
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                        color:black;
+                      "
+                    >
+                      (-) ${props.formatValue(
+                        footer.vatDiscount,
+                        props.currencyID,
+                      )}
+                    </td>
+                  `
+                  : ""
+              }
+
+              ${
+                hasCustomOneOffPackageVAT &&
+                props.visibleFieldsCustomTemp.feesIncVat
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                        color:black;
+                      "
+                    >
+                      (-) ${props.formatValue(
+                        footer.feesIncVatDiscount,
+                        props.currencyID,
+                      )}
+                    </td>
+                  `
+                  : ""
+              }
+
+              ${
+                props.visibleFieldsCustomTemp.serviceScope
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                      "
+                    ></td>
+                  `
+                  : ""
+              }
+            `,
+          )
+          .join("")}
+      </tr>
+
+      ${
+        hasCustomOneOffPackageVAT
+          ? `
+            <!-- ONE-OFF PACKAGE GRAND TOTAL -->
+            <tr style="background-color:#808080;">
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:left;
+                  padding:8px;
+                  color:white;
+                "
+              >
+                Grand Total
+              </td>
+
+              ${activeCustomOneOffPackageFooters
+                .map(
+                  (footer) => `
+                    ${
+                      props.visibleFieldsCustomTemp.fees
+                        ? `
+                          <td
+                            style="
+                              border:1px solid #dddddd;
+                              text-align:right;
+                              padding:8px;
+                              color:white;
+                            "
+                          >
+                            ${props.formatValue(
+                              footer.finalNet,
+                              props.currencyID,
+                            )}
+                          </td>
+                        `
+                        : ""
+                    }
+
+                    ${
+                      props.visibleFieldsCustomTemp.vatRate
+                        ? `
+                          <td
+                            style="
+                              border:1px solid #dddddd;
+                              text-align:right;
+                              padding:8px;
+                            "
+                          ></td>
+                        `
+                        : ""
+                    }
+
+                    ${
+                      props.visibleFieldsCustomTemp.vat
+                        ? `
+                          <td
+                            style="
+                              border:1px solid #dddddd;
+                              text-align:right;
+                              padding:8px;
+                              color:white;
+                            "
+                          >
+                            ${props.formatValue(
+                              footer.finalVat,
+                              props.currencyID,
+                            )}
+                          </td>
+                        `
+                        : ""
+                    }
+
+                    ${
+                      props.visibleFieldsCustomTemp.feesIncVat
+                        ? `
+                          <td
+                            style="
+                              border:1px solid #dddddd;
+                              text-align:right;
+                              padding:8px;
+                              color:white;
+                            "
+                          >
+                            ${props.formatValue(
+                              footer.finalFeesIncVat,
+                              props.currencyID,
+                            )}
+                          </td>
+                        `
+                        : ""
+                    }
+
+                    ${
+                      props.visibleFieldsCustomTemp.serviceScope
+                        ? `
+                          <td
+                            style="
+                              border:1px solid #dddddd;
+                              text-align:right;
+                              padding:8px;
+                            "
+                          ></td>
+                        `
+                        : ""
+                    }
+                  `,
+                )
+                .join("")}
+            </tr>
+          `
+          : `
+            <!-- ONE-OFF PACKAGE DISCOUNTED TOTAL -->
+            <tr style="background-color:#808080;">
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:left;
+                  padding:8px;
+                  color:white;
+                "
+              >
+                Discounted Total
+              </td>
+
+              ${activeCustomOneOffPackageFooters
+                .map(
+                  (footer) => `
+                    ${
+                      props.visibleFieldsCustomTemp.fees
+                        ? `
+                          <td
+                            style="
+                              border:1px solid #dddddd;
+                              text-align:right;
+                              padding:8px;
+                              color:white;
+                            "
+                          >
+                            ${props.formatValue(
+                              footer.finalNet,
+                              props.currencyID,
+                            )}
+                          </td>
+                        `
+                        : ""
+                    }
+
+                    ${
+                      props.visibleFieldsCustomTemp.serviceScope
+                        ? `
+                          <td
+                            style="
+                              border:1px solid #dddddd;
+                              text-align:right;
+                              padding:8px;
+                            "
+                          ></td>
+                        `
+                        : ""
+                    }
+                  `,
+                )
+                .join("")}
+            </tr>
+          `
+      }
+    `
+    : ""
+}
+
+
+                      </table>`
+                  }
                     </div>
                   `,
                 });
@@ -5336,7 +7651,7 @@ ${
 
             const vatRateExact = decimalValue(
               subService.service_vat_percentage ??
-                props.vatPercentageOneOff ??
+                props.vatPercentage ??
                 props.vatPercentage ??
                 0,
             );
