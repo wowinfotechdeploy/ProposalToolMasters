@@ -731,3 +731,125 @@ export const calculateCustomOneOffPackageFooter = ({
     hasPriceIncrease: discountExact.lessThan(0),
   };
 };
+
+export const calculateCustomServiceRow = ({
+  service,
+  fallbackVatPercentage = 0,
+}) => {
+  const feesExact = decimalValue(service?.price);
+
+  const vatRateExact = decimalValue(
+    service?.service_vat_percentage ?? fallbackVatPercentage,
+  );
+
+  const vatExact = feesExact.mul(vatRateExact).div(100);
+
+  const feesIncVatExact = feesExact.plus(vatExact);
+
+  return {
+    feesExact,
+    vatExact,
+    feesIncVatExact,
+
+    fees: truncateMoney(feesExact),
+    vatRate: vatRateExact.toNumber(),
+    vat: truncateMoney(vatExact),
+    feesIncVat: truncateMoney(feesIncVatExact),
+  };
+};
+
+const createEmptyCustomServiceFooter = () => ({
+  net: 0,
+  vat: 0,
+  feesIncVat: 0,
+
+  discount: 0,
+  vatDiscount: 0,
+  feesIncVatDiscount: 0,
+
+  finalNet: 0,
+  finalVat: 0,
+  finalFeesIncVat: 0,
+
+  hasPositiveDiscount: false,
+  hasPriceIncrease: false,
+});
+
+const hasCalculationValue = (value) =>
+  value !== null && value !== undefined && value !== "";
+
+export const calculateCustomServiceFooter = ({
+  serviceGroups = [],
+  discountPercentage = null,
+  discountAmount = null,
+  fallbackVatPercentage = 0,
+}) => {
+  let netFeesExact = new Decimal(0);
+  let netVatExact = new Decimal(0);
+
+  serviceGroups.forEach((category) => {
+    (category?.servicesList || []).forEach((service) => {
+      const serviceRow = calculateCustomServiceRow({
+        service,
+        fallbackVatPercentage,
+      });
+
+      netFeesExact = netFeesExact.plus(serviceRow.feesExact);
+
+      netVatExact = netVatExact.plus(serviceRow.vatExact);
+    });
+  });
+
+  const netFeesIncVatExact = netFeesExact.plus(netVatExact);
+
+  let discountFactorExact = new Decimal(1);
+
+  const hasDiscountPercentage = hasCalculationValue(discountPercentage);
+
+  if (hasDiscountPercentage) {
+    const discountPercentageExact = decimalValue(discountPercentage);
+
+    discountFactorExact = new Decimal(1).minus(
+      discountPercentageExact.div(100),
+    );
+  } else if (hasCalculationValue(discountAmount) && !netFeesExact.isZero()) {
+    // Compatibility fallback for old proposals
+    // where only the absolute discount exists.
+    const discountAmountExact = decimalValue(discountAmount);
+
+    const finalNetFromAmountExact = netFeesExact.minus(discountAmountExact);
+
+    discountFactorExact = finalNetFromAmountExact.div(netFeesExact);
+  }
+
+  const finalNetExact = netFeesExact.mul(discountFactorExact);
+
+  const finalVatExact = netVatExact.mul(discountFactorExact);
+
+  const finalFeesIncVatExact = finalNetExact.plus(finalVatExact);
+
+  const discountExact = netFeesExact.minus(finalNetExact);
+
+  const vatDiscountExact = netVatExact.minus(finalVatExact);
+
+  const feesIncVatDiscountExact =
+    netFeesIncVatExact.minus(finalFeesIncVatExact);
+
+  return {
+    net: truncateMoney(netFeesExact),
+    vat: truncateMoney(netVatExact),
+    feesIncVat: truncateMoney(netFeesIncVatExact),
+
+    discount: truncateMoney(discountExact),
+    vatDiscount: truncateMoney(vatDiscountExact),
+    feesIncVatDiscount: truncateMoney(feesIncVatDiscountExact),
+
+    finalNet: truncateMoney(finalNetExact),
+    finalVat: truncateMoney(finalVatExact),
+    finalFeesIncVat: truncateMoney(finalFeesIncVatExact),
+
+    hasPositiveDiscount: discountExact.greaterThan(0),
+
+    hasPriceIncrease: discountExact.lessThan(0),
+  };
+};
