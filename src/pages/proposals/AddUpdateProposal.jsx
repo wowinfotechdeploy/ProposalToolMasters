@@ -163,6 +163,8 @@ const BasicInformationComponent = (props) => {
       props.setFontFamily(props.getFontNameById(selectedTemplate.fontFamilyID));
       props.setShowSeparatorLines(selectedTemplate.showSeparatorLines);
 
+      props.updateVisibleFieldsFromIds(selectedTemplate.pricingTableColumnIDs);
+
       props.setServiceDescriptionObj((prev) => ({
         ...prev,
         mainHeading: selectedTemplate?.mainHeadingSD,
@@ -21543,6 +21545,7 @@ const Add_Update_Proposal = (props) => {
           GetProposalEngLetterTemplateLookUpList(
             ModelData.clientID,
             ModelData.templateID,
+            ModelData.pricingTableColumnIDs,
           );
           setAdditionalInformationList(
             ...additionalInformationList,
@@ -22609,6 +22612,8 @@ const Add_Update_Proposal = (props) => {
     //   ProposalObject.customizedEmailContent,
     //   "CustomizeTemplate"
     // );
+    const isGlobalCustomTemplate =
+      selectedTemplateID === 6 || selectedTemplateIDOneOff === 6;
     const ApiRequest_ParamsObj = {
       organisationKeyID: common.organisationKeyID,
       userKeyID: common.userKeyID,
@@ -22664,6 +22669,9 @@ const Add_Update_Proposal = (props) => {
             : null
           : null,
       statusID: StatusId || null,
+      pricingTableColumnIDs: isGlobalCustomTemplate
+        ? getVisibleFieldIds()
+        : null,
       TabName: moduleName,
       quotePDFUrl: MergePdfUrl || null,
       documentCode: DocumentCode || null,
@@ -24811,10 +24819,12 @@ const Add_Update_Proposal = (props) => {
                   setStatementOfFactsObj={setStatementOfFactsObj}
                   setServiceDescriptionObj={setServiceDescriptionObj}
                   setPricingTableColumnIDs={setPricingTableColumnIDs}
+                  pricingTableColumnIDs={pricingTableColumnIDs}
+                  updateVisibleFieldsFromIds={updateVisibleFieldsFromIds}
                   // ProposalTypeUpdate={ProposalTypeUpdate}
                 />
               )}
-              {/* {activeTab === ProposalHeader.SelectServices && (       
+              {/* {activeTab === ProposalHeader.SelectServices && (
               
 
               
