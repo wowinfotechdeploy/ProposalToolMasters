@@ -145,10 +145,12 @@ const FeeInflationView = () => {
       );
 
       if (data?.data?.statusCode === 200) {
-        setOpenSuccessModal(true);
-        setIsAddUpdateActionDone(true);
-        GetServiceFeeInflationConfigData();
-        $("#" + "confirm").modal("hide");
+        $("#ConfirmModel").one("hidden.bs.modal", () => {
+          setIsAddUpdateActionDone(true);
+          setOpenSuccessModal(true);
+          GetServiceFeeInflationConfigData();
+        });
+        $("#ConfirmModel").modal("hide");
       } else {
         setErrorMessage(data?.data?.errorMessage || data?.response?.data?.errorMessage || "Unable to delete fee inflation rule.");
       }
@@ -175,7 +177,9 @@ const FeeInflationView = () => {
   }
 
   return (
-    <div className="container">
+    <div>
+    <div class="page-title-cls ms-2">Fee Inflation</div>
+    <div className="container mt-1">
       <div className="row">
         <div className="col-12 mt-3">
           <strong>
@@ -186,8 +190,8 @@ const FeeInflationView = () => {
       </div>
 
       <div className="row mt-3">
-        <div className="col-md-3">
-          <label className="form-label">Select Services</label>
+        <div className="col-md-2 pt-1">
+          <div className="form-label" style={{fontSize: "14px"}}>Select Services</div>
         </div>
         <div className="col-md-6">
           <Select
@@ -275,7 +279,8 @@ const FeeInflationView = () => {
                   : "Percentage (%)"}
               </label>
               <input
-                type="number"
+                type="text"
+                inpitMode="decimal"
                 className="form-control"
                 min={0}
                 placeholder={
@@ -284,22 +289,50 @@ const FeeInflationView = () => {
                     : "Enter percentage e.g. 10"
                 }
                 value={ServiceFeeInflationConfig.InflationRule.value ?? ""}
-                onChange={(e) =>
-                  setServiceFeeInflationConfig((prev) => ({
-                    ...prev,
+                onChange={(e) => {
+                const value = e.target.value;
+
+                // Allow empty value
+                if (value === "") {
+                  setServiceFeeInflationConfig({
+                    ...ServiceFeeInflationConfig,
                     InflationRule: {
-                      ...prev.InflationRule,
-                      value: e.target.value === "" ? null : parseFloat(e.target.value),
+                      ...ServiceFeeInflationConfig.InflationRule,
+                      value: null,
                     },
-                  }))
+                  });
+                  return;
                 }
+
+                // First digit must be 1-9, following digits can be 0-9
+                if (!/^[1-9][0-9]*$/.test(value)) {
+                  return;
+                }
+
+                const maxValue =
+                  ServiceFeeInflationConfig.InflationRule.operator === "+" ||
+                  ServiceFeeInflationConfig.InflationRule.operator === "-"
+                    ? 9999 : 100;
+
+                if (parseInt(value, 10) > maxValue) {
+                  return;
+                }
+
+                setServiceFeeInflationConfig({
+                  ...ServiceFeeInflationConfig,
+                  InflationRule: {
+                    ...ServiceFeeInflationConfig.InflationRule,
+                    value,
+                  },
+                });
+              }}
               />
               {ServiceFeeInflationConfig.InflationRule.value > 0 && (
                 <small className="text-muted mt-1 d-block">
-                  {ServiceFeeInflationConfig.InflationRule.operator === "+" && `price + ${ServiceFeeInflationConfig.InflationRule.value}`}
-                  {ServiceFeeInflationConfig.InflationRule.operator === "-" && `price − ${ServiceFeeInflationConfig.InflationRule.value}`}
-                  {ServiceFeeInflationConfig.InflationRule.operator === "*" && `price × ${(1 + ServiceFeeInflationConfig.InflationRule.value / 100).toFixed(2)}`}
-                  {ServiceFeeInflationConfig.InflationRule.operator === "/" && `price ÷ ${(1 + ServiceFeeInflationConfig.InflationRule.value / 100).toFixed(2)}`}
+                  {ServiceFeeInflationConfig.InflationRule.operator === "+" && `Price + ${ServiceFeeInflationConfig.InflationRule.value}`}
+                  {ServiceFeeInflationConfig.InflationRule.operator === "-" && `Price − ${ServiceFeeInflationConfig.InflationRule.value}`}
+                  {ServiceFeeInflationConfig.InflationRule.operator === "*" && `Price × ${(1 + ServiceFeeInflationConfig.InflationRule.value / 100).toFixed(2)}`}
+                  {ServiceFeeInflationConfig.InflationRule.operator === "/" && `Price × ${(1 - ServiceFeeInflationConfig.InflationRule.value / 100).toFixed(2)}`}
                 </small>
               )}
             </div>
@@ -308,8 +341,8 @@ const FeeInflationView = () => {
       )}
 
       {canManageFeeInflation && (
-        <div className="col-12 text-end mt-3">
-          <label className="validation">{errorMessage}</label>
+        <>
+        <div className="col-12 text-start mt-3">
           <button
             style={{ fontSize: "14px", marginTop: "10px", marginRight: "10px" }}
             className="btn btn-primary create-item-btn"
@@ -334,6 +367,8 @@ const FeeInflationView = () => {
             </button>
           )} */}
         </div>
+        <label className="validation">{errorMessage}</label>
+        </>
       )}
 
       {(() => {
@@ -359,14 +394,14 @@ const FeeInflationView = () => {
           if (op === "+") return `+ ${val} (flat add)`;
           if (op === "-") return `− ${val} (flat subtract)`;
           if (op === "*") return `× ${(1 + val / 100).toFixed(2)} (${val}% markup)`;
-          if (op === "/") return `÷ ${(1 + val / 100).toFixed(2)} (${val}% discount)`;
+          if (op === "/") return `× ${(1 - val / 100).toFixed(2)} (${val}% discount)`;
           return `${op} ${val}`;
         };
 
         return (
           <div className="row mt-4">
             <div className="col-12">
-              <label className="form-label">Configured Inflation Rules</label>
+              <div className="form-label" style={{fontSize: "14px"}}>Configured Inflation Rules</div>
               <table className="table table-bordered table-sm">
                 <thead className="table-light">
                   <tr>
@@ -436,6 +471,7 @@ const FeeInflationView = () => {
         modelAction={"Update"}
         message={"Fee inflation"}
       />
+    </div>
     </div>
   );
 };

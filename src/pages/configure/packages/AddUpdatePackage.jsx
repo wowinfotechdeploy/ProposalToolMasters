@@ -34,6 +34,7 @@ import { DeclineSuperAdminChanges } from "../../../redux/Services/Config/Service
 import SAPredefinedChangesNotifyMessageModel from "../../../components/SAPredefinedChangesNotifyMessageModel";
 import RecordsAvailablePopupModel from "../../../components/RecordsAvailablePopupModel";
 import { Message } from "@mui/icons-material";
+import PriceAdjustedToZeroFloorValue from "../../../components/PriceAdjustedToZeroFloorValue";
 const SelectServices = lazy(() => import("../../../components/SelectServices"));
 const AdditionalInformation = lazy(() => import("../../../components/AdditionalInformation"));
 
@@ -1242,6 +1243,8 @@ const AddUpdatePackage = (props) => {
   const [BusinessTypeLookupList, setBusinessTypeLookupList] = useState([]);
   const [recurringServicesObj, setRecurringServicesObj] = useState([]);
   const [oneOffServiceObj, setOneOffServiceObj] = useState([]);
+  const [priceAdjustedServices, setPriceAdjustedServices] = useState([]);
+  const [openPriceAdjustedModal, setOpenPriceAdjustedModal] = useState(false);
   const [TabHide, setTabHide] = useState(false);
   const [additionalInformationList, setAdditionalInformationList] = useState(
     []
@@ -2103,6 +2106,9 @@ const AddUpdatePackage = (props) => {
         setLoader(false);
         if (data?.data?.responseData?.data) {
           const PricingData = data?.data?.responseData?.data;
+          const adjustedServiceNames = PricingData
+                .filter((s) => s.isPriceAdjustedToZero)
+                .map((s) => s.serviceName);
           const vatPercentage = data?.data?.responseData?.vatPercentage;
           const currencyId = data?.data?.responseData?.currencyID;  
           setVATPercentage(vatPercentage);
@@ -2316,7 +2322,10 @@ const AddUpdatePackage = (props) => {
             MaxDiscount: Number(oneOffMaxDiscount).toFixed(2),
             GrandTotal: oneOffGrandTotal,
           });
-
+          if (adjustedServiceNames.length > 0) {
+            setPriceAdjustedServices(adjustedServiceNames);
+            setOpenPriceAdjustedModal(true);
+          }
           setLoader(false);
           setActiveTab(tab);
           setIsValidForm({
@@ -3406,12 +3415,13 @@ const AddUpdatePackage = (props) => {
                       onClick={() =>
                         handleChangeTab(1, "PackageBasicInformation")
                       }
-                      class={`${activeTab === PackageHeader.BasicInformation
-                        ? "step tab-field-center"
-                        : isValidForm.BasicForm === true
+                      class={`${
+                        activeTab === PackageHeader.BasicInformation
                           ? "step tab-field-center"
-                          : "step disabled cursor-not-allowed tab-field-center"
-                        } w-90`}
+                          : isValidForm.BasicForm === true
+                            ? "step tab-field-center"
+                            : "step disabled cursor-not-allowed tab-field-center"
+                      } w-90`}
                     >
                       <span class="stepCount">1</span>
                       <span class="stepTitle">Basic Information</span>
@@ -3428,12 +3438,13 @@ const AddUpdatePackage = (props) => {
                     <div
                       id="PackageSelectService"
                       onClick={() => handleChangeTab(2, "PackageSelectService")}
-                      class={`${activeTab === PackageHeader.SelectServices
-                        ? "step tab-field-center"
-                        : isValidForm.BasicForm === true
+                      class={`${
+                        activeTab === PackageHeader.SelectServices
                           ? "step tab-field-center"
-                          : "step disabled cursor-not-allowed tab-field-center"
-                        } w-90`}
+                          : isValidForm.BasicForm === true
+                            ? "step tab-field-center"
+                            : "step disabled cursor-not-allowed tab-field-center"
+                      } w-90`}
                     >
                       <span class="stepCount">2</span>
                       <span class="stepTitle">Select Services</span>
@@ -3452,12 +3463,13 @@ const AddUpdatePackage = (props) => {
                       onClick={() =>
                         handleChangeTab(3, "PackageAdditionalInfo")
                       }
-                      className={`${activeTab === PackageHeader.AdditionalInformation
-                        ? "step tab-field-center"
-                        : isValidForm.SelectService === true
+                      className={`${
+                        activeTab === PackageHeader.AdditionalInformation
                           ? "step tab-field-center"
-                          : "step disabled cursor-not-allowed tab-field-center"
-                        } w-90`}
+                          : isValidForm.SelectService === true
+                            ? "step tab-field-center"
+                            : "step disabled cursor-not-allowed tab-field-center"
+                      } w-90`}
                     >
                       <span className="stepCount">3</span>
                       <span className="stepTitle">Additional Information</span>
@@ -3474,16 +3486,17 @@ const AddUpdatePackage = (props) => {
                     <div
                       id="PackagePricingInfo"
                       onClick={() => handleChangeTab(4, "PackagePricingInfo")}
-                      class={`${activeTab === PackageHeader.PricingInformation
-                        ? "step tab-field-center"
-                        : (
-                          TabHide
-                            ? isValidForm.AdditionalInfo === true
-                            : isValidForm.SelectService === true
-                        )
+                      class={`${
+                        activeTab === PackageHeader.PricingInformation
                           ? "step tab-field-center"
-                          : "step disabled cursor-not-allowed tab-field-center"
-                        } w-90`}
+                          : (
+                                TabHide
+                                  ? isValidForm.AdditionalInfo === true
+                                  : isValidForm.SelectService === true
+                              )
+                            ? "step tab-field-center"
+                            : "step disabled cursor-not-allowed tab-field-center"
+                      } w-90`}
                     >
                       <span class="stepCount">{TabHide ? `4` : `3`}</span>
                       <span class="stepTitle">Pricing Information</span>
@@ -3571,23 +3584,23 @@ const AddUpdatePackage = (props) => {
               )}
               {activeTab === PackageHeader.AdditionalInformation && (
                 <Suspense>
-                <AdditionalInformation
-                  DisableTabOnChange={DisableTabOnChange}
-                  getCrudButtonTextName={getCrudButtonTextName}
-                  getCrudPopUpTitleName={getCrudPopUpTitleName}
-                  HandleTabChange={HandleTabChange}
-                  HandleBack={HandleBack}
-                  getSAChanges={getSAChanges}
-                  DeclineSuperAdminChangesData={DeclineSuperAdminChangesData}
-                  isValidForm={isValidForm}
-                  setIsValidForm={setIsValidForm}
-                  requireMessage={requireMessage}
-                  additionalInformationList={additionalInformationList}
-                  setAdditionalInformationList={setAdditionalInformationList}
-                  recurringError={recurringError}
-                  handleCancel={handleCancel}
-                  moduleName={moduleName}
-                />
+                  <AdditionalInformation
+                    DisableTabOnChange={DisableTabOnChange}
+                    getCrudButtonTextName={getCrudButtonTextName}
+                    getCrudPopUpTitleName={getCrudPopUpTitleName}
+                    HandleTabChange={HandleTabChange}
+                    HandleBack={HandleBack}
+                    getSAChanges={getSAChanges}
+                    DeclineSuperAdminChangesData={DeclineSuperAdminChangesData}
+                    isValidForm={isValidForm}
+                    setIsValidForm={setIsValidForm}
+                    requireMessage={requireMessage}
+                    additionalInformationList={additionalInformationList}
+                    setAdditionalInformationList={setAdditionalInformationList}
+                    recurringError={recurringError}
+                    handleCancel={handleCancel}
+                    moduleName={moduleName}
+                  />
                 </Suspense>
               )}
               {activeTab === PackageHeader.PricingInformation && (
@@ -3617,7 +3630,7 @@ const AddUpdatePackage = (props) => {
                   vatPercentage={vatPercentage}
                   taxName={taxName}
                   currencySymbol={currencySymbol}
-                  preferredCurrencyId = {preferredCurrencyId}
+                  preferredCurrencyId={preferredCurrencyId}
                   // HandleSubmission={HandleSubmission}
                   errorMessage={errorMessage}
                   selectedRecurringServiceList={selectedRecurringServiceList}
@@ -3643,7 +3656,6 @@ const AddUpdatePackage = (props) => {
         ErrorModel={openErrorModal}
         handleClose={handleClose}
         ErrorMessage={errorMessage}
-
       />
       <RecordsAvailablePopupModel
         handleClose={handleClose}
@@ -3659,6 +3671,12 @@ const AddUpdatePackage = (props) => {
         isCheck={isCheck}
         openSuccessModal={openSuccessModal}
         handleClose={handleClose}
+      />
+      <PriceAdjustedToZeroFloorValue
+        open={openPriceAdjustedModal}
+        serviceNames={priceAdjustedServices}
+        currencySymbol={currencySymbol}
+        handleClose={() => setOpenPriceAdjustedModal(false)}
       />
     </div>
   );

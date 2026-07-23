@@ -1229,6 +1229,7 @@ const Update_Practice_Details = () => {
 
       if (response) {
         if (response?.data?.statusCode === 200) {
+          dispatch(updateState({ currency: otherInfo.preferredCurrency }));
           localStorage.removeItem("OrganisationLocalList");
           const ModuleKeyID = response.data.responseData.data;
           let uploadSignatureResponse;

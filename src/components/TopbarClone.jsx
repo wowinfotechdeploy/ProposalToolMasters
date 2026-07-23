@@ -2806,7 +2806,7 @@ const TopbarClone = () => {
                                         }}
                                         style={{ cursor: "pointer" }}
                                       >
-                                        Predefined Services/Packages
+                                        Organisations Services/Packages
                                         <span className="sub-arrow"></span>
                                       </a>
                                       <div
@@ -2833,7 +2833,7 @@ const TopbarClone = () => {
                                                 class="nav-link"
                                                 data-key="t-simple-page"
                                               >
-                                                Predefined Service Categories
+                                                Organisations Service Categories
                                               </a>
                                             </NavLink>
                                           </li>
@@ -2847,7 +2847,7 @@ const TopbarClone = () => {
                                                 class="nav-link"
                                                 data-key="t-simple-page"
                                               >
-                                                Predefined Services
+                                                Organisations Services
                                               </a>
                                             </NavLink>
                                           </li>
@@ -2861,7 +2861,7 @@ const TopbarClone = () => {
                                                 class="nav-link"
                                                 data-key="t-simple-page"
                                               >
-                                                Predefined Packages
+                                                Organisations Packages
                                               </a>
                                             </NavLink>
                                           </li>
@@ -2900,7 +2900,7 @@ const TopbarClone = () => {
                                           );
                                         }}
                                       >
-                                        Predefined Variables
+                                        Organisations Variables
                                         <span className="sub-arrow"></span>
                                       </a>
                                       <div
@@ -2924,7 +2924,7 @@ const TopbarClone = () => {
                                                 class="nav-link"
                                                 data-key="t-simple-page"
                                               >
-                                                Predefined Global Constants
+                                                Organisations Global Constants
                                               </a>
                                             </NavLink>
                                           </li>
@@ -2938,7 +2938,7 @@ const TopbarClone = () => {
                                                 class="nav-link"
                                                 data-key="t-simple-page"
                                               >
-                                                Predefined Global Pricing
+                                                Organisations Global Pricing
                                                 Drivers
                                               </a>
                                             </NavLink>
@@ -2978,7 +2978,7 @@ const TopbarClone = () => {
                                           );
                                         }}
                                       >
-                                        Predefined Templates
+                                        Organisations Templates
                                         <span className="sub-arrow"></span>
                                       </a>
                                       <div
@@ -3001,7 +3001,7 @@ const TopbarClone = () => {
                                                 class="nav-link"
                                                 data-key="t-simple-page"
                                               >
-                                                Predefined {proposalName}/
+                                                Organisations {proposalName}/
                                                 {EngagementName}
                                               </a>
                                             </NavLink>
@@ -3016,7 +3016,7 @@ const TopbarClone = () => {
                                                 class="nav-link"
                                                 data-key="t-simple-page"
                                               >
-                                                Predefined Terms & Conditions
+                                                Organisations Terms & Conditions
                                               </a>
                                             </NavLink>
                                           </li>
@@ -3030,7 +3030,7 @@ const TopbarClone = () => {
                                                 class="nav-link"
                                                 data-key="t-simple-page"
                                               >
-                                                Predefined Email Templates
+                                                Organisations Email Templates
                                               </a>
                                             </NavLink>
                                           </li>
@@ -3456,7 +3456,7 @@ const TopbarClone = () => {
                                           );
                                         }}
                                       >
-                                        Predefined Workflows
+                                        Organisations Workflows
                                         <span className="sub-arrow"></span>
                                       </a>
 
@@ -3480,7 +3480,7 @@ const TopbarClone = () => {
                                                 className="nav-link"
                                                 data-key="t-simple-page"
                                               >
-                                                Predefined Workflows Email
+                                                Organisations Workflows Email
                                                 Templates
                                               </a>
                                             </NavLink>
@@ -3497,7 +3497,7 @@ const TopbarClone = () => {
                                                 className="nav-link"
                                                 data-key="t-simple-page"
                                               >
-                                                Predefined Reminder
+                                                Organisations Reminder
                                               </a>
                                             </NavLink>
                                           </li>

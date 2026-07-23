@@ -42,6 +42,9 @@ function OrganisationSubscriptionPackageDetails(props) {
     signContract: true,
     eSignaturePerMonth: "",
     enablePdfToCsv: true,
+    enableXERO: false,
+    enableQBO: false,
+    enableAIAgent: false,
     pages: null,
     yearlyValuePlan: "",
     // discountPercentageYear: "",
@@ -365,6 +368,9 @@ function OrganisationSubscriptionPackageDetails(props) {
           : props.subscriptionPackageObj.quotesPerMonth,
       prepareContract: props.subscriptionPackageObj.prepareContract,
       enablePdfToCsv: props.subscriptionPackageObj.enablePdfToCsv,
+      enableQBO: props.subscriptionPackageObj.enableQBO,
+      enableXERO: props.subscriptionPackageObj.enableXERO,
+      enableAIAgent: props.subscriptionPackageObj?.enableAIAgent,
       noOfPages: props.subscriptionPackageObj.noOfPages
         ? props.subscriptionPackageObj.noOfPages
         : 0,
@@ -527,6 +533,15 @@ function OrganisationSubscriptionPackageDetails(props) {
     props.setSubscriptionPackageObj((prev) => ({
       ...prev,
       enablePdfToCsv: EnablePDFToCSVValue,
+    }));
+  };
+
+  const handleAiAgentChange = (e) => {
+    const EnableAIAgent = !subscriptionPackageObj.enableAIAgent;
+
+    setSubscriptionPackageObj((prev) => ({
+      ...prev,
+      enableAIAgent: EnableAIAgent,
     }));
   };
 
@@ -1047,6 +1062,113 @@ function OrganisationSubscriptionPackageDetails(props) {
                   </div>
                 </div>
                 {/* PDF TO CSV Ends */}
+
+                {/* Bookkeeping subscription start  */}
+
+                <div className="row p-2">
+                  <div className="fieldset-group ">
+                    <label className="fieldset-group-label required">
+                      Bookkeeping Subscriptions
+                    </label>
+                    <div class="row">
+                      <div class="col-lg-3 col-md-3 col-sm-6 text-start text-md-end mt-2">
+                        <label class="form-label">Xero</label>
+                      </div>
+                      <div
+                        class="col-lg-3 col-md-3 col-sm-6"
+                        style={{ display: "flex", alignItems: "center" }}
+                      >
+                        <div style={{ width: "40px", marginBottom: "5px" }}>
+                          {props.subscriptionPackageObj.enableXERO ? "Yes" : "No"}
+                        </div>
+                        <FormGroup>
+                          <FormControlLabel
+                            control={
+                              <Android12Switch
+                                checked={props.subscriptionPackageObj.enableXERO}
+                                onClick={(e) =>
+                                  props.setSubscriptionPackageObj({
+                                    ...props.subscriptionPackageObj,
+                                    enableXERO:
+                                      !props.subscriptionPackageObj.enableXERO,
+                                  })
+                                }
+                              />
+                            }
+                          />
+                        </FormGroup>
+                      </div>
+                      {/* </div>
+                
+                                      <div class="row"> */}
+                      <div class="col-lg-3 col-md-3 col-sm-6 text-start text-md-end mt-2">
+                        <label class="form-label">Quickbooks</label>
+                      </div>
+                      <div
+                        class="col-lg-3 col-md-3 col-sm-6"
+                        style={{ display: "flex", alignItems: "center" }}
+                      >
+                        <div style={{ width: "40px", marginBottom: "5px" }}>
+                          {props.subscriptionPackageObj.enableQBO ? "Yes" : "No"}
+                        </div>
+                        <FormGroup>
+                          <FormControlLabel
+                            control={
+                              <Android12Switch
+                                checked={props.subscriptionPackageObj.enableQBO}
+                                onClick={(e) => {
+                                  props.setSubscriptionPackageObj({
+                                    ...props.subscriptionPackageObj,
+                                    enableQBO:
+                                      !props.subscriptionPackageObj.enableQBO,
+                                  });
+                                }}
+                              />
+                            }
+                          />
+                        </FormGroup>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Bookkeeping subscription end  */}
+
+                {/* ai agent subscription start  */}
+
+                <div className="row p-2">
+                  <div className="fieldset-group ">
+                    <label className="fieldset-group-label required">
+                      Ai Agent Subscription
+                    </label>
+                    <div class="row">
+                      <div class="col-lg-3 col-md-3 col-sm-6 text-start text-md-end mt-2">
+                        <label class="form-label">Enable Ai Agent</label>
+                      </div>
+                      <div
+                        class="col-lg-3 col-md-3 col-sm-6"
+                        style={{ display: "flex", alignItems: "center" }}
+                      >
+                        <div style={{ width: "40px", marginBottom: "5px" }}>
+                          {props.subscriptionPackageObj.enableAIAgent
+                            ? "Yes"
+                            : "No"}
+                        </div>
+                        <FormGroup>
+                          <FormControlLabel
+                            control={
+                              <Android12Switch
+                                checked={props.subscriptionPackageObj.enableAIAgent}
+                                onClick={handleAiAgentChange}
+                              />
+                            }
+                          />
+                        </FormGroup>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ai agent subscription end  */}
                 <div className="fieldset-group">
                   <label htmlFor="" className="fieldset-group-label required">
                     Other

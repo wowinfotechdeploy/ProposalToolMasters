@@ -47,7 +47,7 @@ const AccountantVariables = ({
               <CopyToClipboard
                 texts={GlobalClientVariables}
                 heading={`Global Prospect Variables:`}
-              />
+            />
             )}
           </>
         )}
@@ -107,7 +107,7 @@ const AccountantVariables = ({
               <CopyToClipboard
                 texts={GlobalClientVariables}
                 heading={`Global Prospect Variables:`}
-              />
+            />
             )}
           </>
         )}
@@ -164,7 +164,7 @@ const AccountantVariables = ({
               <CopyToClipboard
                 texts={GlobalClientVariables}
                 heading={`Global Prospect Variables:`}
-              />
+            />
             )}
           </>
         )}
@@ -222,7 +222,7 @@ const AccountantVariables = ({
               <CopyToClipboard
                 texts={GlobalClientVariables}
                 heading={`Global Prospect Variables:`}
-              />
+            />
             )}
           </>
         )}
@@ -297,10 +297,10 @@ const AccountantVariables = ({
           heading="Organisation:"
         />
         {GlobalClientVariables.length > 0 && (
-          <CopyToClipboard
-            texts={GlobalClientVariables}
-            heading={`Global Prospect Variables:`}
-          />
+              <CopyToClipboard
+                texts={GlobalClientVariables}
+                heading={`Global Prospect Variables:`}
+            />
         )}
         {ClintType !== null && <hr />}
         <CopyToClipboard
@@ -390,6 +390,31 @@ const AccountantVariables = ({
         <CopyToClipboard
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
+          />
+        <span className="variableHeading"> Result Total Variables :</span>
+        <CopyToClipboard
+          heading={`Recurring:`}
+          texts={ServicePricingVariables.OnlyForRecurring}
+        />
+        <CopyToClipboard
+          heading={`OneOff:`}
+          texts={ServicePricingVariables.OnlyForOneOff}
+        />
+        <CopyToClipboard
+          heading={`Combined(Table View):`}
+          texts={ServicePricingVariables.CombinedTableView}
+        />
+        <CopyToClipboard
+          heading={`Combined(Comma Wise):`}
+          texts={ServicePricingVariables.CombinedCommaWise}
+        />
+        <CopyToClipboard
+          heading={`Combined(Bullet List Wise):`}
+          texts={ServicePricingVariables.CombinedBulletWise}
+        />
+        <CopyToClipboard
+          heading={`Total Result (Table View):`}
+          texts={ServicePricingVariables.TotalResulttableVariable}
         />
         {GlobalClientVariables.length > 0 && (
           <CopyToClipboard
@@ -415,6 +440,31 @@ const AccountantVariables = ({
         <CopyToClipboard
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
+        />
+        <span className="variableHeading"> Result Total Variables :</span>
+        <CopyToClipboard
+          heading={`Recurring:`}
+          texts={ServicePricingVariables.OnlyForRecurring}
+        />
+        <CopyToClipboard
+          heading={`OneOff:`}
+          texts={ServicePricingVariables.OnlyForOneOff}
+        />
+        <CopyToClipboard
+          heading={`Combined(Table View):`}
+          texts={ServicePricingVariables.CombinedTableView}
+        />
+        <CopyToClipboard
+          heading={`Combined(Comma Wise):`}
+          texts={ServicePricingVariables.CombinedCommaWise}
+        />
+        <CopyToClipboard
+          heading={`Combined(Bullet List Wise):`}
+          texts={ServicePricingVariables.CombinedBulletWise}
+        />
+        <CopyToClipboard
+          heading={`Total Result (Table View):`}
+          texts={ServicePricingVariables.TotalResulttableVariable}
         />
         {GlobalClientVariables.length > 0 && (
           <CopyToClipboard
@@ -462,6 +512,31 @@ const AccountantVariables = ({
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
         />
+        <span className="variableHeading"> Result Total Variables :</span>
+        <CopyToClipboard
+          heading={`Recurring:`}
+          texts={ServicePricingVariables.OnlyForRecurring}
+        />
+        <CopyToClipboard
+          heading={`OneOff:`}
+          texts={ServicePricingVariables.OnlyForOneOff}
+        />
+        <CopyToClipboard
+          heading={`Combined(Table View):`}
+          texts={ServicePricingVariables.CombinedTableView}
+        />
+        <CopyToClipboard
+          heading={`Combined(Comma Wise):`}
+          texts={ServicePricingVariables.CombinedCommaWise}
+        />
+        <CopyToClipboard
+          heading={`Combined(Bullet List Wise):`}
+          texts={ServicePricingVariables.CombinedBulletWise}
+        />
+        <CopyToClipboard
+          heading={`Total Result (Table View):`}
+          texts={ServicePricingVariables.TotalResulttableVariable}
+        />
         {GlobalClientVariables.length > 0 && (
           <CopyToClipboard
             texts={GlobalClientVariables}
@@ -486,6 +561,31 @@ const AccountantVariables = ({
         <CopyToClipboard
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
+        />
+        <span className="variableHeading"> Result Total Variables :</span>
+        <CopyToClipboard
+          heading={`Recurring:`}
+          texts={ServicePricingVariables.OnlyForRecurring}
+        />
+        <CopyToClipboard
+          heading={`OneOff:`}
+          texts={ServicePricingVariables.OnlyForOneOff}
+        />
+        <CopyToClipboard
+          heading={`Combined(Table View):`}
+          texts={ServicePricingVariables.CombinedTableView}
+        />
+        <CopyToClipboard
+          heading={`Combined(Comma Wise):`}
+          texts={ServicePricingVariables.CombinedCommaWise}
+        />
+        <CopyToClipboard
+          heading={`Combined(Bullet List Wise):`}
+          texts={ServicePricingVariables.CombinedBulletWise}
+        />
+        <CopyToClipboard
+          heading={`Total Result (Table View):`}
+          texts={ServicePricingVariables.TotalResulttableVariable}
         />
         {GlobalClientVariables.length > 0 && (
           <CopyToClipboard
@@ -512,6 +612,31 @@ const AccountantVariables = ({
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
         />
+        <span className="variableHeading"> Result Total Variables :</span>
+        <CopyToClipboard
+          heading={`Recurring:`}
+          texts={ServicePricingVariables.OnlyForRecurring}
+        />
+        <CopyToClipboard
+          heading={`OneOff:`}
+          texts={ServicePricingVariables.OnlyForOneOff}
+        />
+        <CopyToClipboard
+          heading={`Combined(Table View):`}
+          texts={ServicePricingVariables.CombinedTableView}
+        />
+        <CopyToClipboard
+          heading={`Combined(Comma Wise):`}
+          texts={ServicePricingVariables.CombinedCommaWise}
+        />
+        <CopyToClipboard
+          heading={`Combined(Bullet List Wise):`}
+          texts={ServicePricingVariables.CombinedBulletWise}
+        />
+        <CopyToClipboard
+          heading={`Total Result (Table View):`}
+          texts={ServicePricingVariables.TotalResulttableVariable}
+        />
         {GlobalClientVariables.length > 0 && (
           <CopyToClipboard
             texts={GlobalClientVariables}
@@ -536,6 +661,31 @@ const AccountantVariables = ({
         <CopyToClipboard
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
+        />
+        <span className="variableHeading"> Result Total Variables :</span>
+        <CopyToClipboard
+          heading={`Recurring:`}
+          texts={ServicePricingVariables.OnlyForRecurring}
+        />
+        <CopyToClipboard
+          heading={`OneOff:`}
+          texts={ServicePricingVariables.OnlyForOneOff}
+        />
+        <CopyToClipboard
+          heading={`Combined(Table View):`}
+          texts={ServicePricingVariables.CombinedTableView}
+        />
+        <CopyToClipboard
+          heading={`Combined(Comma Wise):`}
+          texts={ServicePricingVariables.CombinedCommaWise}
+        />
+        <CopyToClipboard
+          heading={`Combined(Bullet List Wise):`}
+          texts={ServicePricingVariables.CombinedBulletWise}
+        />
+        <CopyToClipboard
+          heading={`Total Result (Table View):`}
+          texts={ServicePricingVariables.TotalResulttableVariable}
         />
         {GlobalClientVariables.length > 0 && (
           <CopyToClipboard
@@ -599,6 +749,31 @@ const AccountantVariables = ({
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
         />
+        <span className="variableHeading"> Result Total Variables :</span>
+        <CopyToClipboard
+          heading={`Recurring:`}
+          texts={ServicePricingVariables.OnlyForRecurring}
+        />
+        <CopyToClipboard
+          heading={`OneOff:`}
+          texts={ServicePricingVariables.OnlyForOneOff}
+        />
+        <CopyToClipboard
+          heading={`Combined(Table View):`}
+          texts={ServicePricingVariables.CombinedTableView}
+        />
+        <CopyToClipboard
+          heading={`Combined(Comma Wise):`}
+          texts={ServicePricingVariables.CombinedCommaWise}
+        />
+        <CopyToClipboard
+          heading={`Combined(Bullet List Wise):`}
+          texts={ServicePricingVariables.CombinedBulletWise}
+        />
+        <CopyToClipboard
+          heading={`Total Result (Table View):`}
+          texts={ServicePricingVariables.TotalResulttableVariable}
+        />
         {GlobalClientVariables.length > 0 && (
           <CopyToClipboard
             texts={GlobalClientVariables}
@@ -624,6 +799,31 @@ const AccountantVariables = ({
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
         />
+        <span className="variableHeading"> Result Total Variables :</span>
+        <CopyToClipboard
+          heading={`Recurring:`}
+          texts={ServicePricingVariables.OnlyForRecurring}
+        />
+        <CopyToClipboard
+          heading={`OneOff:`}
+          texts={ServicePricingVariables.OnlyForOneOff}
+        />
+        <CopyToClipboard
+          heading={`Combined(Table View):`}
+          texts={ServicePricingVariables.CombinedTableView}
+        />
+        <CopyToClipboard
+          heading={`Combined(Comma Wise):`}
+          texts={ServicePricingVariables.CombinedCommaWise}
+        />
+        <CopyToClipboard
+          heading={`Combined(Bullet List Wise):`}
+          texts={ServicePricingVariables.CombinedBulletWise}
+        />
+        <CopyToClipboard
+          heading={`Total Result (Table View):`}
+          texts={ServicePricingVariables.TotalResulttableVariable}
+        />
         {GlobalClientVariables.length > 0 && (
           <CopyToClipboard
             texts={GlobalClientVariables}
@@ -648,7 +848,7 @@ const AccountantVariables = ({
         {GlobalClientVariables.length > 0 && (
           <CopyToClipboard
             texts={GlobalClientVariables}
-            heading={`Global Prospect Variables:`}
+              heading={`Global Prospect Variables:`}
           />
         )}
         <hr />
@@ -673,10 +873,35 @@ const AccountantVariables = ({
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
         />
+        <span className="variableHeading"> Result Total Variables :</span>
+        <CopyToClipboard
+          heading={`Recurring:`}
+          texts={ServicePricingVariables.OnlyForRecurring}
+        />
+        <CopyToClipboard
+          heading={`OneOff:`}
+          texts={ServicePricingVariables.OnlyForOneOff}
+        />
+        <CopyToClipboard
+          heading={`Combined(Table View):`}
+          texts={ServicePricingVariables.CombinedTableView}
+        />
+        <CopyToClipboard
+          heading={`Combined(Comma Wise):`}
+          texts={ServicePricingVariables.CombinedCommaWise}
+        />
+        <CopyToClipboard
+          heading={`Combined(Bullet List Wise):`}
+          texts={ServicePricingVariables.CombinedBulletWise}
+        />
+        <CopyToClipboard
+          heading={`Total Result (Table View):`}
+          texts={ServicePricingVariables.TotalResulttableVariable}
+        />
         {GlobalClientVariables.length > 0 && (
           <CopyToClipboard
             texts={GlobalClientVariables}
-            heading={`Global Prospect Variables:`}
+              heading={`Global Prospect Variables:`}
           />
         )}
         <hr />
@@ -700,10 +925,35 @@ const AccountantVariables = ({
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
         />
+        <span className="variableHeading"> Result Total Variables :</span>
+        <CopyToClipboard
+          heading={`Recurring:`}
+          texts={ServicePricingVariables.OnlyForRecurring}
+        />
+        <CopyToClipboard
+          heading={`OneOff:`}
+          texts={ServicePricingVariables.OnlyForOneOff}
+        />
+        <CopyToClipboard
+          heading={`Combined(Table View):`}
+          texts={ServicePricingVariables.CombinedTableView}
+        />
+        <CopyToClipboard
+          heading={`Combined(Comma Wise):`}
+          texts={ServicePricingVariables.CombinedCommaWise}
+        />
+        <CopyToClipboard
+          heading={`Combined(Bullet List Wise):`}
+          texts={ServicePricingVariables.CombinedBulletWise}
+        />
+        <CopyToClipboard
+          heading={`Total Result (Table View):`}
+          texts={ServicePricingVariables.TotalResulttableVariable}
+        />
         {GlobalClientVariables.length > 0 && (
           <CopyToClipboard
             texts={GlobalClientVariables}
-            heading={`Global Prospect Variables:`}
+              heading={`Global Prospect Variables:`}
           />
         )}
         <hr />
@@ -725,10 +975,35 @@ const AccountantVariables = ({
           texts={BusinessTypeVariables.commonVariablesForOrganisation}
           heading="Organisation:"
         />
+        <span className="variableHeading"> Result Total Variables :</span>
+        <CopyToClipboard
+          heading={`Recurring:`}
+          texts={ServicePricingVariables.OnlyForRecurring}
+        />
+        <CopyToClipboard
+          heading={`OneOff:`}
+          texts={ServicePricingVariables.OnlyForOneOff}
+        />
+        <CopyToClipboard
+          heading={`Combined(Table View):`}
+          texts={ServicePricingVariables.CombinedTableView}
+        />
+        <CopyToClipboard
+          heading={`Combined(Comma Wise):`}
+          texts={ServicePricingVariables.CombinedCommaWise}
+        />
+        <CopyToClipboard
+          heading={`Combined(Bullet List Wise):`}
+          texts={ServicePricingVariables.CombinedBulletWise}
+        />
+        <CopyToClipboard
+          heading={`Total Result (Table View):`}
+          texts={ServicePricingVariables.TotalResulttableVariable}
+        />
         {GlobalClientVariables.length > 0 && (
           <CopyToClipboard
             texts={GlobalClientVariables}
-            heading={`Global Prospect Variables:`}
+              heading={`Global Prospect Variables:`}
           />
         )}
         <hr />
@@ -761,7 +1036,7 @@ const AccountantVariables = ({
             {GlobalClientVariables.length > 0 && (
               <CopyToClipboard
                 texts={GlobalClientVariables}
-                heading={`Global Prospect Variables:`}
+                  heading={`Global Prospect Variables:`}
               />
             )}
           </>

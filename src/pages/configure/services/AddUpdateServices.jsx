@@ -3754,23 +3754,25 @@ const PricingFormulaComponent = (props) => {
                     />
                   </div>
                   <div className="mb-3 mt-2">
-                    <label className="form-label">Floor Value</label>
+                    <label className="form-label">Floor Value ({props.currencySymbol})</label>
                     <div className="input-group input-height">
                       <input
                         type="text"
+                        inputMode="decimal"
                         className="input-text"
                         placeholder="Enter Floor Value"
                         value={props.servicesObj?.floorValue ?? ""}
                         onChange={(e) => {
                           const value = e.target.value;
 
-                          if (/^\d*$/.test(value)) {
+                          if (/^\d*\.?\d*$/.test(value)) {
                             props.setServicesObj((prev) => ({
                               ...prev,
                               floorValue: value,
                             }));
                           }
                         }}
+                        max={999}
                       />
                     </div>
                   </div>
@@ -3882,7 +3884,9 @@ const Add_Update_Service = (props) => {
     setTopbar,
     scrollUptoCurrentPosition,
     scrollUpDownByElementID,
+    getCurrencySymbol
   } = useContext(AuthContextProvider);
+  const currencySymbol = getCurrencySymbol(common.currency);
   //Data Get On Another Component
   const location = useLocation();
   const dispatch = useDispatch();
@@ -4508,8 +4512,7 @@ const Add_Update_Service = (props) => {
 
   // 3) Global Pricing Driver Add And Update Data
   const GlobalPricingDriverAddUpdateBtnClicked = (NextTab, SAChanges) => {
-    console.log("activeTab:", activeTab, typeof activeTab);
-      console.log("FeeInflation:", ServiceHeader.FeeInflation, typeof ServiceHeader.FeeInflation);
+    
     if (SAChanges === "Accept") {
       $("#" + "ConfirmSAChangesModel").modal("show");
       setStatus(true)
@@ -4723,7 +4726,7 @@ const Add_Update_Service = (props) => {
         });
         setActiveTab(NextTab);
       } else if (NextTab === "create service") {
-                let dependingMessage = '';
+        let dependingMessage = '';
         let prerequisiteMessage = '';
         let dependingList = [];
         let prerequisiteList = [];
@@ -5832,6 +5835,11 @@ const Add_Update_Service = (props) => {
   console.log('Final ServiceDependencyValue:', ServiceDependencyValue);
   // D] handle Function :
   const HandleClose = async () => {
+    if(modelAction === "DeleteFeeInflation") {
+      setOpenSuccessModal(false);
+      setModelAction(null);
+      return;  
+    }
     if (isCheck) {
       setLoader(true)
       const Notification = await NotifySuperAdminPredefinedChangesToAdmin({
@@ -7440,7 +7448,11 @@ const Add_Update_Service = (props) => {
     }
 
     // Store what needs to be deleted, don't call API yet
-    setPendingInflationDelete({ serviceID, inflationIndex });
+    setPendingInflationDelete({ 
+      serviceID, 
+      inflationIndex, 
+      remainingAfterDelete: (servicesObj?.serviceFeeInflationList?.length || 0) - 1,
+    });
 
     setModelRequestData({
       ...modelRequestData,
@@ -7451,27 +7463,46 @@ const Add_Update_Service = (props) => {
   };
 
   const handleConfirmAction = () => {
-    if (modelRequestData.Action === "FeeInflationWarning" && pendingInflationDelete) {
-      DeleteServiceFeeInflationData(
-        pendingInflationDelete.serviceID,
-        pendingInflationDelete.inflationIndex
-      );
-      setPendingInflationDelete(null);
+    if (modelRequestData.Action === "FeeInflationWarning") {
+      if (pendingInflationDelete) {
+        DeleteServiceFeeInflationData(
+          pendingInflationDelete.serviceID,
+          pendingInflationDelete.inflationIndex,
+          pendingInflationDelete.remainingAfterDelete
+        );
+        setPendingInflationDelete(null);
+      }
       return;
     }
     // existing confirm logic
-    GlobalPricingDriverAddUpdateBtnClicked("ConfirmedToSave");
+    GlobalPricingDriverAddUpdateBtnClicked(ServiceHeader.FeeInflation);
   };
 
-  const DeleteServiceFeeInflationData = async (serviceID, inflationIndex) => {
+  const DeleteServiceFeeInflationData = async (serviceID, inflationIndex, remainingAfterDelete) => {
     try {
       setLoader(true);
       const response = await DeleteServiceFeeInflation(serviceID, inflationIndex);
-      if (response.data.statusCode === 200) {
-        setLoader(false);
-        $("#" + "ConfirmModel").modal("hide");
+      if (response?.data?.statusCode === 200) {
+      setLoader(false);
+      setServicesObj((prev) => ({
+        ...prev,
+        serviceFeeInflationList: (prev.serviceFeeInflationList || []).filter(
+          (x) => x.inflationIndex !== inflationIndex
+        ),
+      }));
+
+      $("#ConfirmModel").one("hidden.bs.modal", () => {
+        setModelAction("DeleteFeeInflation");
         setOpenSuccessModal(true);
-      }
+        if (remainingAfterDelete <= 0) {
+          setActiveTab(ServiceHeader.PricingFormula);
+        }
+      });
+      $("#ConfirmModel").modal("hide");
+      setModelRequestData((prev) => ({ ...prev, Action: null, message: "" }));
+    } else {
+      setErrorMessage(response?.data?.errorMessage);
+    }
     } catch (error) {
       console.error(error);
       setLoader(false);
@@ -8187,6 +8218,7 @@ else {
                   )}
                   setEditPricingFormulaValue={setEditPricingFormulaValue}
                   PricingFormula={servicesObj?.pricingFormula}
+                  currencySymbol={currencySymbol}
                   errorMessage={errorMessage}
                 />
               )}
@@ -8260,7 +8292,11 @@ else {
         openSuccessModal={openSuccessModal}
         modelAction={modelAction}
         modelRequestData={modelRequestData}
-        message={`${moduleName} ${servicesObj.serviceName}`}
+        message={
+          modelAction === "DeleteFeeInflation"
+            ? "Fee Inflation"
+            : `${moduleName} ${servicesObj.serviceName}`
+        }
       />
       <DeleteDriverModal
         handleClose={handleCloseDeleteDriverModel}

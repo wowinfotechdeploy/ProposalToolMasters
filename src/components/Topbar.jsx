@@ -2304,7 +2304,7 @@ const Topbar = () => {
                                             )
                                           }
                                         >
-                                          Predefined Services/Packages
+                                          Organisations Services/Packages
                                         </a>
                                         <div
                                           class="subList collapse menu-dropdown"
@@ -2327,7 +2327,7 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined Service Categories
+                                                  Organisations Service Categories
                                                 </a>
                                               </NavLink>
                                             </li>
@@ -2341,7 +2341,7 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined Services
+                                                  Organisations Services
                                                 </a>
                                               </NavLink>
                                             </li>
@@ -2355,7 +2355,7 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined Packages
+                                                  Organisations Packages
                                                 </a>
                                               </NavLink>
                                             </li>
@@ -2393,7 +2393,7 @@ const Topbar = () => {
                                             )
                                           }
                                         >
-                                          Predefined Variables
+                                          Organisations Variables
                                         </a>
                                         <div
                                           style={style}
@@ -2413,7 +2413,7 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined Global Constants
+                                                  Organisations Global Constants
                                                 </a>
                                               </NavLink>
                                             </li>
@@ -2427,7 +2427,7 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined Global Pricing
+                                                  Organisations Global Pricing
                                                   Drivers
                                                 </a>
                                               </NavLink>
@@ -2466,7 +2466,7 @@ const Topbar = () => {
                                             )
                                           }
                                         >
-                                          Predefined Templates
+                                          Organisations Templates
                                         </a>
                                         <div
                                           style={style}
@@ -2485,7 +2485,7 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined {proposalName}/
+                                                  Organisations {proposalName}/
                                                   {EngagementName}
                                                 </a>
                                               </NavLink>
@@ -2500,7 +2500,7 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined Terms & Conditions
+                                                  Organisations Terms & Conditions
                                                 </a>
                                               </NavLink>
                                             </li>
@@ -2514,7 +2514,7 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined Email Templates
+                                                  Organisations Email Templates
                                                 </a>
                                               </NavLink>
                                             </li>
@@ -2925,7 +2925,7 @@ const Topbar = () => {
                                             );
                                           }}
                                         >
-                                          Predefined Workflows
+                                          Organisations Workflows
                                         </a>
                                         <div
                                           id="PredefinedReminder"
@@ -2952,7 +2952,7 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined Workflows Email
+                                                  Organisations Workflows Email
                                                   Templates
                                                 </a>
                                               </NavLink>
@@ -2969,7 +2969,7 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined Reminder
+                                                  Organisations Reminder
                                                 </a>
                                               </NavLink>
                                             </li>

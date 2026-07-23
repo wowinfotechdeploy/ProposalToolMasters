@@ -69,6 +69,7 @@ import {
   GetProspectSendMailStatus,
   ResendAddUpdateQuote,
 } from "../../redux/Services/EmailFailureStatusAPI/EmailFailureStatusAPI";
+import PriceAdjustedToZeroFloorValue from "../../components/PriceAdjustedToZeroFloorValue";
 const SelectServices = lazy(() => import("../../components/SelectServices"));
 const PreviewComponentPdf = lazy(
   () => import("../../components/PreviewComponentpdf"),
@@ -2960,6 +2961,24 @@ const ReviewServicesComponent = (props) => {
     setProposalObject(updatedProposalObj);
   };
 
+  const minPrice =
+  props.ProposalObject.Payment_Frequency === 4
+    ? props.pricingSettingObj.minMonthlyPriceForQC
+    : props.ProposalObject.Payment_Frequency === 3
+    ? props.pricingSettingObj.minQuarterlyPriceForQC
+    : props.ProposalObject.Payment_Frequency === 2
+    ? props.pricingSettingObj.minHalfYearlyPriceForQC
+    : props.pricingSettingObj.minYearlyPriceForQC;
+
+  const priceFrequency =
+  props.ProposalObject.Payment_Frequency === 4
+    ? "monthly"
+    : props.ProposalObject.Payment_Frequency === 3
+    ? "quarterly"
+    : props.ProposalObject.Payment_Frequency === 2
+    ? "half-yearly"
+    : "yearly";
+
   const generateCombinedServicesHTML = () => {
     const fontFamily = "Arial, sans-serif";
     const fontSizeHeading = "18px";
@@ -3794,50 +3813,53 @@ const ReviewServicesComponent = (props) => {
                           )}
 
                         {props.requireMessage &&
-                          props.pricingSettingObj.minMonthlyPriceForQC !== "" &&
-                          props.pricingSettingObj.minMonthlyPriceForQC !==
+                          minPrice !== "" &&
+                          minPrice !==
                             null &&
-                          props.pricingSettingObj.minMonthlyPriceForQC !==
+                          minPrice !==
                             undefined &&
-                          props.pricingSettingObj.minMonthlyPriceForQC !== 0 &&
+                          minPrice !== 0 &&
                           props.RecurringPricingInfo.DiscountedPrice !== "" &&
                           props.RecurringPricingInfo.DiscountedPrice !== null &&
                           props.RecurringPricingInfo.DiscountedPrice !==
                             undefined &&
-                          ((props.ProposalObject.Payment_Frequency === 4 &&
-                            Number(props.RecurringPricingInfo.DiscountedPrice) <
-                              Number(
-                                props.pricingSettingObj.minMonthlyPriceForQC,
-                              )) ||
-                            (props.ProposalObject.Payment_Frequency === 3 &&
-                              Number(
-                                props.RecurringPricingInfo.DiscountedPrice,
-                              ) <
-                                Number(
-                                  props.pricingSettingObj.minMonthlyPriceForQC,
-                                ) *
-                                  3) ||
-                            (props.ProposalObject.Payment_Frequency === 2 &&
-                              Number(
-                                props.RecurringPricingInfo.DiscountedPrice,
-                              ) <
-                                Number(
-                                  props.pricingSettingObj.minMonthlyPriceForQC,
-                                ) *
-                                  6) ||
-                            (props.ProposalObject.Payment_Frequency === 1 &&
-                              Number(
-                                props.RecurringPricingInfo.DiscountedPrice,
-                              ) <
-                                Number(
-                                  props.pricingSettingObj.minMonthlyPriceForQC,
-                                ) *
-                                  12)) && (
+                          // ((props.ProposalObject.Payment_Frequency === 4 &&
+                          //   Number(props.RecurringPricingInfo.DiscountedPrice) <
+                          //     Number(
+                          //       props.pricingSettingObj.minMonthlyPriceForQC,
+                          //     )) ||
+                          //   (props.ProposalObject.Payment_Frequency === 3 &&
+                          //     Number(
+                          //       props.RecurringPricingInfo.DiscountedPrice,
+                          //     ) <
+                          //       Number(
+                          //         props.pricingSettingObj.minMonthlyPriceForQC,
+                          //       ) *
+                          //         3) ||
+                          //   (props.ProposalObject.Payment_Frequency === 2 &&
+                          //     Number(
+                          //       props.RecurringPricingInfo.DiscountedPrice,
+                          //     ) <
+                          //       Number(
+                          //         props.pricingSettingObj.minMonthlyPriceForQC,
+                          //       ) *
+                          //         6) ||
+                          //   (props.ProposalObject.Payment_Frequency === 1 &&
+                          //     Number(
+                          //       props.RecurringPricingInfo.DiscountedPrice,
+                          //     ) <
+                          //       Number(
+                          //         props.pricingSettingObj.minMonthlyPriceForQC,
+                          //       ) *
+                          //         12)) 
+                                Number(props.RecurringPricingInfo.DiscountedPrice) < Number(minPrice)
+                                  && (
                             <>
                               <span className="validation">
-                                The min. monthly price can not be lower than{" "}
+                                The min. {priceFrequency} price can not be lower than{" "}
                                 {props.formatValue(
-                                  props.pricingSettingObj.minMonthlyPriceForQC,
+                                  // props.pricingSettingObj.minMonthlyPriceForQC,
+                                  minPrice,
                                   props.currencyID,
                                 )}
                               </span>
@@ -12288,6 +12310,9 @@ const Add_Update_Proposal = (props) => {
   const [quotationFinalPackageAmountList, setQuotationFinalPackageAmountList] =
     useState([]);
   const [templateElementList, setTemplateElementList] = useState([]);
+  const [pricingVariablesForEmail,setPricingVariablesForEmail] = useState([]);
+  const [priceAdjustedServices, setPriceAdjustedServices] = useState([]);
+  const [openPriceAdjustedModal, setOpenPriceAdjustedModal] = useState(false);
   const [isEnabledMasterProposal, setIsEnabledMasterProposal] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [taxName, setTaxName] = useState(null);
@@ -12504,6 +12529,9 @@ const Add_Update_Proposal = (props) => {
     userKeyID: null,
     minOneOffPriceForQC: null,
     minMonthlyPriceForQC: null,
+    minQuarterlyPriceForQC: null,
+    minHalfYearlyPriceForQC: null,
+    minYearlyPriceForQC: null,
     maxDiscountForQC: null,
     PaymentFrequency: null,
     enableMasterProposalType: null,
@@ -13255,6 +13283,9 @@ const Add_Update_Proposal = (props) => {
 
           setSelectedServices(PricingData);
 
+          const adjustedServiceNames = PricingData
+                .filter((s) => s.isPriceAdjustedToZero)
+                .map((s) => s.serviceName);
           const vatPercentage = data?.data?.responseData?.vatPercentage;
           setVATPercentage(vatPercentage);
           setSelectedPackagesList(data?.data?.responseData?.packageList);
@@ -14682,7 +14713,10 @@ const Add_Update_Proposal = (props) => {
               // DiscountPercentagePackageThree:
               //   OneOffDiscountPercentagePackageThreeWithAllDecimal,
             });
-
+            if (adjustedServiceNames.length > 0) {
+              setPriceAdjustedServices(adjustedServiceNames);
+              setOpenPriceAdjustedModal(true);
+            }
             setLoader(false);
             setActiveTab(tab);
             setIsValidForm({
@@ -14747,6 +14781,9 @@ const Add_Update_Proposal = (props) => {
 
           setSelectedServices(PricingData);
 
+          const adjustedServiceNames = PricingData
+                .filter((s) => s.isPriceAdjustedToZero)
+                .map((s) => s.serviceName);
           const vatPercentage = data?.data?.responseData?.vatPercentage;
           setVATPercentage(vatPercentage);
           setSelectedPackagesList(data?.data?.responseData?.packageList);
@@ -16181,7 +16218,10 @@ const Add_Update_Proposal = (props) => {
             // DiscountPercentagePackageThree:
             //   OneOffDiscountPercentagePackageThreeWithAllDecimal,
           });
-
+          if (adjustedServiceNames.length > 0) {
+            setPriceAdjustedServices(adjustedServiceNames);
+            setOpenPriceAdjustedModal(true);
+          }
           setLoader(false);
           setActiveTab(tab);
           setIsValidForm({
@@ -17260,7 +17300,8 @@ const Add_Update_Proposal = (props) => {
             AddFirstPageHtmlContent[index] = updatedFirstPage;
           }
 
-          const newArray = replaceTemplatePricingVariables(
+          debugger;
+          const { replacedArray, pricingVariables } = replaceTemplatePricingVariables(
             AddFirstPageHtmlContent,
             RecurringPricingInfo,
             OneOffPricingInfo,
@@ -17270,8 +17311,8 @@ const Add_Update_Proposal = (props) => {
             selectedRecurringServiceList,
             selectedOneOffServiceList,
           );
-
-          setTemplateElementList(newArray);
+          setTemplateElementList(replacedArray);
+          setPricingVariablesForEmail(pricingVariables);
           setIsDefaultFirstPage(ModelData?.enableFirstPage);
           //setTemplateElementList(ModelData.templateElementList);
           setFontSize(smallFontSizes);
@@ -17495,9 +17536,23 @@ const Add_Update_Proposal = (props) => {
     Type,
   ) {
     const minMonthlyPriceForQC = pricingSettingObj.minMonthlyPriceForQC;
+    const minQuarterlyPriceForQC = pricingSettingObj.minQuarterlyPriceForQC;
+    const minHalfYearlyPriceForQC = pricingSettingObj.minHalfYearlyPriceForQC;
+    const minYearlyPriceForQC = pricingSettingObj.minYearlyPriceForQC;
     const discountedPrice = RecurringPricingInfo.DiscountedPrice;
     const paymentFrequency = ProposalObject.Payment_Frequency;
     const maxDiscountForQC = pricingSettingObj.maxDiscountForQC;
+
+    // Map payment frequency to its corresponding minimum price setting
+    // 1: Yearly, 2: Half-Yearly, 3: Quarterly, 4: Monthly
+    const minPriceByFrequency = {
+      4: minMonthlyPriceForQC,
+      3: minQuarterlyPriceForQC,
+      2: minHalfYearlyPriceForQC,
+      1: minYearlyPriceForQC,
+    };
+
+    const minPriceForCurrentFrequency = minPriceByFrequency[paymentFrequency];
 
     // Check if DiscountedPrice is invalid or not a number
     if (Type === "Service") {
@@ -17510,22 +17565,19 @@ const Add_Update_Proposal = (props) => {
         return true;
       }
 
-      // Check minMonthlyPriceForQC with payment frequency
-      const minPriceValid = (frequency, multiplier) =>
-        minMonthlyPriceForQC > 0 &&
-        discountedPrice < minMonthlyPriceForQC * multiplier;
-
+      // Check the relevant min price for this payment frequency
       if (
-        (paymentFrequency === 4 && minPriceValid(paymentFrequency, 1)) ||
-        (paymentFrequency === 3 && minPriceValid(paymentFrequency, 3)) ||
-        (paymentFrequency === 2 && minPriceValid(paymentFrequency, 6)) ||
-        (paymentFrequency === 1 && minPriceValid(paymentFrequency, 12))
+        minPriceForCurrentFrequency > 0 &&
+        discountedPrice < minPriceForCurrentFrequency
       ) {
         return true;
       }
 
-      // Check discounted price if minMonthlyPriceForQC is not set
-      if (minMonthlyPriceForQC <= 0 && discountedPrice <= 0) {
+      // Check discounted price if the relevant min price is not set
+      if (
+        (!minPriceForCurrentFrequency || minPriceForCurrentFrequency <= 0) &&
+        discountedPrice <= 0
+      ) {
         return true;
       }
 
@@ -17549,8 +17601,6 @@ const Add_Update_Proposal = (props) => {
         return true;
       }
     }
-
-    // Check if maxDiscountForQC is not set
 
     // Additional checks if Type is "Package"
     if (Type === "Package") {
@@ -18585,6 +18635,12 @@ const Add_Update_Proposal = (props) => {
       recurringHtmlContent: ProposalObject.recurringHtmlContent || null,
       oneOffHtmlContent: ProposalObject.oneOffHtmlContent || null,
       customizedEmailContent: ProposalObject.customizedEmailContent || null,
+      pricingVariablesList: Object.entries(pricingVariablesForEmail).map(
+        ([variableName, variableValue]) => ({
+          variableName: `$${variableName}$`,
+          variableValue: variableValue == null ? "0.00" : String(variableValue),
+        }),
+      ),
       servicePackageID: selectedPackages || null,
       selectedServicesList: modifiedDraftArray.selectedServicesList || null,
       additionalInformationList: modifiedAdditionalServiceArray || null,
@@ -20009,6 +20065,9 @@ const Add_Update_Proposal = (props) => {
             userKeyID: common.userKeyID,
             minOneOffPriceForQC: ModelData.minOneOffPriceForQC,
             minMonthlyPriceForQC: ModelData.minMonthlyPriceForQC,
+            minQuarterlyPriceForQC: ModelData.minQuarterlyPriceForQC,
+            minHalfYearlyPriceForQC: ModelData.minHalfYearlyPriceForQC,
+            minYearlyPriceForQC: ModelData.minYearlyPriceForQC,
             maxDiscountForQC: ModelData.maxDiscountForQC,
             organisationKeyID: ModelData.organisationKeyID,
             PaymentFrequency: ModelData.paymentFrequencyID,
@@ -21168,6 +21227,12 @@ const Add_Update_Proposal = (props) => {
           isBackDropDisplay={true}
           onYesClick={handleResendQuote}
           emailCheckModel={emailCheckModel}
+        />
+        <PriceAdjustedToZeroFloorValue
+          open={openPriceAdjustedModal}
+          serviceNames={priceAdjustedServices}
+          currencySymbol={currencySymbol}
+          handleClose={() => setOpenPriceAdjustedModal(false)}
         />
       </div>
     </div>

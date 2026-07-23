@@ -659,6 +659,7 @@ const NewDashboard = () => {
             setLoader(false);
           }
           if (response?.data?.responseData?.currencyID) {
+            dispatch(updateState({ currency: response?.data?.responseData?.currencyID }));
             const currency = response?.data?.responseData?.currencyID;
             setCurrencyID(currency);
           } else {

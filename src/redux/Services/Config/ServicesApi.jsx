@@ -47,7 +47,15 @@ export const AddUpdateServiceFeeInflation = async (params) => {
     const res = await postApiWithAuthenticated(`${services}/AddUpdateServiceFeeInflation`, params);
     return res;
 }
-
+export const GetDraftsAffectedByFeeInflationBatch = async (params) => {
+    const query = new URLSearchParams({
+        userKeyID: params.userKeyID ?? "",
+        batchID: params.batchID,
+        ...(params.organisationKeyID ? { organisationKeyID: params.organisationKeyID } : {}),
+    }).toString();
+    const res = await getListWithAuthenticated(`${services}/GetDraftsAffectedByFeeInflationBatch?${query}`);
+    return res;
+}
 export const DeleteServiceFeeInflation = async (ServiceID, InflationIndex) => {
     const res = await postApiWithAuthenticated(
         `${services}/DeleteServiceFeeInflation?ServiceID=${ServiceID}&InflationIndex=${InflationIndex}`

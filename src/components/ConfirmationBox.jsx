@@ -303,9 +303,19 @@ function ConfirmModel({
                 )}
                 {modelRequestData.Action ===
                   "DeleteServiceFeeInflationRule" && (
-                  <span class="text-muted mb-0">
-                    {modelRequestData.message}
-                  </span>
+                  <>
+                    <span class="text-muted mb-0">{modelRequestData.message}</span>
+                    {modelRequestData.ServiceName?.length > 0 && (
+                      <ul
+                        className="designed-list"
+                        style={{ textAlign: "left", maxHeight: "180px", overflowY: "auto" }}
+                      >
+                        {modelRequestData.ServiceName.map((item, idx) => (
+                          <li key={`draft-${idx}`}>{item}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </>
                 )}
                 {modelRequestData.Action === "ServiceWarning" && (
                   <div
