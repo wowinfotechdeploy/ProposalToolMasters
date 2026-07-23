@@ -1412,7 +1412,7 @@ export default function PreviewComponentPdf(props) {
 
       discountPercentage: getCustomOneOffPackageDiscount(packageIndex),
 
-      fallbackVatPercentage: props.vatPercentageOneOff || 0,
+      fallbackVatPercentage: props.vatPercentage || 0,
     }),
   );
 
@@ -1478,10 +1478,10 @@ export default function PreviewComponentPdf(props) {
      */
     discountAmount: props.OneOffPricingInfo?.Discount ?? null,
 
-    fallbackVatPercentage: props.vatPercentageOneOff || 0,
+    fallbackVatPercentage: props.vatPercentage || 0,
   });
 
-  const hasOneOffServiceVAT = Number(props.vatPercentageOneOff || 0) > 0;
+  const hasOneOffServiceVAT = Number(props.vatPercentage || 0) > 0;
 
   const showOneOffServiceDiscount =
     props.ProposalObject?.DiscountLines &&
@@ -2222,7 +2222,7 @@ export default function PreviewComponentPdf(props) {
               Fees ({props.currencySymbol})
             </th>
           )}
-          {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+          {(Number(props.vatPercentage) || 0) > 0 &&
             props.visibleFieldsCustomTemp?.vatRate && (
               <th
                 style={{
@@ -2236,7 +2236,7 @@ export default function PreviewComponentPdf(props) {
                 {props.taxName || "VAT"} Rate
               </th>
             )}
-          {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+          {(Number(props.vatPercentage) || 0) > 0 &&
             props.visibleFieldsCustomTemp?.vat && (
               <th
                 style={{
@@ -2250,7 +2250,7 @@ export default function PreviewComponentPdf(props) {
                 {props.taxName || "VAT"} ({props.currencySymbol})
               </th>
             )}
-          {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+          {(Number(props.vatPercentage) || 0) > 0 &&
             props.visibleFieldsCustomTemp?.feesIncVat && (
               <th
                 style={{
@@ -2272,7 +2272,7 @@ export default function PreviewComponentPdf(props) {
               {serviceCat.servicesList.map((subService, svcIdx) => {
                 const oneOffServiceRow = calculateCustomServiceRow({
                   service: subService,
-                  fallbackVatPercentage: props.vatPercentageOneOff || 0,
+                  fallbackVatPercentage: props.vatPercentage || 0,
                 });
 
                 const price = oneOffServiceRow.fees;
@@ -2355,7 +2355,7 @@ export default function PreviewComponentPdf(props) {
                         )}
                       </td>
                     )}
-                    {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+                    {(Number(props.vatPercentage) || 0) > 0 &&
                       props.visibleFieldsCustomTemp?.vatRate && (
                         <td
                           style={{
@@ -2367,7 +2367,7 @@ export default function PreviewComponentPdf(props) {
                           {Number(vatPct || 0).toFixed(2)}%
                         </td>
                       )}
-                    {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+                    {(Number(props.vatPercentage) || 0) > 0 &&
                       props.visibleFieldsCustomTemp?.vat && (
                         <td
                           style={{
@@ -2383,7 +2383,7 @@ export default function PreviewComponentPdf(props) {
                           )}
                         </td>
                       )}
-                    {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+                    {(Number(props.vatPercentage) || 0) > 0 &&
                       props.visibleFieldsCustomTemp?.feesIncVat && (
                         <td
                           style={{
@@ -3894,8 +3894,7 @@ export default function PreviewComponentPdf(props) {
                                 selectedPackageID:
                                   pkg?.servicePackageID ?? null,
 
-                                fallbackVatPercentage:
-                                  props.vatPercentageOneOff || 0,
+                                fallbackVatPercentage: props.vatPercentage || 0,
                               });
 
                             return (
@@ -4236,19 +4235,19 @@ export default function PreviewComponentPdf(props) {
               >
                 {pkg.servicePackageName}
               </td>
-              {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+              {(Number(props.vatPercentage) || 0) > 0 &&
                 props.visibleFieldsCustomTemp?.vatRate && (
                   <td
                     style={{ border: "1px solid #DDDDDD", padding: "8px" }}
                   ></td>
                 )}
-              {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+              {(Number(props.vatPercentage) || 0) > 0 &&
                 props.visibleFieldsCustomTemp?.vat && (
                   <td
                     style={{ border: "1px solid #DDDDDD", padding: "8px" }}
                   ></td>
                 )}
-              {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+              {(Number(props.vatPercentage) || 0) > 0 &&
                 props.visibleFieldsCustomTemp?.feesIncVat && (
                   <td
                     style={{ border: "1px solid #DDDDDD", padding: "8px" }}
@@ -4292,7 +4291,7 @@ export default function PreviewComponentPdf(props) {
                   Fees
                 </th>
               )}
-              {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+              {(Number(props.vatPercentage) || 0) > 0 &&
                 props.visibleFieldsCustomTemp?.vatRate && (
                   <th
                     style={{
@@ -4306,7 +4305,7 @@ export default function PreviewComponentPdf(props) {
                     {props.taxName || "VAT"} Rate
                   </th>
                 )}
-              {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+              {(Number(props.vatPercentage) || 0) > 0 &&
                 props.visibleFieldsCustomTemp?.vat && (
                   <th
                     style={{
@@ -4320,7 +4319,7 @@ export default function PreviewComponentPdf(props) {
                     {props.taxName || "VAT"}
                   </th>
                 )}
-              {(Number(props.vatPercentageOneOff) || 0) > 0 &&
+              {(Number(props.vatPercentage) || 0) > 0 &&
                 props.visibleFieldsCustomTemp?.feesIncVat && (
                   <th
                     style={{
@@ -4355,6 +4354,7 @@ export default function PreviewComponentPdf(props) {
           props.selectedOneOffServiceList?.map((serviceCat, catIdx) => (
             <React.Fragment key={`oneoff-cat-${catIdx}`}>
               {/* Category Header Row */}
+              {/* Category Header Row */}
               <tr style={{ backgroundColor: "#DCDCDC" }}>
                 {props.visibleFieldsCustomTemp?.serviceName && (
                   <th
@@ -4369,25 +4369,20 @@ export default function PreviewComponentPdf(props) {
                     {serviceCat.serviceCatName}
                   </th>
                 )}
-                {/* Category Header Row */}
-                <tr style={{ backgroundColor: "#DCDCDC" }}>
-                  {props.visibleFieldsCustomTemp?.serviceName && (
-                    <th
-                      style={{
-                        border: "1px solid #DDDDDD",
-                        textAlign: "left",
-                        padding: "8px",
-                        fontWeight: "bold",
-                        fontSize: "16px",
-                      }}
-                    >
-                      {serviceCat.serviceCatName}
-                    </th>
-                  )}
 
-                  {activeSelectedOneOffPackages.map((_, pkgIdx) => (
-                    <React.Fragment key={`oneoff-cat-spacer-${pkgIdx}`}>
-                      {props.visibleFieldsCustomTemp?.fees && (
+                {activeSelectedOneOffPackages.map((_, pkgIdx) => (
+                  <React.Fragment key={`oneoff-cat-spacer-${pkgIdx}`}>
+                    {props.visibleFieldsCustomTemp?.fees && (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          padding: "8px",
+                        }}
+                      ></td>
+                    )}
+
+                    {hasOneOffPackageVAT &&
+                      props.visibleFieldsCustomTemp?.vatRate && (
                         <td
                           style={{
                             border: "1px solid #DDDDDD",
@@ -4396,37 +4391,8 @@ export default function PreviewComponentPdf(props) {
                         ></td>
                       )}
 
-                      {hasOneOffPackageVAT &&
-                        props.visibleFieldsCustomTemp?.vatRate && (
-                          <td
-                            style={{
-                              border: "1px solid #DDDDDD",
-                              padding: "8px",
-                            }}
-                          ></td>
-                        )}
-
-                      {hasOneOffPackageVAT &&
-                        props.visibleFieldsCustomTemp?.vat && (
-                          <td
-                            style={{
-                              border: "1px solid #DDDDDD",
-                              padding: "8px",
-                            }}
-                          ></td>
-                        )}
-
-                      {hasOneOffPackageVAT &&
-                        props.visibleFieldsCustomTemp?.feesIncVat && (
-                          <td
-                            style={{
-                              border: "1px solid #DDDDDD",
-                              padding: "8px",
-                            }}
-                          ></td>
-                        )}
-
-                      {props.visibleFieldsCustomTemp?.serviceScope && (
+                    {hasOneOffPackageVAT &&
+                      props.visibleFieldsCustomTemp?.vat && (
                         <td
                           style={{
                             border: "1px solid #DDDDDD",
@@ -4434,9 +4400,27 @@ export default function PreviewComponentPdf(props) {
                           }}
                         ></td>
                       )}
-                    </React.Fragment>
-                  ))}
-                </tr>
+
+                    {hasOneOffPackageVAT &&
+                      props.visibleFieldsCustomTemp?.feesIncVat && (
+                        <td
+                          style={{
+                            border: "1px solid #DDDDDD",
+                            padding: "8px",
+                          }}
+                        ></td>
+                      )}
+
+                    {props.visibleFieldsCustomTemp?.serviceScope && (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          padding: "8px",
+                        }}
+                      ></td>
+                    )}
+                  </React.Fragment>
+                ))}
               </tr>
               {/* Service Rows */}
               {serviceCat.servicesList.map((subService, svcIdx) => {
@@ -4465,7 +4449,7 @@ export default function PreviewComponentPdf(props) {
 
                         selectedPackageID: pkg?.servicePackageID ?? null,
 
-                        fallbackVatPercentage: props.vatPercentageOneOff || 0,
+                        fallbackVatPercentage: props.vatPercentage || 0,
                       });
 
                       return (
@@ -4957,7 +4941,7 @@ export default function PreviewComponentPdf(props) {
   );
 
   const OneOffPackagesTable =
-    props.selectedTemplateIDOneOff === 6
+    props.selectedTemplateID === 6
       ? isServiceBasedProposal
         ? OneOffServicesTableTemplate6
         : OneOffPackagesTableTemplate6
