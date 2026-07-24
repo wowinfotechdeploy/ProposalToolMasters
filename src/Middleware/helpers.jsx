@@ -775,7 +775,7 @@ const createEmptyCustomServiceFooter = () => ({
   hasPriceIncrease: false,
 });
 
-const hasCalculationValue = (value) =>
+export const hasCalculationValue = (value) =>
   value !== null && value !== undefined && value !== "";
 
 export const calculateCustomServiceFooter = ({
