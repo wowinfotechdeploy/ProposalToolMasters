@@ -16033,6 +16033,7 @@ const Add_Update_Proposal = (props) => {
   const [currencyID, setCurrencyID] = useState(null);
   const [currencySymbol, setCurrencySymbol] = useState(null);
   const [DocumentCode, setDocumentCode] = useState("");
+  const [pricingVariablesForEmail, setPricingVariablesForEmail] = useState([]);
   const [BrandColor, setBrandColor] = useState("");
   const [fontFamily, setFontFamily] = useState("");
   const [headerHeight, setHeaderHeight] = useState(null);
@@ -21344,7 +21345,20 @@ const Add_Update_Proposal = (props) => {
             selectedOneOffServiceList,
           );
 
-          setTemplateElementList(newArray);
+          const { replacedArray, pricingVariables } =
+            replaceTemplatePricingVariables(
+              AddFirstPageHtmlContent,
+              RecurringPricingInfo,
+              OneOffPricingInfo,
+              ProposalObject.Payment_Frequency,
+              ProposalObject.selectedProposalTypeValue,
+              selectedPackagesList,
+              selectedRecurringServiceList,
+              selectedOneOffServiceList,
+            );
+
+          setTemplateElementList(replacedArray);
+          setPricingVariablesForEmail(pricingVariables);
           setIsDefaultFirstPage(ModelData?.enableFirstPage);
           //setTemplateElementList(ModelData.templateElementList);
           setFontSize(smallFontSizes);
@@ -22679,6 +22693,12 @@ const Add_Update_Proposal = (props) => {
       recurringHtmlContent: ProposalObject.recurringHtmlContent || null,
       oneOffHtmlContent: ProposalObject.oneOffHtmlContent || null,
       customizedEmailContent: ProposalObject.customizedEmailContent || null,
+      pricingVariablesList: Object.entries(pricingVariablesForEmail).map(
+        ([variableName, variableValue]) => ({
+          variableName: `$${variableName}$`,
+          variableValue: variableValue == null ? "0.00" : String(variableValue),
+        }),
+      ),
       servicePackageID: selectedPackages || null,
       selectedServicesList: modifiedDraftArray.selectedServicesList || null,
       additionalInformationList: modifiedAdditionalServiceArray || null,
