@@ -2380,6 +2380,8 @@ function AcceptInvitation() {
     </div>
   `;
 
+          debugger;
+
           let isAddedFirstPage = updatedTemplateElementList.some(
             (item) => item.templateElementTypeID === 10,
           );
@@ -2400,16 +2402,17 @@ function AcceptInvitation() {
           // const { uniqueFontFamilies, // Unique font families
           //   largestFontSize, // Largest font size
           //   smallestFontSize } = getFontStylesFromHtml(GetCommonFontFamily)
-          const ReplaceVariableArray = replaceTemplatePricingVariables(
-            AddFirstPageHtmlContent,
-            RecurringPricingInfo,
-            OneOffPricingInfo,
-            paymentFrequencyID,
-            3,
-            packageData,
-          );
+          const { replacedArray, pricingVariables } =
+            replaceTemplatePricingVariables(
+              AddFirstPageHtmlContent,
+              RecurringPricingInfo,
+              OneOffPricingInfo,
+              paymentFrequencyID,
+              3,
+              packageData,
+            );
           setIsDefaultFirstPage(ModelData?.enableFirstPage);
-          setTemplateElementList(ReplaceVariableArray);
+          setTemplateElementList(replacedArray);
           setBrandColor(
             ModelData.templateElementListWithRequiredData.brandColor,
           );
