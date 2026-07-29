@@ -8020,6 +8020,7 @@ const Add_Update_Engagement_Letter = () => {
   ] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [templateElementList, setTemplateElementList] = useState([]);
+  const [pricingVariablesForEmail, setPricingVariablesForEmail] = useState([]);
   const [organisationData, setOrganisationData] = useState([]);
   const [modelRequestData, setModelRequestData] = useState({
     Action: null,
@@ -8211,12 +8212,12 @@ const Add_Update_Engagement_Letter = () => {
     Payment_Frequency: null,
     moduleName: "Contract",
   });
-  useEffect(() => {
-    console.log(
-      "Updated selectedAttachments:",
-      engagementObj.selectedAttachments,
-    );
-  }, [engagementObj.selectedAttachments]);
+  // useEffect(() => {
+  //   console.log(
+  //     "Updated selectedAttachments:",
+  //     engagementObj.selectedAttachments,
+  //   );
+  // }, [engagementObj.selectedAttachments]);
   const [MergePdfUrl, setMergePdfUrl] = useState("");
   const [openErrorModal, setOpenErrorModal] = useState(false);
 
@@ -8243,7 +8244,6 @@ const Add_Update_Engagement_Letter = () => {
   }, [common.organisationKeyID]);
 
   useEffect(() => {
-    console.log("Contract Model API", location);
     setModelAction(
       location?.state?.Action === undefined || location?.state?.Action === null
         ? "Send"
@@ -8578,14 +8578,17 @@ const Add_Update_Engagement_Letter = () => {
             contractSignatoriesList,
           );
 
-          newArray = await replaceTemplatePricingVariables(
-            newArray,
-            RecurringPricingInfo,
-            OneOffPricingInfo,
-            engagementObj.Payment_Frequency,
-            3,
-            selectedPackagesList,
-          );
+          const { replacedArray, pricingVariables } =
+            replaceTemplatePricingVariables(
+              newArray,
+              RecurringPricingInfo,
+              OneOffPricingInfo,
+              engagementObj.Payment_Frequency,
+              3,
+              selectedPackagesList,
+            );
+          newArray = replacedArray;
+          setPricingVariablesForEmail(pricingVariables);
           if (
             engagementObj.pdf !== null ||
             engagementObj.tnCTemplateContent !== null
@@ -9151,7 +9154,6 @@ const Add_Update_Engagement_Letter = () => {
   // };
   const GetTemplateLookupListData = async (ClientId, QuoteId) => {
     setLoader(true);
-    console.log("Hii");
     try {
       const response = await GetTemplateListLookupList({
         TemplateTypeID: 2,
@@ -9454,7 +9456,6 @@ const Add_Update_Engagement_Letter = () => {
                 isSelectedDefault[0]?.oneOffAdhocHeadingIsItalicSOF,
             }));
           }
-          console.log(getFontNameById(isSelectedDefault[0].fontFamilyID));
           setFontFamily(getFontNameById(isSelectedDefault[0].fontFamilyID));
           setHeaderContent(isSelectedDefault[0].headerContent);
           setFooterContent(isSelectedDefault[0].footerContent);
@@ -13020,7 +13021,6 @@ const Add_Update_Engagement_Letter = () => {
       }
     } else if (activeTab === EngagementLetterHeader.AdditionalInformation) {
       // Filter the list based on driverTypeID being either 2 or 4
-      console.log(additionalInformationList);
       let hasError = false;
       const filteredList = additionalInformationList.filter(
         (item) =>
@@ -13565,7 +13565,6 @@ const Add_Update_Engagement_Letter = () => {
 
   //14) Get Selected service and create object to send api for get calculation  price data
   async function handleSetCalculatedPackageData() {
-    console.log(recurringServiceList);
     setRequireMessage(false);
     const extractServiceData = (serviceList, serviceChargeTypeID) => {
       return serviceList
@@ -14394,6 +14393,13 @@ const Add_Update_Engagement_Letter = () => {
               contractKeyID: response.data.responseData.data,
               contractPDFUrl: MergePdfUrl,
               customizedEmailContent: engagementObj.customizedEmailContent,
+              pricingVariablesList: Object.entries(
+                pricingVariablesForEmail,
+              ).map(([variableName, variableValue]) => ({
+                variableName: `$${variableName}$`,
+                variableValue:
+                  variableValue == null ? "0.00" : String(variableValue),
+              })),
             });
           } else {
             setOpenSuccessModal(true);
@@ -15267,7 +15273,6 @@ const Add_Update_Engagement_Letter = () => {
 
           let TemplateOption = [];
           if (ModelData.clientID !== null) {
-            console.log("hey");
             setLoader(true);
             const response = await GetTemplateListLookupList({
               TemplateTypeID: 2,
@@ -15328,7 +15333,6 @@ const Add_Update_Engagement_Letter = () => {
             TemplateOption.find(
               (item) => item.templateID === ModelData.templateID,
             ) || TemplateOption[0];
-          console.log(TemplateValue);
           setFontFamily(getFontNameById(TemplateValue.fontFamilyID));
           setHeaderContent(TemplateValue.headerContent);
           setFooterContent(TemplateValue.footerContent);
