@@ -1202,10 +1202,7 @@ const View_Engagement_Latter = () => {
 
   const recurringFinalAmount =
     finalContractAmountList?.find(
-      (item) =>
-        Number(item?.serviceChargeTypeID) === 1 &&
-        (item?.servicePackageID === null ||
-          item?.servicePackageID === undefined),
+      (item) => Number(item?.serviceChargeTypeID) === 1,
     ) || {};
 
   const recurringRowsByCategory = recurringServiceCategories.map(
