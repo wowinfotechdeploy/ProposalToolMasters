@@ -15989,6 +15989,12 @@ const Add_Update_Engagement_Letter = () => {
       contractPDFUrl: MergePdfUrl,
       templateID: engagementObj.templateID,
       customizedEmailContent: engagementObj.customizedEmailContent,
+      pricingVariablesList: Object.entries(pricingVariablesForEmail).map(
+        ([variableName, variableValue]) => ({
+          variableName: `$${variableName}$`,
+          variableValue: variableValue == null ? "0.00" : String(variableValue),
+        }),
+      ),
       templatePDFKeyIDs: engagementObj.selectedAttachments,
       tnCTemplateID:
         engagementObj.tnCTemplateID == "" ? null : engagementObj.tnCTemplateID,

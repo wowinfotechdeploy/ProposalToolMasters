@@ -30,6 +30,7 @@ function AcceptInvitation() {
     replaceUrlInHtml,
   } = useContext(AuthContextProvider);
   const [templateElementList, setTemplateElementList] = useState([]);
+  const [pricingVariablesForEmail, setPricingVariablesForEmail] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [generatePdfData, setGeneratePdfData] = useState([]);
   const [MergePdfUrl, setMergePdfUrl] = useState("");
@@ -2112,6 +2113,13 @@ function AcceptInvitation() {
             contractKeyID: contractKeyID,
             contractPDFUrl: pdfUrl,
             ContractSignatoryKeyID: ContractSignatoryKeyID,
+            pricingVariablesList: Object.entries(pricingVariablesForEmail).map(
+              ([variableName, variableValue]) => ({
+                variableName: `$${variableName}$`,
+                variableValue:
+                  variableValue == null ? "0.00" : String(variableValue),
+              }),
+            ),
           };
 
           GetSendToSignEasyData(ApiRequest_ParamsObj);
@@ -2274,6 +2282,7 @@ function AcceptInvitation() {
     paymentFrequencyID,
     packageData,
   ) => {
+    debugger;
     try {
       const data = await GetTemplateModelData({
         TemplateKeyID: TemplateKeyID,
@@ -2402,17 +2411,19 @@ function AcceptInvitation() {
           // const { uniqueFontFamilies, // Unique font families
           //   largestFontSize, // Largest font size
           //   smallestFontSize } = getFontStylesFromHtml(GetCommonFontFamily)
-          const { replacedArray, pricingVariables } =
-            replaceTemplatePricingVariables(
-              AddFirstPageHtmlContent,
-              RecurringPricingInfo,
-              OneOffPricingInfo,
-              paymentFrequencyID,
-              3,
-              packageData,
-            );
+          const ReplaceVariableArray = replaceTemplatePricingVariables(
+            AddFirstPageHtmlContent,
+            RecurringPricingInfo,
+            OneOffPricingInfo,
+            paymentFrequencyID,
+            3,
+            packageData,
+            recurringServiceCatList,
+            oneOffServiceCatList,
+          );
           setIsDefaultFirstPage(ModelData?.enableFirstPage);
-          setTemplateElementList(replacedArray);
+          setTemplateElementList(ReplaceVariableArray.replacedArray);
+          setPricingVariablesForEmail(ReplaceVariableArray.pricingVariables);
           setBrandColor(
             ModelData.templateElementListWithRequiredData.brandColor,
           );
@@ -2459,6 +2470,13 @@ function AcceptInvitation() {
               contractKeyID: GetContractKeyID,
               contractPDFUrl: null,
               ContractSignatoryKeyID: ContractSignatoryKeyID,
+              pricingVariablesList: Object.entries(
+                pricingVariablesForEmail,
+              ).map(([variableName, variableValue]) => ({
+                variableName: `$${variableName}$`,
+                variableValue:
+                  variableValue == null ? "0.00" : String(variableValue),
+              })),
             };
             GetSendToSignEasyData(ApiRequest_ParamsObj);
           } else {

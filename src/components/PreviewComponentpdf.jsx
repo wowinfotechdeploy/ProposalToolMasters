@@ -331,17 +331,30 @@ export default function PreviewComponentPdf(props) {
   if (props.common.enableEL === 1) {
     url = `generate-contract`;
   }
-  const AcceptRecurringUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
-  const AcceptRecurringUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
-  const AcceptRecurringUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  const AcceptRecurringUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList?.[0]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  const AcceptRecurringUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList?.[1]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  const AcceptRecurringUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList?.[2]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  const AcceptOneOffUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList?.[0]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  const AcceptOneOffUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList?.[1]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  const AcceptOneOffUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList?.[2]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  // const AcceptRecurringUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  // const AcceptRecurringUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  // const AcceptRecurringUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
 
   // const AcceptOneOffELOffUrlButton1 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[0]?.servicePackageKeyID}`;
   // const AcceptOneOffELOffUrlButton2 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[1]?.servicePackageKeyID}`;
   // const AcceptOneOffELOffUrlButton3 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[2]?.servicePackageKeyID}`;
 
-  const AcceptOneOffUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
-  const AcceptOneOffUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
-  const AcceptOneOffUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  // const AcceptOneOffUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  // const AcceptOneOffUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  // const AcceptOneOffUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
 
   const getPaymentFrequencyLabel = () => {
     const Payment_Frequency = {

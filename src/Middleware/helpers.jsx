@@ -600,12 +600,24 @@ export const calculateCustomOneOffPackageRow = ({
 
   const currentValue = service?.[valueKey];
 
+  const hasCurrentValue =
+    currentValue !== null && currentValue !== undefined && currentValue !== "";
+
   const hasOriginalValue =
     originalValue !== null &&
     originalValue !== undefined &&
     originalValue !== "";
 
-  const rawFeesValue = hasOriginalValue ? originalValue : currentValue;
+  /*
+   * Use the same package value used by the default table.
+   * Fall back to the original full-precision value only when
+   * the current package value is unavailable.
+   */
+  const rawFeesValue = hasCurrentValue
+    ? currentValue
+    : hasOriginalValue
+      ? originalValue
+      : null;
 
   const hasFeesValue =
     rawFeesValue !== null && rawFeesValue !== undefined && rawFeesValue !== "";
