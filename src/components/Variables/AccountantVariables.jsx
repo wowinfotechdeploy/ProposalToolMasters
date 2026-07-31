@@ -47,7 +47,7 @@ const AccountantVariables = ({
               <CopyToClipboard
                 texts={GlobalClientVariables}
                 heading={`Global Prospect Variables:`}
-            />
+              />
             )}
           </>
         )}
@@ -107,7 +107,7 @@ const AccountantVariables = ({
               <CopyToClipboard
                 texts={GlobalClientVariables}
                 heading={`Global Prospect Variables:`}
-            />
+              />
             )}
           </>
         )}
@@ -164,7 +164,7 @@ const AccountantVariables = ({
               <CopyToClipboard
                 texts={GlobalClientVariables}
                 heading={`Global Prospect Variables:`}
-            />
+              />
             )}
           </>
         )}
@@ -222,7 +222,7 @@ const AccountantVariables = ({
               <CopyToClipboard
                 texts={GlobalClientVariables}
                 heading={`Global Prospect Variables:`}
-            />
+              />
             )}
           </>
         )}
@@ -297,10 +297,10 @@ const AccountantVariables = ({
           heading="Organisation:"
         />
         {GlobalClientVariables.length > 0 && (
-              <CopyToClipboard
-                texts={GlobalClientVariables}
-                heading={`Global Prospect Variables:`}
-            />
+          <CopyToClipboard
+            texts={GlobalClientVariables}
+            heading={`Global Prospect Variables:`}
+          />
         )}
         {ClintType !== null && <hr />}
         <CopyToClipboard
@@ -390,7 +390,7 @@ const AccountantVariables = ({
         <CopyToClipboard
           texts={ProspectTypeVariables.CommonClientVariables}
           heading={`${prospectName}:`}
-          />
+        />
         <span className="variableHeading"> Result Total Variables :</span>
         <CopyToClipboard
           heading={`Recurring:`}
@@ -848,7 +848,7 @@ const AccountantVariables = ({
         {GlobalClientVariables.length > 0 && (
           <CopyToClipboard
             texts={GlobalClientVariables}
-              heading={`Global Prospect Variables:`}
+            heading={`Global Prospect Variables:`}
           />
         )}
         <hr />
@@ -901,7 +901,7 @@ const AccountantVariables = ({
         {GlobalClientVariables.length > 0 && (
           <CopyToClipboard
             texts={GlobalClientVariables}
-              heading={`Global Prospect Variables:`}
+            heading={`Global Prospect Variables:`}
           />
         )}
         <hr />
@@ -953,7 +953,7 @@ const AccountantVariables = ({
         {GlobalClientVariables.length > 0 && (
           <CopyToClipboard
             texts={GlobalClientVariables}
-              heading={`Global Prospect Variables:`}
+            heading={`Global Prospect Variables:`}
           />
         )}
         <hr />
@@ -1003,7 +1003,7 @@ const AccountantVariables = ({
         {GlobalClientVariables.length > 0 && (
           <CopyToClipboard
             texts={GlobalClientVariables}
-              heading={`Global Prospect Variables:`}
+            heading={`Global Prospect Variables:`}
           />
         )}
         <hr />
@@ -1036,7 +1036,7 @@ const AccountantVariables = ({
             {GlobalClientVariables.length > 0 && (
               <CopyToClipboard
                 texts={GlobalClientVariables}
-                  heading={`Global Prospect Variables:`}
+                heading={`Global Prospect Variables:`}
               />
             )}
           </>
