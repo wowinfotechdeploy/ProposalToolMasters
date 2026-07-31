@@ -9654,7 +9654,6 @@ const Add_Update_Engagement_Letter = () => {
   const [CompanyLogo, setCompanyLogo] = useState(false);
   const [isDefaultFirstPage, setIsDefaultFirstPage] = useState(null);
   const [requireMessage, setRequireMessage] = useState(false);
-  const [pricingVariablesForEmail, setPricingVariablesForEmail] = useState([]);
   const [priceAdjustedServices, setPriceAdjustedServices] = useState([]);
   const [openPriceAdjustedModal, setOpenPriceAdjustedModal] = useState(false);
   const [clientLookUpOptions, setClientLookUpOptions] = useState([]);

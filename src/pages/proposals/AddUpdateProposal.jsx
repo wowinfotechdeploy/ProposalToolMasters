@@ -16057,7 +16057,6 @@ const Add_Update_Proposal = (props) => {
   const [currencyID, setCurrencyID] = useState(null);
   const [currencySymbol, setCurrencySymbol] = useState(null);
   const [DocumentCode, setDocumentCode] = useState("");
-  const [pricingVariablesForEmail, setPricingVariablesForEmail] = useState([]);
   const [BrandColor, setBrandColor] = useState("");
   const [fontFamily, setFontFamily] = useState("");
   const [headerHeight, setHeaderHeight] = useState(null);
