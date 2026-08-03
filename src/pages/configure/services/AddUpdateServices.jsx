@@ -3753,29 +3753,6 @@ const PricingFormulaComponent = (props) => {
                       setServicesObj={props.setServicesObj}
                     />
                   </div>
-                  <div className="mb-3 mt-2">
-                    <label className="form-label">Floor Value ({props.currencySymbol})</label>
-                    <div className="input-group input-height">
-                      <input
-                        type="text"
-                        inputMode="decimal"
-                        className="input-text"
-                        placeholder="Enter Floor Value"
-                        value={props.servicesObj?.floorValue ?? ""}
-                        onChange={(e) => {
-                          const value = e.target.value;
-
-                          if (/^\d*\.?\d*$/.test(value)) {
-                            props.setServicesObj((prev) => ({
-                              ...prev,
-                              floorValue: value,
-                            }));
-                          }
-                        }}
-                        max={999}
-                      />
-                    </div>
-                  </div>
                   { }
                   {props.serviceError.pricingFormula &&
                     (props.EditPricingFormulaValue === undefined ||
@@ -3789,6 +3766,38 @@ const PricingFormulaComponent = (props) => {
                     </label>
                   )}
                 </div>
+              </div>
+              <div className="col-12">
+                <div className="mb-1 mt-2">
+                  <label className="form-label">Floor Value ({props.currencySymbol})</label>
+                </div>
+              </div>
+              <div className="col-4 col-sm-8">
+              <div className="input-group input-height">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  className="input-text"
+                  placeholder="Enter Floor Value"
+                  value={props.servicesObj?.floorValue ?? ""}
+                  onChange={(e) => {
+                    const value = e.target.value;
+
+                    // no leading zero, optional decimal with up to 2 digits
+                    if (!/^[1-9]\d*(\.\d{0,2})?$/.test(value) && value !== "") return;
+
+                    // enforce max 10000
+                    const num = parseFloat(value);
+                    if (value !== "" && !isNaN(num) && num > 10000) return;
+
+                    props.setServicesObj((prev) => ({
+                      ...prev,
+                      floorValue: value,
+                    }));
+                  }}
+                  max={999}
+                />
+              </div>
               </div>
             </div>
           </div>

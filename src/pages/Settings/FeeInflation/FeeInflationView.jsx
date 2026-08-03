@@ -95,12 +95,29 @@ const FeeInflationView = () => {
   const SubmitServiceFeeInflation = async () => {
     setErrorMessage("");
     if (!ServiceFeeInflationConfig.SelectedServices || ServiceFeeInflationConfig.SelectedServices.length === 0) {
-      setErrorMessage("Please select one or more services to configure.");
+      // setErrorMessage("Please select one or more services to configure.");
+      setServiceFeeInflationConfig({
+        ...ServiceFeeInflationConfig,
+        SelectionError: "Please select one or more services to configure."
+      })
       return;
     }
 
-    if (!ServiceFeeInflationConfig.InflationRule.operator || ServiceFeeInflationConfig.InflationRule.value === null) {
-      setErrorMessage("Please choose an operator and enter a value for the rule.");
+    if (!ServiceFeeInflationConfig.InflationRule.operator) {
+      // setErrorMessage("Please choose an operator.");
+      setServiceFeeInflationConfig({
+        ...ServiceFeeInflationConfig,
+        SelectionError: "Please choose an operator."
+      })
+      return;
+    }
+
+    if (ServiceFeeInflationConfig.InflationRule.value === null) {
+      // setErrorMessage("Please enter a value.");
+      setServiceFeeInflationConfig({
+        ...ServiceFeeInflationConfig,
+        SelectionError: "Please enter a value."
+      })
       return;
     }
 
@@ -179,7 +196,7 @@ const FeeInflationView = () => {
   return (
     <div>
     <div class="page-title-cls ms-2">Fee Inflation</div>
-    <div className="container mt-1">
+    <div className="container" style={{ marginTop:"40px" }}>
       <div className="row">
         <div className="col-12 mt-3">
           <strong>
@@ -219,6 +236,13 @@ const FeeInflationView = () => {
               setServiceFeeInflationConfig((prev) => ({
                 ...prev,
                 SelectedServices: selected ? selected.map((s) => s.data) : [],
+                InflationRule:
+                selected && selected.length > 0
+                  ? prev.InflationRule
+                  : {
+                      operator: null,
+                      value: null,
+                    },
                 SelectionError: "",
               }));
             }}
@@ -231,8 +255,12 @@ const FeeInflationView = () => {
             isClearable
             placeholder="Search and select services..."
           />
+        {(ServiceFeeInflationConfig.SelectedServices.length == 0 && 
+          ServiceFeeInflationConfig.SelectionError) && (
+          <label className="validation">{ServiceFeeInflationConfig.SelectionError}</label>
+        )}
         </div>
-        {ServiceFeeInflationConfig.SelectionError && <label className="validation">{ServiceFeeInflationConfig.SelectionError}</label>}
+
       </div>
 
       {ServiceFeeInflationConfig.SelectedServices.length > 0 && (
@@ -261,6 +289,7 @@ const FeeInflationView = () => {
                         operator: op.symbol,
                         value: null,
                       },
+                      SelectionError: ""
                     }))
                   }
                 >
@@ -270,9 +299,15 @@ const FeeInflationView = () => {
               ))}
             </div>
           </div>
+          {(!ServiceFeeInflationConfig.InflationRule.operator &&
+            ServiceFeeInflationConfig.SelectionError)&& (
+            <label className="validation">
+              {ServiceFeeInflationConfig.SelectionError}
+            </label>
+          )}
 
           {ServiceFeeInflationConfig.InflationRule.operator && (
-            <div className="col-md-4 col-12 mb-3">
+            <div className="col-md-4 mb-3">
               <label className="form-label">
                 {ServiceFeeInflationConfig.InflationRule.operator === "+" || ServiceFeeInflationConfig.InflationRule.operator === "-"
                   ? "Amount"
@@ -300,6 +335,7 @@ const FeeInflationView = () => {
                       ...ServiceFeeInflationConfig.InflationRule,
                       value: null,
                     },
+                    SelectionError: ""
                   });
                   return;
                 }
@@ -335,6 +371,13 @@ const FeeInflationView = () => {
                   {ServiceFeeInflationConfig.InflationRule.operator === "/" && `Price × ${(1 - ServiceFeeInflationConfig.InflationRule.value / 100).toFixed(2)}`}
                 </small>
               )}
+            {(ServiceFeeInflationConfig.InflationRule.operator && 
+              ServiceFeeInflationConfig.InflationRule.value === null &&
+              ServiceFeeInflationConfig.SelectionError) && (
+                <label className="validation">
+                {ServiceFeeInflationConfig.SelectionError}
+              </label>
+            )}
             </div>
           )}
         </div>
@@ -344,7 +387,7 @@ const FeeInflationView = () => {
         <>
         <div className="col-12 text-start mt-3">
           <button
-            style={{ fontSize: "14px", marginTop: "10px", marginRight: "10px" }}
+            style={{ fontSize: "14px", marginTop: "5px", marginRight: "10px" }}
             className="btn btn-primary create-item-btn"
             onClick={() => SubmitServiceFeeInflation()}
           >
@@ -367,7 +410,7 @@ const FeeInflationView = () => {
             </button>
           )} */}
         </div>
-        <label className="validation">{errorMessage}</label>
+        {/* <label className="validation">{errorMessage}</label> */}
         </>
       )}
 

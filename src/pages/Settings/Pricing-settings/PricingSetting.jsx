@@ -229,13 +229,30 @@ const Pricing_Settings = () => {
 
 // Submit Service Fee Inflation rules
 const SubmitServiceFeeInflation = async () => {
-  setFeeInflationErrorMessage("");
+  setServiceFeeInflationConfig({
+    ...ServiceFeeInflationConfig,
+    SelectionError: ""
+  });
   if (!ServiceFeeInflationConfig.SelectedServices || ServiceFeeInflationConfig.SelectedServices.length === 0) {
-    setFeeInflationErrorMessage("Please select one or more services to configure.");
+    setServiceFeeInflationConfig({
+      ...ServiceFeeInflationConfig,
+      SelectionError: "Please select one or more services to configure."
+    });
     return;
   }
-  if (!ServiceFeeInflationConfig.InflationRule.operator || ServiceFeeInflationConfig.InflationRule.value === null) {
-    setFeeInflationErrorMessage("Please choose an operator and enter a value for the rule.");
+  if (!ServiceFeeInflationConfig.InflationRule.operator) {
+    setServiceFeeInflationConfig({
+      ...ServiceFeeInflationConfig,
+      SelectionError: "Please choose an operator."
+    });
+    return;
+  }
+  if (ServiceFeeInflationConfig.InflationRule.operator && 
+    ServiceFeeInflationConfig.InflationRule.value === null) {
+    setServiceFeeInflationConfig({
+      ...ServiceFeeInflationConfig,
+      SelectionError: "Please enter a value."
+    });
     return;
   }
 
@@ -432,6 +449,16 @@ const TabHandle = async (tab) => {
       if(common.organisationKeyID !== null) {
         GetPricingSettingModelData(common.organisationKeyID);
       }
+      setServiceFeeInflationConfig({
+        ServiceFeeInflationList: [],     
+        HasExistingConfig: false,
+        SelectionError: "",  
+        SelectedServices: [],    
+        InflationRule: {   
+          operator: null, 
+          value: null,   
+        },
+      })
     } 
     else if (tab === "FeeInflation") {
       try {
@@ -923,6 +950,13 @@ const TabHandle = async (tab) => {
               ...prev,
               SelectedServices: selected ? selected.map((s) => s.data) : [],
               SelectionError: "",
+              InflationRule:
+                selected && selected.length > 0
+                  ? prev.InflationRule
+                  : {
+                      operator: null,
+                      value: null,
+                    },
             }));
           }}
           formatOptionLabel={(option) => (
@@ -936,12 +970,15 @@ const TabHandle = async (tab) => {
           isClearable
           placeholder="Search and select services..."
         />
+        {(ServiceFeeInflationConfig.SelectedServices.length === 0 &&
+          ServiceFeeInflationConfig.SelectionError )&& (
+          <label className="validation">
+            {ServiceFeeInflationConfig.SelectionError}
+          </label>
+        )}
       </div>
-      {ServiceFeeInflationConfig.SelectionError && (
-        <label className="validation">
-          {ServiceFeeInflationConfig.SelectionError}
-        </label>
-      )}
+      {/* <label className="validation">{feeInflationErrorMessage}</label> */}
+      
     </div>
 
     {/* ── Inflation Rule Config ── */}
@@ -976,6 +1013,7 @@ const TabHandle = async (tab) => {
                       operator: op.symbol,
                       value: null,
                     },
+                    SelectionError: "",
                   })
                 }
               >
@@ -985,10 +1023,16 @@ const TabHandle = async (tab) => {
             ))}
           </div>
         </div>
+        {(!ServiceFeeInflationConfig.InflationRule.operator &&
+          ServiceFeeInflationConfig.SelectionError)&& (
+          <label className="validation">
+            {ServiceFeeInflationConfig.SelectionError}
+          </label>
+        )}
 
         {/* Value Input */}
         {ServiceFeeInflationConfig.InflationRule.operator && (
-          <div className="col-md-4 col-12 mb-3">
+          <div className="col-md-4 mb-3">
             <label className="form-label">
               {ServiceFeeInflationConfig.InflationRule.operator === "+" ||
               ServiceFeeInflationConfig.InflationRule.operator === "-"
@@ -1040,6 +1084,7 @@ const TabHandle = async (tab) => {
                   InflationRule: {
                     ...ServiceFeeInflationConfig.InflationRule,
                     value,
+                    SelectionError: "",
                   },
                 });
               }}
@@ -1056,6 +1101,13 @@ const TabHandle = async (tab) => {
                   `Price × ${(1 - ServiceFeeInflationConfig.InflationRule.value / 100).toFixed(2)}`}
               </small>
             )}
+            {(ServiceFeeInflationConfig.InflationRule.operator && 
+              ServiceFeeInflationConfig.InflationRule.value === null &&
+              ServiceFeeInflationConfig.SelectionError) && (
+                <label className="validation">
+                {ServiceFeeInflationConfig.SelectionError}
+              </label>
+            )}
           </div>
         )}
       </div>
@@ -1066,7 +1118,7 @@ const TabHandle = async (tab) => {
       <>
       <div className="col-12 text-start me-2 mt-3">
         <button
-          style={{ fontSize: "14px", marginTop: "10px", marginRight: "25px" }}
+          style={{ fontSize: "14px", marginTop: "5px", marginRight: "25px" }}
           className="btn btn-primary create-item-btn"
           onClick={() => SubmitServiceFeeInflation()}
         >
@@ -1091,7 +1143,6 @@ const TabHandle = async (tab) => {
           </button>
         )} */}
       </div>
-      <label className="validation">{feeInflationErrorMessage}</label>
       </>
     )}
 
