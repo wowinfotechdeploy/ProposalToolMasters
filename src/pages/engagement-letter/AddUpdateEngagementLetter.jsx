@@ -16131,7 +16131,7 @@ const Add_Update_Engagement_Letter = () => {
       "CustomizeTemplate",
     );
     const isGlobalCustomTemplate =
-      selectedTemplateID === 6 || selectedTemplateIDOneOff === 6;
+      selectedTemplateID === 0 || selectedTemplateIDOneOff === 0;
     // const updatedTemplateList = await updateTemplateList(
     //   engagementObj.customizedEmailContent,
     //   "CustomizeTemplate"
@@ -16147,8 +16147,8 @@ const Add_Update_Engagement_Letter = () => {
       contractKeyID: engagementObj.contractKeyID,
       documentCode: DocumentCode || null,
       pricingTableColumnIDs: isGlobalCustomTemplate
-        ? getVisibleFieldIds()
-        : null,
+        ? null
+        : getVisibleFieldIds(),
       sourceID: engagementObj.selectSourceId, //1	From Scratch, 2	From Quote
       clientID: engagementObj.ClientID,
       TabName: moduleName,

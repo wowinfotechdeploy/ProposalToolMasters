@@ -15,6 +15,7 @@ import {
   calculateCustomPackageRow,
   hasCalculationValue,
 } from "../../src/Middleware/helpers";
+import { useSelector } from "react-redux";
 
 const PricingTableTemplatesModal = ({
   show,
@@ -61,6 +62,30 @@ const PricingTableTemplatesModal = ({
     useState(0);
   const [totalThreePackageValueOneOff, setTotalThreePackageValueOneOff] =
     useState(0);
+  const common = useSelector((state) => state.Storage);
+  const organisationList = JSON.parse(
+    localStorage.getItem("OrganisationLocalList") || "[]",
+  );
+
+  const storedOrg = organisationList.find(
+    (item) => item.organisationKeyID === common.organisationKeyID,
+  );
+  // Remember, here the opposite sign is used for the vatStatus because, in the backend they have stored opposite. If the org is vat reg th en they have stored false else true.
+
+  const isVatEnabledForOrg =
+    storedOrg?.isVatRegistered === true ? false : true || false;
+  const vatRelatedFields = ["vatRate", "vat", "feesIncVat"];
+  const vatSafeVisibleFields = React.useMemo(() => {
+    if (isVatEnabledForOrg) {
+      return visibleFieldsCustomTemp;
+    }
+
+    return Object.fromEntries(
+      Object.entries(visibleFieldsCustomTemp).filter(
+        ([field]) => !vatRelatedFields.includes(field),
+      ),
+    );
+  }, [visibleFieldsCustomTemp, isVatEnabledForOrg]);
   // const REQUIRED_COLUMNS = ["serviceName", "fees"];
   // const [templateType, setTemplateType] = useState("default");
 
@@ -12396,53 +12421,40 @@ const PricingTableTemplatesModal = ({
                 </div> */}
 
                 <div className="mb-3 d-flex flex-wrap gap-3">
-                  {Object.keys(visibleFieldsCustomTemp).map((field) => (
+                  {Object.keys(vatSafeVisibleFields).map((field) => (
                     <div key={field} className="form-check">
                       <input
                         type="checkbox"
                         className="form-check-input"
                         id={field}
-                        checked={visibleFieldsCustomTemp[field]}
+                        checked={vatSafeVisibleFields[field]}
                         onChange={() => handleCheckboxChange(field)}
                         disabled={
                           serviceTypeID ===
                           servicePackageTypeID.RecurringServiceTypeID
                             ? vatPercentage === 0
-                              ? field === "serviceName" ||
-                                field === "fees" ||
-                                field === "feesIncVat" ||
-                                field === "vatRate" ||
-                                field === "vat"
+                              ? field === "serviceName" || field === "fees"
                               : field === "serviceName"
                             : serviceTypeID ===
                                 servicePackageTypeID.OneOffServiceTypeID
                               ? vatPercentageOneOff === 0
-                                ? field === "serviceName" ||
-                                  field === "fees" ||
-                                  field === "feesIncVat" ||
-                                  field === "vatRate" ||
-                                  field === "vat"
+                                ? field === "serviceName" || field === "fees"
                                 : field === "serviceName"
                               : serviceTypeID ===
                                   servicePackageTypeID.RecurringPackageTypeID
                                 ? vatPercentage === null
-                                  ? field === "serviceName" ||
-                                    field === "fees" ||
-                                    field === "feesIncVat" ||
-                                    field === "vatRate" ||
-                                    field === "vat"
+                                  ? field === "serviceName" || field === "fees"
                                   : field === "serviceName"
-                                : servicePackageTypeID.OneOffPackageTypeID
+                                : serviceTypeID ===
+                                    servicePackageTypeID.OneOffPackageTypeID
                                   ? vatPercentageOneOff === null
                                     ? field === "serviceName" ||
-                                      field === "fees" ||
-                                      field === "feesIncVat" ||
-                                      field === "vatRate" ||
-                                      field === "vat"
+                                      field === "fees"
                                     : field === "serviceName"
-                                  : ""
+                                  : false
                         }
                       />
+
                       <label htmlFor={field} className="form-check-label">
                         {formatFieldLabel(field)}
                       </label>

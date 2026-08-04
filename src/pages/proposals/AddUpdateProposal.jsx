@@ -22663,7 +22663,7 @@ const Add_Update_Proposal = (props) => {
     //   "CustomizeTemplate"
     // );
     const isGlobalCustomTemplate =
-      selectedTemplateID === 6 || selectedTemplateIDOneOff === 6;
+      selectedTemplateID === 0 || selectedTemplateIDOneOff === 0;
     const ApiRequest_ParamsObj = {
       organisationKeyID: common.organisationKeyID,
       userKeyID: common.userKeyID,
@@ -22720,8 +22720,8 @@ const Add_Update_Proposal = (props) => {
           : null,
       statusID: StatusId || null,
       pricingTableColumnIDs: isGlobalCustomTemplate
-        ? getVisibleFieldIds()
-        : null,
+        ? null
+        : getVisibleFieldIds(),
       TabName: moduleName,
       quotePDFUrl: MergePdfUrl || null,
       documentCode: DocumentCode || null,
