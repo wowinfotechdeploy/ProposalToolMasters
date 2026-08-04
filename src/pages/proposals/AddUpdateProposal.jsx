@@ -4403,19 +4403,19 @@ const ReviewServicesComponent = (props) => {
                                         <tr key={`sub-${index}-${subIndex}`}>
                                           {props.visibleFieldsCustomTemp
                                             .serviceCategory && (
-                                            <td className="text-center">
+                                            <td className="text-left">
                                               {service.serviceCatName}
                                             </td>
                                           )}
                                           {props.visibleFieldsCustomTemp
                                             .serviceName && (
-                                            <td className="text-center">
+                                            <td className="text-left">
                                               {subService.serviceName}
                                             </td>
                                           )}
                                           {props.visibleFieldsCustomTemp
                                             .serviceScope && (
-                                            <td className="text-center">
+                                            <td className="text-left">
                                               {driverList.length > 0
                                                 ? driverList.map((d, i) => (
                                                     <div key={i}>
@@ -5286,21 +5286,21 @@ const ReviewServicesComponent = (props) => {
                                         <tr key={`sub-${index}-${subIndex}`}>
                                           {props.visibleFieldsCustomTemp
                                             .serviceCategory && (
-                                            <td className="text-center">
+                                            <td className="text-left">
                                               {service.serviceCatName}
                                             </td>
                                           )}
 
                                           {props.visibleFieldsCustomTemp
                                             .serviceName && (
-                                            <td className="text-center">
+                                            <td className="text-left">
                                               {subService.serviceName}
                                             </td>
                                           )}
 
                                           {props.visibleFieldsCustomTemp
                                             .serviceScope && (
-                                            <td className="text-center">
+                                            <td className="text-left">
                                               {driverList.length > 0
                                                 ? driverList.map((d, i) => (
                                                     <div key={i}>

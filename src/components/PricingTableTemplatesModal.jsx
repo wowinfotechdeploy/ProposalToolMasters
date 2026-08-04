@@ -13,6 +13,7 @@ import {
   calculateCustomOneOffFooter,
   calculateCustomRecurringPackageFooter,
   calculateCustomPackageRow,
+  hasCalculationValue,
 } from "../../src/Middleware/helpers";
 
 const PricingTableTemplatesModal = ({
@@ -363,7 +364,6 @@ const PricingTableTemplatesModal = ({
   const customDescriptionColumnCount = [
     visibleFieldsCustomTemp.serviceCategory,
     visibleFieldsCustomTemp.serviceName,
-    visibleFieldsCustomTemp.serviceScope,
   ].filter(Boolean).length;
 
   const showCustomDiscount =
@@ -484,7 +484,22 @@ const PricingTableTemplatesModal = ({
                             </td>
                             <td className="text-right">
                               {ProposalObject.feeTypeId === 1 && (
-                                <>{formatValue(subService.price, currencyID)}</>
+                                <>
+                                  {formatValue(
+                                    hasCalculationValue(subService?.price)
+                                      ? subService.price
+                                      : hasCalculationValue(
+                                            subService?.quotationPriceWithAllDecimal,
+                                          )
+                                        ? subService.quotationPriceWithAllDecimal
+                                        : hasCalculationValue(
+                                              subService?.quotationPrice,
+                                            )
+                                          ? subService.quotationPrice
+                                          : 0,
+                                    currencyID,
+                                  )}
+                                </>
                               )}
                               {ProposalObject.feeTypeId === 2 && (
                                 <span className="fa fa-check"></span>
@@ -9403,14 +9418,6 @@ const PricingTableTemplatesModal = ({
                       Services
                     </th>
                   )}
-                  {visibleFieldsCustomTemp.serviceScope && (
-                    <th
-                      className="tr-table-class text-white text-center"
-                      style={{ width: "16.66%" }}
-                    >
-                      Service Scope
-                    </th>
-                  )}
 
                   {visibleFieldsCustomTemp.fees && (
                     <th
@@ -9446,6 +9453,15 @@ const PricingTableTemplatesModal = ({
                         Fees inc {taxName} ({currencySymbol})
                       </th>
                     )}
+
+                  {visibleFieldsCustomTemp.serviceScope && (
+                    <th
+                      className="tr-table-class text-white text-center"
+                      style={{ width: "16.66%" }}
+                    >
+                      Service Scope
+                    </th>
+                  )}
                 </tr>
               </thead>
 
@@ -9453,76 +9469,52 @@ const PricingTableTemplatesModal = ({
                 {selectedRecurringServiceList.map((service, index) => (
                   <>
                     {service.servicesList.map((subService, subIndex) => {
-                      const priceExact = decimalValue(subService.price);
+                      const rawPrice = hasCalculationValue(subService?.price)
+                        ? subService.price
+                        : hasCalculationValue(
+                              subService?.quotationPriceWithAllDecimal,
+                            )
+                          ? subService.quotationPriceWithAllDecimal
+                          : hasCalculationValue(subService?.quotationPrice)
+                            ? subService.quotationPrice
+                            : 0;
 
-                      const vatRateExact = decimalValue(
-                        subService.service_vat_percentage ?? vatPercentage,
-                      );
+                      const priceExact = decimalValue(rawPrice);
+
+                      const rawVatRate =
+                        subService?.service_vat_percentage ??
+                        subService?.serviceVatPercentage ??
+                        subService?.vatPercentage ??
+                        vatPercentage ??
+                        0;
+
+                      const vatRateExact = decimalValue(rawVatRate);
 
                       const vatExact = priceExact.mul(vatRateExact).div(100);
-
                       const feesIncVatExact = priceExact.plus(vatExact);
 
-                      // Round only for display.
                       const rowFees = truncateMoney(priceExact);
                       const rowVat = truncateMoney(vatExact);
                       const rowFeesIncVat = truncateMoney(feesIncVatExact);
 
                       const rowVatRate = vatRateExact.toNumber();
 
-                      const driverList = subService.pricingDriverList || [];
+                      const driverList = Array.isArray(
+                        subService?.pricingDriverList,
+                      )
+                        ? subService.pricingDriverList
+                        : [];
 
                       return (
                         <tr key={`sub-${index}-${subIndex}`}>
                           {visibleFieldsCustomTemp.serviceCategory && (
-                            <td className="text-center">
+                            <td className="text-left">
                               {service.serviceCatName}
                             </td>
                           )}
                           {visibleFieldsCustomTemp.serviceName && (
-                            <td className="text-center">
+                            <td className="text-left">
                               {subService.serviceName}
-                            </td>
-                          )}
-                          {visibleFieldsCustomTemp.serviceScope && (
-                            <td className="text-center">
-                              {driverList.length > 0
-                                ? driverList.map((d, i) => (
-                                    <div key={i}>
-                                      {d.variation === null ? (
-                                        <>
-                                          {d.driverName} = {d.driverValue}
-                                          {i !== driverList.length - 1 && "; "}
-                                        </>
-                                      ) : (
-                                        (() => {
-                                          const matched = d.variation.find(
-                                            (v) =>
-                                              Number(v.variationValue) ===
-                                              Number(d.driverValue),
-                                          );
-
-                                          return (
-                                            <>
-                                              {d.driverName} ={" "}
-                                              {matched
-                                                ? matched.variationName
-                                                : ""}
-                                              {i !== driverList.length - 1 &&
-                                                "; "}
-                                            </>
-                                          );
-                                        })()
-                                      )}
-
-                                      {/* {d.driverName} ={" "}
-                                                      {d.driverValue}
-                                                      {i !==
-                                                        driverList.length - 1 &&
-                                                        "; "} */}
-                                    </div>
-                                  ))
-                                : "-"}
                             </td>
                           )}
 
@@ -9571,6 +9563,48 @@ const PricingTableTemplatesModal = ({
                                 )}
                               </td>
                             )}
+
+                          {visibleFieldsCustomTemp.serviceScope && (
+                            <td className="text-left">
+                              {driverList.length > 0
+                                ? driverList.map((d, i) => (
+                                    <div key={i}>
+                                      {d.variation === null ? (
+                                        <>
+                                          {d.driverName} = {d.driverValue}
+                                          {i !== driverList.length - 1 && "; "}
+                                        </>
+                                      ) : (
+                                        (() => {
+                                          const matched = d.variation.find(
+                                            (v) =>
+                                              Number(v.variationValue) ===
+                                              Number(d.driverValue),
+                                          );
+
+                                          return (
+                                            <>
+                                              {d.driverName} ={" "}
+                                              {matched
+                                                ? matched.variationName
+                                                : ""}
+                                              {i !== driverList.length - 1 &&
+                                                "; "}
+                                            </>
+                                          );
+                                        })()
+                                      )}
+
+                                      {/* {d.driverName} ={" "}
+                                                      {d.driverValue}
+                                                      {i !==
+                                                        driverList.length - 1 &&
+                                                        "; "} */}
+                                    </div>
+                                  ))
+                                : "-"}
+                            </td>
+                          )}
                         </tr>
                       );
                     })}
@@ -9584,7 +9618,6 @@ const PricingTableTemplatesModal = ({
         )} */}
                   <td className="tr-table-class text-white">Net Total</td>
                   {visibleFieldsCustomTemp?.serviceCategory && <td></td>}
-                  {visibleFieldsCustomTemp.serviceScope && <td></td>}
                   {visibleFieldsCustomTemp.fees && (
                     <td className="tr-table-class text-white text-center">
                       {formatValue(customRecurringFooter.netFees, currencyID)}
@@ -9606,6 +9639,7 @@ const PricingTableTemplatesModal = ({
                         )}
                       </td>
                     )}
+                  {visibleFieldsCustomTemp.serviceScope && <td></td>}
                 </tr>
 
                 {/* DISCOUNT */}
@@ -9653,6 +9687,7 @@ const PricingTableTemplatesModal = ({
                           )}
                         </td>
                       )}
+                    {visibleFieldsCustomTemp.serviceScope && <td></td>}
                   </tr>
                 )}
 
@@ -9700,6 +9735,7 @@ const PricingTableTemplatesModal = ({
                           )}
                         </td>
                       )}
+                    {visibleFieldsCustomTemp.serviceScope && <td></td>}
                   </tr>
                 )}
               </tbody>
@@ -9810,19 +9846,19 @@ const PricingTableTemplatesModal = ({
                       return (
                         <tr key={`sub-${index}-${subIndex}`}>
                           {visibleFieldsCustomTemp?.serviceCategory && (
-                            <td className="text-center">
+                            <td className="text-left">
                               {service.serviceCatName}
                             </td>
                           )}
 
                           {visibleFieldsCustomTemp.serviceName && (
-                            <td className="text-center">
+                            <td className="text-left">
                               {subService.serviceName}
                             </td>
                           )}
 
                           {visibleFieldsCustomTemp.serviceScope && (
-                            <td className="text-center">
+                            <td className="text-left">
                               {driverList.length > 0
                                 ? driverList.map((d, i) => (
                                     <div key={i}>
