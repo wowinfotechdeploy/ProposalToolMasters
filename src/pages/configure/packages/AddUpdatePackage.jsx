@@ -1338,9 +1338,22 @@ const AddUpdatePackage = (props) => {
   }, []);
 
   // B] Calling All Api's like List and other Here :
+  const loadServiceLists = async () => {
+    setLoader(true);
+    try {
+      await Promise.all([
+        GetRecurringServiceListData(),
+        GetOneOffServiceListData(),
+      ]);
+    } catch (e) {
+      setErrorMessage("Failed to load services");
+    } finally {
+      setLoader(false);
+    }
+  };
   // 1) Get Service Category List Data
   const GetRecurringServiceListData = async () => {
-    setLoader(true);
+    // setLoader(true);
     try {
       const data = await GetPackageServicesList({
         userKeyID: common.userKeyID,
@@ -1368,7 +1381,7 @@ const AddUpdatePackage = (props) => {
       });
       if (data) {
         if (data?.data?.statusCode === 200) {
-          setLoader(false);
+          // setLoader(false);
           if (data?.data?.responseData?.data) {
             let PackageServiceListData = data.data.responseData.data;
 
@@ -1487,21 +1500,21 @@ const AddUpdatePackage = (props) => {
             await setRecurringServiceList(PackageServiceListData);
           }
         } else {
-          setLoader(false);
+          // setLoader(false);
           setErrorMessage(data?.data?.errorMessage);
         }
       } else {
-        setLoader(false);
+        // setLoader(false);
         setErrorMessage(data?.data?.errorMessage);
       }
     } catch (error) {
-      setLoader(false);
+      // setLoader(false);
       console.log(error);
     }
   };
 
   const GetOneOffServiceListData = async () => {
-    setLoader(true);
+    // setLoader(true);
     try {
       const data = await GetPackageServicesList({
         userKeyID: common.userKeyID,
@@ -1528,7 +1541,7 @@ const AddUpdatePackage = (props) => {
         QuoteKeyID: null,
       });
       if (data) {
-        setLoader(false);
+        // setLoader(false);
         if (data?.data?.statusCode === 200) {
           if (data?.data?.responseData?.data) {
             let PackageServiceListData = data.data.responseData.data;
@@ -1642,11 +1655,11 @@ const AddUpdatePackage = (props) => {
             await setOneOffServiceList(PackageServiceListData);
           }
         } else {
-          setLoader(false);
+          // setLoader(false);
           setErrorMessage(data?.data?.errorMessage);
         }
       } else {
-        setLoader(false);
+        // setLoader(false);
       }
     } catch (error) {
       console.log(error);
@@ -2382,8 +2395,9 @@ const AddUpdatePackage = (props) => {
             //   PricingInfo: true,
             // })
 
-            await GetRecurringServiceListData();
-            await GetOneOffServiceListData();
+            loadServiceLists();
+            // await GetRecurringServiceListData();
+            // await GetOneOffServiceListData();
             setPackageObj({
               ...packageObj,
               servicePackageKeyID: ModelData.servicePackageKeyID,
@@ -2859,8 +2873,9 @@ const AddUpdatePackage = (props) => {
         setRequireMessage(true);
       } else {
         // if (isBack) {
-        GetRecurringServiceListData();
-        GetOneOffServiceListData();
+        loadServiceLists();
+        // GetRecurringServiceListData();
+        // GetOneOffServiceListData();
         // }
         setIsValidForm({
           ...isValidForm,
