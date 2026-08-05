@@ -4403,19 +4403,19 @@ const ReviewServicesComponent = (props) => {
                                         <tr key={`sub-${index}-${subIndex}`}>
                                           {props.visibleFieldsCustomTemp
                                             .serviceCategory && (
-                                            <td className="text-center">
+                                            <td className="text-left">
                                               {service.serviceCatName}
                                             </td>
                                           )}
                                           {props.visibleFieldsCustomTemp
                                             .serviceName && (
-                                            <td className="text-center">
+                                            <td className="text-left">
                                               {subService.serviceName}
                                             </td>
                                           )}
                                           {props.visibleFieldsCustomTemp
                                             .serviceScope && (
-                                            <td className="text-center">
+                                            <td className="text-left">
                                               {driverList.length > 0
                                                 ? driverList.map((d, i) => (
                                                     <div key={i}>
@@ -5286,21 +5286,21 @@ const ReviewServicesComponent = (props) => {
                                         <tr key={`sub-${index}-${subIndex}`}>
                                           {props.visibleFieldsCustomTemp
                                             .serviceCategory && (
-                                            <td className="text-center">
+                                            <td className="text-left">
                                               {service.serviceCatName}
                                             </td>
                                           )}
 
                                           {props.visibleFieldsCustomTemp
                                             .serviceName && (
-                                            <td className="text-center">
+                                            <td className="text-left">
                                               {subService.serviceName}
                                             </td>
                                           )}
 
                                           {props.visibleFieldsCustomTemp
                                             .serviceScope && (
-                                            <td className="text-center">
+                                            <td className="text-left">
                                               {driverList.length > 0
                                                 ? driverList.map((d, i) => (
                                                     <div key={i}>
@@ -22663,7 +22663,7 @@ const Add_Update_Proposal = (props) => {
     //   "CustomizeTemplate"
     // );
     const isGlobalCustomTemplate =
-      selectedTemplateID === 6 || selectedTemplateIDOneOff === 6;
+      selectedTemplateID === 0 || selectedTemplateIDOneOff === 0;
     const ApiRequest_ParamsObj = {
       organisationKeyID: common.organisationKeyID,
       userKeyID: common.userKeyID,
@@ -22720,8 +22720,8 @@ const Add_Update_Proposal = (props) => {
           : null,
       statusID: StatusId || null,
       pricingTableColumnIDs: isGlobalCustomTemplate
-        ? getVisibleFieldIds()
-        : null,
+        ? null
+        : getVisibleFieldIds(),
       TabName: moduleName,
       quotePDFUrl: MergePdfUrl || null,
       documentCode: DocumentCode || null,
@@ -25210,6 +25210,7 @@ const Add_Update_Proposal = (props) => {
                   selectedTemplateIDOneOff={selectedTemplateIDOneOff}
                   setVisibleFieldsCustomTemp={setVisibleFieldsCustomTemp}
                   visibleFieldsCustomTemp={visibleFieldsCustomTemp}
+                  currencySymbol={currencySymbol}
                 />
               )}
               <Suspense>
