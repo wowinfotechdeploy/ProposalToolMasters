@@ -25210,6 +25210,7 @@ const Add_Update_Proposal = (props) => {
                   selectedTemplateIDOneOff={selectedTemplateIDOneOff}
                   setVisibleFieldsCustomTemp={setVisibleFieldsCustomTemp}
                   visibleFieldsCustomTemp={visibleFieldsCustomTemp}
+                  currencySymbol={currencySymbol}
                 />
               )}
               <Suspense>

@@ -10580,7 +10580,7 @@ ${
                       : props.selectedTemplateID === 6
                         ? `<div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily}; page-break-inside: avoid; break-inside: avoid;">
   <p style="font-family:${fontFamily}; color:${newColorCode}; font-size: 20px; margin-top: 15px;">
-    Recurring Fees (${getPaymentFrequencyLabel()})'
+    Recurring Fees (${getPaymentFrequencyLabel()})
   </p>
 
   <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px; table-layout: fixed;">
