@@ -100,6 +100,7 @@ const Proposals = () => {
   const [selectedOption, setSelectedOption] = useState("");
   const [isHovered, setIsHovered] = useState(false);
   const [ProposalSearchKeyword, setSearchOldProposalKeyword] = useState("");
+  const [SingleProposalSearchKeyword, setSearchSingleProposalKeyword] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [totalRecords, setTotalRecords] = useState(-1);
   const [OldtotalRecords, setOldTotalRecords] = useState(-1);
@@ -243,6 +244,18 @@ const Proposals = () => {
       prospectType,
     );
   };
+  const handleSearchSinglePL = (e) => {
+    const searchKeywordValue = e.target.value;
+    setSearchSingleProposalKeyword(searchKeywordValue);
+    setSingleProposalCurrentPage(1);
+    GetProposalListSingleApiData(
+      1,
+      searchKeywordValue,
+      null,
+      null,
+      null,
+    );
+  };
 
   // Handle Close the  Model
   const handleCloseModel = () => {
@@ -315,52 +328,65 @@ const Proposals = () => {
         toDate: toDate === "" ? null : toDate,
         businessTypeID: prospectType,
         businessNatureID: businessNatureID,
+        quoteFor: "Outbooks",
       });
+
+      // NEW: fetch the SingleApi proposal data too
+      const singleApiData = await GetProposalList({
+        organisationKeyID: common.organisationKeyID,
+        pageSize: 30,
+        pageNo: 0,
+        SearchKeyword: searchKeyword,
+        StatusID: status,
+        userKeyID: common.userKeyID || null,
+        fromDate: fromDate === "" ? null : fromDate,
+        toDate: toDate === "" ? null : toDate,
+        businessTypeID: prospectType,
+        businessNatureID: businessNatureID,
+        quoteFor: "SingleApi",
+      });
+
       if (data && data.data.statusCode === 200) {
         if (data.data.responseData.data.length > 0) {
           const ProposalListData = data.data.responseData.data;
           const statusName =
-            Utils.ProposalStatus.find((option) => option.value === status)
-              ?.label || "";
+            Utils.ProposalStatus.find((option) => option.value === status)?.label || "";
           const reportingPeriod =
-            Utils.CalenderFilter.find(
-              (option) => option.value === selectedOption.value,
-            )?.label || "";
+            Utils.CalenderFilter.find((option) => option.value === selectedOption.value)?.label || "";
           const businessTypeName =
-            BusinessTypeListData.find((item) => item.value == prospectType)
-              ?.label || "";
+            BusinessTypeListData.find((item) => item.value == prospectType)?.label || "";
           const businessNatureName =
-            NoBTypeListData.find((item) => item.value == businessNatureID)
-              ?.label || "";
+            NoBTypeListData.find((item) => item.value == businessNatureID)?.label || "";
+
           const headers = {
             "Practice Name": orgName.organisationName,
             "Filter Status": statusName,
             "Reporting Period Filter": reportingPeriod,
             "Business Nature Filter": businessNatureName,
             "Business Type Filter": businessTypeName,
+            "Total Proposals (Proposal Data)": ProposalListData.length,
+            "Total Proposals (API Proposal Data)":
+              singleApiData?.data?.statusCode === 200
+                ? singleApiData?.data?.responseData?.data?.length || 0
+                : 0,
           };
+
           const proposal = `${prospectName} Name`;
           const proposalPdf = `${proposalName} PDF`;
-          const modifiedProposalListData = ProposalListData.map((item) => ({
-            "Ref Id": item.prefix,
-            [proposal]: item.clientName,
-            "One Off Price": `£ ${
-              item.oneOffPrice !== null ? item.oneOffPrice : "0.00"
-            }`,
-            "Recurring Price": `£ ${
-              item.recurringPrice !== null ? item.recurringPrice : "0.00"
-            }`,
-            "Status Name": item.statusName,
-            [proposalPdf]: item.quotePDFUrl,
-            "Last Updated On": item.lastUpdatedOn,
-          }));
-          // Convert headers to a 2D array format
-          const headersArray = Object.entries(headers).map(([key, value]) => [
-            key,
-            value,
-          ]);
-          headersArray.push([]); // Add an empty row before the data rows
-          headersArray.push([
+
+          // shared row-mapper so both sheets stay consistent
+          const mapProposalRows = (list) =>
+            list.map((item) => ({
+              "Ref Id": item.prefix,
+              [proposal]: item.clientName,
+              "One Off Price": `£ ${item.oneOffPrice !== null ? item.oneOffPrice : "0.00"}`,
+              "Recurring Price": `£ ${item.recurringPrice !== null ? item.recurringPrice : "0.00"}`,
+              "Status Name": item.statusName,
+              [proposalPdf]: item.quotePDFUrl,
+              "Last Updated On": item.lastUpdatedOn,
+            }));
+
+          const proposalHeaderRow = [
             "Ref Id",
             proposal,
             "One Off Price",
@@ -368,45 +394,59 @@ const Proposals = () => {
             "Status Name",
             proposalPdf,
             "Last Updated On",
-          ]);
-          // Convert modifiedProposalListData to a 2D array format
-          const dataRows = modifiedProposalListData.map((item) => [
-            item["Ref Id"],
-            item[proposal],
-            item["One Off Price"],
-            item["Recurring Price"],
-            item["Status Name"],
-            item[proposalPdf],
-            item["Last Updated On"],
-          ]);
-          // Combine headers and data
-          const worksheetData = [...headersArray, ...dataRows];
-          // Convert to Excel workbook
-          const workbook = XLSX.utils.book_new();
-          const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-          const maxWidths = worksheetData.reduce((widths, row) => {
-            row.forEach((cell, i) => {
-              const cellValue =
-                cell !== null && cell !== undefined ? String(cell) : "";
-              widths[i] = Math.max(widths[i] || 0, cellValue.length);
-            });
-            return widths;
-          }, []);
+          ];
 
-          // Set column widths
-          worksheet["!cols"] = maxWidths.map((w) => ({ wch: w + 2 }));
-          XLSX.utils.book_append_sheet(workbook, worksheet, "Summary");
+          const toRows = (mappedList) =>
+            mappedList.map((item) => [
+              item["Ref Id"],
+              item[proposal],
+              item["One Off Price"],
+              item["Recurring Price"],
+              item["Status Name"],
+              item[proposalPdf],
+              item["Last Updated On"],
+            ]);
+
+          const setColWidths = (sheet, sheetData) => {
+            const widths = sheetData.reduce((w, row) => {
+              row.forEach((cell, i) => {
+                const val = cell !== null && cell !== undefined ? String(cell) : "";
+                w[i] = Math.max(w[i] || 0, val.length);
+              });
+              return w;
+            }, []);
+            sheet["!cols"] = widths.map((w) => ({ wch: w + 2 }));
+          };
+
+          const workbook = XLSX.utils.book_new();
+
+          // Sheet 1: Summary/filters
+          const headersArray = Object.entries(headers).map(([key, value]) => [key, value]);
+          const summarySheet = XLSX.utils.aoa_to_sheet(headersArray);
+          setColWidths(summarySheet, headersArray);
+          XLSX.utils.book_append_sheet(workbook, summarySheet, "Summary");
+
+          // Sheet 2: Proposal data
+          const proposalRows = toRows(mapProposalRows(ProposalListData));
+          const proposalSheetData = [proposalHeaderRow, ...proposalRows];
+          const proposalSheet = XLSX.utils.aoa_to_sheet(proposalSheetData);
+          setColWidths(proposalSheet, proposalSheetData);
+          XLSX.utils.book_append_sheet(workbook, proposalSheet, "Proposal Data");
+
+          // Sheet 3: API (SingleApi) proposal data
+          if (singleApiData?.data?.statusCode === 200 && singleApiData?.data?.responseData?.data?.length > 0) {
+            const singleApiRows = toRows(mapProposalRows(singleApiData.data.responseData.data));
+            const singleApiSheetData = [proposalHeaderRow, ...singleApiRows];
+            const singleApiSheet = XLSX.utils.aoa_to_sheet(singleApiSheetData);
+            setColWidths(singleApiSheet, singleApiSheetData);
+            XLSX.utils.book_append_sheet(workbook, singleApiSheet, "API Proposal Data");
+          }
+
           const fileName = `${proposalName}_Data_${orgName.organisationName}_${reportingPeriod}.xlsx`;
           XLSX.writeFile(workbook, fileName);
+
           await GetProposalListData(
-            1,
-            searchKeyword,
-            status,
-            fromDate,
-            toDate,
-            businessNatureID,
-            prospectType,
-            false,
+            1, searchKeyword, status, fromDate, toDate, businessNatureID, prospectType, false,
           );
         } else {
           console.error("No data available for export");
@@ -1592,9 +1632,9 @@ const Proposals = () => {
                                                 <input
                                                   type="text"
                                                   class="form-control search"
-                                                  value={searchKeyword}
+                                                  value={SingleProposalSearchKeyword}
                                                   onChange={(e) => {
-                                                    handleSearch(e);
+                                                    handleSearchSinglePL(e);
                                                   }}
                                                   placeholder={
                                                     isMobile

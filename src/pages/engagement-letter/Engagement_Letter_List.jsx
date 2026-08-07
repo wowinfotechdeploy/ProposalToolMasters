@@ -481,7 +481,6 @@ const Engagement_Letter = () => {
     if (NOBType?.data?.statusCode === 200) {
       if (NOBType?.data?.responseData?.data) {
         NoBTypeListData = NOBType?.data?.responseData?.data;
-        // Map the fetched data to include only value and label
         NoBTypeListData = NoBTypeListData.map((NOB) => ({
           value: NOB.businessNatureID,
           label: NOB.businessNatureName,
@@ -500,56 +499,63 @@ const Engagement_Letter = () => {
         toDate: toDate === "" ? null : toDate,
         businessTypeID: prospectType,
         businessNatureID: businessNatureID,
+        contractsFor: "Outbooks",
       });
-      // Check if data is fetched successfully
+
+      const singleApiData = await GetEngagementList({
+        organisationKeyID: common.organisationKeyID,
+        pageSize: 30,
+        pageNo: 0,
+        SearchKeyword: searchKeyword,
+        StatusID: status,
+        userKeyID: common.userKeyID || null,
+        fromDate: fromDate === "" ? null : fromDate,
+        toDate: toDate === "" ? null : toDate,
+        businessTypeID: prospectType,
+        businessNatureID: businessNatureID,
+        contractsFor: "SingleApi",
+      });
+
       if (data && data.data.statusCode === 200) {
-        // Check if data contains any records
         if (data.data.responseData.data.length > 0) {
-          // Extract EngagementListData from the fetched data
           const EngagementListData = data.data.responseData.data;
           const statusName =
-            Utils.EngagementLetterStatus.find(
-              (option) => option.value === status,
-            )?.label || "";
+            Utils.EngagementLetterStatus.find((option) => option.value === status)?.label || "";
           const reportingPeriod =
-            Utils.CalenderFilter.find(
-              (option) => option.value === selectedOption.value,
-            )?.label || "";
+            Utils.CalenderFilter.find((option) => option.value === selectedOption.value)?.label || "";
           const businessTypeName =
-            BusinessTypeListData.find((item) => item.value == prospectType)
-              ?.label || "";
+            BusinessTypeListData.find((item) => item.value == prospectType)?.label || "";
           const businessNatureName =
-            NoBTypeListData.find((item) => item.value == businessNatureID)
-              ?.label || "";
-          // Render these columns only once
+            NoBTypeListData.find((item) => item.value == businessNatureID)?.label || "";
+
           const headers = {
             "Practice Name": orgName.organisationName,
             "Filter Status": statusName,
             "Reporting Period Filter": reportingPeriod,
             "Business Nature Filter": businessNatureName,
             "Business Type Filter": businessTypeName,
+            "Total Engagement Letters (Engagement Data)": EngagementListData.length,
+            "Total Engagement Letters (API Engagement Data)":
+              singleApiData?.data?.statusCode === 200
+                ? singleApiData?.data?.responseData?.data?.length || 0
+                : 0,
           };
+
           const engagement = `${EngagementName} Name`;
           const engagementPdf = `${EngagementName} PDF`;
-          const modifiedEngagementListData = EngagementListData.map((item) => ({
-            "Ref Id": item.prefix,
-            [engagement]: item.clientName, // Replace oneOffPrice with "One Off Price"
-            "One Off Price": `£ ${
-              item.oneOffPrice !== null ? item.oneOffPrice : "0.00"
-            }`,
-            "Recurring Price": `£ ${
-              item.recurringPrice !== null ? item.recurringPrice : "0.00"
-            }`,
-            "Status Name": item.statusName, // Replace oneOffPrice with "One Off Price"
-            [engagementPdf]: item.documents, // Replace oneOffPrice with "One Off Price"
-            "Last Updated On": item.lastUpdatedOn, // Replace oneOffPrice with "One Off Price"
-          }));
-          const headersArray = Object.entries(headers).map(([key, value]) => [
-            key,
-            value,
-          ]);
-          headersArray.push([]); // Add an empty row before the data rows
-          headersArray.push([
+
+          const mapEngagementRows = (list) =>
+            list.map((item) => ({
+              "Ref Id": item.prefix,
+              [engagement]: item.clientName,
+              "One Off Price": `£ ${item.oneOffPrice !== null ? item.oneOffPrice : "0.00"}`,
+              "Recurring Price": `£ ${item.recurringPrice !== null ? item.recurringPrice : "0.00"}`,
+              "Status Name": item.statusName,
+              [engagementPdf]: item.documents,
+              "Last Updated On": item.lastUpdatedOn,
+            }));
+
+          const engagementHeaderRow = [
             "Ref Id",
             engagement,
             "One Off Price",
@@ -557,55 +563,64 @@ const Engagement_Letter = () => {
             "Status Name",
             engagementPdf,
             "Last Updated On",
-          ]);
-          // Convert modifiedProposalListData to a 2D array format
-          const dataRows = modifiedEngagementListData.map((item) => [
-            item["Ref Id"],
-            item[engagement],
-            item["One Off Price"],
-            item["Recurring Price"],
-            item["Status Name"],
-            item[engagementPdf],
-            item["Last Updated On"],
-          ]);
-          // Combine headers and data
-          const worksheetData = [...headersArray, ...dataRows];
-          // Convert EngagementListData to Excel workbook
-          const workbook = XLSX.utils.book_new();
-          const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-          const maxWidths = worksheetData.reduce((widths, row) => {
-            row.forEach((cell, i) => {
-              const cellValue =
-                cell !== null && cell !== undefined ? String(cell) : "";
-              widths[i] = Math.max(widths[i] || 0, cellValue.length);
-            });
-            return widths;
-          }, []);
+          ];
 
-          // Set column widths
-          worksheet["!cols"] = maxWidths.map((w) => ({ wch: w + 2 }));
-          XLSX.utils.book_append_sheet(workbook, worksheet, "Summary");
-          // Generate a file name for the Excel file
+          const toRows = (mappedList) =>
+            mappedList.map((item) => [
+              item["Ref Id"],
+              item[engagement],
+              item["One Off Price"],
+              item["Recurring Price"],
+              item["Status Name"],
+              item[engagementPdf],
+              item["Last Updated On"],
+            ]);
+
+          const setColWidths = (sheet, sheetData) => {
+            const widths = sheetData.reduce((w, row) => {
+              row.forEach((cell, i) => {
+                const val = cell !== null && cell !== undefined ? String(cell) : "";
+                w[i] = Math.max(w[i] || 0, val.length);
+              });
+              return w;
+            }, []);
+            sheet["!cols"] = widths.map((w) => ({ wch: w + 2 }));
+          };
+
+          const workbook = XLSX.utils.book_new();
+
+          // Sheet 1: Summary/filters (now includes both counts)
+          const headersArray = Object.entries(headers).map(([key, value]) => [key, value]);
+          const summarySheet = XLSX.utils.aoa_to_sheet(headersArray);
+          setColWidths(summarySheet, headersArray);
+          XLSX.utils.book_append_sheet(workbook, summarySheet, "Summary");
+
+          // Sheet 2: Engagement data (Outbooks)
+          const engagementRows = toRows(mapEngagementRows(EngagementListData));
+          const engagementSheetData = [engagementHeaderRow, ...engagementRows];
+          const engagementSheet = XLSX.utils.aoa_to_sheet(engagementSheetData);
+          setColWidths(engagementSheet, engagementSheetData);
+          XLSX.utils.book_append_sheet(workbook, engagementSheet, "Engagement Data");
+
+          // Sheet 3: API (SingleApi) engagement data
+          if (singleApiData?.data?.statusCode === 200 && singleApiData?.data?.responseData?.data?.length > 0) {
+            const singleApiRows = toRows(mapEngagementRows(singleApiData.data.responseData.data));
+            const singleApiSheetData = [engagementHeaderRow, ...singleApiRows];
+            const singleApiSheet = XLSX.utils.aoa_to_sheet(singleApiSheetData);
+            setColWidths(singleApiSheet, singleApiSheetData);
+            XLSX.utils.book_append_sheet(workbook, singleApiSheet, "API Engagement Data");
+          }
+
           const fileName = `${EngagementName}_Data_${orgName.organisationName}_${reportingPeriod}.xlsx`;
-          // Save the Excel file
           XLSX.writeFile(workbook, fileName);
-          // Fetch data again to reset page size for subsequent calls
+
           await GetEngagementListData(
-            1,
-            searchKeyword,
-            status,
-            fromDate,
-            toDate,
-            businessNatureID,
-            prospectType,
-            false,
+            1, searchKeyword, status, fromDate, toDate, businessNatureID, prospectType, false,
           );
         } else {
-          // Handle error if data fetching fails
           console.error("Failed to fetch data for export");
         }
       } else {
-        // Handle error if data fetching fails
         console.error("Failed to fetch data for export");
       }
     } catch (error) {
@@ -1432,7 +1447,7 @@ const Engagement_Letter = () => {
                                   <div class="row g-4 mb-3"></div>
                                   <div class="table-responsive table-card mt-2 mb-3 table-padding">
                                     <div className="row">
-                                      <div class="col-md-6 col-lg-6 col-9  mb-2">
+                                      <div class="col-md-12 col-lg-12 col-12 col-sm-6  mb-2">
                                         {activeTab === "OldEL" && (
                                           <div
                                             class="search-box col-md-5 col-8 width-searchbox "
@@ -1459,108 +1474,112 @@ const Engagement_Letter = () => {
                                         )}
 
                                         {activeTab === "NewEL" && (
-                                          <div className="d-flex justify-content-start">
-                                            <div
-                                              class="search-box  width-searchbox "
-                                              id="w-100"
-                                              style={{ marginRight: "10px" }}
-                                            >
-                                              <i className="ri-search-line search-icon"></i>
-
-                                              <input
-                                                type="text"
-                                                value={searchKeyword}
-                                                class="form-control search"
-                                                onChange={(e) => {
-                                                  handleSearch(e);
-                                                }}
-                                                placeholder={
-                                                  isMobile
-                                                    ? "Search"
-                                                    : getPlaceholderTextName(
-                                                        "Search",
-                                                        EngagementName,
-                                                      )
-                                                }
-                                              />
-                                            </div>
-                                            <div className=" d-flex align-items-start justify-content-start ">
-                                              <Tooltip
-                                                title={getCrudButtonToolTipName(
-                                                  "Export",
-                                                  EngagementName,
-                                                )}
-                                              >
-                                                <div>
-                                                  <button
-                                                    class="btn btn-md btn-success create-item-btn-apply filter me-2"
-                                                    onClick={handleExport}
-                                                  >
-                                                    {/* <i class="ri-pencil-fill"></i> */}
-                                                    <span
-                                                      style={{
-                                                        marginRight: "0px",
-                                                        width: "42px",
-                                                        fontSize: "15px",
-                                                      }}
-                                                    ></span>
-                                                    <i class="ri-file-excel-2-fill  Filter-apply-color"></i>
-                                                  </button>
-                                                </div>
-                                              </Tooltip>
-                                              <Tooltip
-                                                title={getCrudButtonToolTipName(
-                                                  "Filter",
-                                                  EngagementName,
-                                                )}
-                                              >
-                                                <div>
-                                                  <button
-                                                    className={
-                                                      isFilterApply
-                                                        ? "btn btn-md btn-success create-item-btn filter me-2"
-                                                        : "btn btn-md btn-success create-item-btn-apply filter me-2"
+                                          <div class="row">
+                                            <div class="col-md-6 col-lg-6 col-6 mb-2">
+                                              <div className="d-flex justify-content-start">
+                                                <div
+                                                  class="search-box  width-searchbox "
+                                                  id="w-100"
+                                                  style={{ marginRight: "10px" }}
+                                                >
+                                                  <i className="ri-search-line search-icon"></i>
+                                                  <input
+                                                    type="text"
+                                                    value={searchKeyword}
+                                                    class="form-control search"
+                                                    onChange={(e) => {
+                                                      handleSearch(e);
+                                                    }}
+                                                    placeholder={
+                                                      isMobile
+                                                        ? "Search"
+                                                        : getPlaceholderTextName("Search", EngagementName)
                                                     }
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#FilterModel"
-                                                  >
-                                                    {/* <i class="ri-pencil-fill"></i> */}
-
-                                                    <i
-                                                      className={
-                                                        isFilterApply
-                                                          ? "ri-filter-fill align-bottom "
-                                                          : "ri-filter-fill align-bottom Filter-apply-color"
-                                                      }
-                                                    ></i>
-                                                  </button>
+                                                  />
                                                 </div>
-                                              </Tooltip>
-                                              <div className="col-9">
-                                                {isFilterApply ? (
+                                                <div className=" d-flex align-items-start justify-content-start ">
                                                   <Tooltip
-                                                    title={"Clear Filter"}
+                                                    title={getCrudButtonToolTipName("Export", EngagementName)}
                                                   >
                                                     <div>
                                                       <button
-                                                        className="btn btn-md btn-success create-Filter-item-btn text-nowrap"
-                                                        onClick={ClearFilter} // Corrected from onclick to onClick
+                                                        class="btn btn-md btn-success create-item-btn-apply filter me-2"
+                                                        onClick={handleExport}
                                                       >
-                                                        <span className="text-nowrap">
-                                                          Clear Filter
-                                                        </span>
+                                                        <span
+                                                          style={{
+                                                            marginRight: "0px",
+                                                            width: "42px",
+                                                            fontSize: "15px",
+                                                          }}
+                                                        ></span>
+                                                        <i class="ri-file-excel-2-fill  Filter-apply-color"></i>
                                                       </button>
                                                     </div>
                                                   </Tooltip>
-                                                ) : (
-                                                  ""
-                                                )}
+                                                  <Tooltip
+                                                    title={getCrudButtonToolTipName("Filter", EngagementName)}
+                                                  >
+                                                    <div>
+                                                      <button
+                                                        className={
+                                                          isFilterApply
+                                                            ? "btn btn-md btn-success create-item-btn filter me-2"
+                                                            : "btn btn-md btn-success create-item-btn-apply filter me-2"
+                                                        }
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#FilterModel"
+                                                      >
+                                                        <i
+                                                          className={
+                                                            isFilterApply
+                                                              ? "ri-filter-fill align-bottom "
+                                                              : "ri-filter-fill align-bottom Filter-apply-color"
+                                                          }
+                                                        ></i>
+                                                      </button>
+                                                    </div>
+                                                  </Tooltip>
+                                                  <div className="col-9">
+                                                    {isFilterApply ? (
+                                                      <Tooltip title={"Clear Filter"}>
+                                                        <div>
+                                                          <button
+                                                            className="btn btn-md btn-success create-Filter-item-btn text-nowrap"
+                                                            onClick={ClearFilter}
+                                                          >
+                                                            <span className="text-nowrap">Clear Filter</span>
+                                                          </button>
+                                                        </div>
+                                                      </Tooltip>
+                                                    ) : (
+                                                      ""
+                                                    )}
+                                                  </div>
+                                                </div>
                                               </div>
+                                            </div>
+
+                                            <div class="col-md-6 col-lg-6 col-6 text-end mb-2">
+                                              {(userAccessData.Admin_Engagement_Latter_CanEdit ||
+                                                userAccessData.Admin_Engagement_Latter_CanView) &&
+                                                userAccessData.Admin_Engagement_Latter_CanAdd && (
+                                                  <div className="d-flex justify-content-sm-end add-new-btn">
+                                                    <CommonButtonComponent
+                                                      title={getCrudButtonToolTipName("Add", EngagementName)}
+                                                      name={getCrudButtonTextName("Add", EngagementName)}
+                                                      AddBtn={() => new_letter()}
+                                                    />
+                                                  </div>
+                                                )}
                                             </div>
                                           </div>
                                         )}
 
                                         {activeTab === "WebEL" && (
+                                          <div class="row">
+                                        <div class="col-md-6 col-lg-6 col-6  mb-2">
+                                          <div className="d-flex justify-content-between">
                                           <div className="d-flex justify-content-start">
                                             <div
                                               class="search-box  width-searchbox "
@@ -1657,12 +1676,18 @@ const Engagement_Letter = () => {
                                                 ) : (
                                                   ""
                                                 )}
-                                                <Tooltip
+                                              </div>
+                                            </div>
+                                          </div>
+                                          </div>
+                                          </div>
+                                          <div class="col-md-6 col-lg-6 col-6 text-end mb-2">
+                                          <Tooltip
                                                   title={getCrudButtonToolTipName(
                                                     `Delete ${EngagementName}`,
                                                   )}
                                                 >
-                                                  <div>
+                                                  <div className="d-inline-block">
                                                     <button
                                                       className={
                                                         selectedRows.length !==
@@ -1694,52 +1719,12 @@ const Engagement_Letter = () => {
                                                     </button>
                                                   </div>
                                                 </Tooltip>
-                                              </div>
-                                            </div>
+                                          </div>
                                           </div>
                                         )}
                                       </div>
 
-                                      <div class="col-lg-6 col-md-6 col-3 text-nowrap  mb-2">
-                                        {(userAccessData.Admin_Engagement_Latter_CanEdit ||
-                                          userAccessData.Admin_Engagement_Latter_CanView) && (
-                                          <div className="d-flex justify-content-sm-end add-new-btn">
-                                            {activeTab === "NewEL" &&
-                                              userAccessData.Admin_Engagement_Latter_CanAdd && (
-                                                <CommonButtonComponent
-                                                  title={getCrudButtonToolTipName(
-                                                    "Add",
-                                                    EngagementName,
-                                                  )}
-                                                  name={getCrudButtonTextName(
-                                                    "Add",
-                                                    EngagementName,
-                                                  )}
-                                                  AddBtn={() => new_letter()}
-                                                />
-                                              )}{" "}
-                                          </div>
-                                        )}
-                                        {(userAccessData.Admin_Engagement_Latter_CanEdit ||
-                                          userAccessData.Admin_Engagement_Latter_CanView) && (
-                                          <div className="d-flex justify-content-sm-end add-new-btn">
-                                            {activeTab === "WebEL" &&
-                                              userAccessData.Admin_Engagement_Latter_CanAdd && (
-                                                <CommonButtonComponent
-                                                  title={getCrudButtonToolTipName(
-                                                    "Add",
-                                                    EngagementName,
-                                                  )}
-                                                  name={getCrudButtonTextName(
-                                                    "Add",
-                                                    EngagementName,
-                                                  )}
-                                                  AddBtn={() => new_letter()}
-                                                />
-                                              )}{" "}
-                                          </div>
-                                        )}
-                                      </div>
+                                      
                                     </div>
 
                                     {/* Table Of Template and Template Pdf */}
@@ -2948,6 +2933,9 @@ const Engagement_Letter = () => {
                                               </td>
                                               <td className="tr-table-class text-white">
                                                 Documents
+                                              </td>
+                                              <td className="tr-table-class text-white">
+                                                Action
                                               </td>
 
                                               {/* <td className="tr-table-class text-white">

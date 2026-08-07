@@ -659,7 +659,7 @@ const NewDashboard = () => {
             setLoader(false);
           }
           if (response?.data?.responseData?.currencyID) {
-            dispatch(updateState({ currency: response?.data?.responseData?.currencyID }));
+            dispatch(updateState({ currency: getCurrencySymbol(response?.data?.responseData?.currencyID) }));
             const currency = response?.data?.responseData?.currencyID;
             setCurrencyID(currency);
           } else {
@@ -1010,6 +1010,8 @@ const NewDashboard = () => {
               professionTypeLists: organisationData.professionTypeLists,
               organisationCount: OrganisationListData.length,
               enableEL: organisationData.enableEL,
+              currencyID: organisationData.currencyID,
+              currency: getCurrencySymbol(organisationData.currencyID),
             }),
           );
         }
