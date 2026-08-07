@@ -1,5 +1,5 @@
 /* global $ */
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import CommonButtonComponent from "../../components/CommonButtonComponent";
 import { useNavigate, useLocation } from "react-router-dom";
 import FormGroup from "@mui/material/FormGroup";
@@ -102,9 +102,11 @@ const Engagement_Letter = () => {
   const [oldElListCount, setOldElListCount] = useState(0);
   const [SingleElListCount, setSingleElListCount] = useState(0);
   const [openEmailFailurePopUp, setOpenEmailFailurePopUp] = useState(false);
+  const [hasWebElData, setHasWebElData] = useState(false);
   const [emailCheckModel, setEmailCheckModel] = useState({
     MethodName: "",
   });
+  const hasCheckedWebEl = useRef(false);
 
   const {
     EngagementName,
@@ -419,13 +421,18 @@ const Engagement_Letter = () => {
               if (newPaneNo > 1) {
                 newPaneNo = newPaneNo - 1;
               }
-              GetEngagementListForSingleApiData(newPaneNo, searchKeywordValue);
+              GetEngagementListForSingleApiData(newPaneNo, SingleElSearchKeyword);
               setSingleElCurrentPage(pageNoList);
               return;
             }
             setSingleElListCount(totalCount);
             setSingleEngagementList(engagementList);
             setTotalSingleRecords(engagementList.length);
+
+            if (!hasCheckedWebEl.current) {
+              hasCheckedWebEl.current = true;
+              setHasWebElData(engagementList.length > 0);
+            }
           }
         } else {
           if (getEngagementListApiCallCount < maxCountToRecallApi) {
@@ -758,12 +765,12 @@ const Engagement_Letter = () => {
   };
   //single api Search finction
   const handleSearchSingleEl = (e) => {
-    const searchKeywordValue = e.target.value;
-    setSearchSingleELKeyword(searchKeywordValue);
+    const searchSingleKeywordValue = e.target.value;
+    setSearchSingleELKeyword(searchSingleKeywordValue);
     setSingleElCurrentPage(ElCurrentPage);
     GetEngagementListForSingleApiData(
       ElCurrentPage,
-      searchKeywordValue,
+      searchSingleKeywordValue,
       null,
       null,
       null,
@@ -991,12 +998,15 @@ const Engagement_Letter = () => {
     if (tab === "OldEL") {
       GetOldEngagementListData(1);
       setActiveTab(tab);
+      setSearchKeyword("");
     } else if (tab === "WebEL") {
       setActiveTab(tab);
-      GetEngagementListForSingleApiData(1);
+      setSearchSingleELKeyword("");
+      GetEngagementListForSingleApiData(1,"",null,null,null);
     } else {
       GetEngagementListData(1);
       setActiveTab(tab);
+      setSearchOldELKeyword("");
     }
   };
   const handleDownload = async (engagement) => {
@@ -1400,7 +1410,7 @@ const Engagement_Letter = () => {
                                 </a>
                               </li>
 
-                              {SingleEngagementList?.length > 0 && (
+                              {(SingleEngagementList?.length > 0 || activeTab === "WebEL" || hasWebElData) && (
                                 <li className="nav-item">
                                   <a
                                     className={`nav-link tab_nav ${
@@ -1416,7 +1426,7 @@ const Engagement_Letter = () => {
                                   </a>
                                 </li>
                               )}
-                              {OldEngagementList?.length > 0 && (
+                              {(OldEngagementList?.length > 0 || activeTab === "OldEL") && (
                                 <li className="nav-item">
                                   <a
                                     className={`nav-link tab_nav ${
@@ -1732,7 +1742,7 @@ const Engagement_Letter = () => {
                                       className={`tab-pane ${
                                         activeTab === "OldEL" ? "active" : ""
                                       }`}
-                                      id="base-justified-home"
+                                      id="OldEL"
                                     >
                                       {activeTab === "OldEL" && (
                                         <table
@@ -2901,7 +2911,7 @@ const Engagement_Letter = () => {
                                       className={`tab-pane ${
                                         activeTab === "WebEL" ? "active" : ""
                                       }`}
-                                      id="base-justified-home"
+                                      id="WebEL"
                                     >
                                       {activeTab === "WebEL" && (
                                         <table

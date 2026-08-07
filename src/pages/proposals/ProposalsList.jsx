@@ -1,5 +1,5 @@
 /* global $ */
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import CommonButtonComponent from "../../components/CommonButtonComponent";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./Proposals.css";
@@ -115,6 +115,8 @@ const Proposals = () => {
   const [oldProposalListCount, setOldProposalListCount] = useState(0);
   const [SingleProposalListCount, setSingleProposalListCount] = useState(0);
   const [openErrorModal, setOpenErrorModal] = useState(false);
+  const [hasWebPLData, setHasWebPLData] = useState(false);
+  const hasCheckedWebPL = useRef(false);
   const navigate = useNavigate();
   const {
     setTopbar,
@@ -631,6 +633,11 @@ const Proposals = () => {
             setSingleProposalListCount(totalCount);
             setSingleProposalList(ProposalListData);
             setSingleTotalRecords(ProposalListData.length);
+
+            if (!hasCheckedWebPL.current) {
+              hasCheckedWebPL.current = true;
+              setHasWebPLData(ProposalListData.length > 0);
+            }
           }
         } else {
           if (getTemplateListApiCallCount < maxCountToRecallApi) {
@@ -743,10 +750,12 @@ const Proposals = () => {
     } else if (tab === "Proposal") {
       setActiveTab(tab);
       GetProposalListData(1);
+      setSearchSingleProposalKeyword("");
     } else {
       setActiveTab(tab);
       // GetProposalListData(1)
       GetProposalListSingleApiData(1);
+      setSearchKeyword("");
     }
   };
 
@@ -1459,7 +1468,7 @@ const Proposals = () => {
                                   </a>
                                 </li>
                               )}
-                              {SingleProposalList?.length > 0 && (
+                              {(hasWebPLData || SingleProposalList?.length > 0) && (
                                 <li className="nav-item">
                                   <a
                                     className={`nav-link tab_nav ${
