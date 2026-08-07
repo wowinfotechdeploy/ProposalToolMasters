@@ -2948,7 +2948,7 @@ const View_Engagement_Latter = () => {
                                                   )}
 
                                                   {visibleFieldsCustomTemp?.fees && (
-                                                    <td className="tr-table-class font-14 text-white text-right">
+                                                    <td className="tr-table-class font-14 text-white text-center">
                                                       {formatValue(
                                                         oneOffFooterNetFees,
                                                         EngagementObj.currencyID,
@@ -3001,7 +3001,7 @@ const View_Engagement_Latter = () => {
                                                       )}
 
                                                       {visibleFieldsCustomTemp?.fees && (
-                                                        <td className="tr-table-class font-14 text-white text-right">
+                                                        <td className="tr-table-class font-14 text-white text-center">
                                                           (-){" "}
                                                           {formatValue(
                                                             oneOffDiscountAmount,
