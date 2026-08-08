@@ -2274,6 +2274,8 @@ const ReviewServicesComponent = (props) => {
 
     // Calculate price based on payment frequency
 
+    debugger;
+
     let calculatedOriginalPriceFromServices = 0;
     if (e.value === Payment_Frequency.Yearly) {
       props.setProposalObject((prevState) => ({
@@ -2305,7 +2307,8 @@ const ReviewServicesComponent = (props) => {
         });
       });
       DiscountedPrice = calculatedOriginalPriceFromServices;
-      if (props.RecurringPricingInfo.DefaultDiscount > 0) {
+
+      if (Number(props.RecurringPricingInfo.DefaultDiscount) !== 0) {
         DiscountedPrice =
           lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice;
       }
@@ -2341,7 +2344,8 @@ const ReviewServicesComponent = (props) => {
         });
       });
       DiscountedPrice = calculatedOriginalPriceFromServices;
-      if (props.RecurringPricingInfo.DefaultDiscount > 0) {
+
+      if (Number(props.RecurringPricingInfo.DefaultDiscount) !== 0) {
         DiscountedPrice =
           lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 2;
       }
@@ -2376,7 +2380,8 @@ const ReviewServicesComponent = (props) => {
         });
       });
       DiscountedPrice = calculatedOriginalPriceFromServices;
-      if (props.RecurringPricingInfo.DefaultDiscount > 0) {
+
+      if (Number(props.RecurringPricingInfo.DefaultDiscount) !== 0) {
         DiscountedPrice =
           lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 4;
       }
@@ -2411,7 +2416,8 @@ const ReviewServicesComponent = (props) => {
         });
       });
       DiscountedPrice = calculatedOriginalPriceFromServices;
-      if (props.RecurringPricingInfo.DefaultDiscount > 0) {
+
+      if (Number(props.RecurringPricingInfo.DefaultDiscount) !== 0) {
         DiscountedPrice =
           lastPaymentFrequencyAndDiscountedPrice.ChangeableYearlyPrice / 12;
       }
@@ -3650,7 +3656,13 @@ const ReviewServicesComponent = (props) => {
 
   const customRecurringFooter = calculateCustomRecurringFooter({
     serviceGroups: props.selectedRecurringServiceList,
+
+    originalPrice: props.RecurringPricingInfo.OriginalPrice,
+
     discountedPrice: props.RecurringPricingInfo.DiscountedPrice,
+
+    discountPercentage: props.RecurringPricingInfo.DefaultDiscount,
+
     fallbackVatPercentage: props.vatPercentage,
   });
 
@@ -3661,13 +3673,16 @@ const ReviewServicesComponent = (props) => {
   ].filter(Boolean).length;
 
   const showCustomDiscount =
-    customRecurringFooter.discountFees > 0 &&
-    props.ProposalObject.DiscountLines;
+    customRecurringFooter.hasDiscount && props.ProposalObject.DiscountLines;
 
   const customOneOffFooter = calculateCustomOneOffFooter({
     serviceGroups: props.selectedOneOffServiceList || [],
 
+    originalPrice: props.OneOffPricingInfo.OriginalPrice,
+
     discountedPrice: props.OneOffPricingInfo.DiscountedPrice,
+
+    discountPercentage: props.OneOffPricingInfo.DefaultDiscount,
 
     fallbackVatPercentage:
       props.vatPercentageOneOff ?? props.vatPercentage ?? 0,
@@ -4555,7 +4570,7 @@ const ReviewServicesComponent = (props) => {
                               {props.visibleFieldsCustomTemp.fees && (
                                 <td className="tr-table-class text-white text-center">
                                   {props.formatValue(
-                                    customRecurringFooter.netFees,
+                                    customRecurringFooter.displayNetFees,
                                     props.currencyID,
                                   )}
                                 </td>
@@ -4570,7 +4585,7 @@ const ReviewServicesComponent = (props) => {
                                 props.visibleFieldsCustomTemp.vat && (
                                   <td className="tr-table-class text-white text-center">
                                     {props.formatValue(
-                                      customRecurringFooter.netVat,
+                                      customRecurringFooter.displayNetVat,
                                       props.currencyID,
                                     )}
                                   </td>
@@ -4580,7 +4595,7 @@ const ReviewServicesComponent = (props) => {
                                 props.visibleFieldsCustomTemp.feesIncVat && (
                                   <td className="tr-table-class text-white text-center">
                                     {props.formatValue(
-                                      customRecurringFooter.netFeesIncVat,
+                                      customRecurringFooter.displayNetFeesIncVat,
                                       props.currencyID,
                                     )}
                                   </td>
@@ -5441,7 +5456,7 @@ const ReviewServicesComponent = (props) => {
                               {props.visibleFieldsCustomTemp.fees && (
                                 <td className="tr-table-class text-white text-center">
                                   {props.formatValue(
-                                    customOneOffFooter.netFees,
+                                    customOneOffFooter.displayNetFees,
                                     props.currencyID,
                                   )}
                                 </td>
@@ -5456,7 +5471,7 @@ const ReviewServicesComponent = (props) => {
                                 props.visibleFieldsCustomTemp.vat && (
                                   <td className="tr-table-class text-white text-center">
                                     {props.formatValue(
-                                      customOneOffFooter.netVat,
+                                      customOneOffFooter.displayNetVat,
                                       props.currencyID,
                                     )}
                                   </td>
@@ -5466,7 +5481,7 @@ const ReviewServicesComponent = (props) => {
                                 props.visibleFieldsCustomTemp.feesIncVat && (
                                   <td className="tr-table-class text-white text-center">
                                     {props.formatValue(
-                                      customOneOffFooter.netFeesIncVat,
+                                      customOneOffFooter.displayNetFeesIncVat,
                                       props.currencyID,
                                     )}
                                   </td>

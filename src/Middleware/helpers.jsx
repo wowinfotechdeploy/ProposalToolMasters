@@ -79,8 +79,10 @@ export const calculateVatCents = (amountCents, vatPercentage) => {
  * discounted fees across the service rows. This also supports different
  * VAT percentages for individual services.
  */
+
 export const calculateCustomRecurringFooter = ({
   serviceGroups = [],
+  originalPrice = null,
   discountedPrice = null,
   discountPercentage = null,
   discountAmount = null,
@@ -146,11 +148,45 @@ export const calculateCustomRecurringFooter = ({
    */
   let discountedFeesExact = netFeesExact;
 
-  if (hasCalculationValue(discountedPrice)) {
+  const discountPercentageExact = hasCalculationValue(discountPercentage)
+    ? decimalValue(discountPercentage)
+    : new Decimal(0);
+
+  const isNegativeDiscount = discountPercentageExact.lessThan(0);
+
+  /*
+   * IMPORTANT:
+   *
+   * For a negative discount, always recalculate from the CURRENT
+   * payment-frequency OriginalPrice.
+   *
+   * Example:
+   *
+   * Half Yearly:
+   * OriginalPrice = 350
+   * Discount = -100
+   * Final = 700
+   *
+   * Change to Yearly:
+   * OriginalPrice = 700
+   * Discount remains -100
+   * Final = 1400
+   */
+  if (isNegativeDiscount && hasCalculationValue(originalPrice)) {
+    const currentFrequencyOriginalPriceExact = decimalValue(originalPrice);
+
+    const discountFactorExact = new Decimal(1).minus(
+      discountPercentageExact.div(100),
+    );
+
+    discountedFeesExact =
+      currentFrequencyOriginalPriceExact.mul(discountFactorExact);
+  } else if (hasCalculationValue(discountedPrice)) {
+    /*
+     * Keep existing positive-discount/default flow unchanged.
+     */
     discountedFeesExact = decimalValue(discountedPrice);
   } else if (hasCalculationValue(discountPercentage)) {
-    const discountPercentageExact = decimalValue(discountPercentage);
-
     const discountFactorExact = new Decimal(1).minus(
       discountPercentageExact.div(100),
     );
@@ -176,7 +212,12 @@ export const calculateCustomRecurringFooter = ({
   /*
    * Discount amounts.
    */
-  const discountFeesExact = netFeesExact.minus(discountedFeesExact);
+  const footerBaseFeesExact =
+    isNegativeDiscount && hasCalculationValue(originalPrice)
+      ? decimalValue(originalPrice)
+      : netFeesExact;
+
+  const discountFeesExact = footerBaseFeesExact.minus(discountedFeesExact);
 
   const discountVatExact = netVatExact.minus(discountedVatExact);
 
@@ -184,8 +225,11 @@ export const calculateCustomRecurringFooter = ({
     discountedFeesIncVatExact,
   );
 
+  const hasDiscount = discountFeesExact.greaterThan(0);
+  const hasPriceIncrease = discountFeesExact.lessThan(0);
+
   return {
-    // Net Total
+    // Original Net Total
     netFees: truncateMoney(netFeesExact),
     netVat: truncateMoney(netVatExact),
     netFeesIncVat: truncateMoney(netFeesIncVatExact),
@@ -195,19 +239,42 @@ export const calculateCustomRecurringFooter = ({
     discountVat: truncateMoney(discountVatExact),
     discountFeesIncVat: truncateMoney(discountFeesIncVatExact),
 
-    // Grand Total / Discounted Total
+    // Discounted / Increased values
     discountedFees: truncateMoney(discountedFeesExact),
     discountedVat: truncateMoney(discountedVatExact),
     discountedFeesIncVat: truncateMoney(discountedFeesIncVatExact),
 
-    hasDiscount: discountFeesExact.greaterThan(0),
-    hasPriceIncrease: discountFeesExact.lessThan(0),
+    hasDiscount,
+    hasPriceIncrease,
+
+    /*
+     * Default recurring table behaviour:
+     *
+     * Positive discount:
+     * Net Total = original amount
+     *
+     * Negative discount / price increase:
+     * Net Total = increased discounted amount
+     */
+    displayNetFees: truncateMoney(
+      hasPriceIncrease ? discountedFeesExact : netFeesExact,
+    ),
+
+    displayNetVat: truncateMoney(
+      hasPriceIncrease ? discountedVatExact : netVatExact,
+    ),
+
+    displayNetFeesIncVat: truncateMoney(
+      hasPriceIncrease ? discountedFeesIncVatExact : netFeesIncVatExact,
+    ),
   };
 };
 
 export const calculateCustomOneOffFooter = ({
   serviceGroups = [],
-  discountedPrice = 0,
+  originalPrice = null,
+  discountedPrice = null,
+  discountPercentage = null,
   fallbackVatPercentage = 0,
 }) => {
   const rows = serviceGroups.flatMap((category) =>
@@ -223,7 +290,11 @@ export const calculateCustomOneOffFooter = ({
       const feesExact = decimalValue(rawFeesValue);
 
       const vatRateExact = decimalValue(
-        service.service_vat_percentage ?? fallbackVatPercentage,
+        service?.service_vat_percentage ??
+          service?.serviceVatPercentage ??
+          service?.vatPercentage ??
+          fallbackVatPercentage ??
+          0,
       );
 
       const vatExact = feesExact.mul(vatRateExact).div(100);
@@ -236,8 +307,7 @@ export const calculateCustomOneOffFooter = ({
   );
 
   /*
-   * Constant net values.
-   * These values only change when the service list changes.
+   * Original values calculated from service rows.
    */
   const netFeesExact = rows.reduce(
     (total, row) => total.plus(row.feesExact),
@@ -252,12 +322,36 @@ export const calculateCustomOneOffFooter = ({
   const netFeesIncVatExact = netFeesExact.plus(netVatExact);
 
   /*
-   * Changeable discounted values.
+   * Determine whether this is a negative discount.
    */
-  const discountedFeesExact = decimalValue(discountedPrice);
+  const discountPercentageExact = hasCalculationValue(discountPercentage)
+    ? decimalValue(discountPercentage)
+    : new Decimal(0);
+
+  const isNegativeDiscount = discountPercentageExact.lessThan(0);
 
   /*
-   * Supports both common and service-wise VAT rates.
+   * Resolve final fees.
+   *
+   * For negative discount, calculate from OriginalPrice just like
+   * the working recurring custom table.
+   */
+  let discountedFeesExact = netFeesExact;
+
+  if (isNegativeDiscount && hasCalculationValue(originalPrice)) {
+    const originalPriceExact = decimalValue(originalPrice);
+
+    const discountFactorExact = new Decimal(1).minus(
+      discountPercentageExact.div(100),
+    );
+
+    discountedFeesExact = originalPriceExact.mul(discountFactorExact);
+  } else if (hasCalculationValue(discountedPrice)) {
+    discountedFeesExact = decimalValue(discountedPrice);
+  }
+
+  /*
+   * Keep support for individual VAT rates.
    */
   const effectiveVatRatio = netFeesExact.isZero()
     ? new Decimal(0)
@@ -269,10 +363,14 @@ export const calculateCustomOneOffFooter = ({
     discountedFeesExact.plus(discountedVatExact);
 
   /*
-   * Calculate discounts from exact values.
-   * Never subtract displayed or already-truncated values.
+   * Use OriginalPrice as the comparison base for negative discounts.
    */
-  const discountFeesExact = netFeesExact.minus(discountedFeesExact);
+  const footerBaseFeesExact =
+    isNegativeDiscount && hasCalculationValue(originalPrice)
+      ? decimalValue(originalPrice)
+      : netFeesExact;
+
+  const discountFeesExact = footerBaseFeesExact.minus(discountedFeesExact);
 
   const discountVatExact = netVatExact.minus(discountedVatExact);
 
@@ -280,24 +378,51 @@ export const calculateCustomOneOffFooter = ({
     discountedFeesIncVatExact,
   );
 
+  const hasDiscount = discountFeesExact.greaterThan(0);
+
+  const hasPriceIncrease = discountFeesExact.lessThan(0);
+
   return {
-    // Net Total row
+    // Original Net Total
     netFees: truncateMoney(netFeesExact),
     netVat: truncateMoney(netVatExact),
     netFeesIncVat: truncateMoney(netFeesIncVatExact),
 
-    // Discount row
+    // Discount
     discountFees: truncateMoney(discountFeesExact),
     discountVat: truncateMoney(discountVatExact),
     discountFeesIncVat: truncateMoney(discountFeesIncVatExact),
 
-    // Grand Total row
+    // Discounted / Increased values
     discountedFees: truncateMoney(discountedFeesExact),
+
     discountedVat: truncateMoney(discountedVatExact),
+
     discountedFeesIncVat: truncateMoney(discountedFeesIncVatExact),
 
-    hasDiscount: discountFeesExact.greaterThan(0),
-    hasPriceIncrease: discountFeesExact.lessThan(0),
+    hasDiscount,
+    hasPriceIncrease,
+
+    /*
+     * Same behaviour as recurring custom table:
+     *
+     * Positive discount:
+     * display original Net Total.
+     *
+     * Negative discount:
+     * display increased amount directly as Net Total.
+     */
+    displayNetFees: truncateMoney(
+      hasPriceIncrease ? discountedFeesExact : netFeesExact,
+    ),
+
+    displayNetVat: truncateMoney(
+      hasPriceIncrease ? discountedVatExact : netVatExact,
+    ),
+
+    displayNetFeesIncVat: truncateMoney(
+      hasPriceIncrease ? discountedFeesIncVatExact : netFeesIncVatExact,
+    ),
   };
 };
 
@@ -906,6 +1031,9 @@ export const calculateCustomServiceFooter = ({
   const feesIncVatDiscountExact =
     netFeesIncVatExact.minus(finalFeesIncVatExact);
 
+  const hasPositiveDiscount = discountExact.greaterThan(0);
+  const hasPriceIncrease = discountExact.lessThan(0);
+
   return {
     net: truncateMoney(netFeesExact),
     vat: truncateMoney(netVatExact),
@@ -919,8 +1047,16 @@ export const calculateCustomServiceFooter = ({
     finalVat: truncateMoney(finalVatExact),
     finalFeesIncVat: truncateMoney(finalFeesIncVatExact),
 
-    hasPositiveDiscount: discountExact.greaterThan(0),
+    hasPositiveDiscount,
+    hasPriceIncrease,
 
-    hasPriceIncrease: discountExact.lessThan(0),
+    // Values to use in the Net Total row
+    displayNet: truncateMoney(hasPriceIncrease ? finalNetExact : netFeesExact),
+
+    displayVat: truncateMoney(hasPriceIncrease ? finalVatExact : netVatExact),
+
+    displayFeesIncVat: truncateMoney(
+      hasPriceIncrease ? finalFeesIncVatExact : netFeesIncVatExact,
+    ),
   };
 };

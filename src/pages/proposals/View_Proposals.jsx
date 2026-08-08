@@ -1441,7 +1441,8 @@ const View_Proposals = () => {
   const calculateRecurringFooterTotals = ({
     serviceCategories = [],
     fallbackVatRate = 0,
-    discountAmount = 0,
+    discountPercentage = null,
+    discountAmount = null,
   }) => {
     const recurringLines = [];
 
@@ -1456,8 +1457,7 @@ const View_Proposals = () => {
         const vatRate = getServiceVatRate(service, fallbackVatRate);
 
         /*
-         * Round VAT per service before adding it to the footer.
-         * This matches the totals returned by the current API.
+         * Keep the existing service-level VAT rounding.
          */
         const vatAmount = roundCurrency((netAmount * vatRate) / 100);
 
@@ -1487,28 +1487,76 @@ const View_Proposals = () => {
       ),
     );
 
-    const validDiscountAmount = roundCurrency(
-      Math.min(Math.max(toNumber(discountAmount), 0), originalNetTotal),
-    );
-
     /*
-     * Calculate the effective VAT ratio from all recurring services.
-     * This also supports different VAT rates across services.
+     * Effective VAT ratio supports service-wise VAT rates.
      */
     const effectiveVatRatio =
       originalNetTotal > 0 ? originalVatTotal / originalNetTotal : 0;
 
-    const vatDiscount = roundCurrency(validDiscountAmount * effectiveVatRatio);
+    const hasDiscountPercentage =
+      discountPercentage !== null &&
+      discountPercentage !== undefined &&
+      discountPercentage !== "";
 
-    const discountIncludingVat = roundCurrency(
-      validDiscountAmount + vatDiscount,
+    let finalNetTotal = originalNetTotal;
+
+    if (hasDiscountPercentage) {
+      /*
+       * Percentage is the primary source.
+       *
+       * Positive:
+       *  10% => factor 0.90
+       *
+       * Negative:
+       * -100% => factor 2.00
+       */
+      const percentage = toNumber(discountPercentage);
+
+      const discountFactor = 1 - percentage / 100;
+
+      finalNetTotal = roundCurrency(originalNetTotal * discountFactor);
+    } else if (
+      discountAmount !== null &&
+      discountAmount !== undefined &&
+      discountAmount !== ""
+    ) {
+      /*
+       * Compatibility fallback for older proposals.
+       *
+       * Do not clamp the amount to >= 0 because a negative
+       * amount represents a price increase.
+       */
+      finalNetTotal = roundCurrency(
+        originalNetTotal - toNumber(discountAmount),
+      );
+    }
+
+    /*
+     * Difference between original and final.
+     *
+     * Positive value = normal discount.
+     * Negative value = price increase.
+     */
+    const calculatedDiscountAmount = roundCurrency(
+      originalNetTotal - finalNetTotal,
     );
 
-    const finalNetTotal = roundCurrency(originalNetTotal - validDiscountAmount);
+    const hasPositiveDiscount = calculatedDiscountAmount > 0;
 
-    const finalVatTotal = roundCurrency(originalVatTotal - vatDiscount);
+    const hasPriceIncrease = calculatedDiscountAmount < 0;
+
+    /*
+     * VAT should follow the same effective ratio.
+     */
+    const finalVatTotal = roundCurrency(finalNetTotal * effectiveVatRatio);
 
     const grandTotalIncludingVat = roundCurrency(finalNetTotal + finalVatTotal);
+
+    const vatDiscount = roundCurrency(originalVatTotal - finalVatTotal);
+
+    const discountIncludingVat = roundCurrency(
+      calculatedDiscountAmount + vatDiscount,
+    );
 
     return {
       lines: recurringLines,
@@ -1517,13 +1565,33 @@ const View_Proposals = () => {
       originalVatTotal,
       originalTotalIncludingVat,
 
-      discountAmount: validDiscountAmount,
+      /*
+       * Keep existing property names for the table.
+       */
+      discountAmount: calculatedDiscountAmount,
       vatDiscount,
       discountIncludingVat,
 
       finalNetTotal,
       finalVatTotal,
       grandTotalIncludingVat,
+
+      hasPositiveDiscount,
+      hasPriceIncrease,
+
+      /*
+       * Net Total display values.
+       *
+       * Negative discount behaves like the other custom tables:
+       * show the increased final amount directly as Net Total.
+       */
+      displayNetTotal: hasPriceIncrease ? finalNetTotal : originalNetTotal,
+
+      displayVatTotal: hasPriceIncrease ? finalVatTotal : originalVatTotal,
+
+      displayTotalIncludingVat: hasPriceIncrease
+        ? grandTotalIncludingVat
+        : originalTotalIncludingVat,
     };
   };
 
@@ -1531,10 +1599,18 @@ const View_Proposals = () => {
     recurringFinalAmount?.vatPercentage || 0,
   );
 
+  const recurringDiscountPercentage =
+    RecurringFrequencyPricingInfo?.DefaultDiscount ??
+    RecurringPricingInfo?.DefaultDiscount ??
+    null;
+
   const recurringFooterTotals = calculateRecurringFooterTotals({
     serviceCategories: selectedRecurringServiceList || [],
     fallbackVatRate: recurringFallbackVatRate,
-    discountAmount: RecurringPricingInfo?.Discount || 0,
+    discountPercentage: recurringDiscountPercentage,
+
+    // Fallback for older proposals
+    discountAmount: RecurringPricingInfo?.Discount ?? null,
   });
 
   const hasRecurringDiscount = recurringFooterTotals.discountAmount > 0;
@@ -1614,7 +1690,8 @@ const View_Proposals = () => {
   const calculateOneOffFooterTotals = ({
     serviceCategories = [],
     fallbackVatRate = 0,
-    discountAmount = 0,
+    discountPercentage = null,
+    discountAmount = null,
   }) => {
     const lines = [];
 
@@ -1645,27 +1722,69 @@ const View_Proposals = () => {
       lines.reduce((total, line) => total + line.feesIncludingVat, 0),
     );
 
-    const validDiscountAmount = roundCurrency(
-      Math.min(Math.max(toNumber(discountAmount), 0), originalNetTotal),
-    );
-
     /*
      * Supports multiple VAT rates across services.
      */
     const effectiveVatRatio =
       originalNetTotal > 0 ? originalVatTotal / originalNetTotal : 0;
 
-    const vatDiscount = roundCurrency(validDiscountAmount * effectiveVatRatio);
+    const hasDiscountPercentage =
+      discountPercentage !== null &&
+      discountPercentage !== undefined &&
+      discountPercentage !== "";
 
-    const discountIncludingVat = roundCurrency(
-      validDiscountAmount + vatDiscount,
+    let finalNetTotal = originalNetTotal;
+
+    if (hasDiscountPercentage) {
+      /*
+       * Positive discount:
+       * 10% => factor = 0.90
+       *
+       * Negative discount:
+       * -100% => factor = 2.00
+       */
+      const percentage = toNumber(discountPercentage);
+
+      const discountFactor = 1 - percentage / 100;
+
+      finalNetTotal = roundCurrency(originalNetTotal * discountFactor);
+    } else if (
+      discountAmount !== null &&
+      discountAmount !== undefined &&
+      discountAmount !== ""
+    ) {
+      /*
+       * Compatibility fallback for older proposals.
+       */
+      finalNetTotal = roundCurrency(
+        originalNetTotal - toNumber(discountAmount),
+      );
+    }
+
+    /*
+     * Positive = normal discount
+     * Negative = price increase
+     */
+    const calculatedDiscountAmount = roundCurrency(
+      originalNetTotal - finalNetTotal,
     );
 
-    const finalNetTotal = roundCurrency(originalNetTotal - validDiscountAmount);
+    const hasPositiveDiscount = calculatedDiscountAmount > 0;
 
-    const finalVatTotal = roundCurrency(originalVatTotal - vatDiscount);
+    const hasPriceIncrease = calculatedDiscountAmount < 0;
+
+    /*
+     * VAT follows the same effective ratio.
+     */
+    const finalVatTotal = roundCurrency(finalNetTotal * effectiveVatRatio);
 
     const grandTotalIncludingVat = roundCurrency(finalNetTotal + finalVatTotal);
+
+    const vatDiscount = roundCurrency(originalVatTotal - finalVatTotal);
+
+    const discountIncludingVat = roundCurrency(
+      calculatedDiscountAmount + vatDiscount,
+    );
 
     return {
       lines,
@@ -1674,13 +1793,28 @@ const View_Proposals = () => {
       originalVatTotal,
       originalFeesIncludingVat,
 
-      discountAmount: validDiscountAmount,
+      discountAmount: calculatedDiscountAmount,
+
       vatDiscount,
       discountIncludingVat,
 
       finalNetTotal,
       finalVatTotal,
       grandTotalIncludingVat,
+
+      hasPositiveDiscount,
+      hasPriceIncrease,
+
+      /*
+       * Display values for Net Total row.
+       */
+      displayNetTotal: hasPriceIncrease ? finalNetTotal : originalNetTotal,
+
+      displayVatTotal: hasPriceIncrease ? finalVatTotal : originalVatTotal,
+
+      displayFeesIncludingVat: hasPriceIncrease
+        ? grandTotalIncludingVat
+        : originalFeesIncludingVat,
     };
   };
 
@@ -1692,10 +1826,20 @@ const View_Proposals = () => {
 
   const oneOffFallbackVatRate = toNumber(oneOffFinalAmount?.vatPercentage);
 
+  const oneOffDiscountPercentage =
+    OneOffPricingInfoCopy?.DefaultDiscount ??
+    OneOffPricingInfo?.DefaultDiscount ??
+    null;
+
   const oneOffFooterTotals = calculateOneOffFooterTotals({
-    serviceCategories: selectedOneOffServiceList,
+    serviceCategories: selectedOneOffServiceList || [],
+
     fallbackVatRate: oneOffFallbackVatRate,
-    discountAmount: OneOffPricingInfo?.Discount || 0,
+
+    discountPercentage: oneOffDiscountPercentage,
+
+    // Fallback for older proposals
+    discountAmount: OneOffPricingInfo?.Discount ?? null,
   });
 
   const oneOffFeesInQuoteID = Number(ProposalObject?.feesInQuoteID || 1);
@@ -6625,9 +6769,11 @@ const View_Proposals = () => {
                                                     {visibleFieldsCustomTemp?.fees && (
                                                       <td className="tr-table-class text-white text-center">
                                                         {formatValue(
-                                                          showRecurringDiscountLine
-                                                            ? recurringFooterTotals.originalNetTotal
-                                                            : recurringFooterTotals.finalNetTotal,
+                                                          recurringFooterTotals.hasPriceIncrease
+                                                            ? recurringFooterTotals.finalNetTotal
+                                                            : showRecurringDiscountLine
+                                                              ? recurringFooterTotals.originalNetTotal
+                                                              : recurringFooterTotals.finalNetTotal,
                                                         )}
                                                       </td>
                                                     )}
@@ -6641,9 +6787,11 @@ const View_Proposals = () => {
                                                       visibleFieldsCustomTemp?.vat && (
                                                         <td className="tr-table-class text-white text-center">
                                                           {formatValue(
-                                                            showRecurringDiscountLine
-                                                              ? recurringFooterTotals.originalVatTotal
-                                                              : recurringFooterTotals.finalVatTotal,
+                                                            recurringFooterTotals.hasPriceIncrease
+                                                              ? recurringFooterTotals.finalVatTotal
+                                                              : showRecurringDiscountLine
+                                                                ? recurringFooterTotals.originalVatTotal
+                                                                : recurringFooterTotals.finalVatTotal,
                                                           )}
                                                         </td>
                                                       )}
@@ -6652,9 +6800,11 @@ const View_Proposals = () => {
                                                       visibleFieldsCustomTemp?.feesIncVat && (
                                                         <td className="tr-table-class text-white text-center">
                                                           {formatValue(
-                                                            showRecurringDiscountLine
-                                                              ? recurringFooterTotals.originalTotalIncludingVat
-                                                              : recurringFooterTotals.grandTotalIncludingVat,
+                                                            recurringFooterTotals.hasPriceIncrease
+                                                              ? recurringFooterTotals.grandTotalIncludingVat
+                                                              : showRecurringDiscountLine
+                                                                ? recurringFooterTotals.originalTotalIncludingVat
+                                                                : recurringFooterTotals.grandTotalIncludingVat,
                                                           )}
                                                         </td>
                                                       )}
@@ -7334,9 +7484,11 @@ const View_Proposals = () => {
                                                     {visibleFieldsCustomTemp?.fees && (
                                                       <td className="tr-table-class text-white text-center">
                                                         {formatValue(
-                                                          showOneOffDiscountLine
-                                                            ? oneOffFooterTotals.originalNetTotal
-                                                            : oneOffFooterTotals.finalNetTotal,
+                                                          oneOffFooterTotals.hasPriceIncrease
+                                                            ? oneOffFooterTotals.finalNetTotal
+                                                            : showOneOffDiscountLine
+                                                              ? oneOffFooterTotals.originalNetTotal
+                                                              : oneOffFooterTotals.finalNetTotal,
                                                         )}
                                                       </td>
                                                     )}
@@ -7350,9 +7502,11 @@ const View_Proposals = () => {
                                                       visibleFieldsCustomTemp?.vat && (
                                                         <td className="tr-table-class text-white text-center">
                                                           {formatValue(
-                                                            showOneOffDiscountLine
-                                                              ? oneOffFooterTotals.originalVatTotal
-                                                              : oneOffFooterTotals.finalVatTotal,
+                                                            oneOffFooterTotals.hasPriceIncrease
+                                                              ? oneOffFooterTotals.finalVatTotal
+                                                              : showOneOffDiscountLine
+                                                                ? oneOffFooterTotals.originalVatTotal
+                                                                : oneOffFooterTotals.finalVatTotal,
                                                           )}
                                                         </td>
                                                       )}
@@ -7361,9 +7515,11 @@ const View_Proposals = () => {
                                                       visibleFieldsCustomTemp?.feesIncVat && (
                                                         <td className="tr-table-class text-white text-center">
                                                           {formatValue(
-                                                            showOneOffDiscountLine
-                                                              ? oneOffFooterTotals.originalFeesIncludingVat
-                                                              : oneOffFooterTotals.grandTotalIncludingVat,
+                                                            oneOffFooterTotals.hasPriceIncrease
+                                                              ? oneOffFooterTotals.grandTotalIncludingVat
+                                                              : showOneOffDiscountLine
+                                                                ? oneOffFooterTotals.originalFeesIncludingVat
+                                                                : oneOffFooterTotals.grandTotalIncludingVat,
                                                           )}
                                                         </td>
                                                       )}

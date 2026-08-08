@@ -1456,6 +1456,11 @@ export default function PreviewComponentPdf(props) {
     props.RecurringPricingInfo?.DefaultDiscount ??
     null;
 
+  const oneOffServiceDiscountPercentage =
+    props.OneOffPricingInfoCopy?.DefaultDiscount ??
+    props.OneOffPricingInfo?.DefaultDiscount ??
+    null;
+
   const customRecurringServiceFooter = calculateCustomServiceFooter({
     serviceGroups: props.selectedRecurringServiceList || [],
 
@@ -1480,16 +1485,17 @@ export default function PreviewComponentPdf(props) {
       props.visibleFieldsCustomTemp?.serviceScope,
     ].filter(Boolean).length || 1;
 
+  // const oneOffServiceDiscountPercentage =
+  // props.OneOffPricingInfoCopy?.DefaultDiscount ??
+  // props.OneOffPricingInfo?.DefaultDiscount ??
+  // null;
+
   const customOneOffServiceFooter = calculateCustomServiceFooter({
     serviceGroups: props.selectedOneOffServiceList || [],
 
-    /*
-     * The current OneOffPricingInfo provides an
-     * absolute discount amount.
-     *
-     * calculateCustomServiceFooter derives the
-     * exact proportional discount factor from it.
-     */
+    discountPercentage: oneOffServiceDiscountPercentage,
+
+    // Keep only as fallback for older proposals
     discountAmount: props.OneOffPricingInfo?.Discount ?? null,
 
     fallbackVatPercentage: props.vatPercentage || 0,
@@ -1876,7 +1882,7 @@ export default function PreviewComponentPdf(props) {
             >
               {props.formatValue(
                 props.ProposalObject?.DiscountLines
-                  ? customRecurringServiceFooter.net
+                  ? customRecurringServiceFooter.displayNet
                   : customRecurringServiceFooter.finalNet,
                 props.currencyID,
               )}
@@ -1905,7 +1911,7 @@ export default function PreviewComponentPdf(props) {
             >
               {props.formatValue(
                 props.ProposalObject?.DiscountLines
-                  ? customRecurringServiceFooter.vat
+                  ? customRecurringServiceFooter.displayVat
                   : customRecurringServiceFooter.finalVat,
                 props.currencyID,
               )}
@@ -1924,7 +1930,7 @@ export default function PreviewComponentPdf(props) {
               >
                 {props.formatValue(
                   props.ProposalObject?.DiscountLines
-                    ? customRecurringServiceFooter.feesIncVat
+                    ? customRecurringServiceFooter.displayFeesIncVat
                     : customRecurringServiceFooter.finalFeesIncVat,
                   props.currencyID,
                 )}
@@ -2445,7 +2451,7 @@ export default function PreviewComponentPdf(props) {
             >
               {props.formatValue(
                 props.ProposalObject?.DiscountLines
-                  ? customOneOffServiceFooter.net
+                  ? customOneOffServiceFooter.displayNet
                   : customOneOffServiceFooter.finalNet,
                 props.currencyID,
               )}
@@ -2474,7 +2480,7 @@ export default function PreviewComponentPdf(props) {
             >
               {props.formatValue(
                 props.ProposalObject?.DiscountLines
-                  ? customOneOffServiceFooter.vat
+                  ? customOneOffServiceFooter.displayVat
                   : customOneOffServiceFooter.finalVat,
                 props.currencyID,
               )}
@@ -2492,7 +2498,7 @@ export default function PreviewComponentPdf(props) {
             >
               {props.formatValue(
                 props.ProposalObject?.DiscountLines
-                  ? customOneOffServiceFooter.feesIncVat
+                  ? customOneOffServiceFooter.displayFeesIncVat
                   : customOneOffServiceFooter.finalFeesIncVat,
                 props.currencyID,
               )}
@@ -10764,7 +10770,7 @@ ${
   ${
     props.visibleFieldsCustomTemp.fees
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
-          ${props.formatValue(customRecurringFooter.netFees, props.currencyID)}
+          ${props.formatValue(customRecurringFooter.displayNetFees, props.currencyID)}
         </td>`
       : ""
   }
@@ -10776,7 +10782,7 @@ ${
   ${
     props.vatPercentage !== null && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
-          ${props.formatValue(customRecurringFooter.netVat, props.currencyID)}
+          ${props.formatValue(customRecurringFooter.displayNetVat, props.currencyID)}
         </td>`
       : ""
   }
@@ -10784,7 +10790,7 @@ ${
     props.vatPercentage !== null && props.visibleFieldsCustomTemp.feesIncVat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
           ${props.formatValue(
-            customRecurringFooter.netFeesIncVat,
+            customRecurringFooter.displayNetFeesIncVat,
             props.currencyID,
           )}
         </td>`
@@ -11406,7 +11412,7 @@ ${
             overflow-wrap: break-word;
           "
         >
-          ${props.formatValue(customOneOffFooter.netFees, props.currencyID)}
+          ${props.formatValue(customOneOffFooter.displayNetFees, props.currencyID)}
         </td>
       `
       : ""
@@ -11441,7 +11447,7 @@ ${
             overflow-wrap: break-word;
           "
         >
-          ${props.formatValue(customOneOffFooter.netVat, props.currencyID)}
+          ${props.formatValue(customOneOffFooter.displayNetVat, props.currencyID)}
         </td>
       `
       : ""
@@ -11462,7 +11468,7 @@ ${
           "
         >
           ${props.formatValue(
-            customOneOffFooter.netFeesIncVat,
+            customOneOffFooter.displayNetFeesIncVat,
             props.currencyID,
           )}
         </td>
