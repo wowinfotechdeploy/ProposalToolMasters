@@ -2106,56 +2106,94 @@ const View_Proposals = () => {
       originalNetTotal + originalVatTotal,
     );
 
-    let validDiscountPercentage = Math.min(
-      Math.max(toNumber(discountPercentage), 0),
-      100,
-    );
+    /*
+     * IMPORTANT:
+     *
+     * Do NOT clamp negative percentage to 0.
+     *
+     * Positive:
+     *  50% => final = 50%
+     *
+     * Negative:
+     * -100% => final = 200%
+     */
+    const hasDiscountPercentage =
+      discountPercentage !== null &&
+      discountPercentage !== undefined &&
+      discountPercentage !== "";
 
-    let validDiscountAmount = 0;
+    let validDiscountPercentage = hasDiscountPercentage
+      ? toNumber(discountPercentage)
+      : 0;
+
+    let finalNetTotal = originalNetTotal;
 
     /*
-     * Prefer calculating from percentage because the package
-     * discount input is percentage-based.
+     * Percentage is the main source because recurring
+     * package discounts are percentage based.
      */
-    if (validDiscountPercentage > 0) {
-      validDiscountAmount = roundCurrency(
-        (originalNetTotal * validDiscountPercentage) / 100,
-      );
-    } else {
-      validDiscountAmount = roundCurrency(
-        Math.min(Math.max(toNumber(discountAmount), 0), originalNetTotal),
+    if (hasDiscountPercentage && validDiscountPercentage !== 0) {
+      const discountFactor = 1 - validDiscountPercentage / 100;
+
+      finalNetTotal = roundCurrency(originalNetTotal * discountFactor);
+    } else if (toNumber(discountAmount) !== 0) {
+      /*
+       * Compatibility fallback for older proposals.
+       *
+       * Positive discountAmount:
+       * original - amount
+       *
+       * Negative discountAmount:
+       * original - (-amount)
+       * = price increase
+       */
+      finalNetTotal = roundCurrency(
+        originalNetTotal - toNumber(discountAmount),
       );
 
-      if (validDiscountAmount > 0 && originalNetTotal > 0) {
+      if (originalNetTotal > 0) {
         validDiscountPercentage =
-          (validDiscountAmount / originalNetTotal) * 100;
+          ((originalNetTotal - finalNetTotal) / originalNetTotal) * 100;
       }
     }
 
     /*
-     * Calculate discounted VAT service by service.
-     * This also supports services with different VAT rates.
+     * Difference between original and final:
+     *
+     * Positive => normal discount
+     * Negative => price increase
      */
-    const finalVatTotal = roundCurrency(
-      lines.reduce((total, line) => {
-        const discountedLineNet = roundCurrency(
-          line.price * (1 - validDiscountPercentage / 100),
-        );
-
-        const discountedLineVat = roundCurrency(
-          (discountedLineNet * line.vatRate) / 100,
-        );
-
-        return total + discountedLineVat;
-      }, 0),
+    const calculatedDiscountAmount = roundCurrency(
+      originalNetTotal - finalNetTotal,
     );
 
-    const finalNetTotal = roundCurrency(originalNetTotal - validDiscountAmount);
+    const hasPositiveDiscount = calculatedDiscountAmount > 0;
+
+    const hasPriceIncrease = calculatedDiscountAmount < 0;
+
+    /*
+     * Calculate final VAT service by service.
+     *
+     * This preserves support for different VAT rates
+     * across package services.
+     */
+    const discountFactor =
+      originalNetTotal > 0 ? finalNetTotal / originalNetTotal : 1;
+
+    const finalVatTotal = roundCurrency(
+      lines.reduce((total, line) => {
+        const finalLineNet = roundCurrency(line.price * discountFactor);
+
+        const finalLineVat = roundCurrency((finalLineNet * line.vatRate) / 100);
+
+        return total + finalLineVat;
+      }, 0),
+    );
 
     const vatDiscount = roundCurrency(originalVatTotal - finalVatTotal);
 
     const discountIncludingVat = roundCurrency(
-      validDiscountAmount + vatDiscount,
+      calculatedDiscountAmount + vatDiscount,
     );
 
     const grandTotalIncludingVat = roundCurrency(finalNetTotal + finalVatTotal);
@@ -2168,13 +2206,18 @@ const View_Proposals = () => {
       originalFeesIncludingVat,
 
       discountPercentage: validDiscountPercentage,
-      discountAmount: validDiscountAmount,
+
+      discountAmount: calculatedDiscountAmount,
+
       vatDiscount,
       discountIncludingVat,
 
       finalNetTotal,
       finalVatTotal,
       grandTotalIncludingVat,
+
+      hasPositiveDiscount,
+      hasPriceIncrease,
     };
   };
 
@@ -2334,7 +2377,7 @@ const View_Proposals = () => {
   const showRecurringPackageCheckMark = recurringPackageFeesInQuoteID === 2;
 
   const hasRecurringPackageDiscount = recurringPackageFooterTotals.some(
-    (packageTotal) => packageTotal.discountAmount > 0,
+    (packageTotal) => packageTotal.hasPositiveDiscount,
   );
 
   const showRecurringPackageDiscountLines =
@@ -2464,56 +2507,77 @@ const View_Proposals = () => {
       originalNetTotal + originalVatTotal,
     );
 
-    let validDiscountPercentage = Math.min(
-      Math.max(toNumber(discountPercentage), 0),
-      100,
-    );
+    /*
+     * Do not clamp negative discounts.
+     *
+     * +50%  => final = 50% of original
+     * -100% => final = 200% of original
+     */
+    const hasDiscountPercentage =
+      discountPercentage !== null &&
+      discountPercentage !== undefined &&
+      discountPercentage !== "";
 
-    let validDiscountAmount = 0;
+    let validDiscountPercentage = hasDiscountPercentage
+      ? toNumber(discountPercentage)
+      : 0;
+
+    let finalNetTotal = originalNetTotal;
 
     /*
-     * Prefer discount percentage because the package
-     * discount input is percentage-based.
+     * Percentage is the main source.
      */
-    if (validDiscountPercentage > 0) {
-      validDiscountAmount = roundCurrency(
-        (originalNetTotal * validDiscountPercentage) / 100,
-      );
-    } else {
-      validDiscountAmount = roundCurrency(
-        Math.min(Math.max(toNumber(discountAmount), 0), originalNetTotal),
+    if (hasDiscountPercentage && validDiscountPercentage !== 0) {
+      const discountFactor = 1 - validDiscountPercentage / 100;
+
+      finalNetTotal = roundCurrency(originalNetTotal * discountFactor);
+    } else if (toNumber(discountAmount) !== 0) {
+      /*
+       * Fallback for older proposals.
+       */
+      finalNetTotal = roundCurrency(
+        originalNetTotal - toNumber(discountAmount),
       );
 
-      if (validDiscountAmount > 0 && originalNetTotal > 0) {
+      if (originalNetTotal > 0) {
         validDiscountPercentage =
-          (validDiscountAmount / originalNetTotal) * 100;
+          ((originalNetTotal - finalNetTotal) / originalNetTotal) * 100;
       }
     }
 
     /*
-     * Calculate discounted VAT line by line.
-     * This supports different VAT rates per service.
+     * Positive = discount
+     * Negative = price increase
      */
-    const finalVatTotal = roundCurrency(
-      lines.reduce((total, line) => {
-        const discountedLineNet = roundCurrency(
-          line.price * (1 - validDiscountPercentage / 100),
-        );
-
-        const discountedLineVat = roundCurrency(
-          (discountedLineNet * line.vatRate) / 100,
-        );
-
-        return total + discountedLineVat;
-      }, 0),
+    const calculatedDiscountAmount = roundCurrency(
+      originalNetTotal - finalNetTotal,
     );
 
-    const finalNetTotal = roundCurrency(originalNetTotal - validDiscountAmount);
+    const hasPositiveDiscount = calculatedDiscountAmount > 0;
+
+    const hasPriceIncrease = calculatedDiscountAmount < 0;
+
+    /*
+     * Calculate VAT using the same factor
+     * service-by-service.
+     */
+    const discountFactor =
+      originalNetTotal > 0 ? finalNetTotal / originalNetTotal : 1;
+
+    const finalVatTotal = roundCurrency(
+      lines.reduce((total, line) => {
+        const finalLineNet = roundCurrency(line.price * discountFactor);
+
+        const finalLineVat = roundCurrency((finalLineNet * line.vatRate) / 100);
+
+        return total + finalLineVat;
+      }, 0),
+    );
 
     const vatDiscount = roundCurrency(originalVatTotal - finalVatTotal);
 
     const discountIncludingVat = roundCurrency(
-      validDiscountAmount + vatDiscount,
+      calculatedDiscountAmount + vatDiscount,
     );
 
     const grandTotalIncludingVat = roundCurrency(finalNetTotal + finalVatTotal);
@@ -2526,13 +2590,18 @@ const View_Proposals = () => {
       originalFeesIncludingVat,
 
       discountPercentage: validDiscountPercentage,
-      discountAmount: validDiscountAmount,
+
+      discountAmount: calculatedDiscountAmount,
+
       vatDiscount,
       discountIncludingVat,
 
       finalNetTotal,
       finalVatTotal,
       grandTotalIncludingVat,
+
+      hasPositiveDiscount,
+      hasPriceIncrease,
     };
   };
 
@@ -2599,7 +2668,7 @@ const View_Proposals = () => {
   const showOneOffPackageCheckMark = oneOffPackageFeesInQuoteID === 2;
 
   const hasOneOffPackageDiscount = oneOffPackageFooterTotals.some(
-    (packageTotals) => packageTotals.discountAmount > 0,
+    (packageTotals) => packageTotals.hasPositiveDiscount,
   );
 
   const showOneOffPackageDiscountLines =
@@ -4364,20 +4433,25 @@ const View_Proposals = () => {
                                                               packageIndex
                                                             ];
 
+                                                          const useRecurringPackageFinalAsNet =
+                                                            totals.hasPriceIncrease ||
+                                                            (totals.hasPositiveDiscount &&
+                                                              !showRecurringPackageDiscountLines);
+
                                                           const displayedNetTotal =
-                                                            showRecurringPackageDiscountLines
-                                                              ? totals.originalNetTotal
-                                                              : totals.finalNetTotal;
+                                                            useRecurringPackageFinalAsNet
+                                                              ? totals.finalNetTotal
+                                                              : totals.originalNetTotal;
 
                                                           const displayedVatTotal =
-                                                            showRecurringPackageDiscountLines
-                                                              ? totals.originalVatTotal
-                                                              : totals.finalVatTotal;
+                                                            useRecurringPackageFinalAsNet
+                                                              ? totals.finalVatTotal
+                                                              : totals.originalVatTotal;
 
                                                           const displayedFeesIncludingVat =
-                                                            showRecurringPackageDiscountLines
-                                                              ? totals.originalFeesIncludingVat
-                                                              : totals.grandTotalIncludingVat;
+                                                            useRecurringPackageFinalAsNet
+                                                              ? totals.grandTotalIncludingVat
+                                                              : totals.originalFeesIncludingVat;
 
                                                           return (
                                                             <React.Fragment
@@ -5893,20 +5967,25 @@ const View_Proposals = () => {
                                                               packageIndex
                                                             ];
 
+                                                          const useOneOffPackageFinalAsNet =
+                                                            totals.hasPriceIncrease ||
+                                                            (totals.hasPositiveDiscount &&
+                                                              !showOneOffPackageDiscountLines);
+
                                                           const displayedNetTotal =
-                                                            showOneOffPackageDiscountLines
-                                                              ? totals.originalNetTotal
-                                                              : totals.finalNetTotal;
+                                                            useOneOffPackageFinalAsNet
+                                                              ? totals.finalNetTotal
+                                                              : totals.originalNetTotal;
 
                                                           const displayedVatTotal =
-                                                            showOneOffPackageDiscountLines
-                                                              ? totals.originalVatTotal
-                                                              : totals.finalVatTotal;
+                                                            useOneOffPackageFinalAsNet
+                                                              ? totals.finalVatTotal
+                                                              : totals.originalVatTotal;
 
                                                           const displayedFeesIncludingVat =
-                                                            showOneOffPackageDiscountLines
-                                                              ? totals.originalFeesIncludingVat
-                                                              : totals.grandTotalIncludingVat;
+                                                            useOneOffPackageFinalAsNet
+                                                              ? totals.grandTotalIncludingVat
+                                                              : totals.originalFeesIncludingVat;
 
                                                           return (
                                                             <React.Fragment
