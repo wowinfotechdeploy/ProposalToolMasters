@@ -2480,7 +2480,6 @@ const ReviewServicesComponent = (props) => {
   };
   // Handle Recurring Discount
   const handleRecurringChangeDiscount = (e) => {
-    debugger;
     e.preventDefault();
     props.DisableTabOnChange();
     let sanitizedInput = e.target.value
@@ -22726,8 +22725,7 @@ const Add_Update_Proposal = (props) => {
     //   ProposalObject.customizedEmailContent,
     //   "CustomizeTemplate"
     // );
-    const isGlobalCustomTemplate =
-      selectedTemplateID === 0 || selectedTemplateIDOneOff === 0;
+    const isGlobalCustomTemplate = selectedTemplateID === 0;
     const ApiRequest_ParamsObj = {
       organisationKeyID: common.organisationKeyID,
       userKeyID: common.userKeyID,
