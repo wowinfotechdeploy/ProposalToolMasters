@@ -10719,21 +10719,21 @@ const PricingTableTemplatesModal = ({
                                           }}
                                           disabled={
                                             subService?.servicePackageIDs.includes(
-                                              subService.packageTwoID,
+                                              subService.packageThreeID,
                                             ) &&
                                             subService?.servicePackageIDs
                                               .length === 1
                                           }
                                           type="checkbox"
                                           checked={subService?.servicePackageIDs.includes(
-                                            subService.packageTwoID,
+                                            subService.packageThreeID,
                                           )}
                                           onChange={(e) =>
                                             handleAddAndRemoveAdditionalServices(
                                               1,
                                               service.serviceCatID,
                                               subService.serviceID,
-                                              subService.packageTwoID,
+                                              subService.packageThreeID,
                                               e.target.checked,
                                             )
                                           }

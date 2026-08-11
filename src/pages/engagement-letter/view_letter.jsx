@@ -2010,6 +2010,9 @@ const View_Engagement_Latter = () => {
                                                                     1 && (
                                                                     <>
                                                                       {" "}
+                                                                      {
+                                                                        currencySymbol
+                                                                      }
                                                                       {formatValue(
                                                                         subService.contractPrice,
                                                                       )}
@@ -2034,6 +2037,7 @@ const View_Engagement_Latter = () => {
                                                   </td>
                                                   <td className="tr-table-class font-14 text-white text-right">
                                                     {" "}
+                                                    {currencySymbol}
                                                     {
                                                       Number(
                                                         RecurringPricingInfo.OriginalPrice,
@@ -2072,7 +2076,7 @@ const View_Engagement_Latter = () => {
                                                           Discount
                                                         </td>
                                                         <td className="tr-table-class font-14 text-white text-right">
-                                                          (-){" "}
+                                                          (-) {currencySymbol}
                                                           {formatValue(
                                                             RecurringPricingInfo.Discount,
                                                           )}
@@ -2084,6 +2088,7 @@ const View_Engagement_Latter = () => {
                                                         </td>
                                                         <td className="tr-table-class font-14 text-white text-right">
                                                           {" "}
+                                                          {currencySymbol}
                                                           {formatValue(
                                                             RecurringPricingInfo.DiscountedTotal,
                                                           )}
@@ -2102,6 +2107,7 @@ const View_Engagement_Latter = () => {
                                                       </td>
                                                       <td className="tr-table-class text-white font-14 text-right">
                                                         {" "}
+                                                        {currencySymbol}
                                                         {formatValue(
                                                           RecurringPricingInfo.VATPrice,
                                                         )}
@@ -2113,6 +2119,7 @@ const View_Engagement_Latter = () => {
                                                       </td>
                                                       <td className="tr-table-class font-14 text-white text-right">
                                                         {" "}
+                                                        {currencySymbol}
                                                         {formatValue(
                                                           RecurringPricingInfo.GrandTotal,
                                                         )}

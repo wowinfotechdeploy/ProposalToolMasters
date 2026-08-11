@@ -11299,8 +11299,8 @@ const ReviewPackagesComponent = (props) => {
      * Fall back to the displayed recurring pricing state.
      */
     return (
-      props.RecurringFrequencyPricingInfo?.[discountKey] ??
       props.RecurringPricingInfo?.[discountKey] ??
+      props.RecurringFrequencyPricingInfo?.[discountKey] ??
       0
     );
   };
@@ -13195,7 +13195,7 @@ const ReviewPackagesComponent = (props) => {
                                                           }}
                                                           disabled={
                                                             subService?.servicePackageIDs.includes(
-                                                              subService.packageTwoID,
+                                                              subService.packageThreeID,
                                                             ) &&
                                                             subService
                                                               ?.servicePackageIDs
@@ -13203,7 +13203,7 @@ const ReviewPackagesComponent = (props) => {
                                                           }
                                                           type="checkbox"
                                                           checked={subService?.servicePackageIDs.includes(
-                                                            subService.packageTwoID,
+                                                            subService.packageThreeID,
                                                           )}
                                                           onChange={(e) =>
                                                             handleAddAndRemoveAdditionalServices(
