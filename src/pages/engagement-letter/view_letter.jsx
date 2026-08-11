@@ -66,6 +66,9 @@ const View_Engagement_Latter = () => {
   const [finalContractAmountList, setFinalQuotationAmountList] = useState([]);
   const [serviceDescriptionHTML, setServiceDescriptionHTML] = useState(null);
   const [statementOfFactsHTML, setStatementOfFactsHTML] = useState(null);
+  const [currencySymbol, setCurrencySymbol] = useState(null);
+  const [taxName, setTaxName] = useState("VAT");
+  const [currencyID, setCurrencyID] = useState(null);
 
   const [contractSignatoriesList, setContractSignatoriesList] = useState([]);
   const [EngagementObj, setEngagementObj] = useState({
@@ -379,11 +382,16 @@ const View_Engagement_Latter = () => {
             });
           }
 
+          debugger;
+
           setSelectedRecurringServiceList(ModelData.recurringServiceCatList);
           setSelectedOneOffServiceList(ModelData.oneOffServiceCatList);
           setPackageList(packageData);
           setFinalQuotationAmountList(finalContractAmountList);
           setContractSignatoriesList(contractSignatoriesList);
+          setCurrencyID(ModelData.currencyID);
+          setCurrencySymbol(getCurrencySymbol(ModelData.currencyID));
+          setTaxName(getTaxName(ModelData.currencyID));
         }
       } else {
         // setErrorMessage(data?.data?.errorMessage);
@@ -2163,7 +2171,7 @@ const View_Engagement_Latter = () => {
                                                         width: "16.66%",
                                                       }}
                                                     >
-                                                      Fees (£)
+                                                      Fees ({currencySymbol})
                                                     </th>
                                                   )}
 
@@ -2175,7 +2183,7 @@ const View_Engagement_Latter = () => {
                                                           width: "16.66%",
                                                         }}
                                                       >
-                                                        VAT Rate
+                                                        {taxName} Rate (%)
                                                       </th>
                                                     )}
 
@@ -2187,7 +2195,8 @@ const View_Engagement_Latter = () => {
                                                           width: "16.66%",
                                                         }}
                                                       >
-                                                        VAT (£)
+                                                        {taxName} (
+                                                        {currencySymbol})
                                                       </th>
                                                     )}
 
@@ -2199,7 +2208,8 @@ const View_Engagement_Latter = () => {
                                                           width: "16.66%",
                                                         }}
                                                       >
-                                                        Fees inc VAT (£)
+                                                        Fees inc {taxName} (
+                                                        {currencySymbol})
                                                       </th>
                                                     )}
                                                 </tr>
