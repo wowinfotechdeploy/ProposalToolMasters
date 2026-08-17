@@ -163,6 +163,7 @@ const BasicInformationComponent = (props) => {
       props.setFooterHeight(selectedTemplate.footerHeight);
       props.setFontFamily(props.getFontNameById(selectedTemplate.fontFamilyID));
       props.setShowSeparatorLines(selectedTemplate.showSeparatorLines);
+      props.setWatermarkImage(selectedTemplate.watermarkImage);
 
       props.updateVisibleFieldsFromIds(selectedTemplate.pricingTableColumnIDs);
 
@@ -16118,6 +16119,7 @@ const Add_Update_Proposal = (props) => {
   const [isDefaultFirstPage, setIsDefaultFirstPage] = useState(null);
   const [CompanyLogo, setCompanyLogo] = useState(null);
   const [showSeparatorLines, setShowSeparatorLines] = useState(null);
+  const [watermarkImage, setWatermarkImage] = useState(null);
   const [MergePdfUrl, setMergePdfUrl] = useState("");
   const [templateObj, setTemplateObj] = useState([]);
   const [QuotationAdditionalServices, setQuotationAdditionalServices] =
@@ -20845,6 +20847,7 @@ const Add_Update_Proposal = (props) => {
             setHeaderHeight(defaultTemplateObject?.headerHeight);
             setFooterHeight(defaultTemplateObject?.footerHeight);
             setShowSeparatorLines(defaultTemplateObject?.showSeparatorLine);
+            setWatermarkImage(defaultTemplateObject?.watermarkImage);
             setPricingTableColumnIDs(
               defaultTemplateObject?.pricingTableColumnIDs
                 ? defaultTemplateObject?.pricingTableColumnIDs
@@ -20971,6 +20974,7 @@ const Add_Update_Proposal = (props) => {
             setHeaderHeight(defaultTemplateOptions[0]?.headerHeight);
             setFooterHeight(defaultTemplateOptions[0]?.footerHeight);
             setShowSeparatorLines(defaultTemplateOptions[0]?.showSeparatorLine);
+            setWatermarkImage(defaultTemplateOptions[0]?.watermarkImage);
             setPricingTableColumnIDs(
               resolvedPricingTableColumnIDs
                 ? resolvedPricingTableColumnIDs
@@ -21172,6 +21176,7 @@ const Add_Update_Proposal = (props) => {
         setHeaderHeight(defaultTemplateOptions?.[0]?.headerHeight);
         setFooterHeight(defaultTemplateOptions?.[0]?.footerHeight);
         setShowSeparatorLines(defaultTemplateOptions?.[0]?.showSeparatorLine);
+        setWatermarkImage(defaultTemplateOptions?.[0]?.watermarkImage);
         // console.log(getFontNameById(defaultTemplateObject?.fontFamilyID));
         // Set the state with the default template object
         setProposalObject((prevState) => ({
@@ -24938,6 +24943,7 @@ const Add_Update_Proposal = (props) => {
                   setFontFamily={setFontFamily}
                   getFontNameById={getFontNameById}
                   setShowSeparatorLines={setShowSeparatorLines}
+                  setWatermarkImage={setWatermarkImage}
                   setStatementOfFactsObj={setStatementOfFactsObj}
                   setServiceDescriptionObj={setServiceDescriptionObj}
                   setPricingTableColumnIDs={setPricingTableColumnIDs}
@@ -25400,6 +25406,7 @@ const Add_Update_Proposal = (props) => {
                     headerHeight={headerHeight}
                     footerHeight={footerHeight}
                     showSeparatorLines={showSeparatorLines}
+                    watermarkImage={watermarkImage}
                     setServiceDescriptionHTML={setServiceDescriptionHTML}
                     serviceDescriptionHTML={serviceDescriptionHTML}
                     setStatementOfFactsHTML={setStatementOfFactsHTML}

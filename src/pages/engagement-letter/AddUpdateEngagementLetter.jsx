@@ -326,6 +326,9 @@ const BasicInformationComponent = (props) => {
                           props.setShowSeparatorLines(
                             selectedTemplate.showSeparatorLines,
                           );
+                          props.setWatermarkImage(
+                            selectedTemplate.watermarkImage,
+                          );
                           props.updateVisibleFieldsFromIds(
                             selectedTemplate.pricingTableColumnIDs,
                           );
@@ -11253,6 +11256,7 @@ const Add_Update_Engagement_Letter = () => {
           setFooterHeight(isSelectedDefault[0].footerHeight);
           setOrientationID(isSelectedDefault[0].orientationID);
           setShowSeparatorLines(isSelectedDefault[0]?.showSeparatorLines);
+          setWatermarkImage(isSelectedDefault[0]?.watermarkImage);
           setPricingTableColumnIDs(
             isSelectedDefault[0]?.pricingTableColumnIDs
               ? isSelectedDefault[0]?.pricingTableColumnIDs
@@ -18714,6 +18718,7 @@ const Add_Update_Engagement_Letter = () => {
                   setFontFamily={setFontFamily}
                   getFontNameById={getFontNameById}
                   setShowSeparatorLines={setShowSeparatorLines}
+                  setWatermarkImage={setWatermarkImage}
                   setStatementOfFactsObj={setStatementOfFactsObj}
                   setServiceDescriptionObj={setServiceDescriptionObj}
                   updateVisibleFieldsFromIds={updateVisibleFieldsFromIds}
