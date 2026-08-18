@@ -19044,7 +19044,7 @@ const Add_Update_Engagement_Letter = () => {
                     selectedOneOffServiceList={selectedOneOffServiceList}
                     templateElementList={templateElementList}
                     additionalInformationList={additionalInformationList}
-                    // engagementObj={engagementObj}
+                    engagementObj={engagementObj}
                     pdf={engagementObj.pdf}
                     ProposalObject={engagementObj}
                     getCrudButtonTextName={getCrudButtonTextName}
