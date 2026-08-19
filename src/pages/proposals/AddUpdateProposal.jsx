@@ -22779,8 +22779,9 @@ const Add_Update_Proposal = (props) => {
       oneOffDiscountPercentage:
         ProposalObject.selectedProposalTypeValue !== 4
           ? selectedOneOffServiceList.length !== 0
-            ? OneOffPricingInfoCopy.DefaultDiscount === null
-              ? OneOffPricingInfo.DefaultDiscount
+            ? OneOffPricingInfoCopy.DefaultDiscount === null ||
+              OneOffPricingInfoCopy.DefaultDiscount === ""
+              ? null
               : OneOffPricingInfoCopy.DefaultDiscount
             : null
           : null,
