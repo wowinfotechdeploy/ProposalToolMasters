@@ -10935,14 +10935,9 @@ const Add_Update_Engagement_Letter = () => {
   //     console.error("Error fetching data from the API", error);
   //   }
   // };
-  const GetTemplateLookupListData = async (
-    ClientId,
-    QuoteId,
-    existingPricingTableColumnIDs,
-  ) => {
+  const GetTemplateLookupListData = async (ClientId, QuoteId) => {
     setLoader(true);
     try {
-      debugger;
       const response = await GetTemplateListLookupList({
         TemplateTypeID: 2,
         organisationKeyID: common.organisationKeyID,
@@ -11029,9 +11024,6 @@ const Add_Update_Engagement_Letter = () => {
                 isSelectedDefault[0]?.templateKeyID ?? prev.templateKeyID,
 
               templateID: isSelectedDefault[0]?.templateID ?? prev.templateID,
-              pricingTableColumnIDs: isSelectedDefault[0]?.pricingTableColumnIDs
-                ? isSelectedDefault[0]?.pricingTableColumnIDs
-                : "",
             }));
 
             if (isSelectedDefault[0]?.pricingTableColumnIDs !== null) {
@@ -11602,15 +11594,6 @@ const Add_Update_Engagement_Letter = () => {
             }));
           }
         }
-
-        const resolvedPricingTableColumnIDs =
-          typeof existingPricingTableColumnIDs === "string" &&
-          existingPricingTableColumnIDs.trim() !== ""
-            ? existingPricingTableColumnIDs.trim()
-            : isSelectedDefault[0]?.pricingTableColumnIDs || "";
-
-        setPricingTableColumnIDs(resolvedPricingTableColumnIDs);
-        updateVisibleFieldsFromIds(resolvedPricingTableColumnIDs);
       } else {
         setLoader(false);
         console.error("Error fetching data from the API");
@@ -17098,7 +17081,6 @@ const Add_Update_Engagement_Letter = () => {
   };
   //34)Get EngagementModelData api implementation.
   const GetContractModelData = async (ContractKeyID) => {
-    debugger;
     setLoader(true);
     if (ContractKeyID == undefined) {
       return;
@@ -17326,12 +17308,6 @@ const Add_Update_Engagement_Letter = () => {
               setTemplateLookUpOptions(TemplateOption);
             }
           }
-
-          GetTemplateLookupListData(
-            ClientValue,
-            ModelData.quoteID,
-            ModelData.pricingTableColumnIDs,
-          );
 
           // const TemplateValue = TemplateOption.find((item) => {
           //   return ModelData.templateID === item.templateID;
