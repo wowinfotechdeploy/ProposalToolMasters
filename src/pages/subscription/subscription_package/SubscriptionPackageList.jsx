@@ -434,7 +434,7 @@ const Subscription_Package = () => {
                                                 control={
                                                   <Android12Switch
                                                     disabled={
-                                                      subscriptionPackage.isFreePackage
+                                                      subscriptionPackage.isFreePackage || subscriptionPackage.isFreeAfterTrial
                                                     }
                                                     onClick={() =>
                                                       setModelRequestData(
@@ -487,7 +487,7 @@ const Subscription_Package = () => {
                                           </Tooltip>
                                         )}
                                         {userAccessData.SuperAdmin_Config_Subscription_Package_CanDelete &&
-                                          !subscriptionPackage.isFreePackage && (
+                                          !(subscriptionPackage.isFreePackage || subscriptionPackage.isFreeAfterTrial) && (
                                             <Tooltip
                                               title={
                                                 "Delete Subscription Package"
@@ -587,7 +587,6 @@ const Subscription_Package = () => {
             /> */}
           </div>
         </div>
-        <Footer />
       </div>
       </div>
       </div>
@@ -604,6 +603,7 @@ const Subscription_Package = () => {
         <i class="ri-arrow-up-line"></i>
       </button>
       {/* end back-to-top */}
+      <Footer />
     </div>
   );
 };

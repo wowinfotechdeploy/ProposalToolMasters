@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useRef, useEffect, useState } from "react";
 
 import { Row, Col, Card, CardBody } from "reactstrap";
 import { AuthContextProvider } from "../../AuthContext/AuthContext";
@@ -19,7 +19,6 @@ import { generatePdfUrl, mergePdfApiUrl } from "../../Base-Url/Base_Url";
 import Utils from "../../Middleware/Utils";
 function AcceptInvitation() {
   const STOP_AFTER_PDF_GENERATION = false;
-
   const {
     setTopbar,
     setLoader,
@@ -29,8 +28,11 @@ function AcceptInvitation() {
     getFontStylesFromHtml,
     replaceTemplatePricingVariables,
     replaceUrlInHtml,
+    getCurrencySymbol,
+    getTaxName,
   } = useContext(AuthContextProvider);
   const [templateElementList, setTemplateElementList] = useState([]);
+  const [pricingVariablesForEmail, setPricingVariablesForEmail] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [generatePdfData, setGeneratePdfData] = useState([]);
   const [MergePdfUrl, setMergePdfUrl] = useState("");
@@ -65,6 +67,7 @@ function AcceptInvitation() {
   const [FooterImage, setFooterImage] = useState(null);
   const [orgkeyId, setOrgkeyId] = useState("");
   const imgTag = `<img src="${BrandLogo}" alt="Logo" style="display: none; margin: 0 auto 15px;">`;
+
   const [serviceDescriptionObj, setServiceDescriptionObj] = useState({
     mainHeading: null,
     recurringOnGoingHeading: null,
@@ -248,7 +251,10 @@ function AcceptInvitation() {
 
     setVisibleFieldsCustomTemp(
       Object.fromEntries(
-        Object.entries(fieldToIdMap).map(([key, id]) => [key, idList.includes(id)]),
+        Object.entries(fieldToIdMap).map(([key, id]) => [
+          key,
+          idList.includes(id),
+        ]),
       ),
     );
   };
@@ -277,8 +283,9 @@ function AcceptInvitation() {
     totals,
   }) => {
     const currencyID = organisationData?.otherInformation?.[0]?.currencyID;
-    const currencySymbol = currencyID === 1 ? "£" : "";
-    const taxName = "VAT";
+    const currencySymbol = getCurrencySymbol(currencyID);
+    // const taxName = "VAT";
+    const taxName = getTaxName(currencyID);
     const isVatPresent = (Number(totals?.vatPercentage) || 0) > 0;
 
     const rows = (serviceCatList || [])
@@ -327,7 +334,8 @@ function AcceptInvitation() {
         const gpdList =
           (serviceDescriptionList || [])
             .find((d) => d?.serviceCatID === r.catID)
-            ?.servicesList?.find((s) => s?.serviceID === r.serviceID)?.gpdList || [];
+            ?.servicesList?.find((s) => s?.serviceID === r.serviceID)
+            ?.gpdList || [];
 
         const canShowVat = (Number(r.vatPct) || 0) > 0;
         return `
@@ -345,7 +353,9 @@ function AcceptInvitation() {
             ${
               visibleFieldsCustomTemp.fees
                 ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px;">${
-                    feeTypeId == 1 ? formatValue(r.price, currencyID) : "&#10003;"
+                    feeTypeId == 1
+                      ? formatValue(r.price, currencyID)
+                      : "&#10003;"
                   }</td>`
                 : ""
             }
@@ -390,12 +400,21 @@ function AcceptInvitation() {
       .join("");
 
     const orderedCols = [
-      { key: "serviceCategory", enabled: !!visibleFieldsCustomTemp.serviceCategory },
+      {
+        key: "serviceCategory",
+        enabled: !!visibleFieldsCustomTemp.serviceCategory,
+      },
       { key: "serviceName", enabled: !!visibleFieldsCustomTemp.serviceName },
       { key: "fees", enabled: !!visibleFieldsCustomTemp.fees },
-      { key: "vatRate", enabled: isVatPresent && !!visibleFieldsCustomTemp.vatRate },
+      {
+        key: "vatRate",
+        enabled: isVatPresent && !!visibleFieldsCustomTemp.vatRate,
+      },
       { key: "vat", enabled: isVatPresent && !!visibleFieldsCustomTemp.vat },
-      { key: "feesIncVat", enabled: isVatPresent && !!visibleFieldsCustomTemp.feesIncVat },
+      {
+        key: "feesIncVat",
+        enabled: isVatPresent && !!visibleFieldsCustomTemp.feesIncVat,
+      },
       { key: "serviceScope", enabled: !!visibleFieldsCustomTemp.serviceScope },
     ].filter((c) => c.enabled);
 
@@ -441,41 +460,110 @@ function AcceptInvitation() {
     const netTotal = Number(totals?.netTotal) || 0;
     const discounted = Number(totals?.discounted) || 0;
     const discountedTotal = Number(totals?.discountedTotal) || 0;
-    const vatDiscounted = Number(totals?.vat) || 0; // API returns discount-adjusted VAT
+    const vatDiscounted = Number(totals?.vat) || 0;
     const grandTotal = Number(totals?.grandTotal) || 0;
 
-    const discountApplies = discounted > 0;
+    console.log("CUSTOM RECURRING CONTRACT TOTALS", {
+      heading,
+      totals,
+
+      netTotal,
+      discounted,
+      discountedTotal,
+      vatDiscounted,
+      grandTotal,
+
+      discPct: Number(totals?.discountPercentageWithAllDecimal),
+
+      showDiscountLine: ShowDiscountLine,
+    });
+
+    const discPct = Number(totals?.discountPercentageWithAllDecimal) || 0;
+
+    const discountFactor = 1 - discPct / 100;
+
+    /*
+     * Positive discount:
+     *   1000 → 900
+     *
+     * Negative discount / price increase:
+     *   1000 → 2000
+     */
+    const hasPriceIncrease = discPct < 0 || discountedTotal > netTotal;
+
+    const hasPositiveDiscount =
+      !hasPriceIncrease && (discPct > 0 || discounted > 0);
+
     const showDiscountLines = !!ShowDiscountLine;
 
-    // Derive pre-discount VAT (static VAT) from discount % when available.
-    // This matches how template-6 email tables show Net Total VAT as pre-discount VAT,
-    // and Discount VAT as the difference.
-    const discPct = Number(totals?.discountPercentageWithAllDecimal) || 0;
-    const discountFactor = 1 - discPct / 100;
+    /*
+     * totals.vat contains VAT calculated on the final
+     * discounted / increased amount.
+     *
+     * Recover original VAT when a percentage exists.
+     */
     const vatStatic =
-      discountApplies && discPct > 0 && discountFactor > 0
+      discPct !== 0 && discountFactor > 0
         ? vatDiscounted / discountFactor
         : vatDiscounted;
+
     const vatDiscount = vatStatic - vatDiscounted;
 
-    // Net Total row: if we hide discount lines, show discounted totals directly (same behavior as email tables).
-    const netFeesToShow = discountApplies && !showDiscountLines ? discountedTotal : netTotal;
-    const netVatToShow = discountApplies && !showDiscountLines ? vatDiscounted : vatStatic;
-    const netFeesIncVatToShow = netFeesToShow + (isVatPresent ? netVatToShow : 0);
+    /*
+     * Same behaviour as the custom recurring table:
+     *
+     * Positive discount + discount lines:
+     *   Net Total = original
+     *
+     * Positive discount + hidden discount lines:
+     *   Net Total = discounted
+     *
+     * Negative discount:
+     *   Net Total = increased final amount
+     */
+    const netFeesToShow = hasPriceIncrease
+      ? discountedTotal
+      : hasPositiveDiscount && !showDiscountLines
+        ? discountedTotal
+        : netTotal;
+
+    const netVatToShow = hasPriceIncrease
+      ? vatDiscounted
+      : hasPositiveDiscount && !showDiscountLines
+        ? vatDiscounted
+        : vatStatic;
+
+    const netFeesIncVatToShow =
+      netFeesToShow + (isVatPresent ? netVatToShow : 0);
+
+    console.log("CUSTOM RECURRING CONTRACT DISPLAY", {
+      hasPriceIncrease,
+      hasPositiveDiscount,
+
+      netFeesToShow,
+      netVatToShow,
+      netFeesIncVatToShow,
+
+      isVatPresent,
+    });
 
     const footerRows = [
       // Net Total (always)
       renderFooterRow("Net Total", "#808080", {
         fees: formatValue(netFeesToShow, currencyID),
         vat: isVatPresent ? formatValue(netVatToShow, currencyID) : "",
-        feesIncVat: isVatPresent ? formatValue(netFeesIncVatToShow, currencyID) : "",
+        feesIncVat: isVatPresent
+          ? formatValue(netFeesIncVatToShow, currencyID)
+          : "",
       }),
 
       // Discount row (only when discount applies and we show discount lines)
-      discountApplies && showDiscountLines
+      hasPositiveDiscount && showDiscountLines
         ? renderFooterRow("Discount", "#DCDCDC", {
             fees: `(-) ${formatValue(discounted, currencyID)}`,
-            vat: isVatPresent ? `(-) ${formatValue(vatDiscount, currencyID)}` : "",
+            vat: isVatPresent
+              ? `(-) ${formatValue(vatDiscount, currencyID)}`
+              : "",
             feesIncVat: isVatPresent
               ? `(-) ${formatValue(discounted + vatDiscount, currencyID)}`
               : "",
@@ -485,7 +573,7 @@ function AcceptInvitation() {
       // Final row after discount lines:
       // - VAT org: Grand Total
       // - Non-VAT org: Discounted Total
-      discountApplies && showDiscountLines
+      hasPositiveDiscount && showDiscountLines
         ? isVatPresent
           ? renderFooterRow("Grand Total", "#808080", {
               fees: formatValue(discountedTotal, currencyID),
@@ -503,14 +591,23 @@ function AcceptInvitation() {
     // Match Engagement Letter behavior: the package name sits inside the grid
     // (in the first "right side" column, usually Fees), with empty cells for the rest.
     const leftCols = [
-      { key: "serviceCategory", enabled: !!visibleFieldsCustomTemp.serviceCategory },
+      {
+        key: "serviceCategory",
+        enabled: !!visibleFieldsCustomTemp.serviceCategory,
+      },
       { key: "serviceName", enabled: !!visibleFieldsCustomTemp.serviceName },
     ].filter((c) => c.enabled);
     const rightCols = [
       { key: "fees", enabled: !!visibleFieldsCustomTemp.fees },
-      { key: "vatRate", enabled: isVatPresent && !!visibleFieldsCustomTemp.vatRate },
+      {
+        key: "vatRate",
+        enabled: isVatPresent && !!visibleFieldsCustomTemp.vatRate,
+      },
       { key: "vat", enabled: isVatPresent && !!visibleFieldsCustomTemp.vat },
-      { key: "feesIncVat", enabled: isVatPresent && !!visibleFieldsCustomTemp.feesIncVat },
+      {
+        key: "feesIncVat",
+        enabled: isVatPresent && !!visibleFieldsCustomTemp.feesIncVat,
+      },
       { key: "serviceScope", enabled: !!visibleFieldsCustomTemp.serviceScope },
     ].filter((c) => c.enabled);
 
@@ -662,7 +759,7 @@ function AcceptInvitation() {
         : currencyID === 2
           ? "EU VAT"
           : currencyID === 3
-            ? "Salex Tax"
+            ? "Sales Tax"
             : currencyID === 4
               ? "GST"
               : "";
@@ -715,149 +812,134 @@ function AcceptInvitation() {
               currentArray = [];
             }
             currentArray.push({
-              textbox: statementOfFactsHTML,
-            });
-            //         currentArray.push({
-            //           textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;margin-top: 10px">
-            //             ${serviceDescriptionList
-            //               .map(
-            //                 (serviceCat) => `
-            //                   <div>
-            //                       <p style="font-family:${fontFamily};color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
-            //                           ${serviceCat.serviceCatName}
-            //                       </p>
-            //                       <hr style="color: gray; margin-top: -15px;">
-            //                       ${serviceCat.servicesList
-            //                         .map(
-            //                           (subService) => `
-            //                           <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize};">
-            //                               ${subService.serviceName}
-            //                           </p>
-            //                           ${
-            //                             subService?.gpdList !== null
-            //                               ? subService?.gpdList
-            //                                   .filter((item) => item.driverTypeID !== 1)
-            //                                   ?.map(
-            //                                     (pricingDriver) => `
-            //                             <li style="font-family:${fontFamily}; color:black; font-size: ${fontSize}; margin-top:5px;">
-            //                             ${pricingDriver.driverName}:
-            //                             <span style="">
-            //                                  <strong> ${
-            //                                    //formatValue(pricingDriver.driverValue)
-            //                                    pricingDriver.driverTypeID === 2
-            //                                      ? Number(pricingDriver.driverValue)
-            //                                          .toFixed(
-            //                                            pricingDriver.quantityDecimalPlaces ??
-            //                                              2,
-            //                                          )
-            //                                          .toString()
-            //                                          .replace(
-            //                                            /\B(?=(\d{3})+(?!\d))/g,
-            //                                            ",",
-            //                                          )
-            //                                      : pricingDriver.driverTypeID === 3
-            //                                        ? pricingDriver.variationName
-            //                                        : pricingDriver.driverTypeID === 4
-            //                                          ? pricingDriver.slabTypeID === 2
-            //                                            ? formatValueWithoutCurrencySymbol(
-            //                                                pricingDriver.driverValue,
-            //                                              )
-            //                                            : Number(pricingDriver.slabFrom)
-            //                                                .toFixed(
-            //                                                  pricingDriver.decimalPlaces ??
-            //                                                    2,
-            //                                                )
-            //                                                .toString()
-            //                                                .replace(
-            //                                                  /\B(?=(\d{3})+(?!\d))/g,
-            //                                                  ",",
-            //                                                ) +
-            //                                              "-" +
-            //                                              Number(pricingDriver.slabTo)
-            //                                                .toFixed(
-            //                                                  pricingDriver.decimalPlaces ??
-            //                                                    2,
-            //                                                )
-            //                                                .toString()
-            //                                                .replace(
-            //                                                  /\B(?=(\d{3})+(?!\d))/g,
-            //                                                  ",",
-            //                                                )
-            //                                          : pricingDriver.driverTypeID === 5
-            //                                            ? pricingDriver?.enteredText
-            //                                            : pricingDriver.driverTypeID ===
-            //                                                6
-            //                                              ? pricingDriver?.enteredDate
-            //                                              : ""
-            //                                  }</strong>
-            //                             </span>
-            //                         </li>
-            //                           `,
-            //                                   )
-            //                                   .join("")
-            //                               : ``
-            //                           }
-            //                       `,
-            //                         )
-            //                         .join("")}
-            //                   </div>
-            //               `,
-            //               )
-            //               .join("")}
-            //                                     ${
-            //                                       AdditionalInformation?.length > 0
-            //                                         ? `<p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: ${fontSizeHeading}; font-weight: bold;">
-            //     Additional Information
-            // </p>
-            // <hr style="color: gray; margin-top: -15px;" />` +
-            //                                           AdditionalInformation.filter(
-            //                                             (item) =>
-            //                                               item.driverTypeID !== 1,
-            //                                           )
-            //                                             .map(
-            //                                               (serviceCat) => `
-            //     <div>
-            //         <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize};">
-            //             ${serviceCat.driverName}:
-            //             ${
-            //               serviceCat.driverTypeID === 4
-            //                 ? serviceCat.slabTypeID === 2
-            //                   ? `<strong>${formatValueWithoutCurrencySymbol_v1(
-            //                       serviceCat.driverValue,
-            //                     )}</strong>`
-            //                   : `<strong>
-            //               ${formatValueWithoutCurrencySymbol_v1(
-            //                 serviceCat.slabFrom,
-            //                 serviceCat.decimalPlaces ?? 2,
-            //               )}
-            //               -
-            //               ${formatValueWithoutCurrencySymbol_v1(
-            //                 serviceCat.slabTo,
-            //                 serviceCat.decimalPlaces ?? 2,
-            //               )}
-            //               </strong>`
-            //                 : serviceCat.driverTypeID === 3
-            //                   ? `<strong>${serviceCat.variationName}</strong>`
-            //                   : serviceCat.driverTypeID === 5
-            //                     ? `<strong>${serviceCat.enteredText}</strong>`
-            //                     : serviceCat.driverTypeID === 6
-            //                       ? `<strong>${serviceCat.enteredDate}</strong>`
-            //                       : `${
-            //                           serviceCat.driverName
-            //                         }: <strong>${formatValueWithoutCurrencySymbol_v1(
-            //                           serviceCat.driverValue,
-            //                         )}</strong>`
-            //             }
-            //         </p>
-            //     </div>
-            // `,
-            //                                             )
-            //                                             .join("")
-            //                                         : ""
-            //                                     }
+              textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;margin-top: 10px"> 
+                ${serviceDescriptionList
+                  .map(
+                    (serviceCat) => `
+                      <div>
+                          <p style="font-family:${fontFamily};color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
+                              ${serviceCat.serviceCatName}
+                          </p>
+                          <hr style="color: gray; margin-top: -15px;">
+                          ${serviceCat.servicesList
+                            .map(
+                              (subService) => `
+                              <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize};">
+                                  ${subService.serviceName}
+                              </p>
+                              ${
+                                subService?.gpdList !== null
+                                  ? subService?.gpdList
+                                      .filter((item) => item.driverTypeID !== 1)
+                                      ?.map(
+                                        (pricingDriver) => `
+                                <li style="font-family:${fontFamily}; color:black; font-size: ${fontSize}; margin-top:5px;">
+                                ${pricingDriver.driverName}: 
+                                <span style="">
+                                     <strong> ${
+                                       //formatValue(pricingDriver.driverValue)
+                                       pricingDriver.driverTypeID === 2
+                                         ? Number(pricingDriver.driverValue)
+                                             .toFixed(
+                                               pricingDriver.quantityDecimalPlaces ??
+                                                 2,
+                                             )
+                                             .toString()
+                                             .replace(
+                                               /\B(?=(\d{3})+(?!\d))/g,
+                                               ",",
+                                             )
+                                         : pricingDriver.driverTypeID === 3
+                                           ? pricingDriver.variationName
+                                           : pricingDriver.driverTypeID === 4
+                                             ? pricingDriver.slabTypeID === 2
+                                               ? formatValueWithoutCurrencySymbol(
+                                                   pricingDriver.driverValue,
+                                                 )
+                                               : Number(pricingDriver.slabFrom)
+                                                   .toFixed(
+                                                     pricingDriver.decimalPlaces ??
+                                                       2,
+                                                   )
+                                                   .toString()
+                                                   .replace(
+                                                     /\B(?=(\d{3})+(?!\d))/g,
+                                                     ",",
+                                                   ) +
+                                                 "-" +
+                                                 Number(pricingDriver.slabTo)
+                                                   .toFixed(
+                                                     pricingDriver.decimalPlaces ??
+                                                       2,
+                                                   )
+                                                   .toString()
+                                                   .replace(
+                                                     /\B(?=(\d{3})+(?!\d))/g,
+                                                     ",",
+                                                   )
+                                             : pricingDriver.driverTypeID === 5
+                                               ? pricingDriver?.enteredText
+                                               : pricingDriver.driverTypeID ===
+                                                   6
+                                                 ? pricingDriver?.enteredDate
+                                                 : ""
+                                     }</strong>
+                                </span> 
+                            </li>
+                              `,
+                                      )
+                                      .join("")
+                                  : ``
+                              }
+                          `,
+                            )
+                            .join("")}
+                      </div>
+                  `,
+                  )
+                  .join("")}
+                                        ${
+                                          AdditionalInformation?.length > 0
+                                            ? `<p style="font-family:${fontFamily}; color: ${BrandColor}; font-size: ${fontSizeHeading}; font-weight: bold;">
+        Additional Information
+    </p>
+    <hr style="color: gray; margin-top: -15px;" />` +
+                                              AdditionalInformation.filter(
+                                                (item) =>
+                                                  item.driverTypeID !== 1,
+                                              )
+                                                .map(
+                                                  (serviceCat) => `
+        <div>
+            <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize};">
+                ${serviceCat.driverName}:
+                ${
+                  serviceCat.driverTypeID === 4
+                    ? serviceCat.slabTypeID === 2
+                      ? `<strong>${formatValueWithoutCurrencySymbol_v1(serviceCat.driverValue)}</strong>`
+                      : `<strong>
+                  ${formatValueWithoutCurrencySymbol_v1(serviceCat.slabFrom, serviceCat.decimalPlaces ?? 2)}
+                  -
+                  ${formatValueWithoutCurrencySymbol_v1(serviceCat.slabTo, serviceCat.decimalPlaces ?? 2)}
+                  </strong>`
+                    : serviceCat.driverTypeID === 3
+                      ? `<strong>${serviceCat.variationName}</strong>`
+                      : serviceCat.driverTypeID === 5
+                        ? `<strong>${serviceCat.enteredText}</strong>`
+                        : serviceCat.driverTypeID === 6
+                          ? `<strong>${serviceCat.enteredDate}</strong>`
+                          : `${serviceCat.driverName}: <strong>${formatValueWithoutCurrencySymbol_v1(serviceCat.driverValue)}</strong>`
+                }
+            </p>
+        </div>
+    `,
+                                                )
+                                                .join("")
+                                            : ""
+                                        }
 
-            //               </div>`,
-            //         });
+                  </div>`,
+            });
 
             break;
           case ElementType.TEXT_BLOCK:
@@ -1038,13 +1120,13 @@ function AcceptInvitation() {
                 prevElementType !== ElementType.AWS_PDF_LINK
               ) {
                 currentArray.push({
-                  textbox: `<div style="padding-left: 40px; padding-right: 40px; font-family: ${fontFamily};">${coloredHtmlContent}</div>`,
+                  textbox: `<div data-first-page="true" style="font-family: ${fontFamily};">${coloredHtmlContent}</div>`,
                 });
               } else {
                 pdfDataArray.push(currentArray);
                 currentArray = [
                   {
-                    textbox: `<div style="padding-left: 40px; padding-right: 40px; font-family: ${fontFamily};">${coloredHtmlContent}</div>`,
+                    textbox: `<div data-first-page="true" style="font-family: ${fontFamily};">${coloredHtmlContent}</div>`,
                   },
                 ];
               }
@@ -1115,7 +1197,7 @@ function AcceptInvitation() {
                 ),
               });
 
-              if (recurringServiceCatList?.length > 0) {
+              if (recurringServiceCatList.length > 0) {
                 currentArray.push({
                   table: `
                               <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
@@ -1298,7 +1380,7 @@ function AcceptInvitation() {
                 });
               }
 
-              if (oneOffServiceCatList?.length > 0) {
+              if (oneOffServiceCatList.length > 0) {
                 currentArray.push({
                   table: `
                                 <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
@@ -1480,7 +1562,7 @@ function AcceptInvitation() {
                 });
               }
             } else {
-              if (recurringServiceCatList?.length > 0 && quoteTypeID !== 4) {
+              if (recurringServiceCatList.length > 0 && quoteTypeID !== 4) {
                 currentArray.push({
                   table: ` ${imgTag}
                           <div style="padding: 40px; padding-top:0px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
@@ -1552,10 +1634,7 @@ function AcceptInvitation() {
                                       Discount
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
-                                      (-)  ${formatValue(
-                                        value?.discounted,
-                                        currencyID,
-                                      )}
+                                      (-)  ${formatValue(value?.discounted, currencyID)}
                                     </td>
                                   </tr>
                                   <tr style="background-color:#808080;">
@@ -1563,10 +1642,7 @@ function AcceptInvitation() {
                                       Discounted Total
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                       ${formatValue(
-                                         value?.discountedTotal,
-                                         currencyID,
-                                       )}
+                                       ${formatValue(value?.discountedTotal, currencyID)}
                                     </td>
                                   </tr>`
                                     : ""
@@ -1587,10 +1663,7 @@ function AcceptInvitation() {
                                       Grand Total
                                     </td>
                                     <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                       ${formatValue(
-                                         value?.grandTotal,
-                                         currencyID,
-                                       )}
+                                       ${formatValue(value?.grandTotal, currencyID)}
                                     </td>
                                   </tr>`
                                     : ""
@@ -1603,7 +1676,7 @@ function AcceptInvitation() {
                 });
               }
               // Check if selectedOneOffServiceList has items
-              if (oneOffServiceCatList?.length > 0 && quoteTypeID !== 4) {
+              if (oneOffServiceCatList.length > 0 && quoteTypeID !== 4) {
                 // Append the table for selectedOneOffServiceList
                 currentArray.push({
                   table: `
@@ -1705,10 +1778,7 @@ function AcceptInvitation() {
                                             ${taxName}
                                           </td>
                                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;">
-                                             ${formatValue(
-                                               value.vat,
-                                               currencyID,
-                                             )}
+                                             ${formatValue(value.vat, currencyID)}
                                           </td>
                                         </tr>
                                         <tr style="background-color:#808080;">
@@ -1716,10 +1786,7 @@ function AcceptInvitation() {
                                             Grand Total
                                           </td>
                                           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-                                             ${formatValue(
-                                               value.grandTotal,
-                                               currencyID,
-                                             )}
+                                             ${formatValue(value.grandTotal, currencyID)}
                                           </td>
                                         </tr>`
                                           : ""
@@ -1740,46 +1807,44 @@ function AcceptInvitation() {
               prevElementType !== ElementType.AWS_PDF_LINK
             ) {
               currentArray.push({
-                textbox: serviceDescriptionHTML,
+                textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;margin-top: 10px">                
+                                ${serviceDescriptionList
+                                  .map(
+                                    (serviceCat) => `
+                      <div>
+                          <p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: black;font-weight: bold;">
+                              ${serviceCat.serviceCatName}
+                          </p>
+                          <hr style="color: gray; margin-top:-5px;">
+                          ${serviceCat.servicesList
+                            .map(
+                              (subService) => `
+                              <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize}; ">
+                                  ${subService.serviceName}
+                              </p>
+                              <p>
+                                 
+                              ${
+                                subService.description === null ||
+                                subService.description === undefined ||
+                                subService.description === ""
+                                  ? ""
+                                  : subService.description
+                              }
+                              </p>
+                             
+                          `,
+                            )
+                            .join("")}
+                      </div>
+                  `,
+                                  )
+                                  .join("")}
+                  
+               
+                </div >
+                    `,
               });
-              // currentArray.push({
-              //   textbox: ` ${imgTag}<div style="padding-left: 40px; padding-right: 40px;margin-top: 10px">
-              //                   ${serviceDescriptionList
-              //                     .map(
-              //                       (serviceCat) => `
-              //         <div>
-              //             <p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: black;font-weight: bold;">
-              //                 ${serviceCat.serviceCatName}
-              //             </p>
-              //             <hr style="color: gray; margin-top:-5px;">
-              //             ${serviceCat.servicesList
-              //               .map(
-              //                 (subService) => `
-              //                 <p style="font-family:${fontFamily}; color:black; font-size: ${fontSize}; ">
-              //                     ${subService.serviceName}
-              //                 </p>
-              //                 <p>
-
-              //                 ${
-              //                   subService.description === null ||
-              //                   subService.description === undefined ||
-              //                   subService.description === ""
-              //                     ? ""
-              //                     : subService.description
-              //                 }
-              //                 </p>
-
-              //             `,
-              //               )
-              //               .join("")}
-              //         </div>
-              //     `,
-              //                     )
-              //                     .join("")}
-
-              //   </div >
-              //       `,
-              // });
             } else {
               pdfDataArray.push(currentArray);
               currentArray = [
@@ -2074,9 +2139,8 @@ function AcceptInvitation() {
       FooterHeight: FooterHeight,
       HeaderImage: HeaderImage,
       FooterImage: FooterImage,
-      showSeparatorLines: showSeparatorLines,
       WatermarkImage: watermarkImage,
-      landscapMode: orientationID == 2,
+      showSeparatorLines: showSeparatorLines,
     };
     try {
       const response = await fetch(generatePdfUrl, {
@@ -2102,6 +2166,7 @@ function AcceptInvitation() {
       },
       body: JSON.stringify({
         userId: common.userKeyID,
+        moduleName: "Contract",
       }),
     })
       .then((response) => response.json())
@@ -2110,14 +2175,18 @@ function AcceptInvitation() {
           const pdfUrl = data.s3Url;
           setMergePdfUrl(pdfUrl);
 
-          console.log("[Generate Contract] Merged PDF URL:", pdfUrl);
-          if (STOP_AFTER_PDF_GENERATION) return;
-
           const ApiRequest_ParamsObj = {
             moduleName: "Quotation",
             contractKeyID: contractKeyID,
             contractPDFUrl: pdfUrl,
             ContractSignatoryKeyID: ContractSignatoryKeyID,
+            pricingVariablesList: Object.entries(pricingVariablesForEmail).map(
+              ([variableName, variableValue]) => ({
+                variableName: `$${variableName}$`,
+                variableValue:
+                  variableValue == null ? "0.00" : String(variableValue),
+              }),
+            ),
           };
 
           GetSendToSignEasyData(ApiRequest_ParamsObj);
@@ -2212,7 +2281,6 @@ function AcceptInvitation() {
 
   const GetTemplateLookupListData = async (QuoteId, OrganisationKeyID) => {
     setLoader(true);
-    // debugger;
     try {
       const response = await GetTemplateListLookupList({
         TemplateTypeID: 2,
@@ -2223,12 +2291,12 @@ function AcceptInvitation() {
         QuoteKeyID: quoteKeyID,
       });
       const data = response.data;
-      const isSelectedDefault = data.responseData.data.filter(
+      const isSelectedDefault = data?.responseData?.data.filter(
         (item) => item.isDefault === true,
       );
       if (data.statusCode === 200) {
         setLoader(false);
-        const mappedOptions = data.responseData.data.map((item) => ({
+        const mappedOptions = data?.responseData?.data.map((item) => ({
           value: item.templateKeyID,
           label: item.templateName,
           templateID: item.templateID,
@@ -2247,9 +2315,12 @@ function AcceptInvitation() {
         // const isSelectedDefault = data.responseData.data.filter(
         //   (item) => item.isDefault === true
         // );
-        setQuoteTypeID(isSelectedDefault[0]?.quoteTypeID);
         setFontFamily(getFontNameById(isSelectedDefault[0].fontFamilyID));
+
         setHeaderContent(isSelectedDefault[0]?.headerContent);
+        setQuoteTypeID(isSelectedDefault[0]?.quoteTypeID);
+        // setFontFamily(getFontNameById(mappedOptions[0].fontFamilyID));
+        // setHeaderContent(mappedOptions[0]?.headerContent);
         setFooterContent(isSelectedDefault[0]?.footerContent);
         setHeaderImage(isSelectedDefault[0]?.headerImage);
         setFooterImage(isSelectedDefault[0]?.footerImage);
@@ -2258,51 +2329,6 @@ function AcceptInvitation() {
         setShowSeparatorLines(isSelectedDefault[0]?.showSeparatorLines);
         setWatermarkImage(isSelectedDefault[0]?.watermarkImage);
         setOrientationID(isSelectedDefault[0]?.orientationID);
-        setStatementOfFactsHTML(isSelectedDefault[0]?.statementOfFacts);
-        setServiceDescriptionHTML(isSelectedDefault[0]?.serviceDescription);
-
-        setServiceDescriptionObj((prev) => ({
-          ...prev,
-          mainHeading: isSelectedDefault[0]?.mainHeadingSD,
-          recurringOnGoingHeading:
-            isSelectedDefault[0]?.recurringOnGoingHeadingSD,
-          oneOffAdhocHeading: isSelectedDefault[0]?.oneOffAdhocHeadingSD,
-          mainHeadingFontSize: isSelectedDefault[0]?.mainHeadingFontSizeSD,
-          recurringOnGoingHeadingFontSize:
-            isSelectedDefault[0]?.recurringOnGoingHeadingFontSizeSD,
-          oneOffAdhocFontSize: isSelectedDefault[0]?.oneOffAdhocFontSizeSD,
-          mainHeadingIsBold: isSelectedDefault[0]?.mainHeadingIsBoldSD,
-          mainHeadingIsItalic: isSelectedDefault[0]?.mainHeadingIsItalicSD,
-          recurringOnGoingHeadingIsBold:
-            isSelectedDefault[0]?.recurringOnGoingHeadingIsBoldSD,
-          recurringOnGoingHeadingIsItalic:
-            isSelectedDefault[0]?.recurringOnGoingHeadingIsItalicSD,
-          oneOffAdhocHeadingIsBold:
-            isSelectedDefault[0]?.oneOffAdhocHeadingIsBoldSD,
-          oneOffAdhocHeadingIsItalic:
-            isSelectedDefault[0]?.oneOffAdhocHeadingIsItalicSD,
-        }));
-        setStatementOfFactsObj((prev) => ({
-          ...prev,
-          mainHeading: isSelectedDefault[0]?.mainHeadingSOF,
-          recurringOnGoingHeading:
-            isSelectedDefault[0]?.recurringOnGoingHeadingSOF,
-          oneOffAdhocHeading: isSelectedDefault[0]?.oneOffAdhocHeadingSOF,
-          mainHeadingFontSize: isSelectedDefault[0]?.mainHeadingFontSizeSOF,
-          recurringOnGoingHeadingFontSize:
-            isSelectedDefault[0]?.recurringOnGoingHeadingFontSizeSOF,
-          oneOffAdhocFontSize: isSelectedDefault[0]?.oneOffAdhocFontSizeSOF,
-          mainHeadingIsBold: isSelectedDefault[0]?.mainHeadingIsBoldSOF,
-          mainHeadingIsItalic: isSelectedDefault[0]?.mainHeadingIsItalicSOF,
-          recurringOnGoingHeadingIsBold:
-            isSelectedDefault[0]?.recurringOnGoingHeadingIsBoldSOF,
-          recurringOnGoingHeadingIsItalic:
-            isSelectedDefault[0]?.recurringOnGoingHeadingIsItalicSOF,
-          oneOffAdhocHeadingIsBold:
-            isSelectedDefault[0]?.oneOffAdhocHeadingIsBoldSOF,
-          oneOffAdhocHeadingIsItalic:
-            isSelectedDefault[0]?.oneOffAdhocHeadingIsItalicSOF,
-        }));
       } else {
         setLoader(false);
         console.error("Error fetching data from the API");
@@ -2323,6 +2349,7 @@ function AcceptInvitation() {
     paymentFrequencyID,
     packageData,
   ) => {
+    debugger;
     try {
       const data = await GetTemplateModelData({
         TemplateKeyID: TemplateKeyID,
@@ -2429,21 +2456,23 @@ function AcceptInvitation() {
     </div>
   `;
 
+          debugger;
+
           let isAddedFirstPage = updatedTemplateElementList.some(
             (item) => item.templateElementTypeID === 10,
           );
           let AddFirstPageHtmlContent = [...updatedTemplateElementList];
           if (!isAddedFirstPage) {
-            // const firstPageElement = {
-            //   "ttetMapID": null,
-            //   "templateElementTypeID": 10,
-            //   "templateElementTypeName": "First Page",
-            //   "serialNo": null,
-            //   "headings": "",
-            //   "shortDesc": "",
-            //   "htmlContent": setDefaultFontFamily(firstPageHTML, fontFamily)
-            // };
-            // AddFirstPageHtmlContent.splice(0, 0, firstPageElement);
+            const firstPageElement = {
+              ttetMapID: null,
+              templateElementTypeID: 10,
+              templateElementTypeName: "First Page",
+              serialNo: null,
+              headings: "",
+              shortDesc: "",
+              htmlContent: setDefaultFontFamily(firstPageHTML, fontFamily),
+            };
+            AddFirstPageHtmlContent.splice(0, 0, firstPageElement);
           }
           // const GetCommonFontFamily = AddFirstPageHtmlContent.find(item => item.templateElementTypeName === "Text Block").htmlContent
           // const { uniqueFontFamilies, // Unique font families
@@ -2456,9 +2485,12 @@ function AcceptInvitation() {
             paymentFrequencyID,
             3,
             packageData,
+            recurringServiceCatList,
+            oneOffServiceCatList,
           );
           setIsDefaultFirstPage(ModelData?.enableFirstPage);
-          setTemplateElementList(ReplaceVariableArray);
+          setTemplateElementList(ReplaceVariableArray.replacedArray);
+          setPricingVariablesForEmail(ReplaceVariableArray.pricingVariables);
           setBrandColor(
             ModelData.templateElementListWithRequiredData.brandColor,
           );
@@ -2500,17 +2532,18 @@ function AcceptInvitation() {
           setContractKeyID(GetContractKeyID);
 
           if (Number(SignedFileID) > 0) {
-            console.log(
-              "[Generate Contract] SignedFileID exists; skipping SignEasy redirect. SignedFileID:",
-              SignedFileID,
-            );
-            if (STOP_AFTER_PDF_GENERATION) return;
-
             const ApiRequest_ParamsObj = {
               moduleName: "Quotation",
               contractKeyID: GetContractKeyID,
               contractPDFUrl: null,
               ContractSignatoryKeyID: ContractSignatoryKeyID,
+              pricingVariablesList: Object.entries(
+                pricingVariablesForEmail,
+              ).map(([variableName, variableValue]) => ({
+                variableName: `$${variableName}$`,
+                variableValue:
+                  variableValue == null ? "0.00" : String(variableValue),
+              })),
             };
             GetSendToSignEasyData(ApiRequest_ParamsObj);
           } else {
@@ -2537,9 +2570,11 @@ function AcceptInvitation() {
       return;
     }
 
+    debugger;
+
     try {
       const data = await GetContractDetailsForSignEasyList(GetContractKeyID);
-      debugger;
+
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
           const ModelData = data?.data?.responseData?.data;
@@ -2660,7 +2695,6 @@ function AcceptInvitation() {
             },
           ];
           setOrgkeyId(ModelData.organisationDetails.organisationKeyID);
-          // console.log(ModelData.organisationDetails.organisationKeyID);
           // // Set updated organization data
           setOrganisationData({
             otherInformation: updatedOtherInformation,

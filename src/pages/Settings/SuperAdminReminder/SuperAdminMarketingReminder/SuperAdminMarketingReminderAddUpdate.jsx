@@ -11,10 +11,7 @@ import "../../../../pages/configure/packages/Package.css";
 import "../../../configure/services/ServiceStyle.css";
 import { ERROR_MESSAGES } from "../../../../components/GlobalMessage";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  EmailTemplates,
-  MarketingEmailAddressIdType,
-} from "../../../../Middleware/enums";
+import { EmailTemplates, MarketingEmailAddressIdType } from "../../../../Middleware/enums";
 import {
   GetEmailAddressTypeLookupList,
   GetTriggerPointTypeLookupList,
@@ -59,12 +56,12 @@ function SuperAdminMarketingReminderAddUpdate(props) {
   const [dismissModal, setDismissModal] = useState(null);
   const [frequencyTypeLookupList, setFrequencyTypeLookupList] = useState([]);
   const [emailAddressTypeLookupList, setEmailAddressTypeLookupList] = useState(
-    [],
+    []
   );
   const [emailTemplateTypeLookupList, setEmailTemplateTypeLookupList] =
     useState([]);
   const [triggerPointTypeLookupList, setTriggerPointTypeLookupList] = useState(
-    [],
+    []
   );
   const [modelAction, setModelAction] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -76,7 +73,7 @@ function SuperAdminMarketingReminderAddUpdate(props) {
     getCrudPopUpTitleName,
     proposalName,
     EngagementName,
-    prospectName,
+    prospectName
   } = useContext(AuthContextProvider);
   const common = useSelector((state) => state.Storage); //Getting Logged Users Details From Persist Storage of redux hooks
 
@@ -84,14 +81,14 @@ function SuperAdminMarketingReminderAddUpdate(props) {
     setModelAction(
       location?.state?.Action === undefined || location?.state?.Action === null
         ? "Add"
-        : "Update",
+        : "Update"
     ); //Do not change this naming convention
     GetFrequencyTypeData();
     setTopbar("none");
     GetMarketingReminderModelData(location.state?.reminderKeyID);
 
-    GetEmailTemplateTypeData();
-    GetEmailAddressTypeData();
+    GetEmailTemplateTypeData()
+    GetEmailAddressTypeData()
   }, [location.state]);
 
   const GetMarketingReminderModelData = async (id) => {
@@ -112,10 +109,7 @@ function SuperAdminMarketingReminderAddUpdate(props) {
             emailAddressID: ModelData.emailAddressID,
             subscriptionPackageID: ModelData.subscriptionPackageID,
             triggerPointID: ModelData.triggerPointID,
-            emailAddressIDType:
-              ModelData.emailAddressID !== null
-                ? MarketingEmailAddressIdType.EmailAddressID
-                : MarketingEmailAddressIdType.SubscriptionPackageID,
+            emailAddressIDType: ModelData.emailAddressID !== null ? MarketingEmailAddressIdType.EmailAddressID : MarketingEmailAddressIdType.SubscriptionPackageID,
             reminderFrequencyID: ModelData.reminderFrequencyID,
             days: ModelData.days,
             customDate: ModelData.customDate,
@@ -123,12 +117,8 @@ function SuperAdminMarketingReminderAddUpdate(props) {
             isRepeat: ModelData.isRepeat ? 1 : 2, // Assuming 1 is for Yes, 2 is for No
           });
 
-          GetTriggerPointTypeData(
-            ModelData.emailAddressID === null
-              ? ModelData.subscriptionPackageID
-              : ModelData.emailAddressID,
-            ModelData.emailAddressIDType,
-          );
+          GetTriggerPointTypeData(ModelData.emailAddressID === null ? ModelData.subscriptionPackageID : ModelData.emailAddressID, ModelData.emailAddressIDType)
+
         }
         setLoader(false);
       } else {
@@ -159,6 +149,7 @@ function SuperAdminMarketingReminderAddUpdate(props) {
       ...reminderMarketingObj,
       reminderName: capitalizedValue,
     });
+
   };
 
   const handleDaysChange = (e) => {
@@ -183,14 +174,13 @@ function SuperAdminMarketingReminderAddUpdate(props) {
       reminderMarketingObj.templateID == undefined ||
       reminderMarketingObj.templateID == null ||
       reminderMarketingObj.templateID == "" ||
-      (MarketingEmailAddressIdType.EmailAddressID ===
-      reminderMarketingObj.emailAddressIDType
-        ? reminderMarketingObj.emailAddressID === undefined ||
-          reminderMarketingObj.emailAddressID === null ||
-          reminderMarketingObj.emailAddressID === ""
-        : reminderMarketingObj.subscriptionPackageID === undefined ||
-          reminderMarketingObj.subscriptionPackageID === null ||
-          reminderMarketingObj.subscriptionPackageID === "") ||
+      (MarketingEmailAddressIdType.EmailAddressID === reminderMarketingObj.emailAddressIDType ?
+        reminderMarketingObj.emailAddressID === undefined ||
+        reminderMarketingObj.emailAddressID === null ||
+        reminderMarketingObj.emailAddressID === "" :
+        reminderMarketingObj.subscriptionPackageID === undefined ||
+        reminderMarketingObj.subscriptionPackageID === null ||
+        reminderMarketingObj.subscriptionPackageID === "") ||
       reminderMarketingObj.days == undefined ||
       reminderMarketingObj.days == null ||
       reminderMarketingObj.days == "" ||
@@ -232,27 +222,28 @@ function SuperAdminMarketingReminderAddUpdate(props) {
           : null,
 
       documentStatusIDs: null,
-    };
+    }
 
-    AddUpdateMarketReminderData(Api_Params);
+    AddUpdateMarketReminderData(Api_Params)
+
   };
 
   const AddUpdateMarketReminderData = async (api_param) => {
-    setLoader(true);
+    setLoader(true)
     try {
-      const response = await AddUpdateMarketingReminder(api_param);
+      const response = await AddUpdateMarketingReminder(api_param)
       if (response?.data?.statusCode === 200) {
         setOpenSuccessModal(true);
-        setLoader(false);
+        setLoader(false)
       } else {
-        setLoader(false);
+        setLoader(false)
         console.error(response?.response?.data?.errorMessage);
       }
     } catch (error) {
-      setLoader(false);
+      setLoader(false)
       console.error(error);
     }
-  };
+  }
 
   const handleClose = () => {
     setOpenSuccessModal(false);
@@ -260,12 +251,12 @@ function SuperAdminMarketingReminderAddUpdate(props) {
   };
 
   const GetFrequencyTypeData = async () => {
-    setLoader(true);
+    setLoader(true)
     try {
       const data = await GetFrequencyLookUpList();
       if (data) {
         if (data?.data?.statusCode === 200) {
-          setLoader(false);
+          setLoader(false)
           let frequencyTypeData = data?.data?.responseData.data;
           frequencyTypeData = frequencyTypeData.map((frequencyType) => ({
             value: frequencyType.reminderFrequencyID,
@@ -273,11 +264,11 @@ function SuperAdminMarketingReminderAddUpdate(props) {
           }));
           setFrequencyTypeLookupList(frequencyTypeData);
         } else {
-          setLoader(false);
+          setLoader(false)
         }
       }
     } catch (error) {
-      setLoader(false);
+      setLoader(false)
       console.log(error);
     }
   };
@@ -289,34 +280,24 @@ function SuperAdminMarketingReminderAddUpdate(props) {
         let emailAddressTypeData = data?.data?.responseData.data;
         emailAddressTypeData = emailAddressTypeData.map((emailAddressType) => ({
           value: emailAddressType.emailAddressID,
-          label: emailAddressType.emailAddressName?.replace(
-            /prospects/gi,
-            prospectName,
-          ),
-          emailAddressIDType: emailAddressType.emailAddressIDType,
+          label: emailAddressType.emailAddressName?.replace(/prospects/gi, prospectName),
+          emailAddressIDType: emailAddressType.emailAddressIDType
         }));
         setEmailAddressTypeLookupList(emailAddressTypeData);
       } else {
-        setLoader(false);
+        setLoader(false)
       }
     } catch (error) {
-      setLoader(false);
+      setLoader(false)
       console.log(error);
     }
   };
-  const GetTriggerPointTypeData = async (
-    emailAddressID,
-    emailAddressIDType,
-  ) => {
-    setLoader(true);
+  const GetTriggerPointTypeData = async (emailAddressID, emailAddressIDType) => {
+    setLoader(true)
     try {
-      const data = await GetTriggerPointTypeLookupList(
-        4,
-        emailAddressID,
-        emailAddressIDType,
-      );
+      const data = await GetTriggerPointTypeLookupList(4, emailAddressID, emailAddressIDType);
       if (data?.data?.statusCode === 200) {
-        setLoader(false);
+        setLoader(false)
         let triggerPointTypeData = data?.data?.responseData?.data;
         triggerPointTypeData = triggerPointTypeData
           .map((triggerPointID) => {
@@ -341,8 +322,8 @@ function SuperAdminMarketingReminderAddUpdate(props) {
 
         setTriggerPointTypeLookupList(triggerPointTypeData);
       } else {
-        setLoader(false);
-        setErrorMessage(data.data.errorMessage);
+        setLoader(false)
+        setErrorMessage(data.data.errorMessage)
       }
     } catch (error) {
       console.log(error);
@@ -350,16 +331,16 @@ function SuperAdminMarketingReminderAddUpdate(props) {
   };
 
   const GetEmailTemplateTypeData = async () => {
-    setLoader(true);
+    setLoader(true)
     try {
       const data = await GetEmailTemplateListLookupList(
         common.organisationKeyID,
         common.userKeyID,
         6,
-        EmailTemplates.Reminder,
+        EmailTemplates.Reminder
       );
       if (data?.data?.statusCode === 200) {
-        setLoader(false);
+        setLoader(false)
         let emailTemplateTypeData = data?.data?.responseData.data;
         emailTemplateTypeData = emailTemplateTypeData.map((TempType) => ({
           value: TempType.templateID,
@@ -367,24 +348,24 @@ function SuperAdminMarketingReminderAddUpdate(props) {
         }));
         setEmailTemplateTypeLookupList(emailTemplateTypeData);
       } else {
-        setLoader(false);
-        setErrorMessage(data.data.errorMessage);
+        setLoader(false)
+        setErrorMessage(data.data.errorMessage)
       }
     } catch (error) {
-      setLoader(false);
+      setLoader(false)
       console.log(error);
     }
   };
   const TriggerPoints = triggerPointTypeLookupList?.find(
-    (trigger) => trigger.value == reminderMarketingObj.triggerPointID,
+    (trigger) => trigger.value == reminderMarketingObj.triggerPointID
   );
-  const TemplateEmailAddress = emailAddressTypeLookupList?.find(
-    (emailTemp) =>
-      (reminderMarketingObj.emailAddressID === null
-        ? emailTemp.value === reminderMarketingObj.subscriptionPackageID
-        : emailTemp.value === reminderMarketingObj.emailAddressID) &&
-      emailTemp.emailAddressIDType === reminderMarketingObj.emailAddressIDType,
+  const TemplateEmailAddress = emailAddressTypeLookupList?.find((emailTemp) =>
+    (reminderMarketingObj.emailAddressID === null
+      ? emailTemp.value === reminderMarketingObj.subscriptionPackageID
+      : emailTemp.value === reminderMarketingObj.emailAddressID) &&
+    emailTemp.emailAddressIDType === reminderMarketingObj.emailAddressIDType
   );
+
 
   return (
     <>
@@ -420,8 +401,8 @@ function SuperAdminMarketingReminderAddUpdate(props) {
                         </div>
 
                         {requireErrorMessage &&
-                        (reminderMarketingObj.reminderName === "" ||
-                          reminderMarketingObj.reminderName === undefined) ? (
+                          (reminderMarketingObj.reminderName === "" ||
+                            reminderMarketingObj.reminderName === undefined) ? (
                           <label className="validation">{ERROR_MESSAGES}</label>
                         ) : (
                           ""
@@ -441,8 +422,7 @@ function SuperAdminMarketingReminderAddUpdate(props) {
                             options={emailTemplateTypeLookupList}
                             value={emailTemplateTypeLookupList.find(
                               (option) =>
-                                option.value ===
-                                reminderMarketingObj.templateID,
+                                option.value === reminderMarketingObj.templateID
                             )}
                             onChange={(selectedOption) =>
                               setReminderMarketingObj((prevState) => ({
@@ -453,9 +433,9 @@ function SuperAdminMarketingReminderAddUpdate(props) {
                           />
                         </div>
                         {requireErrorMessage &&
-                        (reminderMarketingObj.templateID === "" ||
-                          reminderMarketingObj.templateID === undefined ||
-                          reminderMarketingObj.templateID === null) ? (
+                          (reminderMarketingObj.templateID === "" ||
+                            reminderMarketingObj.templateID === undefined ||
+                            reminderMarketingObj.templateID === null) ? (
                           <label className="validation">{ERROR_MESSAGES}</label>
                         ) : (
                           ""
@@ -470,46 +450,36 @@ function SuperAdminMarketingReminderAddUpdate(props) {
                         </label>
                         <div className="input-group">
                           <Select
+
                             className="user-role-select"
                             placeholder="Select..."
                             options={emailAddressTypeLookupList}
                             value={TemplateEmailAddress}
                             // onChange={(e) => setReminderMarketingObj.emailAddressID(e.value)}
                             onChange={(selectedOption) => {
-                              if (
-                                selectedOption.emailAddressIDType ===
-                                MarketingEmailAddressIdType.EmailAddressID
-                              ) {
+                              if (selectedOption.emailAddressIDType === MarketingEmailAddressIdType.EmailAddressID) {
                                 setReminderMarketingObj((prev) => ({
                                   ...prev,
-                                  emailAddressID: selectedOption
-                                    ? selectedOption.value
-                                    : null,
+                                  emailAddressID: selectedOption ? selectedOption.value : null,
                                   subscriptionPackageID: null,
-                                  emailAddressIDType:
-                                    selectedOption.emailAddressIDType,
+                                  emailAddressIDType: selectedOption.emailAddressIDType
                                 }));
                               } else {
                                 setReminderMarketingObj((prev) => ({
                                   ...prev,
-                                  subscriptionPackageID: selectedOption
-                                    ? selectedOption.value
-                                    : null,
+                                  subscriptionPackageID: selectedOption ? selectedOption.value : null,
                                   emailAddressID: null,
-                                  emailAddressIDType:
-                                    selectedOption.emailAddressIDType,
+                                  emailAddressIDType: selectedOption.emailAddressIDType
                                 }));
                               }
-                              GetTriggerPointTypeData(
-                                selectedOption.value,
-                                selectedOption.emailAddressIDType,
-                              );
+                              GetTriggerPointTypeData(selectedOption.value, selectedOption.emailAddressIDType)
                             }}
+
                           />
                         </div>
                         {requireErrorMessage &&
-                        (reminderMarketingObj.emailAddressID == "" ||
-                          reminderMarketingObj.emailAddressID == undefined) ? (
+                          (reminderMarketingObj.emailAddressID == "" ||
+                            reminderMarketingObj.emailAddressID == undefined) ? (
                           <label className="validation">{ERROR_MESSAGES}</label>
                         ) : (
                           ""
@@ -537,7 +507,7 @@ function SuperAdminMarketingReminderAddUpdate(props) {
                                 onInput={(e) => {
                                   e.target.value = e.target.value.replace(
                                     /[^0-9]/g,
-                                    "",
+                                    ""
                                   );
                                 }}
                               />
@@ -552,8 +522,8 @@ function SuperAdminMarketingReminderAddUpdate(props) {
                             )} */}
 
                             {requireErrorMessage &&
-                            (reminderMarketingObj.days === "" ||
-                              reminderMarketingObj.days === undefined) ? (
+                              (reminderMarketingObj.days === "" ||
+                                reminderMarketingObj.days === undefined) ? (
                               <label className="validation">
                                 {ERROR_MESSAGES}
                               </label>
@@ -575,8 +545,7 @@ function SuperAdminMarketingReminderAddUpdate(props) {
                                 options={Utils.periods}
                                 value={Utils.periods.find(
                                   (period) =>
-                                    period.value ===
-                                    reminderMarketingObj.period,
+                                    period.value === reminderMarketingObj.period
                                 )}
                                 onChange={(selectedOption) => {
                                   setReminderMarketingObj((prevState) => ({
@@ -588,8 +557,8 @@ function SuperAdminMarketingReminderAddUpdate(props) {
                             </div>
 
                             {requireErrorMessage &&
-                            (reminderMarketingObj.period == "" ||
-                              reminderMarketingObj.period == undefined) ? (
+                              (reminderMarketingObj.period == "" ||
+                                reminderMarketingObj.period == undefined) ? (
                               <label className="validation">
                                 {ERROR_MESSAGES}
                               </label>
@@ -608,6 +577,7 @@ function SuperAdminMarketingReminderAddUpdate(props) {
                         </label>
                         <div className="input-group">
                           <Select
+
                             className="user-role-select"
                             placeholder="Select..."
                             options={triggerPointTypeLookupList}
@@ -622,13 +592,11 @@ function SuperAdminMarketingReminderAddUpdate(props) {
                             }
                           />
                         </div>
-                        {requireErrorMessage &&
-                        (reminderMarketingObj.triggerPointID == "" ||
-                          reminderMarketingObj.triggerPointID == undefined) ? (
-                          <label className="validation">{ERROR_MESSAGES}</label>
-                        ) : (
-                          ""
-                        )}
+                        {requireErrorMessage && (reminderMarketingObj.triggerPointID == "" || reminderMarketingObj.triggerPointID == undefined) ?
+                          <label className="validation">
+                            {ERROR_MESSAGES}
+                          </label> : ""
+                        }
                       </div>
                     </div>
 
@@ -656,6 +624,7 @@ function SuperAdminMarketingReminderAddUpdate(props) {
                             monthPlaceholder="mm"
                             yearPlaceholder="yyyy"
                             style={{ width: "100%" }}
+
                           />
                           {/* </div> */}
                           {requireErrorMessage &&
@@ -683,8 +652,7 @@ function SuperAdminMarketingReminderAddUpdate(props) {
                                 options={Utils.repeats}
                                 value={Utils.repeats.find(
                                   (repeat) =>
-                                    repeat.value ===
-                                    reminderMarketingObj.isRepeat,
+                                    repeat.value === reminderMarketingObj.isRepeat
                                 )}
                                 onChange={(selectedOption) => {
                                   setReminderMarketingObj((prevState) => ({
@@ -714,7 +682,7 @@ function SuperAdminMarketingReminderAddUpdate(props) {
                                       frequencyTypeLookupList.find(
                                         (freq) =>
                                           freq.value ===
-                                          reminderMarketingObj.reminderFrequencyID,
+                                          reminderMarketingObj.reminderFrequencyID
                                       ) || null
                                     }
                                     onChange={(selectedOption) =>
@@ -732,8 +700,7 @@ function SuperAdminMarketingReminderAddUpdate(props) {
                                 </div>
                                 {requireErrorMessage &&
                                   reminderMarketingObj.isRepeat === 1 &&
-                                  reminderMarketingObj.reminderFrequencyID ===
-                                    null && (
+                                  reminderMarketingObj.reminderFrequencyID === null && (
                                     <label className="validation">
                                       {ERROR_MESSAGES}
                                     </label>

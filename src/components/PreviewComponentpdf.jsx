@@ -1,11 +1,4 @@
-import React, {
-  lazy,
-  Suspense,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { ElementType, EMAIL_TEMPLATE, statusID } from "../Middleware/enums";
 import { useSelector } from "react-redux";
 import { GetOrganisationInformationModel } from "../redux/Services/Setting/Organisation";
@@ -15,7 +8,7 @@ import Utils from "../Middleware/Utils";
 import { ERROR_MESSAGES } from "./GlobalMessage";
 import { AuthContextProvider } from "../AuthContext/AuthContext";
 import { generatePdfUrl, mergePdfApiUrl } from "../Base-Url/Base_Url";
-// import PdfViewer from "./PdfViewers";
+import PdfViewer from "./PdfViewers";
 import PaymentGatewayModel from "./PaymentGatewayModel";
 import ReactDOMServer from "react-dom/server";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -32,7 +25,19 @@ import {
   GetTemplatePdfList,
 } from "../redux/Services/Config/TemplateApi";
 import { Landscape } from "@mui/icons-material";
-import { getServiceScopeDriverList } from "../utils/serviceScopeDrivers";
+import {
+  calculateCustomOneOffFooter,
+  calculateCustomOneOffPackageFooter,
+  calculateCustomOneOffPackageRow,
+  calculateCustomPackageRow,
+  calculateCustomRecurringFooter,
+  calculateCustomRecurringPackageFooter,
+  calculateCustomServiceFooter,
+  calculateCustomServiceRow,
+  decimalValue,
+  hasCalculationValue,
+  truncateMoney,
+} from "../Middleware/helpers";
 export default function PreviewComponentPdf(props) {
   const moduleNameForSaveAsDraft = "Preview";
   const statusIDForSaveAsDraft = 1;
@@ -60,7 +65,6 @@ export default function PreviewComponentPdf(props) {
     activeOrganizationSubscriptionPlan,
     convertAndParseDate,
   } = useContext(AuthContextProvider);
-  // console.log(orientationID);
   const [totalOnePackageValue, setTotalOnePackageValue] = useState(0);
   const [totalTwoPackageValue, setTotalTwoPackageValue] = useState(0);
   const [totalThreePackageValue, setTotalThreePackageValue] = useState(0);
@@ -75,7 +79,6 @@ export default function PreviewComponentPdf(props) {
   const [isContentChanged, setIsContentChanged] = useState(false);
   const [editorState, setEditorState] = useState("");
   const [isPopUpVisible, setIsPopUpVisible] = useState(false);
-  const PdfViewer = lazy(() => import("./PdfViewers"));
   const openPopup = () => {
     setIsPopUpVisible(true);
   };
@@ -120,7 +123,7 @@ export default function PreviewComponentPdf(props) {
   const isMeaningfulChanges = (currentContent, initialContent) => {
     const trimmedCurrent = currentContent.replace(/\s+/g, "").trim();
     const trimmedInitial = initialContent.replace(/\s+/g, "").trim();
-    // console.log("meaningfulChanges: ", trimmedCurrent !== trimmedInitial);
+    console.log("meaningfulChanges: ", trimmedCurrent !== trimmedInitial);
     return trimmedCurrent !== trimmedInitial;
   };
   const handleContentChange = (newContent) => {
@@ -309,14 +312,16 @@ export default function PreviewComponentPdf(props) {
   const FooterHeight = props.footerHeight;
   const WatermarkImage = props.watermarkImage;
   const orientationID = props.orientationID;
+  const flagForTemplatePdf = props.flagForTemplatePdf;
+  const awsPdfWidth = props.awsPdfWidth;
+  const awsPdfHeight = props.awsPdfHeight;
   const headerFooterFirstPage = props?.isDefaultFirstPage
     ? props?.headerFooterFirstPage
     : null;
   const headerFooterLastPage = props?.headerFooterLastPage;
   const [landscapeMode, setLandscapeMode] = useState(orientationID === 2);
-  // console.log(WatermarkImage);
-  // console.log(props?.pdf);
   const showSeparatorLines = props.showSeparatorLines;
+  console.log(props.StatementOfFact);
   // console.log(props.selectedOneOffServiceList);
   // console.log(props.selectedRecurringServiceList);
   // console.log(props?.ProposalObject?.selectedProposalTypeValue);
@@ -327,17 +332,30 @@ export default function PreviewComponentPdf(props) {
   if (props.common.enableEL === 1) {
     url = `generate-contract`;
   }
-  const AcceptRecurringUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted${props?.selectedPackagesList?.[0]?.servicePackageKeyID ? `&ServicePackageKeyID=${props?.selectedPackagesList?.[0]?.servicePackageKeyID}` : ''}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
-  const AcceptRecurringUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted${props?.selectedPackagesList?.[1]?.servicePackageKeyID ? `&ServicePackageKeyID=${props?.selectedPackagesList?.[1]?.servicePackageKeyID}` : ''}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
-  const AcceptRecurringUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted${props?.selectedPackagesList?.[2]?.servicePackageKeyID ? `&ServicePackageKeyID=${props?.selectedPackagesList?.[2]?.servicePackageKeyID}` : ''}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  const AcceptRecurringUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList?.[0]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  const AcceptRecurringUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList?.[1]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  const AcceptRecurringUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList?.[2]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  const AcceptOneOffUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList?.[0]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  const AcceptOneOffUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList?.[1]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  const AcceptOneOffUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList?.[2]?.servicePackageKeyID}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+
+  // const AcceptRecurringUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  // const AcceptRecurringUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  // const AcceptRecurringUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
 
   // const AcceptOneOffELOffUrlButton1 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[0]?.servicePackageKeyID}`;
   // const AcceptOneOffELOffUrlButton2 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[1]?.servicePackageKeyID}`;
   // const AcceptOneOffELOffUrlButton3 = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ServicePackageKeyID=${props.selectedPackagesList[2]?.servicePackageKeyID}`;
 
-  const AcceptOneOffUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted${props?.selectedPackagesList?.[0]?.servicePackageKeyID ? `&ServicePackageKeyID=${props?.selectedPackagesList?.[0]?.servicePackageKeyID}` : ''}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
-  const AcceptOneOffUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted${props?.selectedPackagesList?.[1]?.servicePackageKeyID ? `&ServicePackageKeyID=${props?.selectedPackagesList?.[1]?.servicePackageKeyID}` : ''}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
-  const AcceptOneOffUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted${props?.selectedPackagesList?.[2]?.servicePackageKeyID ? `&ServicePackageKeyID=${props?.selectedPackagesList?.[2]?.servicePackageKeyID}` : ''}&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  // const AcceptOneOffUrlButton1 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  // const AcceptOneOffUrlButton2 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
+  // const AcceptOneOffUrlButton3 = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
 
   const getPaymentFrequencyLabel = () => {
     const Payment_Frequency = {
@@ -364,14 +382,14 @@ export default function PreviewComponentPdf(props) {
     }
   };
 
-  // useEffect(() => {
-  //   if (props?.moduleName === "Contract") {
-  //     props.setEngagementObj((prevState) => ({
-  //       ...prevState,
-  //       pdf: null,
-  //     }));
-  //   }
-  // }, [props?.engagementObj]);
+  useEffect(() => {
+    if (props?.moduleName === "Contract") {
+      props.setEngagementObj((prevState) => ({
+        ...prevState,
+        pdf: null,
+      }));
+    }
+  }, [props?.engagementObj]);
   const AcceptRecurringUrl = `https://$AppUrl$/${url}?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
   // const AcceptRecurringELOffUrl = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.Recurring}&Action=Accepted`;
 
@@ -382,337 +400,1745 @@ export default function PreviewComponentPdf(props) {
 
   const DeclineOneOffUrl = `https://$AppUrl$/accept-decline-proposal?quoteKeyID=$QuoteKeyID$&ServiceChargeTypeID=${ServiceChargeTypeEnum.OneOff}&Action=Declined&ContractSignatoryKeyID=$ContractSignatoryKeyID$`;
 
-  // Numeric hardening: avoid NaN (undefined/"1,234.56"/"") in tables
-  const toFiniteNumber = (val) => {
-    if (val === null || val === undefined || val === "") return 0;
-    const n =
-      typeof val === "number"
-        ? val
-        : Number(String(val).replace(/,/g, ""));
-    return Number.isFinite(n) ? n : 0;
-  };
+  // const RecurringPackagesTable = (
+  //   <div
+  //     style={{
+  //       paddingLeft: "40px",
+  //       paddingRight: "40px",
+  //       fontFamily: "'Times New Roman', Times, serif",
+  //     }}
+  //   >
+  //     <p
+  //       style={{
+  //         fontFamily: "arial, sans-serif",
+  //         color: "#00BFFF",
+  //         fontSize: "20px",
+  //         marginTop: "15px",
+  //       }}
+  //     >
+  //       Recurring Services
+  //     </p>
+  //     <table
+  //       style={{
+  //         fontFamily: "arial, sans-serif",
+  //         borderCollapse: "collapse",
+  //         width: "100%",
+  //         marginTop: "15px",
+  //       }}
+  //     >
+  //       <tr style={{ backgroundColor: "#00BFFF" }}>
+  //         <th
+  //           style={{
+  //             border: "1px solid #DDDDDD",
+  //             textAlign: "left",
+  //             padding: "8px",
+  //             color: "white",
+  //             fontSize: "18px",
+  //           }}
+  //         >
+  //           Services
+  //         </th>
+  //         <th
+  //           style={{
+  //             border: "1px solid #DDDDDD",
+  //             textAlign: "right",
+  //             padding: "8px",
+  //             color: "white",
+  //             fontSize: "18px",
+  //           }}
+  //         ></th>
+  //       </tr>
+  //       {props.moduleName === "Quote" &&
+  //         props.selectedRecurringServiceList?.map((serviceCat, index) => (
+  //           <React.Fragment key={index}>
+  //             <tr style={{ backgroundColor: "#DCDCDC" }}>
+  //               <td
+  //                 style={{
+  //                   border: "1px solid #DDDDDD",
+  //                   textAlign: "left",
+  //                   padding: "8px",
+  //                   fontWeight: "bold",
+  //                   fontSize: "18px",
+  //                 }}
+  //               >
+  //                 {serviceCat.serviceCatName}
+  //               </td>
+  //               <td
+  //                 style={{
+  //                   border: "1px solid #DDDDDD",
+  //                   textAlign: "left",
+  //                   padding: "8px",
+  //                 }}
+  //               ></td>
+  //             </tr>
+  //             {serviceCat.servicesList.map((subService, subIndex) => (
+  //               <tr key={subIndex}>
+  //                 <td
+  //                   style={{
+  //                     border: "1px solid #DDDDDD",
+  //                     textAlign: "left",
+  //                     padding: "8px",
+  //                   }}
+  //                 >
+  //                   {subService.serviceName}
+  //                 </td>
+  //                 {props.moduleName == "Quote" &&
+  //                 props.ProposalObject?.feeTypeId == 1 ? (
+  //                   <td
+  //                     style={{
+  //                       border: "1px solid #DDDDDD",
+  //                       textAlign: "right",
+  //                       padding: "8px",
+  //                     }}
+  //                   >
+  //                     &#10003;
+  //                   </td>
+  //                 ) : (
+  //                   <td
+  //                     style={{
+  //                       border: "1px solid #DDDDDD",
+  //                       textAlign: "right",
+  //                       padding: "8px",
+  //                     }}
+  //                   >
+  //                     &#10003;
+  //                   </td>
+  //                 )}
+  //                 {subService.pricingDriverList?.length > 0 &&
+  //                   subService.pricingDriverList.map((driver, driverIndex) => {
+  //                     const isVariation = driver.driverTypeID === 3;
+  //                     const isSlab = driver.driverTypeID === 4;
+  //                     const isQuantity = driver.driverTypeID === 2;
+  //                     const matchedQuantity = driver.driverValue;
+  //                     const isVisible = driver.driverVisibility === true;
 
-  // Helper to normalize package values (strip commas, convert to number)
-  const normalizePackageValue = (val) => toFiniteNumber(val);
+  //                     const matchedVariation = isVariation
+  //                       ? driver.variation?.find(
+  //                           (item) => item.variationID === driver.variationID,
+  //                         )
+  //                       : null;
 
-  // Helper to check if service is included in package
-  const isServiceInPackage = (subService, packageId, selectedPackageId) => {
-    return subService?.servicePackageIDs?.includes(packageId) ||
-      subService?.servicePackageIDs?.some((item) => item == selectedPackageId);
-  };
+  //                     const matchedSlab = isSlab
+  //                       ? driver.slab?.find(
+  //                           (item) => item.slabID === driver.slabID,
+  //                         )
+  //                       : null;
 
-  // Helper to render package cell content (X, checkmark, or value)
-  const renderPackageCellContent = (subService, packageValue, packageId, selectedPackageId, feeTypeId) => {
-    const val = normalizePackageValue(packageValue);
-    const isIncluded = isServiceInPackage(subService, packageId, selectedPackageId);
-    
-    if ((val === 0 || packageValue === null) && !isIncluded) {
-      return <span>&#10007;</span>;
+  //                     return (
+  //                       <>
+  //                         <tr>
+  //                           {isVisible && (
+  //                             <>
+  //                               <td
+  //                                 key={`driver-${driverIndex}`}
+  //                                 style={{
+  //                                   border: "1px solid #DDDDDD",
+  //                                   textAlign: "left",
+  //                                   padding: "8px",
+  //                                   fontWeight: "normal",
+  //                                 }}
+  //                               >
+  //                                 • {driver.driverName}
+  //                               </td>
+  //                               <td
+  //                                 style={{
+  //                                   border: "1px solid #DDDDDD",
+  //                                   textAlign: "right",
+  //                                   padding: "8px",
+  //                                   fontWeight: "normal",
+  //                                 }}
+  //                               >
+  //                                 {isVariation && matchedVariation
+  //                                   ? matchedVariation.variationName
+  //                                   : isSlab && matchedSlab
+  //                                     ? `${matchedSlab.slabFrom} - ${matchedSlab.slabTo}`
+  //                                     : isQuantity
+  //                                       ? matchedQuantity
+  //                                       : ""}
+  //                               </td>
+  //                             </>
+  //                           )}
+  //                         </tr>
+  //                       </>
+  //                     );
+  //                   })}
+
+  //                 {props?.selectedPackagesList.length >= 2 ? (
+  //                   props.ProposalObject?.feeTypeId == 1 ? (
+  //                     <td
+  //                       style={{
+  //                         border: "1px solid #DDDDDD",
+  //                         textAlign: "right",
+  //                         padding: "8px",
+  //                       }}
+  //                     >
+  //                       {subService.packageTwoValue === null &&
+  //                       !subService.servicePackageIDs.some(
+  //                         (item) =>
+  //                           item ==
+  //                           props.selectedPackagesList[1]?.servicePackageID,
+  //                       ) ? (
+  //                         <span>&#10007;</span>
+  //                       ) : !subService?.servicePackageIDs.includes(
+  //                           subService.packageTwoID,
+  //                         ) ? (
+  //                         <span>&#10007;</span>
+  //                       ) : (
+  //                         ` ${props.formatValue(
+  //                           subService.packageTwoValue,
+  //                           props.currencyID,
+  //                         )}`
+  //                       )}
+  //                     </td>
+  //                   ) : subService.packageTwoValue !== null &&
+  //                     !subService?.servicePackageIDs.includes(
+  //                       subService.packageTwoID,
+  //                     ) ? (
+  //                     <td
+  //                       style={{
+  //                         border: "1px solid #DDDDDD",
+  //                         textAlign: "right",
+  //                         padding: "8px",
+  //                       }}
+  //                     >
+  //                       &#10007;
+  //                     </td>
+  //                   ) : (
+  //                     <td
+  //                       style={{
+  //                         border: "1px solid #DDDDDD",
+  //                         textAlign: "right",
+  //                         padding: "8px",
+  //                       }}
+  //                     >
+  //                       &#10003;
+  //                     </td>
+  //                   )
+  //                 ) : null}
+  //                 {props?.selectedPackagesList.length === 3 ? (
+  //                   props.ProposalObject?.feeTypeId == 1 ? (
+  //                     <td
+  //                       style={{
+  //                         border: "1px solid #DDDDDD",
+  //                         textAlign: "right",
+  //                         padding: "8px",
+  //                       }}
+  //                     >
+  //                       {subService.packageThreeValue === null &&
+  //                       !subService.servicePackageIDs.some(
+  //                         (item) =>
+  //                           item ==
+  //                           props.selectedPackagesList[2]?.servicePackageID,
+  //                       ) ? (
+  //                         <span>&#10007;</span>
+  //                       ) : !subService?.servicePackageIDs.includes(
+  //                           subService.packageThreeID,
+  //                         ) ? (
+  //                         <span>&#10007;</span>
+  //                       ) : (
+  //                         `${props.formatValue(
+  //                           subService.packageThreeValue,
+  //                           props.currencyID,
+  //                         )}`
+  //                       )}
+  //                     </td>
+  //                   ) : subService.packageThreeValue !== null &&
+  //                     !subService?.servicePackageIDs.includes(
+  //                       subService.packageThreeID,
+  //                     ) ? (
+  //                     <td
+  //                       style={{
+  //                         border: "1px solid #DDDDDD",
+  //                         textAlign: "right",
+  //                         padding: "8px",
+  //                       }}
+  //                     >
+  //                       &#10007;
+  //                     </td>
+  //                   ) : (
+  //                     <td
+  //                       style={{
+  //                         border: "1px solid #DDDDDD",
+  //                         textAlign: "right",
+  //                         padding: "8px",
+  //                       }}
+  //                     >
+  //                       &#10003;
+  //                     </td>
+  //                   )
+  //                 ) : null}
+  //               </tr>
+  //             ))}
+  //           </React.Fragment>
+  //         ))}
+
+  //       <tr style={{ backgroundColor: "#DCDCDC" }}>
+  //         <td
+  //           style={{
+  //             border: "1px solid #DDDDDD",
+  //             textAlign: "left",
+  //             padding: "8px",
+  //           }}
+  //         >
+  //           If you are happy with this proposal please click Accept to Accept
+  //           the Proposal.
+  //         </td>
+  //         <td
+  //           style={{
+  //             border: "1px solid #DDDDDD",
+  //             textAlign: "right",
+  //             float: "right",
+  //             padding: "8px",
+  //             color: "black",
+  //           }}
+  //         >
+  //           <div
+  //             style={{
+  //               display: "flex",
+  //               justifyContent: "center",
+  //               width: "100%",
+  //             }}
+  //           >
+  //             <a
+  //               href={AcceptRecurringUrlButton1}
+  //               style={{
+  //                 display: "inline-block",
+  //                 padding: "5px 15px",
+  //                 backgroundColor: "green",
+  //                 color: "white",
+  //                 textDecoration: "none",
+  //                 border: "none",
+  //                 borderRadius: "100px",
+  //                 transition:
+  //                   "background-color 0.3s ease, box-shadow 0.3s ease",
+  //                 whiteSpace: "nowrap",
+  //                 flex: 1,
+  //                 textAlign: "center",
+  //               }}
+  //             >
+  //               Accept
+  //             </a>
+  //           </div>
+  //         </td>
+  //         {props?.selectedPackagesList.length >= 2 ? (
+  //           <td
+  //             style={{
+  //               border: "1px solid #DDDDDD",
+  //               textAlign: "right",
+  //               padding: "8px",
+  //               color: "black",
+  //             }}
+  //           >
+  //             {" "}
+  //             <div
+  //               style={{
+  //                 display: "flex",
+  //                 justifyContent: "center",
+  //                 width: "100%",
+  //               }}
+  //             >
+  //               <a
+  //                 href={AcceptRecurringUrlButton2}
+  //                 style={{
+  //                   display: "inline-block",
+  //                   padding: "5px 15px",
+  //                   backgroundColor: "green",
+  //                   color: "white",
+  //                   textDecoration: "none",
+  //                   border: "none",
+  //                   borderRadius: "100px",
+  //                   transition:
+  //                     "background-color 0.3s ease, box-shadow 0.3s ease",
+  //                   whiteSpace: "nowrap",
+  //                   flex: 1,
+  //                   textAlign: "center",
+  //                 }}
+  //               >
+  //                 Accept
+  //               </a>
+  //             </div>
+  //           </td>
+  //         ) : null}
+  //         {props?.selectedPackagesList.length === 3 ? (
+  //           <td
+  //             style={{
+  //               border: "1px solid #DDDDDD",
+  //               textAlign: "right",
+  //               padding: "8px",
+  //               color: "black",
+  //             }}
+  //           >
+  //             <div
+  //               style={{
+  //                 display: "flex",
+  //                 justifyContent: "center",
+  //                 width: "100%",
+  //               }}
+  //             >
+  //               {" "}
+  //               <a
+  //                 href={AcceptRecurringUrlButton3}
+  //                 style={{
+  //                   display: "inline-block",
+  //                   padding: "5px 15px",
+  //                   backgroundColor: "green",
+  //                   color: "white",
+  //                   textDecoration: "none",
+  //                   border: "none",
+  //                   borderRadius: "100px",
+  //                   transition:
+  //                     "background-color 0.3s ease, box-shadow 0.3s ease",
+  //                   whiteSpace: "nowrap",
+  //                   flex: 1,
+  //                   textAlign: "center",
+  //                 }}
+  //               >
+  //                 Accept
+  //               </a>
+  //             </div>
+  //           </td>
+  //         ) : null}
+  //       </tr>
+  //       {props.common.enableEL == 0 && (
+  //         <tr style={{ backgroundColor: "#DCDCDC" }}>
+  //           <td
+  //             style={{
+  //               border: "1px solid #DDDDDD",
+  //               textAlign: "left",
+  //               padding: "8px",
+  //             }}
+  //           >
+  //             If you are not happy with this proposal please click Decline to
+  //             Decline the Proposal.
+  //           </td>
+  //           <td
+  //             style={{
+  //               border: "1px solid #DDDDDD",
+  //               textAlign: "right",
+  //               padding: "8px",
+  //               color: "black",
+  //             }}
+  //           >
+  //             {" "}
+  //             <a
+  //               href={DeclineRecurringUrl}
+  //               style={{
+  //                 display: "inline-block",
+  //                 padding: "5px 15px",
+  //                 backgroundColor: "red",
+  //                 color: "white",
+  //                 textDecoration: "none",
+  //                 border: "none",
+  //                 borderRadius: "100px",
+  //                 transition:
+  //                   "background-color 0.3s ease, box-shadow 0.3s ease",
+  //                 whiteSpace: "nowrap",
+  //               }}
+  //             >
+  //               Decline
+  //             </a>
+  //           </td>
+
+  //           {props?.selectedPackagesList.length >= 2 ? (
+  //             <td
+  //               style={{
+  //                 border: "1px solid #DDDDDD",
+  //                 textAlign: "right",
+  //                 padding: "8px",
+  //                 color: "white",
+  //               }}
+  //             ></td>
+  //           ) : null}
+  //           {props?.selectedPackagesList.length === 3 ? (
+  //             <td
+  //               style={{
+  //                 border: "1px solid #DDDDDD",
+  //                 textAlign: "right",
+  //                 padding: "8px",
+  //                 color: "white",
+  //               }}
+  //             ></td>
+  //           ) : null}
+  //         </tr>
+  //       )}
+  //     </table>
+  //   </div>
+  // );
+
+  // one-Off Service-Pricing Table Formate For E-mail.
+  // const OneOffPackagesTable = (
+  //   <div
+  //     style={{
+  //       paddingLeft: "40px",
+  //       paddingRight: "40px",
+  //       fontFamily: "'Times New Roman', Times, serif",
+  //     }}
+  //   >
+  //     <p
+  //       style={{
+  //         fontFamily: "arial, sans-serif",
+  //         color: "#00BFFF",
+  //         fontSize: "20px",
+  //         marginTop: "15px",
+  //       }}
+  //     >
+  //       One-Off Services
+  //     </p>
+  //     <table
+  //       style={{
+  //         fontFamily: "arial, sans-serif",
+  //         borderCollapse: "collapse",
+  //         width: "100%",
+  //         marginTop: "15px",
+  //       }}
+  //     >
+  //       <tr style={{ backgroundColor: "#00BFFF" }}>
+  //         <th
+  //           style={{
+  //             border: "1px solid #DDDDDD",
+  //             textAlign: "left",
+  //             padding: "8px",
+  //             color: "white",
+  //             fontSize: "18px",
+  //           }}
+  //         >
+  //           Services
+  //         </th>
+  //         <th
+  //           style={{
+  //             border: "1px solid #DDDDDD",
+  //             textAlign: "right",
+  //             padding: "8px",
+  //             color: "white",
+  //             fontSize: "18px",
+  //           }}
+  //         ></th>
+  //       </tr>
+  //       {props.moduleName == "Quote" &&
+  //         props.selectedOneOffServiceList?.map((serviceCat, index) => (
+  //           <React.Fragment key={index}>
+  //             <tr style={{ backgroundColor: "#DCDCDC" }}>
+  //               <td
+  //                 style={{
+  //                   border: "1px solid #DDDDDD",
+  //                   textAlign: "left",
+  //                   padding: "8px",
+  //                   fontWeight: "bold",
+  //                   fontSize: "18px",
+  //                 }}
+  //               >
+  //                 {serviceCat.serviceCatName}
+  //               </td>
+  //               <td
+  //                 style={{
+  //                   border: "1px solid #DDDDDD",
+  //                   textAlign: "left",
+  //                   padding: "8px",
+  //                 }}
+  //               ></td>
+  //               {props?.selectedPackagesList.length >= 2 ? (
+  //                 <td
+  //                   style={{
+  //                     border: "1px solid #DDDDDD",
+  //                     textAlign: "left",
+  //                     padding: "8px",
+  //                   }}
+  //                 ></td>
+  //               ) : null}
+  //               {props?.selectedPackagesList.length === 3 ? (
+  //                 <td
+  //                   style={{
+  //                     border: "1px solid #DDDDDD",
+  //                     textAlign: "left",
+  //                     padding: "8px",
+  //                   }}
+  //                 ></td>
+  //               ) : null}
+  //             </tr>
+  //             {serviceCat.servicesList.map((subService, subIndex) => (
+  //               <tr>
+  //                 <td
+  //                   style={{
+  //                     border: "1px solid #DDDDDD",
+  //                     textAlign: "left",
+  //                     padding: "8px",
+  //                   }}
+  //                 >
+  //                   {
+  //                     subService.serviceName
+  //                     // .length > 45 ? (
+  //                     //   subService.serviceName
+  //                     //     .substring(0, 45)
+  //                     //     .toLowerCase()
+  //                     //     .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."
+  //                     // ) : (
+  //                     //   subService.serviceName
+  //                     // )
+  //                   }
+  //                 </td>
+  //                 {props.ProposalObject?.feeTypeId == 1 ? (
+  //                   <td
+  //                     style={{
+  //                       border: "1px solid #DDDDDD",
+  //                       textAlign: "right",
+  //                       padding: "8px",
+  //                     }}
+  //                   >
+  //                     &#10003;
+  //                   </td>
+  //                 ) : (
+  //                   <td
+  //                     style={{
+  //                       border: "1px solid #DDDDDD",
+  //                       textAlign: "right",
+  //                       padding: "8px",
+  //                     }}
+  //                   >
+  //                     &#10003;
+  //                   </td>
+  //                 )}
+
+  //                 {subService.pricingDriverList?.length > 0 &&
+  //                   subService.pricingDriverList.map((driver, driverIndex) => {
+  //                     const isVariation = driver.driverTypeID === 3;
+  //                     const isSlab = driver.driverTypeID === 4;
+  //                     const isQuantity = driver.driverTypeID === 2;
+  //                     const matchedQuantity = driver.driverValue;
+  //                     const isVisible = driver.driverVisibility === true;
+
+  //                     const matchedVariation = isVariation
+  //                       ? driver.variation?.find(
+  //                           (item) => item.variationID === driver.variationID,
+  //                         )
+  //                       : null;
+
+  //                     const matchedSlab = isSlab
+  //                       ? driver.slab?.find(
+  //                           (item) => item.slabID === driver.slabID,
+  //                         )
+  //                       : null;
+
+  //                     return (
+  //                       <>
+  //                         <tr>
+  //                           {isVisible && (
+  //                             <>
+  //                               <td
+  //                                 key={`driver-${driverIndex}`}
+  //                                 style={{
+  //                                   border: "1px solid #DDDDDD",
+  //                                   textAlign: "left",
+  //                                   padding: "8px",
+  //                                   fontWeight: "normal",
+  //                                 }}
+  //                               >
+  //                                 • {driver.driverName}
+  //                               </td>
+  //                               <td
+  //                                 style={{
+  //                                   border: "1px solid #DDDDDD",
+  //                                   textAlign: "right",
+  //                                   padding: "8px",
+  //                                   fontWeight: "normal",
+  //                                 }}
+  //                               >
+  //                                 {isVariation && matchedVariation
+  //                                   ? matchedVariation.variationName
+  //                                   : isSlab && matchedSlab
+  //                                     ? `${matchedSlab.slabFrom} - ${matchedSlab.slabTo}`
+  //                                     : isQuantity
+  //                                       ? matchedQuantity
+  //                                       : ""}
+  //                               </td>
+  //                             </>
+  //                           )}
+  //                         </tr>
+  //                       </>
+  //                     );
+  //                   })}
+  //               </tr>
+  //             ))}
+  //           </React.Fragment>
+  //         ))}
+  //       {/* <tr style={{ backgroundColor: "#808080" }}>
+  //           <td
+  //             style={{
+  //               border: "1px solid #DDDDDD",
+  //               textAlign: "left",
+  //               padding: "8px",
+  //               color: "white",
+  //             }}
+  //           >
+  //             Net Total
+  //           </td>
+  //           <td
+  //             style={{
+  //               border: "1px solid #DDDDDD",
+  //               textAlign: "right",
+  //               padding: "8px",
+  //               color: "white",
+  //             }}
+  //           >
+  //             {" "}
+  //             {
+  //               totalOnePackageValueOneOff <
+  //                 Number(props.OneOffPricingInfo.packageOneDisCountedTotal) ||
+  //                 (Number(props.OneOffPricingInfo.packageOneDisCount) > 0 &&
+  //                   !props.ProposalObject.DiscountLines)
+  //                 ? props.formatValue(
+  //                   props.OneOffPricingInfo.packageOneDisCountedTotal
+  //                 )
+  //                 : // Number(totalOnePackageValueOneOff)
+  //                 //     .toFixed(2)
+  //                 //     .toString()
+  //                 //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+  //                 props.formatValue(totalOnePackageValueOneOff)
+  //               // Number(
+  //               //     props.OneOffPricingInfo
+  //               //       .packageOneDisCountedTotal
+  //               //   )
+  //               //     .toFixed(2)
+  //               //     .toString()
+  //               //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+  //             }
+  //           </td>
+  //           {props?.selectedPackagesList.length >= 2 && (
+  //             <td
+  //               style={{
+  //                 border: "1px solid #DDDDDD",
+  //                 textAlign: "right",
+  //                 padding: "8px",
+  //                 color: "white",
+  //               }}
+  //             >
+  //               {" "}
+  //               {
+  //                 totalTwoPackageValueOneOff <
+  //                   Number(props.OneOffPricingInfo.packageTwoDisCountedTotal) ||
+  //                   (Number(props.OneOffPricingInfo.packageTwoDisCount) > 0 &&
+  //                     !props.ProposalObject.DiscountLines)
+  //                   ? props.formatValue(
+  //                     props.OneOffPricingInfo.packageTwoDisCountedTotal
+  //                   )
+  //                   : // Number(totalOnePackageValueOneOff)
+  //                   //     .toFixed(2)
+  //                   //     .toString()
+  //                   //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+  //                   props.formatValue(totalTwoPackageValueOneOff)
+  //                 // Number(
+  //                 //     props.OneOffPricingInfo
+  //                 //       .packageOneDisCountedTotal
+  //                 //   )
+  //                 //     .toFixed(2)
+  //                 //     .toString()
+  //                 //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+  //               }
+  //             </td>
+  //           )}
+  //           {props?.selectedPackagesList.length === 3 && (
+  //             <td
+  //               style={{
+  //                 border: "1px solid #DDDDDD",
+  //                 textAlign: "right",
+  //                 padding: "8px",
+  //                 color: "white",
+  //               }}
+  //             >
+  //               {" "}
+  //               {
+  //                 totalThreePackageValueOneOff <
+  //                   Number(props.OneOffPricingInfo.packageThreeDisCountedTotal) ||
+  //                   (Number(props.OneOffPricingInfo.packageThreeDisCount) > 0 &&
+  //                     !props.ProposalObject.DiscountLines)
+  //                   ? props.formatValue(
+  //                     props.OneOffPricingInfo.packageThreeDisCountedTotal
+  //                   )
+  //                   : // Number(totalOnePackageValueOneOff)
+  //                   //     .toFixed(2)
+  //                   //     .toString()
+  //                   //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+  //                   props.formatValue(totalThreePackageValueOneOff)
+  //                 // Number(
+  //                 //     props.OneOffPricingInfo
+  //                 //       .packageOneDisCountedTotal
+  //                 //   )
+  //                 //     .toFixed(2)
+  //                 //     .toString()
+  //                 //     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+  //               }
+  //             </td>
+  //           )}
+  //         </tr> */}
+
+  //       <tr style={{ backgroundColor: "#DCDCDC" }}>
+  //         <td
+  //           style={{
+  //             border: "1px solid #DDDDDD",
+  //             textAlign: "left",
+  //             padding: "8px",
+  //           }}
+  //         >
+  //           If you are happy with this proposal please click Accept to Accept
+  //           the Proposal.
+  //         </td>
+  //         <td
+  //           style={{
+  //             border: "1px solid #DDDDDD",
+  //             textAlign: "right",
+  //             float: "right",
+  //             padding: "8px",
+  //             color: "black",
+  //           }}
+  //         >
+  //           <div
+  //             style={{
+  //               display: "flex",
+  //               justifyContent: "center",
+  //               width: "100%",
+  //             }}
+  //           >
+  //             {" "}
+  //             <a
+  //               href={AcceptOneOffUrlButton1}
+  //               style={{
+  //                 display: "inline-block",
+  //                 padding: "5px 15px",
+  //                 backgroundColor: "green",
+  //                 color: "white",
+  //                 textDecoration: "none",
+  //                 border: "none",
+  //                 borderRadius: "100px",
+  //                 transition:
+  //                   "background-color 0.3s ease, box-shadow 0.3s ease",
+  //                 whiteSpace: "nowrap",
+  //                 flex: 1,
+  //                 textAlign: "center",
+  //               }}
+  //             >
+  //               Accept
+  //             </a>
+  //           </div>
+  //         </td>
+  //         {props?.selectedPackagesList.length >= 2 ? (
+  //           <td
+  //             style={{
+  //               border: "1px solid #DDDDDD",
+  //               textAlign: "right",
+  //               padding: "8px",
+  //               color: "black",
+  //             }}
+  //           >
+  //             <div
+  //               style={{
+  //                 display: "flex",
+  //                 justifyContent: "center",
+  //                 width: "100%",
+  //               }}
+  //             >
+  //               <a
+  //                 href={AcceptOneOffUrlButton2}
+  //                 style={{
+  //                   display: "inline-block",
+  //                   padding: "5px 15px",
+  //                   backgroundColor: "green",
+  //                   color: "white",
+  //                   textDecoration: "none",
+  //                   border: "none",
+  //                   borderRadius: "100px",
+  //                   transition:
+  //                     "background-color 0.3s ease, box-shadow 0.3s ease",
+  //                   whiteSpace: "nowrap",
+  //                   flex: 1,
+  //                   textAlign: "center",
+  //                 }}
+  //               >
+  //                 Accept
+  //               </a>
+  //             </div>
+  //           </td>
+  //         ) : null}
+  //         {props?.selectedPackagesList.length === 3 ? (
+  //           <td
+  //             style={{
+  //               border: "1px solid #DDDDDD",
+  //               textAlign: "right",
+  //               padding: "8px",
+  //               color: "black",
+  //             }}
+  //           >
+  //             {" "}
+  //             <div
+  //               style={{
+  //                 display: "flex",
+  //                 justifyContent: "center",
+  //                 width: "100%",
+  //               }}
+  //             >
+  //               <a
+  //                 href={AcceptOneOffUrlButton3}
+  //                 style={{
+  //                   display: "inline-block",
+  //                   padding: "5px 15px",
+  //                   backgroundColor: "green",
+  //                   color: "white",
+  //                   textDecoration: "none",
+  //                   border: "none",
+  //                   borderRadius: "100px",
+  //                   transition:
+  //                     "background-color 0.3s ease, box-shadow 0.3s ease",
+  //                   whiteSpace: "nowrap",
+  //                   flex: 1,
+  //                   textAlign: "center",
+  //                 }}
+  //               >
+  //                 Accept
+  //               </a>
+  //             </div>
+  //           </td>
+  //         ) : null}
+  //       </tr>
+  //       {props.common.enableEL == 0 && (
+  //         <tr style={{ backgroundColor: "#DCDCDC" }}>
+  //           <td
+  //             style={{
+  //               border: "1px solid #DDDDDD",
+  //               textAlign: "left",
+  //               padding: "8px",
+  //             }}
+  //           >
+  //             If you are not happy with this proposal please click Decline to
+  //             Decline the Proposal.
+  //           </td>
+  //           <td
+  //             style={{
+  //               border: "1px solid #DDDDDD",
+  //               textAlign: "right",
+  //               padding: "8px",
+  //               color: "black",
+  //             }}
+  //           >
+  //             {" "}
+  //             <a
+  //               href={DeclineOneOffUrl}
+  //               style={{
+  //                 display: "inline-block",
+  //                 padding: "5px 15px",
+  //                 backgroundColor: "red",
+  //                 color: "white",
+  //                 textDecoration: "none",
+  //                 border: "none",
+  //                 borderRadius: "100px",
+  //                 transition:
+  //                   "background-color 0.3s ease, box-shadow 0.3s ease",
+  //                 whiteSpace: "nowrap",
+  //               }}
+  //             >
+  //               Decline
+  //             </a>
+  //           </td>
+  //           {props?.selectedPackagesList.length >= 2 ? (
+  //             <td
+  //               style={{
+  //                 border: "1px solid #DDDDDD",
+  //                 textAlign: "right",
+  //                 padding: "8px",
+  //                 color: "white",
+  //               }}
+  //             ></td>
+  //           ) : null}
+  //           {props?.selectedPackagesList.length === 3 ? (
+  //             <td
+  //               style={{
+  //                 border: "1px solid #DDDDDD",
+  //                 textAlign: "right",
+  //                 padding: "8px",
+  //                 color: "white",
+  //               }}
+  //             ></td>
+  //           ) : null}
+  //         </tr>
+  //       )}
+  //     </table>
+  //   </div>
+  // );
+
+  // const oneOffTableString = ReactDOMServer.renderToString(OneOffPackagesTable);
+  // const RecurringTableString = ReactDOMServer.renderToString(
+  //   RecurringPackagesTable,
+  // );
+
+  // useEffect(() => {
+  //   if (
+  //     props.moduleName == "Quote" &&
+  //     props?.ProposalObject?.selectedProposalTypeValue === 4
+  //   ) {
+  //     // Clear old PDF content when navigating to Preview
+  //     props.setProposalObject((prevState) => ({
+  //       ...prevState,
+  //       recurringHtmlContent:
+  //         props.selectedRecurringServiceList.length > 0
+  //           ? RecurringTableString
+  //           : null,
+  //       oneOffHtmlContent:
+  //         props.selectedOneOffServiceList.length > 0 ? oneOffTableString : null,
+  //     }));
+  //   }
+  // }, [
+  //   props?.ProposalObject,
+  //   props?.selectedOneOffServiceList,
+  //   props?.selectedRecurringServiceList,
+  // ]);
+
+  const packageDiscountKeys = [
+    "DiscountPercentagePackageOne",
+    "DiscountPercentagePackageTwo",
+    "DiscountPercentagePackageThree",
+  ];
+
+  const oneOffPackageDiscountKeys = [
+    "DiscountPercentagePackageOne",
+    "DiscountPercentagePackageTwo",
+    "DiscountPercentagePackageThree",
+  ];
+
+  const getCustomOneOffPackageDiscount = (packageIndex) => {
+    const discountKey = oneOffPackageDiscountKeys[packageIndex];
+
+    if (!discountKey) {
+      return 0;
     }
-    if (!subService?.servicePackageIDs?.includes(packageId)) {
-      return <span>&#10007;</span>;
-    }
-    if (feeTypeId === 1) {
-      return props.formatValue(packageValue, props.currencyID);
-    }
-    return <span>&#10003;</span>;
+
+    return (
+      props.OneOffPricingInfoCopy?.[discountKey] ??
+      props.OneOffPricingInfo?.[discountKey] ??
+      0
+    );
   };
 
-  // Calculate columns per package for template 6
-  const getColsPerPackage = () => {
-    if (!props.visibleFieldsCustomTemp) return 1;
-    let cols = 0;
-    if (props.visibleFieldsCustomTemp.fees) cols++;
-    if ((Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate) cols++;
-    if ((Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat) cols++;
-    if ((Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat) cols++;
-    if (props.visibleFieldsCustomTemp.serviceScope) cols++;
-    return cols || 1;
+  const customOneOffPackageFooters = [0, 1, 2].map((packageIndex) =>
+    calculateCustomOneOffPackageFooter({
+      serviceGroups: props.selectedOneOffServiceList || [],
+
+      packageIndex,
+
+      selectedPackageID:
+        props.selectedPackagesList?.[packageIndex]?.servicePackageID ?? null,
+
+      discountPercentage: getCustomOneOffPackageDiscount(packageIndex),
+
+      fallbackVatPercentage: props.vatPercentage || 0,
+    }),
+  );
+
+  const getCustomPackageDiscount = (packageIndex) => {
+    const discountKey = packageDiscountKeys[packageIndex];
+
+    if (!discountKey) {
+      return 0;
+    }
+
+    /*
+     * Prefer the full-precision frequency state.
+     * Fall back to the displayed recurring pricing state.
+     */
+    return (
+      props.RecurringFrequencyPricingInfo?.[discountKey] ??
+      props.RecurringPricingInfo?.[discountKey] ??
+      0
+    );
   };
+
+  // Services calculations
+
+  const recurringServiceDiscountPercentage =
+    props.RecurringFrequencyPricingInfo?.DefaultDiscount ??
+    props.RecurringPricingInfoCopy?.DefaultDiscount ??
+    props.RecurringPricingInfo?.DefaultDiscount ??
+    null;
+
+  const oneOffServiceDiscountPercentage =
+    props.OneOffPricingInfoCopy?.DefaultDiscount ??
+    props.OneOffPricingInfo?.DefaultDiscount ??
+    null;
+
+  const customRecurringServiceFooter = calculateCustomServiceFooter({
+    serviceGroups: props.selectedRecurringServiceList || [],
+    discountedPrice: props.RecurringPricingInfo?.DiscountedPrice ?? null,
+    discountPercentage: recurringServiceDiscountPercentage,
+
+    // Used only as a fallback for older data
+    discountAmount: props.RecurringPricingInfo?.Discount ?? null,
+
+    fallbackVatPercentage: props.vatPercentage || 0,
+  });
+
+  const useCustomRecurringServiceFinalAsNet =
+    customRecurringServiceFooter.hasPriceIncrease ||
+    (customRecurringServiceFooter.hasPositiveDiscount &&
+      !props.ProposalObject?.DiscountLines);
+
+  const hasRecurringServiceVAT = Number(props.vatPercentage || 0) > 0;
+
+  const showRecurringServiceDiscount =
+    props.ProposalObject?.DiscountLines &&
+    customRecurringServiceFooter.hasPositiveDiscount;
+
+  const recurringServiceLabelColSpan =
+    [
+      props.visibleFieldsCustomTemp?.serviceCategory,
+      props.visibleFieldsCustomTemp?.serviceName,
+      props.visibleFieldsCustomTemp?.serviceScope,
+    ].filter(Boolean).length || 1;
+
+  // const oneOffServiceDiscountPercentage =
+  // props.OneOffPricingInfoCopy?.DefaultDiscount ??
+  // props.OneOffPricingInfo?.DefaultDiscount ??
+  // null;
+
+  const customOneOffServiceFooter = calculateCustomServiceFooter({
+    serviceGroups: props.selectedOneOffServiceList || [],
+    discountedPrice: props.OneOffPricingInfo?.DiscountedPrice ?? null,
+
+    discountPercentage: oneOffServiceDiscountPercentage,
+
+    // Keep only as fallback for older proposals
+    discountAmount: props.OneOffPricingInfo?.Discount ?? null,
+
+    fallbackVatPercentage: props.vatPercentage || 0,
+  });
+
+  const useCustomOneOffServiceFinalAsNet =
+    customOneOffServiceFooter.hasPriceIncrease ||
+    (customOneOffServiceFooter.hasPositiveDiscount &&
+      !props.ProposalObject?.DiscountLines);
+
+  const hasOneOffServiceVAT = Number(props.vatPercentage || 0) > 0;
+
+  const showOneOffServiceDiscount =
+    props.ProposalObject?.DiscountLines &&
+    customOneOffServiceFooter.hasPositiveDiscount;
+
+  const oneOffServiceLabelColSpan =
+    [
+      props.visibleFieldsCustomTemp?.serviceCategory,
+      props.visibleFieldsCustomTemp?.serviceName,
+      props.visibleFieldsCustomTemp?.serviceScope,
+    ].filter(Boolean).length || 1;
+
+  // Package calculations
+
+  const activeSelectedRecurringPackages = (
+    props.selectedPackagesList || []
+  ).slice(0, 3);
+
+  const recurringEmailPackageFooters = [0, 1, 2].map((packageIndex) =>
+    calculateCustomRecurringPackageFooter({
+      serviceGroups: props.selectedRecurringServiceList || [],
+
+      packageIndex,
+
+      selectedPackageID:
+        props.selectedPackagesList?.[packageIndex]?.servicePackageID ?? null,
+
+      discountPercentage: getCustomPackageDiscount(packageIndex),
+
+      fallbackVatPercentage: props.vatPercentage || 0,
+    }),
+  );
+
+  const activeRecurringEmailPackageFooters = recurringEmailPackageFooters.slice(
+    0,
+    activeSelectedRecurringPackages.length,
+  );
+
+  const hasRecurringPackageVAT = Number(props.vatPercentage || 0) > 0;
+
+  const showRecurringPackageDiscount =
+    props.ProposalObject?.DiscountLines &&
+    activeRecurringEmailPackageFooters.some(
+      (footer) => footer.hasPositiveDiscount,
+    );
+
+  const activeSelectedOneOffPackages = (props.selectedPackagesList || []).slice(
+    0,
+    3,
+  );
+
+  const hasOneOffPackageVAT = Number(props.vatPercentage || 0) > 0;
+
+  const activeOneOffEmailPackageFooters = customOneOffPackageFooters.slice(
+    0,
+    activeSelectedOneOffPackages.length,
+  );
+
+  const showOneOffPackageDiscount =
+    props.ProposalObject?.DiscountLines &&
+    activeOneOffEmailPackageFooters.some(
+      (footer) => footer.hasPositiveDiscount,
+    );
 
   // Calculate total columns for service-based template 6
   const getServiceBasedColCount = (isOneOff = false) => {
-    const vatPct = isOneOff ? props.vatPercentageOneOff : props.vatPercentage;
+    const vatPct = isOneOff ? props.vatPercentage : props.vatPercentage;
     let cols = 0;
     if (props.visibleFieldsCustomTemp?.serviceCategory) cols++;
     if (props.visibleFieldsCustomTemp?.serviceName) cols++;
     if (props.visibleFieldsCustomTemp?.serviceScope) cols++;
     if (props.visibleFieldsCustomTemp?.fees) cols++;
-    if ((Number(vatPct) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate) cols++;
+    if ((Number(vatPct) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate)
+      cols++;
     if ((Number(vatPct) || 0) > 0 && props.visibleFieldsCustomTemp?.vat) cols++;
-    if ((Number(vatPct) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat) cols++;
+    if ((Number(vatPct) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat)
+      cols++;
+    return cols || 1;
+  };
+
+  const getColsPerPackage = () => {
+    if (!props.visibleFieldsCustomTemp) return 1;
+    let cols = 0;
+    if (props.visibleFieldsCustomTemp.fees) cols++;
+    if (
+      (Number(props.vatPercentage) || 0) > 0 &&
+      props.visibleFieldsCustomTemp.vatRate
+    )
+      cols++;
+    if (
+      (Number(props.vatPercentage) || 0) > 0 &&
+      props.visibleFieldsCustomTemp.vat
+    )
+      cols++;
+    if (
+      (Number(props.vatPercentage) || 0) > 0 &&
+      props.visibleFieldsCustomTemp.feesIncVat
+    )
+      cols++;
+    if (props.visibleFieldsCustomTemp.serviceScope) cols++;
     return cols || 1;
   };
 
   // Template 6 Service-Based Recurring Table for Email (no packages, single service per row)
   const RecurringServicesTableTemplate6 = (
-    <div style={{ paddingLeft: "40px", paddingRight: "40px", fontFamily: "arial, sans-serif" }}>
+    <div
+      style={{
+        paddingLeft: "40px",
+        paddingRight: "40px",
+        fontFamily: "arial, sans-serif",
+      }}
+    >
       <p style={{ color: "#00BFFF", fontSize: "20px", marginTop: "15px" }}>
         Recurring Services
       </p>
-      <table style={{ borderCollapse: "collapse", width: "100%", marginTop: "15px" }}>
+      <table
+        style={{ borderCollapse: "collapse", width: "100%", marginTop: "15px" }}
+      >
         {/* Header Row */}
         <tr style={{ backgroundColor: "#00BFFF" }}>
           {props.visibleFieldsCustomTemp?.serviceCategory && (
-            <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>Service Category</th>
+            <th
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "center",
+                padding: "8px",
+                color: "white",
+                fontSize: "16px",
+              }}
+            >
+              Service Category
+            </th>
           )}
           {props.visibleFieldsCustomTemp?.serviceName && (
-            <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>Services</th>
+            <th
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "center",
+                padding: "8px",
+                color: "white",
+                fontSize: "16px",
+              }}
+            >
+              Services
+            </th>
           )}
           {props.visibleFieldsCustomTemp?.serviceScope && (
-            <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>Service Scope</th>
+            <th
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "center",
+                padding: "8px",
+                color: "white",
+                fontSize: "16px",
+              }}
+            >
+              Service Scope
+            </th>
           )}
           {props.visibleFieldsCustomTemp?.fees && (
-            <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>Fees ({props.currencySymbol})</th>
+            <th
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "center",
+                padding: "8px",
+                color: "white",
+                fontSize: "16px",
+              }}
+            >
+              Fees ({props.currencySymbol})
+            </th>
           )}
-          {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
-            <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>{props.taxName || "VAT"} Rate</th>
-          )}
-          {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-            <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>{props.taxName || "VAT"} ({props.currencySymbol})</th>
-          )}
-          {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-            <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>Fees inc {props.taxName || "VAT"} ({props.currencySymbol})</th>
-          )}
+          {(Number(props.vatPercentage) || 0) > 0 &&
+            props.visibleFieldsCustomTemp?.vatRate && (
+              <th
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "center",
+                  padding: "8px",
+                  color: "white",
+                  fontSize: "16px",
+                }}
+              >
+                {props.taxName || "VAT"} Rate
+              </th>
+            )}
+          {(Number(props.vatPercentage) || 0) > 0 &&
+            props.visibleFieldsCustomTemp?.vat && (
+              <th
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "center",
+                  padding: "8px",
+                  color: "white",
+                  fontSize: "16px",
+                }}
+              >
+                {props.taxName || "VAT"} ({props.currencySymbol})
+              </th>
+            )}
+          {(Number(props.vatPercentage) || 0) > 0 &&
+            props.visibleFieldsCustomTemp?.feesIncVat && (
+              <th
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "center",
+                  padding: "8px",
+                  color: "white",
+                  fontSize: "16px",
+                }}
+              >
+                Fees inc {props.taxName || "VAT"} ({props.currencySymbol})
+              </th>
+            )}
         </tr>
         {/* Service Data Rows */}
-        {props.moduleName === "Quote" && props.selectedRecurringServiceList?.map((serviceCat, catIdx) => (
-          <React.Fragment key={`svc-cat-${catIdx}`}>
-            {serviceCat.servicesList.map((subService, svcIdx) => {
-              const price = toFiniteNumber(subService.price);
-              const vatPct = subService.service_vat_percentage ?? 0;
-              const vatAmount = (price * vatPct) / 100;
-              const feesIncVat = price + (toFiniteNumber(subService.service_vat_amount) || vatAmount);
-              const driverList = getServiceScopeDriverList(subService);
-              
-              const driverDisplay = driverList.length > 0
-                ? driverList.map((d, i) => {
-                    if (!d.variation || d.variation.length === 0) {
-                      return `${d.driverName} = ${d.driverValue}${i !== driverList.length - 1 ? "; " : ""}`;
-                    }
-                    const matched = d.variation.find(
-                      (v) => Number(v.variationValue) === Number(d.driverValue) || Number(v.variationID) === Number(d.variationID)
-                    );
-                    return `${d.driverName} = ${matched ? matched.variationName : d.driverValue}${i !== driverList.length - 1 ? "; " : ""}`;
-                  }).join("")
-                : "-";
-              
-              return (
-                <tr key={`svc-row-${catIdx}-${svcIdx}`}>
-                  {props.visibleFieldsCustomTemp?.serviceCategory && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px" }}>{serviceCat.serviceCatName}</td>
-                  )}
-                  {props.visibleFieldsCustomTemp?.serviceName && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px" }}>{subService.serviceName}</td>
-                  )}
-                  {props.visibleFieldsCustomTemp?.serviceScope && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px" }}>{driverDisplay}</td>
-                  )}
-                  {props.visibleFieldsCustomTemp?.fees && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
-                      {props.ProposalObject?.feeTypeId === 1 ? props.formatValue(price, props.currencyID) : <span>&#10003;</span>}
-                    </td>
-                  )}
-                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>{vatPct}%</td>
-                  )}
-                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
-                      {props.ProposalObject?.feeTypeId === 1 ? props.formatValue(vatAmount, props.currencyID) : <span>&#10003;</span>}
-                    </td>
-                  )}
-                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
-                      {props.ProposalObject?.feeTypeId === 1 ? props.formatValue(feesIncVat, props.currencyID) : <span>&#10003;</span>}
-                    </td>
-                  )}
-                </tr>
-              );
-            })}
-          </React.Fragment>
-        ))}
-        {/* NET TOTAL ROW - matches PDF logic exactly */}
+        {props.moduleName === "Quote" &&
+          props.selectedRecurringServiceList?.map((serviceCat, catIdx) => (
+            <React.Fragment key={`svc-cat-${catIdx}`}>
+              {serviceCat.servicesList.map((subService, svcIdx) => {
+                const recurringServiceRow = calculateCustomServiceRow({
+                  service: subService,
+                  fallbackVatPercentage: props.vatPercentage || 0,
+                });
+
+                const price = recurringServiceRow.fees;
+
+                const vatPct = recurringServiceRow.vatRate;
+
+                const vatAmount = recurringServiceRow.vat;
+
+                const feesIncVat = recurringServiceRow.feesIncVat;
+
+                const driverList = Array.isArray(subService?.pricingDriverList)
+                  ? subService.pricingDriverList
+                  : [];
+
+                const driverDisplay =
+                  driverList.length > 0
+                    ? driverList
+                        .map((d, i) => {
+                          if (!d.variation || d.variation.length === 0) {
+                            return `${d.driverName} = ${d.driverValue}${i !== driverList.length - 1 ? "; " : ""}`;
+                          }
+                          const matched = d.variation.find(
+                            (v) =>
+                              Number(v.variationValue) ===
+                                Number(d.driverValue) ||
+                              Number(v.variationID) === Number(d.variationID),
+                          );
+                          return `${d.driverName} = ${matched ? matched.variationName : d.driverValue}${i !== driverList.length - 1 ? "; " : ""}`;
+                        })
+                        .join("")
+                    : "-";
+
+                return (
+                  <tr key={`svc-row-${catIdx}-${svcIdx}`}>
+                    {props.visibleFieldsCustomTemp?.serviceCategory && (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "left",
+                          padding: "8px",
+                        }}
+                      >
+                        {serviceCat.serviceCatName}
+                      </td>
+                    )}
+                    {props.visibleFieldsCustomTemp?.serviceName && (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "left",
+                          padding: "8px",
+                        }}
+                      >
+                        {subService.serviceName}
+                      </td>
+                    )}
+                    {props.visibleFieldsCustomTemp?.serviceScope && (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "left",
+                          padding: "8px",
+                        }}
+                      >
+                        {driverDisplay}
+                      </td>
+                    )}
+                    {props.visibleFieldsCustomTemp?.fees && (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        {props.ProposalObject?.feeTypeId === 1 ? (
+                          props.formatValue(price, props.currencyID)
+                        ) : (
+                          <span>&#10003;</span>
+                        )}
+                      </td>
+                    )}
+                    {(Number(props.vatPercentage) || 0) > 0 &&
+                      props.visibleFieldsCustomTemp?.vatRate && (
+                        <td
+                          style={{
+                            border: "1px solid #DDDDDD",
+                            textAlign: "right",
+                            padding: "8px",
+                          }}
+                        >
+                          {vatPct}%
+                        </td>
+                      )}
+                    {(Number(props.vatPercentage) || 0) > 0 &&
+                      props.visibleFieldsCustomTemp?.vat && (
+                        <td
+                          style={{
+                            border: "1px solid #DDDDDD",
+                            textAlign: "right",
+                            padding: "8px",
+                          }}
+                        >
+                          {props.ProposalObject?.feeTypeId === 1 ? (
+                            props.formatValue(vatAmount, props.currencyID)
+                          ) : (
+                            <span>&#10003;</span>
+                          )}
+                        </td>
+                      )}
+                    {(Number(props.vatPercentage) || 0) > 0 &&
+                      props.visibleFieldsCustomTemp?.feesIncVat && (
+                        <td
+                          style={{
+                            border: "1px solid #DDDDDD",
+                            textAlign: "right",
+                            padding: "8px",
+                          }}
+                        >
+                          {props.ProposalObject?.feeTypeId === 1 ? (
+                            props.formatValue(feesIncVat, props.currencyID)
+                          ) : (
+                            <span>&#10003;</span>
+                          )}
+                        </td>
+                      )}
+                  </tr>
+                );
+              })}
+            </React.Fragment>
+          ))}
+        {/* NET TOTAL */}
         <tr style={{ backgroundColor: "#808080" }}>
-          <td style={{ border: "1px solid #DDDDDD", padding: "8px", color: "white" }}>Net Total</td>
-          {props.visibleFieldsCustomTemp?.serviceCategory && (
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
-          )}
-          {props.visibleFieldsCustomTemp?.serviceScope && (
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
-          )}
+          <td
+            colSpan={recurringServiceLabelColSpan}
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+              color: "white",
+              fontWeight: "bold",
+            }}
+          >
+            Net Total
+          </td>
+
           {props.visibleFieldsCustomTemp?.fees && (
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-              {(toFiniteNumber(props.RecurringPricingInfo?.OriginalPrice) < toFiniteNumber(props.RecurringPricingInfo?.DiscountedPrice) ||
-                (toFiniteNumber(props.RecurringPricingInfo?.Discount) > 0 && !props.ProposalObject?.DiscountLines))
-                ? props.formatValue(toFiniteNumber(props.RecurringPricingInfo?.DiscountedPrice), props.currencyID)
-                : props.formatValue(toFiniteNumber(props.RecurringPricingInfo?.OriginalPrice), props.currencyID)}
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              {props.formatValue(
+                useCustomRecurringServiceFinalAsNet
+                  ? customRecurringServiceFooter.finalNet
+                  : customRecurringServiceFooter.net,
+                props.currencyID,
+              )}
             </td>
           )}
-          {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
+
+          {hasRecurringServiceVAT && props.visibleFieldsCustomTemp?.vatRate && (
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+              }}
+            ></td>
           )}
-          {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-              {props.formatValue(toFiniteNumber(props.RecurringPricingInfo?.staticTotalVAT), props.currencyID)}
+
+          {hasRecurringServiceVAT && props.visibleFieldsCustomTemp?.vat && (
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              {props.formatValue(
+                useCustomRecurringServiceFinalAsNet
+                  ? customRecurringServiceFooter.finalVat
+                  : customRecurringServiceFooter.vat,
+                props.currencyID,
+              )}
             </td>
           )}
-          {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-              {(toFiniteNumber(props.RecurringPricingInfo?.OriginalPrice) < toFiniteNumber(props.RecurringPricingInfo?.DiscountedPrice) ||
-                (toFiniteNumber(props.RecurringPricingInfo?.Discount) > 0 && !props.ProposalObject?.DiscountLines))
-                ? props.formatValue(
-                    toFiniteNumber(props.RecurringPricingInfo?.DiscountedPrice) +
-                      toFiniteNumber(props.RecurringPricingInfo?.staticTotalVAT),
-                    props.currencyID,
-                  )
-                : props.formatValue(
-                    toFiniteNumber(props.RecurringPricingInfo?.OriginalPrice) +
-                      toFiniteNumber(props.RecurringPricingInfo?.staticTotalVAT),
-                    props.currencyID,
-                  )}
-            </td>
-          )}
+
+          {hasRecurringServiceVAT &&
+            props.visibleFieldsCustomTemp?.feesIncVat && (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                {props.formatValue(
+                  useCustomRecurringServiceFinalAsNet
+                    ? customRecurringServiceFooter.finalFeesIncVat
+                    : customRecurringServiceFooter.feesIncVat,
+                  props.currencyID,
+                )}
+              </td>
+            )}
         </tr>
-        {/* DISCOUNT ROW - only shown when Discount > 0 and DiscountLines is true */}
-        {Number(props.RecurringPricingInfo?.Discount) > 0 && props.ProposalObject?.DiscountLines && (
-          <React.Fragment>
-            <tr style={{ backgroundColor: "#DCDCDC" }}>
-              {props.visibleFieldsCustomTemp?.serviceCategory && (
-                <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "black" }}>Discount</td>
+
+        {/* DISCOUNT */}
+        {showRecurringServiceDiscount && (
+          <tr style={{ backgroundColor: "#DCDCDC" }}>
+            <td
+              colSpan={recurringServiceLabelColSpan}
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "black",
+                fontWeight: "bold",
+              }}
+            >
+              Discount
+            </td>
+
+            {props.visibleFieldsCustomTemp?.fees && (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "black",
+                }}
+              >
+                (-){" "}
+                {props.formatValue(
+                  customRecurringServiceFooter.discount,
+                  props.currencyID,
+                )}
+              </td>
+            )}
+
+            {hasRecurringServiceVAT &&
+              props.visibleFieldsCustomTemp?.vatRate && (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                  }}
+                ></td>
               )}
-              {props.visibleFieldsCustomTemp?.serviceName && (
-                <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
-              )}
-              {props.visibleFieldsCustomTemp?.serviceScope && (
-                <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
-              )}
-              {props.visibleFieldsCustomTemp?.fees && (
-                <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
-                  (-) {props.formatValue(props.RecurringPricingInfo?.Discount, props.currencyID)}
-                </td>
-              )}
-              {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
-                <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
-              )}
-              {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-                <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
+
+            {hasRecurringServiceVAT && props.visibleFieldsCustomTemp?.vat && (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "black",
+                }}
+              >
+                (-){" "}
+                {props.formatValue(
+                  customRecurringServiceFooter.vatDiscount,
+                  props.currencyID,
+                )}
+              </td>
+            )}
+
+            {hasRecurringServiceVAT &&
+              props.visibleFieldsCustomTemp?.feesIncVat && (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "black",
+                  }}
+                >
                   (-){" "}
                   {props.formatValue(
-                    toFiniteNumber(props.RecurringPricingInfo?.staticTotalVAT) -
-                      toFiniteNumber(props.RecurringPricingInfo?.totalServiceWiseVAT),
+                    customRecurringServiceFooter.feesIncVatDiscount,
                     props.currencyID,
                   )}
                 </td>
               )}
-              {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-                <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
-                  (-){" "}
-                  {props.formatValue(
-                    toFiniteNumber(props.RecurringPricingInfo?.Discount) +
-                      (toFiniteNumber(props.RecurringPricingInfo?.staticTotalVAT) -
-                        toFiniteNumber(props.RecurringPricingInfo?.totalServiceWiseVAT)),
-                    props.currencyID,
-                  )}
-                </td>
-              )}
-            </tr>
-          </React.Fragment>
+          </tr>
         )}
-        {/* GRAND TOTAL ROW - with VAT (only when discount applies and discount lines shown) */}
-        {(Number(props.vatPercentage) || 0) > 0 &&
-        Number(props.RecurringPricingInfo?.Discount) > 0 &&
-        props.ProposalObject?.DiscountLines ? (
+
+        {/* GRAND TOTAL / DISCOUNTED TOTAL */}
+        {showRecurringServiceDiscount && (
           <tr style={{ backgroundColor: "#808080" }}>
-            {props.visibleFieldsCustomTemp?.serviceCategory && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}>Grand Total</td>
-            )}
-            {props.visibleFieldsCustomTemp?.serviceName && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}></td>
-            )}
-            {props.visibleFieldsCustomTemp?.serviceScope && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}></td>
-            )}
+            <td
+              colSpan={recurringServiceLabelColSpan}
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+                fontWeight: "bold",
+              }}
+            >
+              {hasRecurringServiceVAT ? "Grand Total" : "Discounted Total"}
+            </td>
+
             {props.visibleFieldsCustomTemp?.fees && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                {(toFiniteNumber(props.RecurringPricingInfo?.OriginalPrice) < toFiniteNumber(props.RecurringPricingInfo?.DiscountedPrice) ||
-                  (toFiniteNumber(props.RecurringPricingInfo?.Discount) > 0 && !props.ProposalObject?.DiscountLines))
-                  ? props.formatValue(
-                      toFiniteNumber(props.RecurringPricingInfo?.DiscountedPrice) -
-                        toFiniteNumber(props.RecurringPricingInfo?.Discount),
-                      props.currencyID,
-                    )
-                  : props.formatValue(
-                      toFiniteNumber(props.RecurringPricingInfo?.OriginalPrice) -
-                        toFiniteNumber(props.RecurringPricingInfo?.Discount),
-                      props.currencyID,
-                    )}
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                {props.formatValue(
+                  customRecurringServiceFooter.finalNet,
+                  props.currencyID,
+                )}
               </td>
             )}
-            {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
-            )}
-            {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                {props.formatValue(toFiniteNumber(props.RecurringPricingInfo?.totalServiceWiseVAT), props.currencyID)}
+
+            {hasRecurringServiceVAT &&
+              props.visibleFieldsCustomTemp?.vatRate && (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                ></td>
+              )}
+
+            {hasRecurringServiceVAT && props.visibleFieldsCustomTemp?.vat && (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
+                {props.formatValue(
+                  customRecurringServiceFooter.finalVat,
+                  props.currencyID,
+                )}
               </td>
             )}
-            {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                {props.formatValue(props.RecurringPricingInfo?.GrandTotal, props.currencyID)}
-              </td>
-            )}
+
+            {hasRecurringServiceVAT &&
+              props.visibleFieldsCustomTemp?.feesIncVat && (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {props.formatValue(
+                    customRecurringServiceFooter.finalFeesIncVat,
+                    props.currencyID,
+                  )}
+                </td>
+              )}
           </tr>
-        ) : Number(props.RecurringPricingInfo?.Discount) > 0 &&
-          props.ProposalObject?.DiscountLines ? (
-          /* Non-VAT org: final row after discount lines */
-          <tr style={{ backgroundColor: "#808080" }}>
-            {props.visibleFieldsCustomTemp?.serviceCategory && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}>Discounted Total</td>
-            )}
-            {props.visibleFieldsCustomTemp?.serviceName && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}></td>
-            )}
-            {props.visibleFieldsCustomTemp?.serviceScope && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}></td>
-            )}
-            {props.visibleFieldsCustomTemp?.fees && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                {(toFiniteNumber(props.RecurringPricingInfo?.OriginalPrice) < toFiniteNumber(props.RecurringPricingInfo?.DiscountedPrice) ||
-                  (toFiniteNumber(props.RecurringPricingInfo?.Discount) > 0 && !props.ProposalObject?.DiscountLines))
-                  ? props.formatValue(
-                      toFiniteNumber(props.RecurringPricingInfo?.DiscountedPrice) -
-                        toFiniteNumber(props.RecurringPricingInfo?.Discount),
-                      props.currencyID,
-                    )
-                  : props.formatValue(
-                      toFiniteNumber(props.RecurringPricingInfo?.OriginalPrice) -
-                        toFiniteNumber(props.RecurringPricingInfo?.Discount),
-                      props.currencyID,
-                    )}
-              </td>
-            )}
-            {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
-            )}
-            {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                {props.formatValue(toFiniteNumber(props.RecurringPricingInfo?.totalServiceWiseVAT), props.currencyID)}
-              </td>
-            )}
-            {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                {props.formatValue(props.RecurringPricingInfo?.GrandTotal, props.currencyID)}
-              </td>
-            )}
-          </tr>
-        ) : null}
+        )}
         {/* Accept Button Row */}
         <tr style={{ backgroundColor: "#DCDCDC" }}>
-          <td colSpan={getServiceBasedColCount() - 1} style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px" }}>
-            If you are happy with this proposal please click Accept to Accept the Proposal.
+          <td
+            colSpan={getServiceBasedColCount() - 1}
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+            }}
+          >
+            If you are happy with this proposal please click Accept to Accept
+            the Proposal.
           </td>
-          <td style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px" }}>
-            <a href={AcceptRecurringUrl} style={{ display: "inline-block", padding: "5px 15px", backgroundColor: "green", color: "white", textDecoration: "none", borderRadius: "100px" }}>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "center",
+              padding: "8px",
+            }}
+          >
+            <a
+              href={AcceptRecurringUrl}
+              style={{
+                display: "inline-block",
+                padding: "5px 15px",
+                backgroundColor: "green",
+                color: "white",
+                textDecoration: "none",
+                borderRadius: "100px",
+              }}
+            >
               Accept
             </a>
           </td>
@@ -720,11 +2146,35 @@ export default function PreviewComponentPdf(props) {
         {/* Decline Button Row */}
         {props.common.enableEL == 0 && (
           <tr style={{ backgroundColor: "#DCDCDC" }}>
-            <td colSpan={getServiceBasedColCount() - 1} style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px" }}>
-              If you are not happy with this proposal please click Decline to Decline the Proposal.
+            <td
+              colSpan={getServiceBasedColCount() - 1}
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+              }}
+            >
+              If you are not happy with this proposal please click Decline to
+              Decline the Proposal.
             </td>
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px" }}>
-              <a href={DeclineRecurringUrl} style={{ display: "inline-block", padding: "5px 15px", backgroundColor: "red", color: "white", textDecoration: "none", borderRadius: "100px" }}>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "center",
+                padding: "8px",
+              }}
+            >
+              <a
+                href={DeclineRecurringUrl}
+                style={{
+                  display: "inline-block",
+                  padding: "5px 15px",
+                  backgroundColor: "red",
+                  color: "white",
+                  textDecoration: "none",
+                  borderRadius: "100px",
+                }}
+              >
                 Decline
               </a>
             </td>
@@ -736,258 +2186,525 @@ export default function PreviewComponentPdf(props) {
 
   // Template 6 Service-Based OneOff Table for Email (no packages, single service per row)
   const OneOffServicesTableTemplate6 = (
-    <div style={{ paddingLeft: "40px", paddingRight: "40px", fontFamily: "arial, sans-serif" }}>
+    <div
+      style={{
+        paddingLeft: "40px",
+        paddingRight: "40px",
+        fontFamily: "arial, sans-serif",
+      }}
+    >
       <p style={{ color: "#00BFFF", fontSize: "20px", marginTop: "15px" }}>
         One-Off Services
       </p>
-      <table style={{ borderCollapse: "collapse", width: "100%", marginTop: "15px" }}>
+      <table
+        style={{ borderCollapse: "collapse", width: "100%", marginTop: "15px" }}
+      >
         {/* Header Row */}
         <tr style={{ backgroundColor: "#00BFFF" }}>
           {props.visibleFieldsCustomTemp?.serviceCategory && (
-            <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>Service Category</th>
+            <th
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "center",
+                padding: "8px",
+                color: "white",
+                fontSize: "16px",
+              }}
+            >
+              Service Category
+            </th>
           )}
           {props.visibleFieldsCustomTemp?.serviceName && (
-            <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>Services</th>
+            <th
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "center",
+                padding: "8px",
+                color: "white",
+                fontSize: "16px",
+              }}
+            >
+              Services
+            </th>
           )}
           {props.visibleFieldsCustomTemp?.serviceScope && (
-            <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>Service Scope</th>
+            <th
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "center",
+                padding: "8px",
+                color: "white",
+                fontSize: "16px",
+              }}
+            >
+              Service Scope
+            </th>
           )}
           {props.visibleFieldsCustomTemp?.fees && (
-            <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>Fees ({props.currencySymbol})</th>
+            <th
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "center",
+                padding: "8px",
+                color: "white",
+                fontSize: "16px",
+              }}
+            >
+              Fees ({props.currencySymbol})
+            </th>
           )}
-          {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
-            <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>{props.taxName || "VAT"} Rate</th>
-          )}
-          {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-            <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>{props.taxName || "VAT"} ({props.currencySymbol})</th>
-          )}
-          {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-            <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "16px" }}>Fees inc {props.taxName || "VAT"} ({props.currencySymbol})</th>
-          )}
+          {(Number(props.vatPercentage) || 0) > 0 &&
+            props.visibleFieldsCustomTemp?.vatRate && (
+              <th
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "center",
+                  padding: "8px",
+                  color: "white",
+                  fontSize: "16px",
+                }}
+              >
+                {props.taxName || "VAT"} Rate
+              </th>
+            )}
+          {(Number(props.vatPercentage) || 0) > 0 &&
+            props.visibleFieldsCustomTemp?.vat && (
+              <th
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "center",
+                  padding: "8px",
+                  color: "white",
+                  fontSize: "16px",
+                }}
+              >
+                {props.taxName || "VAT"} ({props.currencySymbol})
+              </th>
+            )}
+          {(Number(props.vatPercentage) || 0) > 0 &&
+            props.visibleFieldsCustomTemp?.feesIncVat && (
+              <th
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "center",
+                  padding: "8px",
+                  color: "white",
+                  fontSize: "16px",
+                }}
+              >
+                Fees inc {props.taxName || "VAT"} ({props.currencySymbol})
+              </th>
+            )}
         </tr>
         {/* Service Data Rows */}
-        {props.moduleName === "Quote" && props.selectedOneOffServiceList?.map((serviceCat, catIdx) => (
-          <React.Fragment key={`oneoff-svc-cat-${catIdx}`}>
-            {serviceCat.servicesList.map((subService, svcIdx) => {
-              const price = toFiniteNumber(subService.price);
-              const vatPct = subService.service_vat_percentage ?? 0;
-              const vatAmount = (price * vatPct) / 100;
-              const feesIncVat = price + (toFiniteNumber(subService.service_vat_amount) || vatAmount);
-              const driverList = getServiceScopeDriverList(subService);
-              
-              const driverDisplay = driverList.length > 0
-                ? driverList.map((d, i) => {
-                    if (!d.variation || d.variation.length === 0) {
-                      return `${d.driverName} = ${d.driverValue}${i !== driverList.length - 1 ? "; " : ""}`;
-                    }
-                    const matched = d.variation.find(
-                      (v) => Number(v.variationValue) === Number(d.driverValue) || Number(v.variationID) === Number(d.variationID)
-                    );
-                    return `${d.driverName} = ${matched ? matched.variationName : d.driverValue}${i !== driverList.length - 1 ? "; " : ""}`;
-                  }).join("")
-                : "-";
-              
-              return (
-                <tr key={`oneoff-svc-row-${catIdx}-${svcIdx}`}>
-                  {props.visibleFieldsCustomTemp?.serviceCategory && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px" }}>{serviceCat.serviceCatName}</td>
-                  )}
-                  {props.visibleFieldsCustomTemp?.serviceName && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px" }}>{subService.serviceName}</td>
-                  )}
-                  {props.visibleFieldsCustomTemp?.serviceScope && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px" }}>{driverDisplay}</td>
-                  )}
-                  {props.visibleFieldsCustomTemp?.fees && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
-                      {props.ProposalObject?.feeTypeId === 1 ? props.formatValue(price, props.currencyID) : <span>&#10003;</span>}
-                    </td>
-                  )}
-                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>{vatPct}%</td>
-                  )}
-                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
-                      {props.ProposalObject?.feeTypeId === 1 ? props.formatValue(vatAmount, props.currencyID) : <span>&#10003;</span>}
-                    </td>
-                  )}
-                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
-                      {props.ProposalObject?.feeTypeId === 1 ? props.formatValue(feesIncVat, props.currencyID) : <span>&#10003;</span>}
-                    </td>
-                  )}
-                </tr>
-              );
-            })}
-          </React.Fragment>
-        ))}
+        {props.moduleName === "Quote" &&
+          props.selectedOneOffServiceList?.map((serviceCat, catIdx) => (
+            <React.Fragment key={`oneoff-svc-cat-${catIdx}`}>
+              {serviceCat.servicesList.map((subService, svcIdx) => {
+                const oneOffServiceRow = calculateCustomServiceRow({
+                  service: subService,
+                  fallbackVatPercentage: props.vatPercentage || 0,
+                });
+
+                const price = oneOffServiceRow.fees;
+
+                const vatPct = oneOffServiceRow.vatRate;
+
+                const vatAmount = oneOffServiceRow.vat;
+
+                const feesIncVat = oneOffServiceRow.feesIncVat;
+
+                const driverList = Array.isArray(subService?.pricingDriverList)
+                  ? subService.pricingDriverList
+                  : [];
+
+                const driverDisplay =
+                  driverList.length > 0
+                    ? driverList
+                        .map((d, i) => {
+                          if (!d.variation || d.variation.length === 0) {
+                            return `${d.driverName} = ${d.driverValue}${i !== driverList.length - 1 ? "; " : ""}`;
+                          }
+                          const matched = d.variation.find(
+                            (v) =>
+                              Number(v.variationValue) ===
+                                Number(d.driverValue) ||
+                              Number(v.variationID) === Number(d.variationID),
+                          );
+                          return `${d.driverName} = ${matched ? matched.variationName : d.driverValue}${i !== driverList.length - 1 ? "; " : ""}`;
+                        })
+                        .join("")
+                    : "-";
+
+                return (
+                  <tr key={`oneoff-svc-row-${catIdx}-${svcIdx}`}>
+                    {props.visibleFieldsCustomTemp?.serviceCategory && (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "left",
+                          padding: "8px",
+                        }}
+                      >
+                        {serviceCat.serviceCatName}
+                      </td>
+                    )}
+                    {props.visibleFieldsCustomTemp?.serviceName && (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "left",
+                          padding: "8px",
+                        }}
+                      >
+                        {subService.serviceName}
+                      </td>
+                    )}
+                    {props.visibleFieldsCustomTemp?.serviceScope && (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "left",
+                          padding: "8px",
+                        }}
+                      >
+                        {driverDisplay}
+                      </td>
+                    )}
+                    {props.visibleFieldsCustomTemp?.fees && (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "right",
+                          padding: "8px",
+                        }}
+                      >
+                        {props.ProposalObject?.feeTypeId === 1 ? (
+                          props.formatValue(price, props.currencyID)
+                        ) : (
+                          <span>&#10003;</span>
+                        )}
+                      </td>
+                    )}
+                    {(Number(props.vatPercentage) || 0) > 0 &&
+                      props.visibleFieldsCustomTemp?.vatRate && (
+                        <td
+                          style={{
+                            border: "1px solid #DDDDDD",
+                            textAlign: "right",
+                            padding: "8px",
+                          }}
+                        >
+                          {Number(vatPct || 0).toFixed(2)}%
+                        </td>
+                      )}
+                    {(Number(props.vatPercentage) || 0) > 0 &&
+                      props.visibleFieldsCustomTemp?.vat && (
+                        <td
+                          style={{
+                            border: "1px solid #DDDDDD",
+                            textAlign: "right",
+                            padding: "8px",
+                          }}
+                        >
+                          {props.ProposalObject?.feeTypeId === 1 ? (
+                            props.formatValue(vatAmount, props.currencyID)
+                          ) : (
+                            <span>&#10003;</span>
+                          )}
+                        </td>
+                      )}
+                    {(Number(props.vatPercentage) || 0) > 0 &&
+                      props.visibleFieldsCustomTemp?.feesIncVat && (
+                        <td
+                          style={{
+                            border: "1px solid #DDDDDD",
+                            textAlign: "right",
+                            padding: "8px",
+                          }}
+                        >
+                          {props.ProposalObject?.feeTypeId === 1 ? (
+                            props.formatValue(feesIncVat, props.currencyID)
+                          ) : (
+                            <span>&#10003;</span>
+                          )}
+                        </td>
+                      )}
+                  </tr>
+                );
+              })}
+            </React.Fragment>
+          ))}
         {/* NET TOTAL ROW - matches PDF logic exactly */}
+        {/* NET TOTAL */}
         <tr style={{ backgroundColor: "#808080" }}>
-          <td style={{ border: "1px solid #DDDDDD", padding: "8px", color: "white" }}>Net Total</td>
-          {props.visibleFieldsCustomTemp?.serviceCategory && (
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
-          )}
-          {props.visibleFieldsCustomTemp?.serviceScope && (
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
-          )}
+          <td
+            colSpan={oneOffServiceLabelColSpan}
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+              color: "white",
+              fontWeight: "bold",
+            }}
+          >
+            Net Total
+          </td>
+
           {props.visibleFieldsCustomTemp?.fees && (
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-              {(toFiniteNumber(props.OneOffPricingInfo?.OriginalPrice) < toFiniteNumber(props.OneOffPricingInfo?.DiscountedPrice) ||
-                (toFiniteNumber(props.OneOffPricingInfo?.Discount) > 0 && !props.ProposalObject?.DiscountLines))
-                ? props.formatValue(toFiniteNumber(props.OneOffPricingInfo?.DiscountedPrice), props.currencyID)
-                : props.formatValue(toFiniteNumber(props.OneOffPricingInfo?.OriginalPrice), props.currencyID)}
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              {props.formatValue(
+                useCustomOneOffServiceFinalAsNet
+                  ? customOneOffServiceFooter.finalNet
+                  : customOneOffServiceFooter.net,
+                props.currencyID,
+              )}
             </td>
           )}
-          {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
+
+          {hasOneOffServiceVAT && props.visibleFieldsCustomTemp?.vatRate && (
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+              }}
+            ></td>
           )}
-          {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-              {props.formatValue(toFiniteNumber(props.OneOffPricingInfo?.staticTotalVATOneOff), props.currencyID)}
+
+          {hasOneOffServiceVAT && props.visibleFieldsCustomTemp?.vat && (
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              {props.formatValue(
+                useCustomOneOffServiceFinalAsNet
+                  ? customOneOffServiceFooter.finalVat
+                  : customOneOffServiceFooter.vat,
+                props.currencyID,
+              )}
             </td>
           )}
-          {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-              {(toFiniteNumber(props.OneOffPricingInfo?.OriginalPrice) < toFiniteNumber(props.OneOffPricingInfo?.DiscountedPrice) ||
-                (toFiniteNumber(props.OneOffPricingInfo?.Discount) > 0 && !props.ProposalObject?.DiscountLines))
-                ? props.formatValue(
-                    toFiniteNumber(props.OneOffPricingInfo?.DiscountedPrice) +
-                      toFiniteNumber(props.OneOffPricingInfo?.staticTotalVATOneOff),
-                    props.currencyID,
-                  )
-                : props.formatValue(
-                    toFiniteNumber(props.OneOffPricingInfo?.OriginalPrice) +
-                      toFiniteNumber(props.OneOffPricingInfo?.staticTotalVATOneOff),
-                    props.currencyID,
-                  )}
+
+          {hasOneOffServiceVAT && props.visibleFieldsCustomTemp?.feesIncVat && (
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "right",
+                padding: "8px",
+                color: "white",
+              }}
+            >
+              {props.formatValue(
+                useCustomOneOffServiceFinalAsNet
+                  ? customOneOffServiceFooter.finalFeesIncVat
+                  : customOneOffServiceFooter.feesIncVat,
+                props.currencyID,
+              )}
             </td>
           )}
         </tr>
-        {/* DISCOUNT ROW - only shown when Discount > 0 and DiscountLines is true */}
-        {Number(props.OneOffPricingInfo?.Discount) > 0 && props.ProposalObject?.DiscountLines && (
-          <React.Fragment>
-            <tr style={{ backgroundColor: "#DCDCDC" }}>
-              {props.visibleFieldsCustomTemp?.serviceCategory && (
-                <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "black" }}>Discount</td>
-              )}
-              {props.visibleFieldsCustomTemp?.serviceName && (
-                <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "black" }}></td>
-              )}
-              {props.visibleFieldsCustomTemp?.serviceScope && (
-                <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "black" }}></td>
-              )}
-              {props.visibleFieldsCustomTemp?.fees && (
-                <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
-                  (-) {props.formatValue(props.OneOffPricingInfo?.Discount, props.currencyID)}
-                </td>
-              )}
-              {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
-                <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}></td>
-              )}
-              {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-                <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
+
+        {/* DISCOUNT */}
+        {showOneOffServiceDiscount && (
+          <tr style={{ backgroundColor: "#DCDCDC" }}>
+            <td
+              colSpan={oneOffServiceLabelColSpan}
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "black",
+                fontWeight: "bold",
+              }}
+            >
+              Discount
+            </td>
+
+            {props.visibleFieldsCustomTemp?.fees && (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "black",
+                }}
+              >
+                (-){" "}
+                {props.formatValue(
+                  customOneOffServiceFooter.discount,
+                  props.currencyID,
+                )}
+              </td>
+            )}
+
+            {hasOneOffServiceVAT && props.visibleFieldsCustomTemp?.vatRate && (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                }}
+              ></td>
+            )}
+
+            {hasOneOffServiceVAT && props.visibleFieldsCustomTemp?.vat && (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "black",
+                }}
+              >
+                (-){" "}
+                {props.formatValue(
+                  customOneOffServiceFooter.vatDiscount,
+                  props.currencyID,
+                )}
+              </td>
+            )}
+
+            {hasOneOffServiceVAT &&
+              props.visibleFieldsCustomTemp?.feesIncVat && (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "black",
+                  }}
+                >
                   (-){" "}
                   {props.formatValue(
-                    toFiniteNumber(props.OneOffPricingInfo?.staticTotalVATOneOff) -
-                      toFiniteNumber(props.OneOffPricingInfo?.totalServiceWiseVATOneOff),
+                    customOneOffServiceFooter.feesIncVatDiscount,
                     props.currencyID,
                   )}
                 </td>
               )}
-              {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-                <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
-                  (-){" "}
-                  {props.formatValue(
-                    toFiniteNumber(props.OneOffPricingInfo?.Discount) +
-                      (toFiniteNumber(props.OneOffPricingInfo?.staticTotalVATOneOff) -
-                        toFiniteNumber(props.OneOffPricingInfo?.totalServiceWiseVATOneOff)),
-                    props.currencyID,
-                  )}
-                </td>
-              )}
-            </tr>
-          </React.Fragment>
+          </tr>
         )}
-        {/* GRAND TOTAL ROW (only when discount applies and discount lines shown) */}
-        {(Number(props.vatPercentageOneOff) || 0) > 0 &&
-        Number(props.OneOffPricingInfo?.Discount) > 0 &&
-        props.ProposalObject?.DiscountLines ? (
+
+        {/* GRAND TOTAL / DISCOUNTED TOTAL */}
+        {showOneOffServiceDiscount && (
           <tr style={{ backgroundColor: "#808080" }}>
-            {props.visibleFieldsCustomTemp?.serviceCategory && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}>Grand Total</td>
-            )}
-            {props.visibleFieldsCustomTemp?.serviceName && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "black" }}></td>
-            )}
-            {props.visibleFieldsCustomTemp?.serviceScope && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "black" }}></td>
-            )}
+            <td
+              colSpan={oneOffServiceLabelColSpan}
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+                fontWeight: "bold",
+              }}
+            >
+              {hasOneOffServiceVAT ? "Grand Total" : "Discounted Total"}
+            </td>
+
             {props.visibleFieldsCustomTemp?.fees && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                {props.formatValue(props.OneOffPricingInfo?.DiscountedPrice, props.currencyID)}
-              </td>
-            )}
-            {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
-            )}
-            {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                {props.formatValue(toFiniteNumber(props.OneOffPricingInfo?.totalServiceWiseVATOneOff), props.currencyID)}
-              </td>
-            )}
-            {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
                 {props.formatValue(
-                  toFiniteNumber(props.OneOffPricingInfo?.DiscountedPrice) +
-                    toFiniteNumber(props.OneOffPricingInfo?.totalServiceWiseVATOneOff),
+                  customOneOffServiceFooter.finalNet,
                   props.currencyID,
                 )}
               </td>
             )}
-          </tr>
-        ) : Number(props.OneOffPricingInfo?.Discount) > 0 &&
-          props.ProposalObject?.DiscountLines ? (
-          <tr style={{ backgroundColor: "#808080" }}>
-            {props.visibleFieldsCustomTemp?.serviceCategory && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white" }}>Discounted Total</td>
+
+            {hasOneOffServiceVAT && props.visibleFieldsCustomTemp?.vatRate && (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              ></td>
             )}
-            {props.visibleFieldsCustomTemp?.serviceName && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "black" }}></td>
-            )}
-            {props.visibleFieldsCustomTemp?.serviceScope && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "black" }}></td>
-            )}
-            {props.visibleFieldsCustomTemp?.fees && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                {props.formatValue(props.OneOffPricingInfo?.DiscountedPrice, props.currencyID)}
-              </td>
-            )}
-            {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}></td>
-            )}
-            {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                {props.formatValue(toFiniteNumber(props.OneOffPricingInfo?.totalServiceWiseVATOneOff), props.currencyID)}
-              </td>
-            )}
-            {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
+
+            {hasOneOffServiceVAT && props.visibleFieldsCustomTemp?.vat && (
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "right",
+                  padding: "8px",
+                  color: "white",
+                }}
+              >
                 {props.formatValue(
-                  toFiniteNumber(props.OneOffPricingInfo?.DiscountedPrice) +
-                    toFiniteNumber(props.OneOffPricingInfo?.totalServiceWiseVATOneOff),
+                  customOneOffServiceFooter.finalVat,
                   props.currencyID,
                 )}
               </td>
             )}
+
+            {hasOneOffServiceVAT &&
+              props.visibleFieldsCustomTemp?.feesIncVat && (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {props.formatValue(
+                    customOneOffServiceFooter.finalFeesIncVat,
+                    props.currencyID,
+                  )}
+                </td>
+              )}
           </tr>
-        ) : null}
+        )}
         {/* Accept Button Row */}
         <tr style={{ backgroundColor: "#DCDCDC" }}>
-          <td colSpan={getServiceBasedColCount(true) - 1} style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px" }}>
-            If you are happy with this proposal please click Accept to Accept the Proposal.
+          <td
+            colSpan={getServiceBasedColCount(true) - 1}
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+            }}
+          >
+            If you are happy with this proposal please click Accept to Accept
+            the Proposal.
           </td>
-          <td style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px" }}>
-            <a href={AcceptOneOffUrl} style={{ display: "inline-block", padding: "5px 15px", backgroundColor: "green", color: "white", textDecoration: "none", borderRadius: "100px" }}>
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "center",
+              padding: "8px",
+            }}
+          >
+            <a
+              href={AcceptOneOffUrl}
+              style={{
+                display: "inline-block",
+                padding: "5px 15px",
+                backgroundColor: "green",
+                color: "white",
+                textDecoration: "none",
+                borderRadius: "100px",
+              }}
+            >
               Accept
             </a>
           </td>
@@ -995,11 +2712,35 @@ export default function PreviewComponentPdf(props) {
         {/* Decline Button Row */}
         {props.common.enableEL == 0 && (
           <tr style={{ backgroundColor: "#DCDCDC" }}>
-            <td colSpan={getServiceBasedColCount(true) - 1} style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px" }}>
-              If you are not happy with this proposal please click Decline to Decline the Proposal.
+            <td
+              colSpan={getServiceBasedColCount(true) - 1}
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+              }}
+            >
+              If you are not happy with this proposal please click Decline to
+              Decline the Proposal.
             </td>
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px" }}>
-              <a href={DeclineOneOffUrl} style={{ display: "inline-block", padding: "5px 15px", backgroundColor: "red", color: "white", textDecoration: "none", borderRadius: "100px" }}>
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "center",
+                padding: "8px",
+              }}
+            >
+              <a
+                href={DeclineOneOffUrl}
+                style={{
+                  display: "inline-block",
+                  padding: "5px 15px",
+                  backgroundColor: "red",
+                  color: "white",
+                  textDecoration: "none",
+                  borderRadius: "100px",
+                }}
+              >
                 Decline
               </a>
             </td>
@@ -1011,301 +2752,673 @@ export default function PreviewComponentPdf(props) {
 
   // Template 6 Recurring Packages Table for Email
   const RecurringPackagesTableTemplate6 = (
-    <div style={{ paddingLeft: "40px", paddingRight: "40px", fontFamily: "arial, sans-serif" }}>
+    <div
+      style={{
+        paddingLeft: "40px",
+        paddingRight: "40px",
+        fontFamily: "arial, sans-serif",
+      }}
+    >
       <p style={{ color: "#00BFFF", fontSize: "20px", marginTop: "15px" }}>
         Recurring Services
       </p>
-      <table style={{ borderCollapse: "collapse", width: "100%", marginTop: "15px" }}>
+      <table
+        style={{ borderCollapse: "collapse", width: "100%", marginTop: "15px" }}
+      >
         {/* Package Name Header Row */}
         <tr style={{ backgroundColor: "#00BFFF" }}>
           <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
-          {props?.selectedPackagesList?.map((pkg, idx) => (
+          {activeSelectedRecurringPackages?.map((pkg, idx) => (
             <React.Fragment key={`pkg-header-${idx}`}>
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "18px" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "center",
+                  padding: "8px",
+                  color: "white",
+                  fontSize: "18px",
+                }}
+              >
                 {pkg.servicePackageName}
               </td>
-              {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-              {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-              {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-              {props.visibleFieldsCustomTemp?.serviceScope && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+              {(Number(props.vatPercentage) || 0) > 0 &&
+                props.visibleFieldsCustomTemp?.vatRate && (
+                  <td
+                    style={{ border: "1px solid #DDDDDD", padding: "8px" }}
+                  ></td>
+                )}
+              {(Number(props.vatPercentage) || 0) > 0 &&
+                props.visibleFieldsCustomTemp?.vat && (
+                  <td
+                    style={{ border: "1px solid #DDDDDD", padding: "8px" }}
+                  ></td>
+                )}
+              {(Number(props.vatPercentage) || 0) > 0 &&
+                props.visibleFieldsCustomTemp?.feesIncVat && (
+                  <td
+                    style={{ border: "1px solid #DDDDDD", padding: "8px" }}
+                  ></td>
+                )}
+              {props.visibleFieldsCustomTemp?.serviceScope && (
+                <td
+                  style={{ border: "1px solid #DDDDDD", padding: "8px" }}
+                ></td>
+              )}
             </React.Fragment>
           ))}
         </tr>
         {/* Column Headers Row */}
         <tr style={{ backgroundColor: "#00BFFF" }}>
           {props.visibleFieldsCustomTemp?.serviceName && (
-            <th style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white", fontSize: "16px" }}>Services</th>
+            <th
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+                fontSize: "16px",
+              }}
+            >
+              Services
+            </th>
           )}
           {props?.selectedPackagesList?.map((pkg, idx) => (
             <React.Fragment key={`col-header-${idx}`}>
               {props.visibleFieldsCustomTemp?.fees && (
-                <th style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white", fontSize: "14px" }}>Fees</th>
+                <th
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                    fontSize: "14px",
+                  }}
+                >
+                  Fees
+                </th>
               )}
-              {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
-                <th style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white", fontSize: "14px" }}>{props.taxName || "VAT"} Rate</th>
-              )}
-              {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-                <th style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white", fontSize: "14px" }}>{props.taxName || "VAT"}</th>
-              )}
-              {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-                <th style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white", fontSize: "14px" }}>Fees inc {props.taxName || "VAT"}</th>
-              )}
+              {(Number(props.vatPercentage) || 0) > 0 &&
+                props.visibleFieldsCustomTemp?.vatRate && (
+                  <th
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                      fontSize: "14px",
+                    }}
+                  >
+                    {props.taxName || "VAT"} Rate
+                  </th>
+                )}
+              {(Number(props.vatPercentage) || 0) > 0 &&
+                props.visibleFieldsCustomTemp?.vat && (
+                  <th
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                      fontSize: "14px",
+                    }}
+                  >
+                    {props.taxName || "VAT"}
+                  </th>
+                )}
+              {(Number(props.vatPercentage) || 0) > 0 &&
+                props.visibleFieldsCustomTemp?.feesIncVat && (
+                  <th
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                      fontSize: "14px",
+                    }}
+                  >
+                    Fees inc {props.taxName || "VAT"}
+                  </th>
+                )}
               {props.visibleFieldsCustomTemp?.serviceScope && (
-                <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "14px" }}>Service Scope</th>
+                <th
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "center",
+                    padding: "8px",
+                    color: "white",
+                    fontSize: "14px",
+                  }}
+                >
+                  Service Scope
+                </th>
               )}
             </React.Fragment>
           ))}
         </tr>
         {/* Service Data Rows */}
-        {props.moduleName === "Quote" && props.selectedRecurringServiceList?.map((serviceCat, catIdx) => (
-          <React.Fragment key={`cat-${catIdx}`}>
-            {/* Category Header Row */}
-            <tr style={{ backgroundColor: "#DCDCDC" }}>
-              {props.visibleFieldsCustomTemp?.serviceName && (
-                <th style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", fontWeight: "bold", fontSize: "16px" }}>
-                  {serviceCat.serviceCatName}
-                </th>
-              )}
-              {props?.selectedPackagesList?.map((pkg, pkgIdx) => (
-                <React.Fragment key={`cat-spacer-${pkgIdx}`}>
-                  {props.visibleFieldsCustomTemp?.fees && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {props.visibleFieldsCustomTemp?.serviceScope && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                </React.Fragment>
-              ))}
-            </tr>
-            {/* Service Rows */}
-            {serviceCat.servicesList.map((subService, svcIdx) => {
-              const packageValues = [
-                { value: subService.packageOneValue, id: subService.packageOneID, selectedId: props.selectedPackagesList?.[0]?.servicePackageID },
-                { value: subService.packageTwoValue, id: subService.packageTwoID, selectedId: props.selectedPackagesList?.[1]?.servicePackageID },
-                { value: subService.packageThreeValue, id: subService.packageThreeID, selectedId: props.selectedPackagesList?.[2]?.servicePackageID },
-              ];
-              const vatPct = subService.service_vat_percentage ?? 0;
-              
-              return (
-                <tr key={`svc-${svcIdx}`}>
-                  {props.visibleFieldsCustomTemp?.serviceName && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px" }}>
-                      {subService.serviceName}
-                    </td>
-                  )}
-                  {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
-                    const pkgVal = normalizePackageValue(packageValues[pkgIdx]?.value);
-                    const pkgId = packageValues[pkgIdx]?.id;
-                    const selectedPkgId = packageValues[pkgIdx]?.selectedId;
-                    const isIncluded = subService?.servicePackageIDs?.includes(pkgId);
-                    const vatAmount = (pkgVal * vatPct) / 100;
-                    const feesIncVat = pkgVal + vatAmount;
-                    const showX = (pkgVal === 0 || packageValues[pkgIdx]?.value === null) && !isIncluded;
-                    const showXNotIncluded = !isIncluded;
-                    
-                    return (
-                      <React.Fragment key={`pkg-data-${pkgIdx}`}>
-                        {props.visibleFieldsCustomTemp?.fees && (
-                          <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
-                            {showX || showXNotIncluded ? <span>&#10007;</span> : 
-                              props.ProposalObject?.feeTypeId === 1 ? props.formatValue(packageValues[pkgIdx]?.value, props.currencyID) : <span>&#10003;</span>}
-                          </td>
-                        )}
-                        {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
-                          <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
-                            {showX || showXNotIncluded ? <span>&#10007;</span> : `${vatPct}%`}
-                          </td>
-                        )}
-                        {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-                          <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
-                            {showX || showXNotIncluded ? <span>&#10007;</span> : props.formatValue(vatAmount, props.currencyID)}
-                          </td>
-                        )}
-                        {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-                          <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
-                            {showX || showXNotIncluded ? <span>&#10007;</span> : props.formatValue(feesIncVat, props.currencyID)}
-                          </td>
-                        )}
-                        {props.visibleFieldsCustomTemp?.serviceScope && (
-                          <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
-                            {showX || showXNotIncluded ? (
-                              <span>-</span>
-                            ) : (
-                              getServiceScopeDriverList(subService).length > 0
-                                ? getServiceScopeDriverList(subService)
-                                    .filter((d) => d.driverValue !== null)
-                                    .map((d, i, arr) => (
-                                      <div key={i}>
-                                        {d.driverName} = {d.driverValue}
-                                        {i !== arr.length - 1 ? ", " : ""}
-                                      </div>
-                                    ))
-                                : "-"
+        {props.moduleName === "Quote" &&
+          props.selectedRecurringServiceList?.map((serviceCat, catIdx) => (
+            <React.Fragment key={`cat-${catIdx}`}>
+              {/* Category Header Row */}
+              <tr style={{ backgroundColor: "#DCDCDC" }}>
+                {props.visibleFieldsCustomTemp?.serviceName && (
+                  <th
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                      fontWeight: "bold",
+                      fontSize: "16px",
+                    }}
+                  >
+                    {serviceCat.serviceCatName}
+                  </th>
+                )}
+                {props?.selectedPackagesList?.map((pkg, pkgIdx) => (
+                  <React.Fragment key={`cat-spacer-${pkgIdx}`}>
+                    {props.visibleFieldsCustomTemp?.fees && (
+                      <td
+                        style={{ border: "1px solid #DDDDDD", padding: "8px" }}
+                      ></td>
+                    )}
+                    {(Number(props.vatPercentage) || 0) > 0 &&
+                      props.visibleFieldsCustomTemp?.vatRate && (
+                        <td
+                          style={{
+                            border: "1px solid #DDDDDD",
+                            padding: "8px",
+                          }}
+                        ></td>
+                      )}
+                    {(Number(props.vatPercentage) || 0) > 0 &&
+                      props.visibleFieldsCustomTemp?.vat && (
+                        <td
+                          style={{
+                            border: "1px solid #DDDDDD",
+                            padding: "8px",
+                          }}
+                        ></td>
+                      )}
+                    {(Number(props.vatPercentage) || 0) > 0 &&
+                      props.visibleFieldsCustomTemp?.feesIncVat && (
+                        <td
+                          style={{
+                            border: "1px solid #DDDDDD",
+                            padding: "8px",
+                          }}
+                        ></td>
+                      )}
+                    {props.visibleFieldsCustomTemp?.serviceScope && (
+                      <td
+                        style={{ border: "1px solid #DDDDDD", padding: "8px" }}
+                      ></td>
+                    )}
+                  </React.Fragment>
+                ))}
+              </tr>
+              {/* Service Rows */}
+              {serviceCat.servicesList.map((subService, svcIdx) => {
+                const driverList = Array.isArray(subService?.pricingDriverList)
+                  ? subService.pricingDriverList
+                  : [];
+
+                return (
+                  <tr key={`svc-${svcIdx}`}>
+                    {props.visibleFieldsCustomTemp?.serviceName && (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "left",
+                          padding: "8px",
+                        }}
+                      >
+                        {subService.serviceName}
+                      </td>
+                    )}
+                    {activeSelectedRecurringPackages.map((pkg, pkgIdx) => {
+                      const recurringPackageRow = calculateCustomPackageRow({
+                        service: subService,
+
+                        packageIndex: pkgIdx,
+
+                        selectedPackageID: pkg?.servicePackageID ?? null,
+
+                        fallbackVatPercentage: props.vatPercentage || 0,
+                      });
+
+                      return (
+                        <React.Fragment key={`pkg-data-${pkgIdx}`}>
+                          {/* FEES */}
+                          {props.visibleFieldsCustomTemp?.fees && (
+                            <td
+                              style={{
+                                border: "1px solid #DDDDDD",
+                                textAlign: "right",
+                                padding: "8px",
+                              }}
+                            >
+                              {!recurringPackageRow.isIncluded ? (
+                                <span>&#10007;</span>
+                              ) : props.ProposalObject?.feeTypeId === 1 ? (
+                                props.formatValue(
+                                  recurringPackageRow.fees,
+                                  props.currencyID,
+                                )
+                              ) : (
+                                <span>&#10003;</span>
+                              )}
+                            </td>
+                          )}
+
+                          {/* VAT RATE */}
+                          {hasRecurringPackageVAT &&
+                            props.visibleFieldsCustomTemp?.vatRate && (
+                              <td
+                                style={{
+                                  border: "1px solid #DDDDDD",
+                                  textAlign: "right",
+                                  padding: "8px",
+                                }}
+                              >
+                                {recurringPackageRow.isIncluded ? (
+                                  `${Number(
+                                    recurringPackageRow.vatRate || 0,
+                                  ).toFixed(2)}%`
+                                ) : (
+                                  <span>&#10007;</span>
+                                )}
+                              </td>
                             )}
-                          </td>
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </React.Fragment>
-        ))}
+
+                          {/* VAT */}
+                          {hasRecurringPackageVAT &&
+                            props.visibleFieldsCustomTemp?.vat && (
+                              <td
+                                style={{
+                                  border: "1px solid #DDDDDD",
+                                  textAlign: "right",
+                                  padding: "8px",
+                                }}
+                              >
+                                {!recurringPackageRow.isIncluded ? (
+                                  <span>&#10007;</span>
+                                ) : props.ProposalObject?.feeTypeId === 1 ? (
+                                  props.formatValue(
+                                    recurringPackageRow.vat,
+                                    props.currencyID,
+                                  )
+                                ) : (
+                                  <span>&#10003;</span>
+                                )}
+                              </td>
+                            )}
+
+                          {/* FEES INCLUDING VAT */}
+                          {hasRecurringPackageVAT &&
+                            props.visibleFieldsCustomTemp?.feesIncVat && (
+                              <td
+                                style={{
+                                  border: "1px solid #DDDDDD",
+                                  textAlign: "right",
+                                  padding: "8px",
+                                }}
+                              >
+                                {!recurringPackageRow.isIncluded ? (
+                                  <span>&#10007;</span>
+                                ) : props.ProposalObject?.feeTypeId === 1 ? (
+                                  props.formatValue(
+                                    recurringPackageRow.feesIncVat,
+                                    props.currencyID,
+                                  )
+                                ) : (
+                                  <span>&#10003;</span>
+                                )}
+                              </td>
+                            )}
+
+                          {/* SERVICE SCOPE */}
+                          {props.visibleFieldsCustomTemp?.serviceScope && (
+                            <td
+                              style={{
+                                border: "1px solid #DDDDDD",
+                                textAlign: "right",
+                                padding: "8px",
+                              }}
+                            >
+                              {!recurringPackageRow.isIncluded
+                                ? "-"
+                                : driverList.length > 0
+                                  ? driverList
+                                      .filter(
+                                        (driver) => driver.driverValue !== null,
+                                      )
+                                      .map(
+                                        (driver, driverIndex, driverArray) => (
+                                          <div key={driverIndex}>
+                                            {driver.driverName} ={" "}
+                                            {driver.driverValue}
+                                            {driverIndex !==
+                                            driverArray.length - 1
+                                              ? "; "
+                                              : ""}
+                                          </div>
+                                        ),
+                                      )
+                                  : "-"}
+                            </td>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
+            </React.Fragment>
+          ))}
         {/* Net Total Row - matches PDF logic: uses StaticVaTPrice for VAT, handles discount conditions */}
+        {/* NET TOTAL */}
         <tr style={{ backgroundColor: "#808080" }}>
-          <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white", fontWeight: "bold" }}>Net Total</td>
-          {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
-            const pkgName = pkgIdx === 0 ? 'One' : pkgIdx === 1 ? 'Two' : 'Three';
-            const netTotal = props.RecurringPricingInfo?.[`package${pkgName}NetTotal`];
-            const staticVat = props.RecurringPricingInfo?.[`Package${pkgName}StaticVaTPrice`];
-            const disCount = Number(props.RecurringPricingInfo?.[`package${pkgName}DisCount`] || 0);
-            const disCountedTotal = props.RecurringPricingInfo?.[`package${pkgName}DisCountedTotal`];
-            // Net Total Fees: use disCountedTotal if discount exists and !DiscountLines, else netTotal
-            const netFees = (disCount > 0 && !props.ProposalObject?.DiscountLines) ? disCountedTotal : netTotal;
-            // Net Total Fees Inc VAT: netFees + staticVat
-            const netFeesIncVat = Number(netFees || 0) + Number(staticVat || 0);
-            return (
-              <React.Fragment key={`net-${pkgIdx}`}>
-                {props.visibleFieldsCustomTemp?.fees && (
-                  <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                    {props.formatValue(netFees, props.currencyID)}
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+              color: "white",
+              fontWeight: "bold",
+            }}
+          >
+            Net Total
+          </td>
+
+          {activeRecurringEmailPackageFooters.map((footer, pkgIdx) => (
+            <React.Fragment key={`recurring-net-${pkgIdx}`}>
+              {props.visibleFieldsCustomTemp?.fees && (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {props.formatValue(
+                    props.ProposalObject?.DiscountLines
+                      ? footer.net
+                      : footer.finalNet,
+                    props.currencyID,
+                  )}
+                </td>
+              )}
+
+              {hasRecurringPackageVAT &&
+                props.visibleFieldsCustomTemp?.vatRate && (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      padding: "8px",
+                    }}
+                  ></td>
+                )}
+
+              {hasRecurringPackageVAT && props.visibleFieldsCustomTemp?.vat && (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {props.formatValue(
+                    props.ProposalObject?.DiscountLines
+                      ? footer.vat
+                      : footer.finalVat,
+                    props.currencyID,
+                  )}
+                </td>
+              )}
+
+              {hasRecurringPackageVAT &&
+                props.visibleFieldsCustomTemp?.feesIncVat && (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {props.formatValue(
+                      props.ProposalObject?.DiscountLines
+                        ? footer.feesIncVat
+                        : footer.finalFeesIncVat,
+                      props.currencyID,
+                    )}
                   </td>
                 )}
-                {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-                  <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                    {props.formatValue(staticVat, props.currencyID)}
-                  </td>
-                )}
-                {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-                  <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                    {props.formatValue(netFeesIncVat, props.currencyID)}
-                  </td>
-                )}
-                {props.visibleFieldsCustomTemp?.serviceScope && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-              </React.Fragment>
-            );
-          })}
+
+              {props.visibleFieldsCustomTemp?.serviceScope && (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    padding: "8px",
+                  }}
+                ></td>
+              )}
+            </React.Fragment>
+          ))}
         </tr>
-        {/* Discount Row - only shown when any package has discount > 0 and DiscountLines is true */}
-        {(Number(props.RecurringPricingInfo?.packageOneDisCount) > 0 ||
-          Number(props.RecurringPricingInfo?.packageTwoDisCount) > 0 ||
-          Number(props.RecurringPricingInfo?.packageThreeDisCount) > 0) &&
-          props.ProposalObject?.DiscountLines && (
+
+        {/* DISCOUNT */}
+        {showRecurringPackageDiscount && (
           <tr style={{ backgroundColor: "#DCDCDC" }}>
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "black" }}>Discount</td>
-            {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
-              const pkgName = pkgIdx === 0 ? 'One' : pkgIdx === 1 ? 'Two' : 'Three';
-              const disCount = Number(props.RecurringPricingInfo?.[`package${pkgName}DisCount`] || 0);
-              const staticVat = Number(props.RecurringPricingInfo?.[`Package${pkgName}StaticVaTPrice`] || 0);
-              const vatPrice = Number(props.RecurringPricingInfo?.[`Package${pkgName}VaTPrice`] || 0);
-              const vatDiscount = staticVat - vatPrice;
-              return (
-                <React.Fragment key={`disc-${pkgIdx}`}>
-                  {props.visibleFieldsCustomTemp?.fees && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
-                      (-) {props.formatValue(disCount, props.currencyID)}
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "black",
+                fontWeight: "bold",
+              }}
+            >
+              Discount
+            </td>
+
+            {activeRecurringEmailPackageFooters.map((footer, pkgIdx) => (
+              <React.Fragment key={`recurring-discount-${pkgIdx}`}>
+                {props.visibleFieldsCustomTemp?.fees && (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    (-) {props.formatValue(footer.discount, props.currencyID)}
+                  </td>
+                )}
+
+                {hasRecurringPackageVAT &&
+                  props.visibleFieldsCustomTemp?.vatRate && (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        padding: "8px",
+                      }}
+                    ></td>
+                  )}
+
+                {hasRecurringPackageVAT &&
+                  props.visibleFieldsCustomTemp?.vat && (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                        color: "black",
+                      }}
+                    >
+                      (-){" "}
+                      {props.formatValue(footer.vatDiscount, props.currencyID)}
                     </td>
                   )}
-                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
-                      (-) {props.formatValue(vatDiscount, props.currencyID)}
+
+                {hasRecurringPackageVAT &&
+                  props.visibleFieldsCustomTemp?.feesIncVat && (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                        color: "black",
+                      }}
+                    >
+                      (-){" "}
+                      {props.formatValue(
+                        footer.feesIncVatDiscount,
+                        props.currencyID,
+                      )}
                     </td>
                   )}
-                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
-                      (-) {props.formatValue(disCount + vatDiscount, props.currencyID)}
-                    </td>
-                  )}
-                  {props.visibleFieldsCustomTemp?.serviceScope && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                </React.Fragment>
-              );
-            })}
+
+                {props.visibleFieldsCustomTemp?.serviceScope && (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      padding: "8px",
+                    }}
+                  ></td>
+                )}
+              </React.Fragment>
+            ))}
           </tr>
         )}
-        {/* Non-VAT: Discounted Total (after discount row) */}
-        {(Number(props.vatPercentage) || 0) === 0 &&
-          (Number(props.RecurringPricingInfo?.packageOneDisCount) > 0 ||
-            Number(props.RecurringPricingInfo?.packageTwoDisCount) > 0 ||
-            Number(props.RecurringPricingInfo?.packageThreeDisCount) > 0) &&
-          props.ProposalObject?.DiscountLines && (
+
+        {/* GRAND TOTAL / DISCOUNTED TOTAL */}
+        {showRecurringPackageDiscount && (
           <tr style={{ backgroundColor: "#808080" }}>
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white", fontWeight: "bold" }}>Discounted Total</td>
-            {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
-              const pkgName = pkgIdx === 0 ? "One" : pkgIdx === 1 ? "Two" : "Three";
-              const discounted = props.RecurringPricingInfo?.[`package${pkgName}DisCountedTotal`];
-              return (
-                <React.Fragment key={`rec-discounted-${pkgIdx}`}>
-                  {props.visibleFieldsCustomTemp?.fees && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                      {props.formatValue(discounted, props.currencyID)}
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+                fontWeight: "bold",
+              }}
+            >
+              {hasRecurringPackageVAT ? "Grand Total" : "Discounted Total"}
+            </td>
+
+            {activeRecurringEmailPackageFooters.map((footer, pkgIdx) => (
+              <React.Fragment key={`recurring-final-${pkgIdx}`}>
+                {props.visibleFieldsCustomTemp?.fees && (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {props.formatValue(footer.finalNet, props.currencyID)}
+                  </td>
+                )}
+
+                {hasRecurringPackageVAT &&
+                  props.visibleFieldsCustomTemp?.vatRate && (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        padding: "8px",
+                      }}
+                    ></td>
+                  )}
+
+                {hasRecurringPackageVAT &&
+                  props.visibleFieldsCustomTemp?.vat && (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                        color: "white",
+                      }}
+                    >
+                      {props.formatValue(footer.finalVat, props.currencyID)}
                     </td>
                   )}
-                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
-                    <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
-                  )}
-                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-                    <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
-                  )}
-                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-                    <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
-                  )}
-                  {props.visibleFieldsCustomTemp?.serviceScope && (
-                    <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </tr>
-        )}
-        {/* Grand Total Row — template 6: only when a package discount applies (same as discount row) */}
-        {(Number(props.vatPercentage) || 0) > 0 &&
-          (Number(props.RecurringPricingInfo?.packageOneDisCount) > 0 ||
-            Number(props.RecurringPricingInfo?.packageTwoDisCount) > 0 ||
-            Number(props.RecurringPricingInfo?.packageThreeDisCount) > 0) &&
-          props.ProposalObject?.DiscountLines && (
-          <tr style={{ backgroundColor: "#808080" }}>
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white", fontWeight: "bold" }}>Grand Total</td>
-            {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
-              const pkgName = pkgIdx === 0 ? 'One' : pkgIdx === 1 ? 'Two' : 'Three';
-              const grandTotal = Number(props.RecurringPricingInfo?.[`Package${pkgName}GrandTotal`] || 0);
-              const vatPrice = Number(props.RecurringPricingInfo?.[`Package${pkgName}VaTPrice`] || 0);
-              return (
-                <React.Fragment key={`grand-${pkgIdx}`}>
-                  {props.visibleFieldsCustomTemp?.fees && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                      {props.formatValue(grandTotal - vatPrice, props.currencyID)}
+
+                {hasRecurringPackageVAT &&
+                  props.visibleFieldsCustomTemp?.feesIncVat && (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                        color: "white",
+                      }}
+                    >
+                      {props.formatValue(
+                        footer.finalFeesIncVat,
+                        props.currencyID,
+                      )}
                     </td>
                   )}
-                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                      {props.formatValue(vatPrice, props.currencyID)}
-                    </td>
-                  )}
-                  {(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                      {props.formatValue(grandTotal, props.currencyID)}
-                    </td>
-                  )}
-                  {props.visibleFieldsCustomTemp?.serviceScope && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                </React.Fragment>
-              );
-            })}
+
+                {props.visibleFieldsCustomTemp?.serviceScope && (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      padding: "8px",
+                    }}
+                  ></td>
+                )}
+              </React.Fragment>
+            ))}
           </tr>
         )}
         {/* Accept Button Row */}
         <tr style={{ backgroundColor: "#DCDCDC" }}>
-          <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px" }}>
-            If you are happy with this proposal please click Accept to Accept the Proposal.
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+            }}
+          >
+            If you are happy with this proposal please click Accept to Accept
+            the Proposal.
           </td>
-          {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
-            const acceptUrl = pkgIdx === 0 ? AcceptRecurringUrlButton1 : pkgIdx === 1 ? AcceptRecurringUrlButton2 : AcceptRecurringUrlButton3;
-            const colSpan = getColsPerPackage();
+          {activeSelectedRecurringPackages.map((pkg, pkgIdx) => {
+            const acceptUrl =
+              pkgIdx === 0
+                ? AcceptRecurringUrlButton1
+                : pkgIdx === 1
+                  ? AcceptRecurringUrlButton2
+                  : AcceptRecurringUrlButton3;
+
             return (
-              <td key={`accept-${pkgIdx}`} colSpan={colSpan} style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px" }}>
-                <a href={acceptUrl} style={{ display: "inline-block", padding: "5px 15px", backgroundColor: "green", color: "white", textDecoration: "none", borderRadius: "100px" }}>
+              <td
+                key={`accept-${pkgIdx}`}
+                colSpan={getColsPerPackage()}
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "center",
+                  padding: "8px",
+                }}
+              >
+                <a
+                  href={acceptUrl}
+                  style={{
+                    display: "inline-block",
+                    padding: "5px 15px",
+                    backgroundColor: "green",
+                    color: "white",
+                    textDecoration: "none",
+                    borderRadius: "100px",
+                  }}
+                >
                   Accept
                 </a>
               </td>
@@ -1315,11 +3428,37 @@ export default function PreviewComponentPdf(props) {
         {/* Decline Button Row */}
         {props.common.enableEL == 0 && (
           <tr style={{ backgroundColor: "#DCDCDC" }}>
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px" }}>
-              If you are not happy with this proposal please click Decline to Decline the Proposal.
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+              }}
+            >
+              If you are not happy with this proposal please click Decline to
+              Decline the Proposal.
             </td>
-            <td colSpan={getColsPerPackage() * (props?.selectedPackagesList?.length || 1)} style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px" }}>
-              <a href={DeclineRecurringUrl} style={{ display: "inline-block", padding: "5px 15px", backgroundColor: "red", color: "white", textDecoration: "none", borderRadius: "100px" }}>
+            <td
+              colSpan={
+                getColsPerPackage() * activeSelectedRecurringPackages.length
+              }
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "center",
+                padding: "8px",
+              }}
+            >
+              <a
+                href={DeclineRecurringUrl}
+                style={{
+                  display: "inline-block",
+                  padding: "5px 15px",
+                  backgroundColor: "red",
+                  color: "white",
+                  textDecoration: "none",
+                  borderRadius: "100px",
+                }}
+              >
                 Decline
               </a>
             </td>
@@ -1368,239 +3507,198 @@ export default function PreviewComponentPdf(props) {
           >
             Services
           </th>
-          <th
-            style={{
-              border: "1px solid #DDDDDD",
-              textAlign: "right",
-              padding: "8px",
-              color: "white",
-              fontSize: "18px",
-            }}
-          ></th>
+
+          {activeSelectedRecurringPackages.map((pkg, packageIndex) => (
+            <th
+              key={`default-package-header-${packageIndex}`}
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "center",
+                padding: "8px",
+                color: "white",
+                fontSize: "18px",
+              }}
+            >
+              {pkg.servicePackageName}
+            </th>
+          ))}
         </tr>
         {props.moduleName === "Quote" &&
-          props.selectedRecurringServiceList?.map((serviceCat, index) => (
-            <React.Fragment key={index}>
-              <tr style={{ backgroundColor: "#DCDCDC" }}>
-                <td
-                  style={{
-                    border: "1px solid #DDDDDD",
-                    textAlign: "left",
-                    padding: "8px",
-                    fontWeight: "bold",
-                    fontSize: "18px",
-                  }}
-                >
-                  {serviceCat.serviceCatName}
-                </td>
-                <td
-                  style={{
-                    border: "1px solid #DDDDDD",
-                    textAlign: "left",
-                    padding: "8px",
-                  }}
-                ></td>
-              </tr>
-              {serviceCat.servicesList.map((subService, subIndex) => (
-                <tr key={subIndex}>
+          props.selectedRecurringServiceList?.map(
+            (serviceCat, categoryIndex) => (
+              <React.Fragment
+                key={`default-recurring-category-${categoryIndex}`}
+              >
+                {/* CATEGORY ROW */}
+                <tr style={{ backgroundColor: "#DCDCDC" }}>
                   <td
                     style={{
                       border: "1px solid #DDDDDD",
                       textAlign: "left",
                       padding: "8px",
+                      fontWeight: "bold",
+                      fontSize: "18px",
                     }}
                   >
-                    {subService.serviceName}
+                    {serviceCat.serviceCatName}
                   </td>
-                  {props.moduleName == "Quote" &&
-                  props.ProposalObject?.feeTypeId == 1 ? (
+
+                  {activeSelectedRecurringPackages.map((_, packageIndex) => (
                     <td
+                      key={`default-category-empty-${categoryIndex}-${packageIndex}`}
                       style={{
                         border: "1px solid #DDDDDD",
-                        textAlign: "right",
                         padding: "8px",
                       }}
-                    >
-                      &#10003;
-                    </td>
-                  ) : (
-                    <td
-                      style={{
-                        border: "1px solid #DDDDDD",
-                        textAlign: "right",
-                        padding: "8px",
-                      }}
-                    >
-                      &#10003;
-                    </td>
-                  )}
-                  {subService.pricingDriverList?.length > 0 &&
-                    subService.pricingDriverList.map((driver, driverIndex) => {
-                      const isVariation = driver.driverTypeID === 3;
-                      const isSlab = driver.driverTypeID === 4;
-                      const isQuantity = driver.driverTypeID === 2;
-                      const matchedQuantity = driver.driverValue;
-                      const isVisible = driver.driverVisibility === true;
+                    ></td>
+                  ))}
+                </tr>
 
-                      const matchedVariation = isVariation
-                        ? driver.variation?.find(
-                            (item) => item.variationID === driver.variationID,
-                          )
-                        : null;
+                {/* SERVICE ROWS */}
+                {(serviceCat.servicesList || []).map(
+                  (subService, serviceIndex) => {
+                    const visibleDriverList = Array.isArray(
+                      subService?.pricingDriverList,
+                    )
+                      ? subService.pricingDriverList.filter(
+                          (driver) => driver?.driverVisibility === true,
+                        )
+                      : [];
 
-                      const matchedSlab = isSlab
-                        ? driver.slab?.find(
-                            (item) => item.slabID === driver.slabID,
-                          )
-                        : null;
+                    return (
+                      <React.Fragment
+                        key={`default-recurring-service-${categoryIndex}-${serviceIndex}`}
+                      >
+                        <tr>
+                          <td
+                            style={{
+                              border: "1px solid #DDDDDD",
+                              textAlign: "left",
+                              padding: "8px",
+                            }}
+                          >
+                            {subService.serviceName}
+                          </td>
 
-                      return (
-                        <>
-                          <tr>
-                            {isVisible && (
-                              <>
+                          {activeSelectedRecurringPackages.map(
+                            (pkg, packageIndex) => {
+                              const recurringPackageRow =
+                                calculateCustomPackageRow({
+                                  service: subService,
+
+                                  packageIndex,
+
+                                  selectedPackageID:
+                                    pkg?.servicePackageID ?? null,
+
+                                  fallbackVatPercentage:
+                                    props.vatPercentage || 0,
+                                });
+
+                              return (
                                 <td
-                                  key={`driver-${driverIndex}`}
-                                  style={{
-                                    border: "1px solid #DDDDDD",
-                                    textAlign: "left",
-                                    padding: "8px",
-                                    fontWeight: "normal",
-                                  }}
-                                >
-                                  • {driver.driverName}
-                                </td>
-                                <td
+                                  key={`default-recurring-package-${categoryIndex}-${serviceIndex}-${packageIndex}`}
                                   style={{
                                     border: "1px solid #DDDDDD",
                                     textAlign: "right",
                                     padding: "8px",
-                                    fontWeight: "normal",
                                   }}
                                 >
-                                  {isVariation && matchedVariation
-                                    ? matchedVariation.variationName
-                                    : isSlab && matchedSlab
-                                      ? `${matchedSlab.slabFrom} - ${matchedSlab.slabTo}`
-                                      : isQuantity
-                                        ? matchedQuantity
-                                        : ""}
+                                  {!recurringPackageRow.isIncluded ? (
+                                    <span>&#10007;</span>
+                                  ) : props.ProposalObject?.feeTypeId === 1 ? (
+                                    props.formatValue(
+                                      recurringPackageRow.fees,
+                                      props.currencyID,
+                                    )
+                                  ) : (
+                                    <span>&#10003;</span>
+                                  )}
                                 </td>
-                              </>
-                            )}
-                          </tr>
-                        </>
-                      );
-                    })}
+                              );
+                            },
+                          )}
+                        </tr>
 
-                  {props?.selectedPackagesList.length >= 2 ? (
-                    props.ProposalObject?.feeTypeId == 1 ? (
-                      <td
-                        style={{
-                          border: "1px solid #DDDDDD",
-                          textAlign: "right",
-                          padding: "8px",
-                        }}
-                      >
-                        {subService.packageTwoValue === null &&
-                        !subService.servicePackageIDs.some(
-                          (item) =>
-                            item ==
-                            props.selectedPackagesList[1]?.servicePackageID,
-                        ) ? (
-                          <span>&#10007;</span>
-                        ) : !subService?.servicePackageIDs.includes(
-                            subService.packageTwoID,
-                          ) ? (
-                          <span>&#10007;</span>
-                        ) : (
-                          ` ${props.formatValue(
-                            subService.packageTwoValue,
-                            props.currencyID,
-                          )}`
-                        )}
-                      </td>
-                    ) : subService.packageTwoValue !== null &&
-                      !subService?.servicePackageIDs.includes(
-                        subService.packageTwoID,
-                      ) ? (
-                      <td
-                        style={{
-                          border: "1px solid #DDDDDD",
-                          textAlign: "right",
-                          padding: "8px",
-                        }}
-                      >
-                        &#10007;
-                      </td>
-                    ) : (
-                      <td
-                        style={{
-                          border: "1px solid #DDDDDD",
-                          textAlign: "right",
-                          padding: "8px",
-                        }}
-                      >
-                        &#10003;
-                      </td>
-                    )
-                  ) : null}
-                  {props?.selectedPackagesList.length === 3 ? (
-                    props.ProposalObject?.feeTypeId == 1 ? (
-                      <td
-                        style={{
-                          border: "1px solid #DDDDDD",
-                          textAlign: "right",
-                          padding: "8px",
-                        }}
-                      >
-                        {subService.packageThreeValue === null &&
-                        !subService.servicePackageIDs.some(
-                          (item) =>
-                            item ==
-                            props.selectedPackagesList[2]?.servicePackageID,
-                        ) ? (
-                          <span>&#10007;</span>
-                        ) : !subService?.servicePackageIDs.includes(
-                            subService.packageThreeID,
-                          ) ? (
-                          <span>&#10007;</span>
-                        ) : (
-                          `${props.formatValue(
-                            subService.packageThreeValue,
-                            props.currencyID,
-                          )}`
-                        )}
-                      </td>
-                    ) : subService.packageThreeValue !== null &&
-                      !subService?.servicePackageIDs.includes(
-                        subService.packageThreeID,
-                      ) ? (
-                      <td
-                        style={{
-                          border: "1px solid #DDDDDD",
-                          textAlign: "right",
-                          padding: "8px",
-                        }}
-                      >
-                        &#10007;
-                      </td>
-                    ) : (
-                      <td
-                        style={{
-                          border: "1px solid #DDDDDD",
-                          textAlign: "right",
-                          padding: "8px",
-                        }}
-                      >
-                        &#10003;
-                      </td>
-                    )
-                  ) : null}
-                </tr>
-              ))}
-            </React.Fragment>
-          ))}
+                        {/* PRICING DRIVER ROWS */}
+                        {visibleDriverList.map((driver, driverIndex) => {
+                          const isVariation = driver.driverTypeID === 3;
+
+                          const isSlab = driver.driverTypeID === 4;
+
+                          const isQuantity = driver.driverTypeID === 2;
+
+                          const matchedVariation = isVariation
+                            ? driver.variation?.find(
+                                (item) =>
+                                  Number(item.variationID) ===
+                                  Number(driver.variationID),
+                              )
+                            : null;
+
+                          const matchedSlab = isSlab
+                            ? driver.slab?.find(
+                                (item) =>
+                                  Number(item.slabID) === Number(driver.slabID),
+                              )
+                            : null;
+
+                          const driverValue =
+                            isVariation && matchedVariation
+                              ? matchedVariation.variationName
+                              : isSlab && matchedSlab
+                                ? `${matchedSlab.slabFrom} - ${matchedSlab.slabTo}`
+                                : isQuantity
+                                  ? driver.driverValue
+                                  : (driver.driverValue ?? "");
+
+                          return (
+                            <tr
+                              key={`default-recurring-driver-${categoryIndex}-${serviceIndex}-${driverIndex}`}
+                            >
+                              <td
+                                style={{
+                                  border: "1px solid #DDDDDD",
+                                  textAlign: "left",
+                                  padding: "8px",
+                                  fontWeight: "normal",
+                                }}
+                              >
+                                • {driver.driverName}
+                              </td>
+
+                              <td
+                                style={{
+                                  border: "1px solid #DDDDDD",
+                                  textAlign: "right",
+                                  padding: "8px",
+                                  fontWeight: "normal",
+                                }}
+                              >
+                                {driverValue}
+                              </td>
+
+                              {activeSelectedRecurringPackages
+                                .slice(1)
+                                .map((_, emptyPackageIndex) => (
+                                  <td
+                                    key={`default-driver-empty-${categoryIndex}-${serviceIndex}-${driverIndex}-${emptyPackageIndex}`}
+                                    style={{
+                                      border: "1px solid #DDDDDD",
+                                      padding: "8px",
+                                    }}
+                                  ></td>
+                                ))}
+                            </tr>
+                          );
+                        })}
+                      </React.Fragment>
+                    );
+                  },
+                )}
+              </React.Fragment>
+            ),
+          )}
 
         <tr style={{ backgroundColor: "#DCDCDC" }}>
           <td
@@ -1613,62 +3711,27 @@ export default function PreviewComponentPdf(props) {
             If you are happy with this proposal please click Accept to Accept
             the Proposal.
           </td>
-          <td
-            style={{
-              border: "1px solid #DDDDDD",
-              textAlign: "right",
-              float: "right",
-              padding: "8px",
-              color: "black",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                width: "100%",
-              }}
-            >
-              <a
-                href={AcceptRecurringUrlButton1}
+
+          {activeSelectedRecurringPackages.map((_, packageIndex) => {
+            const acceptUrl =
+              packageIndex === 0
+                ? AcceptRecurringUrlButton1
+                : packageIndex === 1
+                  ? AcceptRecurringUrlButton2
+                  : AcceptRecurringUrlButton3;
+
+            return (
+              <td
+                key={`default-recurring-accept-${packageIndex}`}
                 style={{
-                  display: "inline-block",
-                  padding: "5px 15px",
-                  backgroundColor: "green",
-                  color: "white",
-                  textDecoration: "none",
-                  border: "none",
-                  borderRadius: "100px",
-                  transition:
-                    "background-color 0.3s ease, box-shadow 0.3s ease",
-                  whiteSpace: "nowrap",
-                  flex: 1,
+                  border: "1px solid #DDDDDD",
                   textAlign: "center",
-                }}
-              >
-                Accept
-              </a>
-            </div>
-          </td>
-          {props?.selectedPackagesList.length >= 2 ? (
-            <td
-              style={{
-                border: "1px solid #DDDDDD",
-                textAlign: "right",
-                padding: "8px",
-                color: "black",
-              }}
-            >
-              {" "}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  width: "100%",
+                  padding: "8px",
+                  color: "black",
                 }}
               >
                 <a
-                  href={AcceptRecurringUrlButton2}
+                  href={acceptUrl}
                   style={{
                     display: "inline-block",
                     padding: "5px 15px",
@@ -1677,57 +3740,15 @@ export default function PreviewComponentPdf(props) {
                     textDecoration: "none",
                     border: "none",
                     borderRadius: "100px",
-                    transition:
-                      "background-color 0.3s ease, box-shadow 0.3s ease",
                     whiteSpace: "nowrap",
-                    flex: 1,
                     textAlign: "center",
                   }}
                 >
                   Accept
                 </a>
-              </div>
-            </td>
-          ) : null}
-          {props?.selectedPackagesList.length === 3 ? (
-            <td
-              style={{
-                border: "1px solid #DDDDDD",
-                textAlign: "right",
-                padding: "8px",
-                color: "black",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  width: "100%",
-                }}
-              >
-                {" "}
-                <a
-                  href={AcceptRecurringUrlButton3}
-                  style={{
-                    display: "inline-block",
-                    padding: "5px 15px",
-                    backgroundColor: "green",
-                    color: "white",
-                    textDecoration: "none",
-                    border: "none",
-                    borderRadius: "100px",
-                    transition:
-                      "background-color 0.3s ease, box-shadow 0.3s ease",
-                    whiteSpace: "nowrap",
-                    flex: 1,
-                    textAlign: "center",
-                  }}
-                >
-                  Accept
-                </a>
-              </div>
-            </td>
-          ) : null}
+              </td>
+            );
+          })}
         </tr>
         {props.common.enableEL == 0 && (
           <tr style={{ backgroundColor: "#DCDCDC" }}>
@@ -1741,15 +3762,16 @@ export default function PreviewComponentPdf(props) {
               If you are not happy with this proposal please click Decline to
               Decline the Proposal.
             </td>
+
             <td
+              colSpan={activeSelectedRecurringPackages.length || 1}
               style={{
                 border: "1px solid #DDDDDD",
-                textAlign: "right",
+                textAlign: "center",
                 padding: "8px",
                 color: "black",
               }}
             >
-              {" "}
               <a
                 href={DeclineRecurringUrl}
                 style={{
@@ -1760,35 +3782,12 @@ export default function PreviewComponentPdf(props) {
                   textDecoration: "none",
                   border: "none",
                   borderRadius: "100px",
-                  transition:
-                    "background-color 0.3s ease, box-shadow 0.3s ease",
                   whiteSpace: "nowrap",
                 }}
               >
                 Decline
               </a>
             </td>
-
-            {props?.selectedPackagesList.length >= 2 ? (
-              <td
-                style={{
-                  border: "1px solid #DDDDDD",
-                  textAlign: "right",
-                  padding: "8px",
-                  color: "white",
-                }}
-              ></td>
-            ) : null}
-            {props?.selectedPackagesList.length === 3 ? (
-              <td
-                style={{
-                  border: "1px solid #DDDDDD",
-                  textAlign: "right",
-                  padding: "8px",
-                  color: "white",
-                }}
-              ></td>
-            ) : null}
           </tr>
         )}
       </table>
@@ -1797,10 +3796,14 @@ export default function PreviewComponentPdf(props) {
 
   // Conditional RecurringPackagesTable - uses Template 6 version when selectedTemplateID === 6
   // For service-based proposals (type 3), use service table; for package-based (types 1, 2, 4), use package table
-  const isServiceBasedProposal = props?.ProposalObject?.selectedProposalTypeValue === 3;
-  const RecurringPackagesTable = props.selectedTemplateID === 6 
-    ? (isServiceBasedProposal ? RecurringServicesTableTemplate6 : RecurringPackagesTableTemplate6)
-    : RecurringPackagesTableDefault;
+  const isServiceBasedProposal =
+    props?.ProposalObject?.selectedProposalTypeValue === 3;
+  const RecurringPackagesTable =
+    props.selectedTemplateID === 6
+      ? isServiceBasedProposal
+        ? RecurringServicesTableTemplate6
+        : RecurringPackagesTableTemplate6
+      : RecurringPackagesTableDefault;
 
   // one-Off Service-Pricing Table Formate For E-mail.
   const OneOffPackagesTableDefault = (
@@ -1841,19 +3844,26 @@ export default function PreviewComponentPdf(props) {
           >
             Services
           </th>
-          <th
-            style={{
-              border: "1px solid #DDDDDD",
-              textAlign: "right",
-              padding: "8px",
-              color: "white",
-              fontSize: "18px",
-            }}
-          ></th>
+
+          {activeSelectedOneOffPackages.map((pkg, packageIndex) => (
+            <th
+              key={`default-oneoff-package-header-${packageIndex}`}
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "center",
+                padding: "8px",
+                color: "white",
+                fontSize: "18px",
+              }}
+            >
+              {pkg.servicePackageName}
+            </th>
+          ))}
         </tr>
-        {props.moduleName == "Quote" &&
-          props.selectedOneOffServiceList?.map((serviceCat, index) => (
-            <React.Fragment key={index}>
+        {props.moduleName === "Quote" &&
+          props.selectedOneOffServiceList?.map((serviceCat, categoryIndex) => (
+            <React.Fragment key={`default-oneoff-category-${categoryIndex}`}>
+              {/* CATEGORY ROW */}
               <tr style={{ backgroundColor: "#DCDCDC" }}>
                 <td
                   style={{
@@ -1866,135 +3876,159 @@ export default function PreviewComponentPdf(props) {
                 >
                   {serviceCat.serviceCatName}
                 </td>
-                <td
-                  style={{
-                    border: "1px solid #DDDDDD",
-                    textAlign: "left",
-                    padding: "8px",
-                  }}
-                ></td>
-                {props?.selectedPackagesList.length >= 2 ? (
+
+                {activeSelectedOneOffPackages.map((_, packageIndex) => (
                   <td
+                    key={`default-oneoff-category-empty-${categoryIndex}-${packageIndex}`}
                     style={{
                       border: "1px solid #DDDDDD",
-                      textAlign: "left",
                       padding: "8px",
                     }}
                   ></td>
-                ) : null}
-                {props?.selectedPackagesList.length === 3 ? (
-                  <td
-                    style={{
-                      border: "1px solid #DDDDDD",
-                      textAlign: "left",
-                      padding: "8px",
-                    }}
-                  ></td>
-                ) : null}
+                ))}
               </tr>
-              {serviceCat.servicesList.map((subService, subIndex) => (
-                <tr>
-                  <td
-                    style={{
-                      border: "1px solid #DDDDDD",
-                      textAlign: "left",
-                      padding: "8px",
-                    }}
-                  >
-                    {
-                      subService.serviceName
-                      // .length > 45 ? (
-                      //   subService.serviceName
-                      //     .substring(0, 45)
-                      //     .toLowerCase()
-                      //     .replace(/\b\w/g, (l) => l.toUpperCase()) + "..."
-                      // ) : (
-                      //   subService.serviceName
-                      // )
-                    }
-                  </td>
-                  {props.ProposalObject?.feeTypeId == 1 ? (
-                    <td
-                      style={{
-                        border: "1px solid #DDDDDD",
-                        textAlign: "right",
-                        padding: "8px",
-                      }}
+
+              {/* SERVICE ROWS */}
+              {(serviceCat.servicesList || []).map(
+                (subService, serviceIndex) => {
+                  const visibleDriverList = Array.isArray(
+                    subService?.pricingDriverList,
+                  )
+                    ? subService.pricingDriverList.filter(
+                        (driver) => driver?.driverVisibility === true,
+                      )
+                    : [];
+
+                  return (
+                    <React.Fragment
+                      key={`default-oneoff-service-${categoryIndex}-${serviceIndex}`}
                     >
-                      &#10003;
-                    </td>
-                  ) : (
-                    <td
-                      style={{
-                        border: "1px solid #DDDDDD",
-                        textAlign: "right",
-                        padding: "8px",
-                      }}
-                    >
-                      &#10003;
-                    </td>
-                  )}
+                      <tr>
+                        <td
+                          style={{
+                            border: "1px solid #DDDDDD",
+                            textAlign: "left",
+                            padding: "8px",
+                          }}
+                        >
+                          {subService.serviceName}
+                        </td>
 
-                  {subService.pricingDriverList?.length > 0 &&
-                    subService.pricingDriverList.map((driver, driverIndex) => {
-                      const isVariation = driver.driverTypeID === 3;
-                      const isSlab = driver.driverTypeID === 4;
-                      const isQuantity = driver.driverTypeID === 2;
-                      const matchedQuantity = driver.driverValue;
-                      const isVisible = driver.driverVisibility === true;
+                        {activeSelectedOneOffPackages.map(
+                          (pkg, packageIndex) => {
+                            const oneOffPackageRow =
+                              calculateCustomOneOffPackageRow({
+                                service: subService,
 
-                      const matchedVariation = isVariation
-                        ? driver.variation?.find(
-                            (item) => item.variationID === driver.variationID,
-                          )
-                        : null;
+                                packageIndex,
 
-                      const matchedSlab = isSlab
-                        ? driver.slab?.find(
-                            (item) => item.slabID === driver.slabID,
-                          )
-                        : null;
+                                selectedPackageID:
+                                  pkg?.servicePackageID ?? null,
 
-                      return (
-                        <>
-                          <tr>
-                            {isVisible && (
-                              <>
+                                fallbackVatPercentage: props.vatPercentage || 0,
+                              });
+
+                            return (
+                              <td
+                                key={`default-oneoff-package-${categoryIndex}-${serviceIndex}-${packageIndex}`}
+                                style={{
+                                  border: "1px solid #DDDDDD",
+                                  textAlign: "right",
+                                  padding: "8px",
+                                }}
+                              >
+                                {!oneOffPackageRow.isIncluded ? (
+                                  <span>&#10007;</span>
+                                ) : props.ProposalObject?.feeTypeId === 1 ? (
+                                  props.formatValue(
+                                    oneOffPackageRow.fees,
+                                    props.currencyID,
+                                  )
+                                ) : (
+                                  <span>&#10003;</span>
+                                )}
+                              </td>
+                            );
+                          },
+                        )}
+                      </tr>
+
+                      {/* PRICING DRIVER ROWS */}
+                      {visibleDriverList.map((driver, driverIndex) => {
+                        const isVariation = driver.driverTypeID === 3;
+
+                        const isSlab = driver.driverTypeID === 4;
+
+                        const isQuantity = driver.driverTypeID === 2;
+
+                        const matchedVariation = isVariation
+                          ? driver.variation?.find(
+                              (item) =>
+                                Number(item.variationID) ===
+                                Number(driver.variationID),
+                            )
+                          : null;
+
+                        const matchedSlab = isSlab
+                          ? driver.slab?.find(
+                              (item) =>
+                                Number(item.slabID) === Number(driver.slabID),
+                            )
+                          : null;
+
+                        const driverValue =
+                          isVariation && matchedVariation
+                            ? matchedVariation.variationName
+                            : isSlab && matchedSlab
+                              ? `${matchedSlab.slabFrom} - ${matchedSlab.slabTo}`
+                              : isQuantity
+                                ? driver.driverValue
+                                : (driver.driverValue ?? "");
+
+                        return (
+                          <tr
+                            key={`default-oneoff-driver-${categoryIndex}-${serviceIndex}-${driverIndex}`}
+                          >
+                            <td
+                              style={{
+                                border: "1px solid #DDDDDD",
+                                textAlign: "left",
+                                padding: "8px",
+                                fontWeight: "normal",
+                              }}
+                            >
+                              • {driver.driverName}
+                            </td>
+
+                            <td
+                              style={{
+                                border: "1px solid #DDDDDD",
+                                textAlign: "right",
+                                padding: "8px",
+                                fontWeight: "normal",
+                              }}
+                            >
+                              {driverValue}
+                            </td>
+
+                            {activeSelectedOneOffPackages
+                              .slice(1)
+                              .map((_, emptyPackageIndex) => (
                                 <td
-                                  key={`driver-${driverIndex}`}
+                                  key={`default-oneoff-driver-empty-${categoryIndex}-${serviceIndex}-${driverIndex}-${emptyPackageIndex}`}
                                   style={{
                                     border: "1px solid #DDDDDD",
-                                    textAlign: "left",
                                     padding: "8px",
-                                    fontWeight: "normal",
                                   }}
-                                >
-                                  • {driver.driverName}
-                                </td>
-                                <td
-                                  style={{
-                                    border: "1px solid #DDDDDD",
-                                    textAlign: "right",
-                                    padding: "8px",
-                                    fontWeight: "normal",
-                                  }}
-                                >
-                                  {isVariation && matchedVariation
-                                    ? matchedVariation.variationName
-                                    : isSlab && matchedSlab
-                                      ? `${matchedSlab.slabFrom} - ${matchedSlab.slabTo}`
-                                      : isQuantity
-                                        ? matchedQuantity
-                                        : ""}
-                                </td>
-                              </>
-                            )}
+                                ></td>
+                              ))}
                           </tr>
-                        </>
-                      );
-                    })}
-                </tr>
-              ))}
+                        );
+                      })}
+                    </React.Fragment>
+                  );
+                },
+              )}
             </React.Fragment>
           ))}
         {/* <tr style={{ backgroundColor: "#808080" }}>
@@ -2118,62 +4152,27 @@ export default function PreviewComponentPdf(props) {
             If you are happy with this proposal please click Accept to Accept
             the Proposal.
           </td>
-          <td
-            style={{
-              border: "1px solid #DDDDDD",
-              textAlign: "right",
-              float: "right",
-              padding: "8px",
-              color: "black",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                width: "100%",
-              }}
-            >
-              {" "}
-              <a
-                href={AcceptOneOffUrlButton1}
+
+          {activeSelectedOneOffPackages.map((_, packageIndex) => {
+            const acceptUrl =
+              packageIndex === 0
+                ? AcceptOneOffUrlButton1
+                : packageIndex === 1
+                  ? AcceptOneOffUrlButton2
+                  : AcceptOneOffUrlButton3;
+
+            return (
+              <td
+                key={`default-oneoff-accept-${packageIndex}`}
                 style={{
-                  display: "inline-block",
-                  padding: "5px 15px",
-                  backgroundColor: "green",
-                  color: "white",
-                  textDecoration: "none",
-                  border: "none",
-                  borderRadius: "100px",
-                  transition:
-                    "background-color 0.3s ease, box-shadow 0.3s ease",
-                  whiteSpace: "nowrap",
-                  flex: 1,
+                  border: "1px solid #DDDDDD",
                   textAlign: "center",
-                }}
-              >
-                Accept
-              </a>
-            </div>
-          </td>
-          {props?.selectedPackagesList.length >= 2 ? (
-            <td
-              style={{
-                border: "1px solid #DDDDDD",
-                textAlign: "right",
-                padding: "8px",
-                color: "black",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  width: "100%",
+                  padding: "8px",
+                  color: "black",
                 }}
               >
                 <a
-                  href={AcceptOneOffUrlButton2}
+                  href={acceptUrl}
                   style={{
                     display: "inline-block",
                     padding: "5px 15px",
@@ -2182,57 +4181,15 @@ export default function PreviewComponentPdf(props) {
                     textDecoration: "none",
                     border: "none",
                     borderRadius: "100px",
-                    transition:
-                      "background-color 0.3s ease, box-shadow 0.3s ease",
                     whiteSpace: "nowrap",
-                    flex: 1,
                     textAlign: "center",
                   }}
                 >
                   Accept
                 </a>
-              </div>
-            </td>
-          ) : null}
-          {props?.selectedPackagesList.length === 3 ? (
-            <td
-              style={{
-                border: "1px solid #DDDDDD",
-                textAlign: "right",
-                padding: "8px",
-                color: "black",
-              }}
-            >
-              {" "}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  width: "100%",
-                }}
-              >
-                <a
-                  href={AcceptOneOffUrlButton3}
-                  style={{
-                    display: "inline-block",
-                    padding: "5px 15px",
-                    backgroundColor: "green",
-                    color: "white",
-                    textDecoration: "none",
-                    border: "none",
-                    borderRadius: "100px",
-                    transition:
-                      "background-color 0.3s ease, box-shadow 0.3s ease",
-                    whiteSpace: "nowrap",
-                    flex: 1,
-                    textAlign: "center",
-                  }}
-                >
-                  Accept
-                </a>
-              </div>
-            </td>
-          ) : null}
+              </td>
+            );
+          })}
         </tr>
         {props.common.enableEL == 0 && (
           <tr style={{ backgroundColor: "#DCDCDC" }}>
@@ -2246,15 +4203,16 @@ export default function PreviewComponentPdf(props) {
               If you are not happy with this proposal please click Decline to
               Decline the Proposal.
             </td>
+
             <td
+              colSpan={activeSelectedOneOffPackages.length || 1}
               style={{
                 border: "1px solid #DDDDDD",
-                textAlign: "right",
+                textAlign: "center",
                 padding: "8px",
                 color: "black",
               }}
             >
-              {" "}
               <a
                 href={DeclineOneOffUrl}
                 style={{
@@ -2265,34 +4223,12 @@ export default function PreviewComponentPdf(props) {
                   textDecoration: "none",
                   border: "none",
                   borderRadius: "100px",
-                  transition:
-                    "background-color 0.3s ease, box-shadow 0.3s ease",
                   whiteSpace: "nowrap",
                 }}
               >
                 Decline
               </a>
             </td>
-            {props?.selectedPackagesList.length >= 2 ? (
-              <td
-                style={{
-                  border: "1px solid #DDDDDD",
-                  textAlign: "right",
-                  padding: "8px",
-                  color: "white",
-                }}
-              ></td>
-            ) : null}
-            {props?.selectedPackagesList.length === 3 ? (
-              <td
-                style={{
-                  border: "1px solid #DDDDDD",
-                  textAlign: "right",
-                  padding: "8px",
-                  color: "white",
-                }}
-              ></td>
-            ) : null}
           </tr>
         )}
       </table>
@@ -2301,297 +4237,691 @@ export default function PreviewComponentPdf(props) {
 
   // Template 6 OneOff Packages Table for Email
   const OneOffPackagesTableTemplate6 = (
-    <div style={{ paddingLeft: "40px", paddingRight: "40px", fontFamily: "arial, sans-serif" }}>
+    <div
+      style={{
+        paddingLeft: "40px",
+        paddingRight: "40px",
+        fontFamily: "arial, sans-serif",
+      }}
+    >
       <p style={{ color: "#00BFFF", fontSize: "20px", marginTop: "15px" }}>
         One-Off Services
       </p>
-      <table style={{ borderCollapse: "collapse", width: "100%", marginTop: "15px" }}>
+      <table
+        style={{ borderCollapse: "collapse", width: "100%", marginTop: "15px" }}
+      >
         {/* Package Name Header Row */}
         <tr style={{ backgroundColor: "#00BFFF" }}>
           <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
-          {props?.selectedPackagesList?.map((pkg, idx) => (
+          {activeSelectedOneOffPackages?.map((pkg, idx) => (
             <React.Fragment key={`oneoff-pkg-header-${idx}`}>
-              <td style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "18px" }}>
+              <td
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "center",
+                  padding: "8px",
+                  color: "white",
+                  fontSize: "18px",
+                }}
+              >
                 {pkg.servicePackageName}
               </td>
-              {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-              {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-              {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-              {props.visibleFieldsCustomTemp?.serviceScope && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
+              {(Number(props.vatPercentage) || 0) > 0 &&
+                props.visibleFieldsCustomTemp?.vatRate && (
+                  <td
+                    style={{ border: "1px solid #DDDDDD", padding: "8px" }}
+                  ></td>
+                )}
+              {(Number(props.vatPercentage) || 0) > 0 &&
+                props.visibleFieldsCustomTemp?.vat && (
+                  <td
+                    style={{ border: "1px solid #DDDDDD", padding: "8px" }}
+                  ></td>
+                )}
+              {(Number(props.vatPercentage) || 0) > 0 &&
+                props.visibleFieldsCustomTemp?.feesIncVat && (
+                  <td
+                    style={{ border: "1px solid #DDDDDD", padding: "8px" }}
+                  ></td>
+                )}
+              {props.visibleFieldsCustomTemp?.serviceScope && (
+                <td
+                  style={{ border: "1px solid #DDDDDD", padding: "8px" }}
+                ></td>
+              )}
             </React.Fragment>
           ))}
         </tr>
         {/* Column Headers Row */}
         <tr style={{ backgroundColor: "#00BFFF" }}>
           {props.visibleFieldsCustomTemp?.serviceName && (
-            <th style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white", fontSize: "16px" }}>Services</th>
+            <th
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+                fontSize: "16px",
+              }}
+            >
+              Services
+            </th>
           )}
-          {props?.selectedPackagesList?.map((pkg, idx) => (
+          {activeSelectedOneOffPackages?.map((pkg, idx) => (
             <React.Fragment key={`oneoff-col-header-${idx}`}>
               {props.visibleFieldsCustomTemp?.fees && (
-                <th style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white", fontSize: "14px" }}>Fees</th>
+                <th
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                    fontSize: "14px",
+                  }}
+                >
+                  Fees
+                </th>
               )}
-              {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
-                <th style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white", fontSize: "14px" }}>{props.taxName || "VAT"} Rate</th>
-              )}
-              {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-                <th style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white", fontSize: "14px" }}>{props.taxName || "VAT"}</th>
-              )}
-              {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-                <th style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white", fontSize: "14px" }}>Fees inc {props.taxName || "VAT"}</th>
-              )}
+              {(Number(props.vatPercentage) || 0) > 0 &&
+                props.visibleFieldsCustomTemp?.vatRate && (
+                  <th
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                      fontSize: "14px",
+                    }}
+                  >
+                    {props.taxName || "VAT"} Rate
+                  </th>
+                )}
+              {(Number(props.vatPercentage) || 0) > 0 &&
+                props.visibleFieldsCustomTemp?.vat && (
+                  <th
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                      fontSize: "14px",
+                    }}
+                  >
+                    {props.taxName || "VAT"}
+                  </th>
+                )}
+              {(Number(props.vatPercentage) || 0) > 0 &&
+                props.visibleFieldsCustomTemp?.feesIncVat && (
+                  <th
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                      fontSize: "14px",
+                    }}
+                  >
+                    Fees inc {props.taxName || "VAT"}
+                  </th>
+                )}
               {props.visibleFieldsCustomTemp?.serviceScope && (
-                <th style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px", color: "white", fontSize: "14px" }}>Service Scope</th>
+                <th
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "center",
+                    padding: "8px",
+                    color: "white",
+                    fontSize: "14px",
+                  }}
+                >
+                  Service Scope
+                </th>
               )}
             </React.Fragment>
           ))}
         </tr>
         {/* Service Data Rows */}
-        {props.moduleName === "Quote" && props.selectedOneOffServiceList?.map((serviceCat, catIdx) => (
-          <React.Fragment key={`oneoff-cat-${catIdx}`}>
-            {/* Category Header Row */}
-            <tr style={{ backgroundColor: "#DCDCDC" }}>
-              {props.visibleFieldsCustomTemp?.serviceName && (
-                <th style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", fontWeight: "bold", fontSize: "16px" }}>
-                  {serviceCat.serviceCatName}
-                </th>
-              )}
-              {props?.selectedPackagesList?.map((pkg, pkgIdx) => (
-                <React.Fragment key={`oneoff-cat-spacer-${pkgIdx}`}>
-                  {props.visibleFieldsCustomTemp?.fees && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {props.visibleFieldsCustomTemp?.serviceScope && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                </React.Fragment>
-              ))}
-            </tr>
-            {/* Service Rows */}
-            {serviceCat.servicesList.map((subService, svcIdx) => {
-              const packageValues = [
-                { value: subService.packageOneValue, id: subService.packageOneID, selectedId: props.selectedPackagesList?.[0]?.servicePackageID },
-                { value: subService.packageTwoValue, id: subService.packageTwoID, selectedId: props.selectedPackagesList?.[1]?.servicePackageID },
-                { value: subService.packageThreeValue, id: subService.packageThreeID, selectedId: props.selectedPackagesList?.[2]?.servicePackageID },
-              ];
-              const vatPct = subService.service_vat_percentage ?? 0;
-              
-              return (
-                <tr key={`oneoff-svc-${svcIdx}`}>
-                  {props.visibleFieldsCustomTemp?.serviceName && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px" }}>
-                      {subService.serviceName}
-                    </td>
-                  )}
-                  {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
-                    const pkgVal = normalizePackageValue(packageValues[pkgIdx]?.value);
-                    const pkgId = packageValues[pkgIdx]?.id;
-                    const isIncluded = subService?.servicePackageIDs?.includes(pkgId);
-                    const vatAmount = (pkgVal * vatPct) / 100;
-                    const feesIncVat = pkgVal + vatAmount;
-                    const showX = (pkgVal === 0 || packageValues[pkgIdx]?.value === null) && !isIncluded;
-                    const showXNotIncluded = !isIncluded;
-                    
-                    return (
-                      <React.Fragment key={`oneoff-pkg-data-${pkgIdx}`}>
-                        {props.visibleFieldsCustomTemp?.fees && (
-                          <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
-                            {showX || showXNotIncluded ? <span>&#10007;</span> : 
-                              props.ProposalObject?.feeTypeId === 1 ? props.formatValue(packageValues[pkgIdx]?.value, props.currencyID) : <span>&#10003;</span>}
-                          </td>
-                        )}
-                        {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
-                          <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
-                            {showX || showXNotIncluded ? <span>&#10007;</span> : `${vatPct}%`}
-                          </td>
-                        )}
-                        {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-                          <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
-                            {showX || showXNotIncluded ? <span>&#10007;</span> : props.formatValue(vatAmount, props.currencyID)}
-                          </td>
-                        )}
-                        {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-                          <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
-                            {showX || showXNotIncluded ? <span>&#10007;</span> : props.formatValue(feesIncVat, props.currencyID)}
-                          </td>
-                        )}
-                        {props.visibleFieldsCustomTemp?.serviceScope && (
-                          <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px" }}>
-                            {showX || showXNotIncluded ? (
-                              <span>-</span>
-                            ) : (
-                              getServiceScopeDriverList(subService).length > 0
-                                ? getServiceScopeDriverList(subService)
-                                    .filter((d) => d.driverValue !== null)
-                                    .map((d, i, arr) => (
-                                      <div key={i}>
-                                        {d.driverName} = {d.driverValue}
-                                        {i !== arr.length - 1 ? ", " : ""}
-                                      </div>
-                                    ))
-                                : "-"
+        {props.moduleName === "Quote" &&
+          props.selectedOneOffServiceList?.map((serviceCat, catIdx) => (
+            <React.Fragment key={`oneoff-cat-${catIdx}`}>
+              {/* Category Header Row */}
+              {/* Category Header Row */}
+              <tr style={{ backgroundColor: "#DCDCDC" }}>
+                {props.visibleFieldsCustomTemp?.serviceName && (
+                  <th
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "left",
+                      padding: "8px",
+                      fontWeight: "bold",
+                      fontSize: "16px",
+                    }}
+                  >
+                    {serviceCat.serviceCatName}
+                  </th>
+                )}
+
+                {activeSelectedOneOffPackages.map((_, pkgIdx) => (
+                  <React.Fragment key={`oneoff-cat-spacer-${pkgIdx}`}>
+                    {props.visibleFieldsCustomTemp?.fees && (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          padding: "8px",
+                        }}
+                      ></td>
+                    )}
+
+                    {hasOneOffPackageVAT &&
+                      props.visibleFieldsCustomTemp?.vatRate && (
+                        <td
+                          style={{
+                            border: "1px solid #DDDDDD",
+                            padding: "8px",
+                          }}
+                        ></td>
+                      )}
+
+                    {hasOneOffPackageVAT &&
+                      props.visibleFieldsCustomTemp?.vat && (
+                        <td
+                          style={{
+                            border: "1px solid #DDDDDD",
+                            padding: "8px",
+                          }}
+                        ></td>
+                      )}
+
+                    {hasOneOffPackageVAT &&
+                      props.visibleFieldsCustomTemp?.feesIncVat && (
+                        <td
+                          style={{
+                            border: "1px solid #DDDDDD",
+                            padding: "8px",
+                          }}
+                        ></td>
+                      )}
+
+                    {props.visibleFieldsCustomTemp?.serviceScope && (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          padding: "8px",
+                        }}
+                      ></td>
+                    )}
+                  </React.Fragment>
+                ))}
+              </tr>
+              {/* Service Rows */}
+              {serviceCat.servicesList.map((subService, svcIdx) => {
+                const driverList = Array.isArray(subService?.pricingDriverList)
+                  ? subService.pricingDriverList
+                  : [];
+
+                return (
+                  <tr key={`oneoff-svc-${svcIdx}`}>
+                    {props.visibleFieldsCustomTemp?.serviceName && (
+                      <td
+                        style={{
+                          border: "1px solid #DDDDDD",
+                          textAlign: "left",
+                          padding: "8px",
+                        }}
+                      >
+                        {subService.serviceName}
+                      </td>
+                    )}
+                    {activeSelectedOneOffPackages.map((pkg, pkgIdx) => {
+                      const oneOffPackageRow = calculateCustomOneOffPackageRow({
+                        service: subService,
+
+                        packageIndex: pkgIdx,
+
+                        selectedPackageID: pkg?.servicePackageID ?? null,
+
+                        fallbackVatPercentage: props.vatPercentage || 0,
+                      });
+
+                      return (
+                        <React.Fragment
+                          key={`oneoff-pkg-data-${svcIdx}-${pkgIdx}`}
+                        >
+                          {/* FEES */}
+                          {props.visibleFieldsCustomTemp?.fees && (
+                            <td
+                              style={{
+                                border: "1px solid #DDDDDD",
+                                textAlign: "right",
+                                padding: "8px",
+                              }}
+                            >
+                              {!oneOffPackageRow.isIncluded ? (
+                                <span>&#10007;</span>
+                              ) : props.ProposalObject?.feeTypeId === 1 ? (
+                                props.formatValue(
+                                  oneOffPackageRow.fees,
+                                  props.currencyID,
+                                )
+                              ) : (
+                                <span>&#10003;</span>
+                              )}
+                            </td>
+                          )}
+
+                          {/* VAT RATE */}
+                          {hasOneOffPackageVAT &&
+                            props.visibleFieldsCustomTemp?.vatRate && (
+                              <td
+                                style={{
+                                  border: "1px solid #DDDDDD",
+                                  textAlign: "right",
+                                  padding: "8px",
+                                }}
+                              >
+                                {oneOffPackageRow.isIncluded ? (
+                                  `${Number(
+                                    oneOffPackageRow.vatRate || 0,
+                                  ).toFixed(2)}%`
+                                ) : (
+                                  <span>&#10007;</span>
+                                )}
+                              </td>
                             )}
-                          </td>
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </React.Fragment>
-        ))}
+
+                          {/* VAT */}
+                          {hasOneOffPackageVAT &&
+                            props.visibleFieldsCustomTemp?.vat && (
+                              <td
+                                style={{
+                                  border: "1px solid #DDDDDD",
+                                  textAlign: "right",
+                                  padding: "8px",
+                                }}
+                              >
+                                {!oneOffPackageRow.isIncluded ? (
+                                  <span>&#10007;</span>
+                                ) : props.ProposalObject?.feeTypeId === 1 ? (
+                                  props.formatValue(
+                                    oneOffPackageRow.vat,
+                                    props.currencyID,
+                                  )
+                                ) : (
+                                  <span>&#10003;</span>
+                                )}
+                              </td>
+                            )}
+
+                          {/* FEES INCLUDING VAT */}
+                          {hasOneOffPackageVAT &&
+                            props.visibleFieldsCustomTemp?.feesIncVat && (
+                              <td
+                                style={{
+                                  border: "1px solid #DDDDDD",
+                                  textAlign: "right",
+                                  padding: "8px",
+                                }}
+                              >
+                                {!oneOffPackageRow.isIncluded ? (
+                                  <span>&#10007;</span>
+                                ) : props.ProposalObject?.feeTypeId === 1 ? (
+                                  props.formatValue(
+                                    oneOffPackageRow.feesIncVat,
+                                    props.currencyID,
+                                  )
+                                ) : (
+                                  <span>&#10003;</span>
+                                )}
+                              </td>
+                            )}
+
+                          {/* SERVICE SCOPE */}
+                          {props.visibleFieldsCustomTemp?.serviceScope && (
+                            <td
+                              style={{
+                                border: "1px solid #DDDDDD",
+                                textAlign: "right",
+                                padding: "8px",
+                              }}
+                            >
+                              {!oneOffPackageRow.isIncluded
+                                ? "-"
+                                : driverList.length > 0
+                                  ? driverList
+                                      .filter(
+                                        (driver) =>
+                                          driver.driverValue !== null &&
+                                          driver.driverValue !== undefined,
+                                      )
+                                      .map(
+                                        (driver, driverIndex, driverArray) => (
+                                          <div
+                                            key={`oneoff-driver-${svcIdx}-${pkgIdx}-${driverIndex}`}
+                                          >
+                                            {driver.driverName} ={" "}
+                                            {driver.driverValue}
+                                            {driverIndex !==
+                                            driverArray.length - 1
+                                              ? "; "
+                                              : ""}
+                                          </div>
+                                        ),
+                                      )
+                                  : "-"}
+                            </td>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
+            </React.Fragment>
+          ))}
         {/* Net Total Row - matches PDF logic: uses StaticVaTPrice for VAT, handles discount conditions */}
+        {/* NET TOTAL */}
         <tr style={{ backgroundColor: "#808080" }}>
-          <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white", fontWeight: "bold" }}>Net Total</td>
-          {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
-            const pkgName = pkgIdx === 0 ? 'One' : pkgIdx === 1 ? 'Two' : 'Three';
-            const netTotal = props.OneOffPricingInfo?.[`package${pkgName}NetTotal`];
-            const staticVat = props.OneOffPricingInfo?.[`Package${pkgName}StaticVaTPrice`];
-            const disCount = Number(props.OneOffPricingInfo?.[`package${pkgName}DisCount`] || 0);
-            const disCountedTotal = props.OneOffPricingInfo?.[`package${pkgName}DisCountedTotal`];
-            const netFees = (disCount > 0 && !props.ProposalObject?.DiscountLines) ? disCountedTotal : netTotal;
-            const netFeesIncVat = Number(netFees || 0) + Number(staticVat || 0);
-            return (
-              <React.Fragment key={`oneoff-net-${pkgIdx}`}>
-                {props.visibleFieldsCustomTemp?.fees && (
-                  <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                    {props.formatValue(netFees, props.currencyID)}
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+              color: "white",
+              fontWeight: "bold",
+            }}
+          >
+            Net Total
+          </td>
+
+          {activeOneOffEmailPackageFooters.map((footer, pkgIdx) => (
+            <React.Fragment key={`oneoff-net-${pkgIdx}`}>
+              {props.visibleFieldsCustomTemp?.fees && (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {props.formatValue(
+                    props.ProposalObject?.DiscountLines
+                      ? footer.net
+                      : footer.finalNet,
+                    props.currencyID,
+                  )}
+                </td>
+              )}
+
+              {hasOneOffPackageVAT &&
+                props.visibleFieldsCustomTemp?.vatRate && (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      padding: "8px",
+                    }}
+                  ></td>
+                )}
+
+              {hasOneOffPackageVAT && props.visibleFieldsCustomTemp?.vat && (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    textAlign: "right",
+                    padding: "8px",
+                    color: "white",
+                  }}
+                >
+                  {props.formatValue(
+                    props.ProposalObject?.DiscountLines
+                      ? footer.vat
+                      : footer.finalVat,
+                    props.currencyID,
+                  )}
+                </td>
+              )}
+
+              {hasOneOffPackageVAT &&
+                props.visibleFieldsCustomTemp?.feesIncVat && (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {props.formatValue(
+                      props.ProposalObject?.DiscountLines
+                        ? footer.feesIncVat
+                        : footer.finalFeesIncVat,
+                      props.currencyID,
+                    )}
                   </td>
                 )}
-                {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-                  <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                    {props.formatValue(staticVat, props.currencyID)}
-                  </td>
-                )}
-                {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-                  <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                    {props.formatValue(netFeesIncVat, props.currencyID)}
-                  </td>
-                )}
-                {props.visibleFieldsCustomTemp?.serviceScope && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-              </React.Fragment>
-            );
-          })}
+
+              {props.visibleFieldsCustomTemp?.serviceScope && (
+                <td
+                  style={{
+                    border: "1px solid #DDDDDD",
+                    padding: "8px",
+                  }}
+                ></td>
+              )}
+            </React.Fragment>
+          ))}
         </tr>
-        {/* Discount Row - only shown when any package has discount > 0 and DiscountLines is true */}
-        {(Number(props.OneOffPricingInfo?.packageOneDisCount) > 0 ||
-          Number(props.OneOffPricingInfo?.packageTwoDisCount) > 0 ||
-          Number(props.OneOffPricingInfo?.packageThreeDisCount) > 0) &&
-          props.ProposalObject?.DiscountLines && (
+
+        {/* DISCOUNT */}
+        {showOneOffPackageDiscount && (
           <tr style={{ backgroundColor: "#DCDCDC" }}>
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "black" }}>Discount</td>
-            {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
-              const pkgName = pkgIdx === 0 ? 'One' : pkgIdx === 1 ? 'Two' : 'Three';
-              const disCount = Number(props.OneOffPricingInfo?.[`package${pkgName}DisCount`] || 0);
-              const staticVat = Number(props.OneOffPricingInfo?.[`Package${pkgName}StaticVaTPrice`] || 0);
-              const vatPrice = Number(props.OneOffPricingInfo?.[`Package${pkgName}VaTPrice`] || 0);
-              const vatDiscount = staticVat - vatPrice;
-              return (
-                <React.Fragment key={`oneoff-disc-${pkgIdx}`}>
-                  {props.visibleFieldsCustomTemp?.fees && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
-                      (-) {props.formatValue(disCount, props.currencyID)}
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "black",
+                fontWeight: "bold",
+              }}
+            >
+              Discount
+            </td>
+
+            {activeOneOffEmailPackageFooters.map((footer, pkgIdx) => (
+              <React.Fragment key={`oneoff-discount-${pkgIdx}`}>
+                {props.visibleFieldsCustomTemp?.fees && (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    (-) {props.formatValue(footer.discount, props.currencyID)}
+                  </td>
+                )}
+
+                {hasOneOffPackageVAT &&
+                  props.visibleFieldsCustomTemp?.vatRate && (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        padding: "8px",
+                      }}
+                    ></td>
+                  )}
+
+                {hasOneOffPackageVAT && props.visibleFieldsCustomTemp?.vat && (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "black",
+                    }}
+                  >
+                    (-){" "}
+                    {props.formatValue(footer.vatDiscount, props.currencyID)}
+                  </td>
+                )}
+
+                {hasOneOffPackageVAT &&
+                  props.visibleFieldsCustomTemp?.feesIncVat && (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                        color: "black",
+                      }}
+                    >
+                      (-){" "}
+                      {props.formatValue(
+                        footer.feesIncVatDiscount,
+                        props.currencyID,
+                      )}
                     </td>
                   )}
-                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
-                      (-) {props.formatValue(vatDiscount, props.currencyID)}
-                    </td>
-                  )}
-                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "black" }}>
-                      (-) {props.formatValue(disCount + vatDiscount, props.currencyID)}
-                    </td>
-                  )}
-                  {props.visibleFieldsCustomTemp?.serviceScope && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                </React.Fragment>
-              );
-            })}
+
+                {props.visibleFieldsCustomTemp?.serviceScope && (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      padding: "8px",
+                    }}
+                  ></td>
+                )}
+              </React.Fragment>
+            ))}
           </tr>
         )}
-        {(Number(props.vatPercentageOneOff) || 0) === 0 &&
-          (Number(props.OneOffPricingInfo?.packageOneDisCount) > 0 ||
-            Number(props.OneOffPricingInfo?.packageTwoDisCount) > 0 ||
-            Number(props.OneOffPricingInfo?.packageThreeDisCount) > 0) &&
-          props.ProposalObject?.DiscountLines && (
+
+        {/* GRAND TOTAL / DISCOUNTED TOTAL */}
+        {showOneOffPackageDiscount && (
           <tr style={{ backgroundColor: "#808080" }}>
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white", fontWeight: "bold" }}>Discounted Total</td>
-            {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
-              const pkgName = pkgIdx === 0 ? "One" : pkgIdx === 1 ? "Two" : "Three";
-              const discounted = props.OneOffPricingInfo?.[`package${pkgName}DisCountedTotal`];
-              return (
-                <React.Fragment key={`oneoff-discounted-${pkgIdx}`}>
-                  {props.visibleFieldsCustomTemp?.fees && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                      {props.formatValue(discounted, props.currencyID)}
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+                color: "white",
+                fontWeight: "bold",
+              }}
+            >
+              {hasOneOffPackageVAT ? "Grand Total" : "Discounted Total"}
+            </td>
+
+            {activeOneOffEmailPackageFooters.map((footer, pkgIdx) => (
+              <React.Fragment key={`oneoff-final-${pkgIdx}`}>
+                {props.visibleFieldsCustomTemp?.fees && (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {props.formatValue(footer.finalNet, props.currencyID)}
+                  </td>
+                )}
+
+                {hasOneOffPackageVAT &&
+                  props.visibleFieldsCustomTemp?.vatRate && (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        padding: "8px",
+                      }}
+                    ></td>
+                  )}
+
+                {hasOneOffPackageVAT && props.visibleFieldsCustomTemp?.vat && (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      textAlign: "right",
+                      padding: "8px",
+                      color: "white",
+                    }}
+                  >
+                    {props.formatValue(footer.finalVat, props.currencyID)}
+                  </td>
+                )}
+
+                {hasOneOffPackageVAT &&
+                  props.visibleFieldsCustomTemp?.feesIncVat && (
+                    <td
+                      style={{
+                        border: "1px solid #DDDDDD",
+                        textAlign: "right",
+                        padding: "8px",
+                        color: "white",
+                      }}
+                    >
+                      {props.formatValue(
+                        footer.finalFeesIncVat,
+                        props.currencyID,
+                      )}
                     </td>
                   )}
-                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && (
-                    <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
-                  )}
-                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-                    <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
-                  )}
-                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-                    <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
-                  )}
-                  {props.visibleFieldsCustomTemp?.serviceScope && (
-                    <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </tr>
-        )}
-        {/* Grand Total Row — template 6: only when a package discount applies (same as discount row) */}
-        {(Number(props.vatPercentageOneOff) || 0) > 0 &&
-          (Number(props.OneOffPricingInfo?.packageOneDisCount) > 0 ||
-            Number(props.OneOffPricingInfo?.packageTwoDisCount) > 0 ||
-            Number(props.OneOffPricingInfo?.packageThreeDisCount) > 0) &&
-          props.ProposalObject?.DiscountLines && (
-          <tr style={{ backgroundColor: "#808080" }}>
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px", color: "white", fontWeight: "bold" }}>Grand Total</td>
-            {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
-              const pkgName = pkgIdx === 0 ? 'One' : pkgIdx === 1 ? 'Two' : 'Three';
-              const grandTotal = Number(props.OneOffPricingInfo?.[`Package${pkgName}GrandTotal`] || 0);
-              const vatPrice = Number(props.OneOffPricingInfo?.[`Package${pkgName}VaTPrice`] || 0);
-              return (
-                <React.Fragment key={`oneoff-grand-${pkgIdx}`}>
-                  {props.visibleFieldsCustomTemp?.fees && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                      {props.formatValue(grandTotal - vatPrice, props.currencyID)}
-                    </td>
-                  )}
-                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vatRate && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.vat && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                      {props.formatValue(vatPrice, props.currencyID)}
-                    </td>
-                  )}
-                  {(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp?.feesIncVat && (
-                    <td style={{ border: "1px solid #DDDDDD", textAlign: "right", padding: "8px", color: "white" }}>
-                      {props.formatValue(grandTotal, props.currencyID)}
-                    </td>
-                  )}
-                  {props.visibleFieldsCustomTemp?.serviceScope && <td style={{ border: "1px solid #DDDDDD", padding: "8px" }}></td>}
-                </React.Fragment>
-              );
-            })}
+
+                {props.visibleFieldsCustomTemp?.serviceScope && (
+                  <td
+                    style={{
+                      border: "1px solid #DDDDDD",
+                      padding: "8px",
+                    }}
+                  ></td>
+                )}
+              </React.Fragment>
+            ))}
           </tr>
         )}
         {/* Accept Button Row */}
+        {/* Accept Button Row */}
         <tr style={{ backgroundColor: "#DCDCDC" }}>
-          <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px" }}>
-            If you are happy with this proposal please click Accept to Accept the Proposal.
+          <td
+            style={{
+              border: "1px solid #DDDDDD",
+              textAlign: "left",
+              padding: "8px",
+            }}
+          >
+            If you are happy with this proposal please click Accept to Accept
+            the Proposal.
           </td>
-          {props?.selectedPackagesList?.map((pkg, pkgIdx) => {
-            const acceptUrl = pkgIdx === 0 ? AcceptOneOffUrlButton1 : pkgIdx === 1 ? AcceptOneOffUrlButton2 : AcceptOneOffUrlButton3;
-            const colSpan = getColsPerPackage();
+
+          {activeSelectedOneOffPackages.map((_, pkgIdx) => {
+            const acceptUrl =
+              pkgIdx === 0
+                ? AcceptOneOffUrlButton1
+                : pkgIdx === 1
+                  ? AcceptOneOffUrlButton2
+                  : AcceptOneOffUrlButton3;
+
             return (
-              <td key={`oneoff-accept-${pkgIdx}`} colSpan={colSpan} style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px" }}>
-                <a href={acceptUrl} style={{ display: "inline-block", padding: "5px 15px", backgroundColor: "green", color: "white", textDecoration: "none", borderRadius: "100px" }}>
+              <td
+                key={`oneoff-accept-${pkgIdx}`}
+                colSpan={getColsPerPackage(true)}
+                style={{
+                  border: "1px solid #DDDDDD",
+                  textAlign: "center",
+                  padding: "8px",
+                }}
+              >
+                <a
+                  href={acceptUrl}
+                  style={{
+                    display: "inline-block",
+                    padding: "5px 15px",
+                    backgroundColor: "green",
+                    color: "white",
+                    textDecoration: "none",
+                    borderRadius: "100px",
+                  }}
+                >
                   Accept
                 </a>
               </td>
@@ -2601,11 +4931,37 @@ export default function PreviewComponentPdf(props) {
         {/* Decline Button Row */}
         {props.common.enableEL == 0 && (
           <tr style={{ backgroundColor: "#DCDCDC" }}>
-            <td style={{ border: "1px solid #DDDDDD", textAlign: "left", padding: "8px" }}>
-              If you are not happy with this proposal please click Decline to Decline the Proposal.
+            <td
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "left",
+                padding: "8px",
+              }}
+            >
+              If you are not happy with this proposal please click Decline to
+              Decline the Proposal.
             </td>
-            <td colSpan={getColsPerPackage() * (props?.selectedPackagesList?.length || 1)} style={{ border: "1px solid #DDDDDD", textAlign: "center", padding: "8px" }}>
-              <a href={DeclineOneOffUrl} style={{ display: "inline-block", padding: "5px 15px", backgroundColor: "red", color: "white", textDecoration: "none", borderRadius: "100px" }}>
+            <td
+              colSpan={
+                getColsPerPackage(true) * activeSelectedOneOffPackages.length
+              }
+              style={{
+                border: "1px solid #DDDDDD",
+                textAlign: "center",
+                padding: "8px",
+              }}
+            >
+              <a
+                href={DeclineOneOffUrl}
+                style={{
+                  display: "inline-block",
+                  padding: "5px 15px",
+                  backgroundColor: "red",
+                  color: "white",
+                  textDecoration: "none",
+                  borderRadius: "100px",
+                }}
+              >
                 Decline
               </a>
             </td>
@@ -2615,25 +4971,23 @@ export default function PreviewComponentPdf(props) {
     </div>
   );
 
-  // Conditional OneOffPackagesTable - uses Template 6 version when selectedTemplateIDOneOff === 6
-  // For service-based proposals (type 3), use service table; for package-based (types 1, 2, 4), use package table
-  const OneOffPackagesTable = props.selectedTemplateIDOneOff === 6 
-    ? (isServiceBasedProposal ? OneOffServicesTableTemplate6 : OneOffPackagesTableTemplate6)
-    : OneOffPackagesTableDefault;
+  const OneOffPackagesTable =
+    props.selectedTemplateID === 6
+      ? isServiceBasedProposal
+        ? OneOffServicesTableTemplate6
+        : OneOffPackagesTableTemplate6
+      : OneOffPackagesTableDefault;
 
   const oneOffTableString = ReactDOMServer.renderToString(OneOffPackagesTable);
   const RecurringTableString = ReactDOMServer.renderToString(
     RecurringPackagesTable,
   );
 
-  // Sync customized (template 6) pricing tables into email fields. `RecurringPackagesTable` /
-  // `OneOffPackagesTable` pick service vs package Template6 JSX above; `renderToString` runs each
-  // render — this effect must re-run when pricing, discount, VAT, or column visibility changes so
-  // `recurringHtmlContent` / `oneOffHtmlContent` are not left stale.
   useEffect(() => {
     // Original condition for Master Agreement (type 4) OR template 6 for any proposal type
-    const isTemplate6 = props.selectedTemplateID === 6 || props.selectedTemplateIDOneOff === 6;
-    
+    const isTemplate6 =
+      props.selectedTemplateID === 6 || props.selectedTemplateIDOneOff === 6;
+
     if (
       props.moduleName == "Quote" &&
       (props?.ProposalObject?.selectedProposalTypeValue === 4 || isTemplate6)
@@ -2722,7 +5076,10 @@ export default function PreviewComponentPdf(props) {
       showSeparatorLines: showSeparatorLines,
       landscapeMode: landscapeMode,
       headerFooterFirstPage: headerFooterFirstPage,
-      headerFooterLastPage: headerFooterLastPage,
+      // headerFooterLastPage: headerFooterLastPage,
+      flagForTemplatePdf: flagForTemplatePdf,
+      awsPdfHeight: awsPdfHeight,
+      awsPdfWidth: awsPdfWidth,
     };
 
     try {
@@ -2748,6 +5105,7 @@ export default function PreviewComponentPdf(props) {
   };
 
   const GetTemplatePdfListData = async () => {
+    debugger;
     setLoader(true);
     // const pageNoList = i - 1;
     try {
@@ -2855,6 +5213,9 @@ export default function PreviewComponentPdf(props) {
             BrandLogo,
             fontFamily,
             landscapeMode,
+            // flagForTemplatePdf,
+            awsPdfHeight,
+            awsPdfWidth,
           ),
         );
         await Promise.all(promises);
@@ -2910,6 +5271,161 @@ export default function PreviewComponentPdf(props) {
       );
     }
   }
+
+  const recurringDiscountPercentage =
+    props.RecurringFrequencyPricingInfo?.DefaultDiscount ??
+    props.RecurringPricingInfo?.DefaultDiscount ??
+    null;
+
+  const customRecurringFooter = calculateCustomRecurringFooter({
+    serviceGroups: props.selectedRecurringServiceList || [],
+
+    originalPrice: props.RecurringPricingInfo?.OriginalPrice,
+
+    discountedPrice: props.RecurringPricingInfo?.DiscountedPrice,
+
+    discountPercentage: recurringDiscountPercentage,
+
+    fallbackVatPercentage: props.vatPercentage ?? 0,
+  });
+
+  // const showCustomDiscount =
+  // customRecurringFooter.hasDiscount &&
+  // props.ProposalObject.DiscountLines;
+
+  const useCustomRecurringFinalAsNet =
+    customRecurringFooter.hasPriceIncrease ||
+    (customRecurringFooter.hasDiscount && !props.ProposalObject.DiscountLines);
+
+  const customDescriptionColumnCount = [
+    props.visibleFieldsCustomTemp.serviceCategory,
+    props.visibleFieldsCustomTemp.serviceName,
+    props.visibleFieldsCustomTemp.serviceScope,
+  ].filter(Boolean).length;
+
+  const showCustomDiscount =
+    customRecurringFooter.discountFees > 0 &&
+    props.ProposalObject.DiscountLines;
+
+  const customOneOffFooter = calculateCustomOneOffFooter({
+    serviceGroups: props.selectedOneOffServiceList || [],
+
+    discountedPrice: props.OneOffPricingInfo.DiscountedPrice,
+
+    fallbackVatPercentage: props.vatPercentage ?? props.vatPercentage ?? 0,
+  });
+
+  const showCustomOneOffDiscount =
+    customOneOffFooter.hasDiscount && props.ProposalObject.DiscountLines;
+
+  const useCustomOneOffFinalAsNet =
+    customOneOffFooter.hasPriceIncrease ||
+    (customOneOffFooter.hasDiscount && !props.ProposalObject.DiscountLines);
+
+  const hasCustomOneOffVAT =
+    Number(props.vatPercentage || 0) > 0 && props.vatPercentage !== null;
+
+  const customOneOffDescriptionColumnCount = [
+    props.visibleFieldsCustomTemp.serviceCategory,
+    props.visibleFieldsCustomTemp.serviceName,
+    props.visibleFieldsCustomTemp.serviceScope,
+  ].filter(Boolean).length;
+
+  // const showCustomOneOffDiscount =
+  //   customOneOffFooter.hasDiscount && props.ProposalObject.DiscountLines;
+
+  const hasRecurringPdfDiscount =
+    Number(props.RecurringPricingInfo.Discount || 0) > 0 &&
+    props.ProposalObject.DiscountLines;
+
+  const hasRecurringPdfVAT = Number(props.vatPercentage || 0) > 0;
+
+  const recurringPdfDescriptionColumnCount = [
+    props.visibleFieldsCustomTemp.serviceCategory,
+    props.visibleFieldsCustomTemp.serviceName,
+    props.visibleFieldsCustomTemp.serviceScope,
+  ].filter(Boolean).length;
+
+  const recurringPdfLabelColSpan = Math.max(
+    recurringPdfDescriptionColumnCount,
+    1,
+  );
+
+  // Recurring package footer calculations:
+
+  const customRecurringPackageFooters = [0, 1, 2].map((packageIndex) =>
+    calculateCustomRecurringPackageFooter({
+      serviceGroups: props.selectedRecurringServiceList || [],
+
+      packageIndex,
+
+      selectedPackageID:
+        props.selectedPackagesList?.[packageIndex]?.servicePackageID ?? null,
+
+      discountPercentage: getCustomPackageDiscount(packageIndex),
+
+      fallbackVatPercentage: props.vatPercentage || 0,
+    }),
+  );
+
+  /*
+   * Keep the existing variable names so the remaining
+   * JSX/PDF code can use the same footer objects.
+   */
+  const packageOneFooter = customRecurringPackageFooters[0];
+
+  const packageTwoFooter = customRecurringPackageFooters[1];
+
+  const packageThreeFooter = customRecurringPackageFooters[2];
+
+  const activeCustomPackageFooters = customRecurringPackageFooters.slice(
+    0,
+    Math.min(props?.selectedPackagesList?.length, 3),
+  );
+
+  const activeRecurringPackageFooters = [
+    packageOneFooter,
+    packageTwoFooter,
+    packageThreeFooter,
+  ].slice(0, Math.min(Number(props?.selectedPackagesList?.length) || 0, 3));
+
+  // const hasRecurringPackageVAT = Number(props.vatPercentage || 0) > 0;
+
+  const hasCustomPackageVAT = Number(props.vatPercentage || 0) > 0;
+
+  const showCustomPackageDiscount =
+    props.ProposalObject.DiscountLines &&
+    activeCustomPackageFooters.some((footer) => footer.hasPositiveDiscount);
+
+  // One-off caculations:
+
+  // const customOneOffPackageFooters = [0, 1, 2].map((packageIndex) =>
+  //   calculateCustomOneOffPackageFooter({
+  //     serviceGroups: props.selectedOneOffServiceList || [],
+
+  //     packageIndex,
+
+  //     selectedPackageID:
+  //       props.selectedPackagesList?.[packageIndex]?.servicePackageID ?? null,
+
+  //     discountPercentage: getCustomOneOffPackageDiscount(packageIndex),
+
+  //     fallbackVatPercentage: props.vatPercentage ?? props.vatPercentage ?? 0,
+  //   }),
+  // );
+
+  const activeCustomOneOffPackageFooters = customOneOffPackageFooters.slice(
+    0,
+    Math.min(Number(props?.selectedPackagesList?.length) || 0, 3),
+  );
+
+  const hasCustomOneOffPackageVAT = Number(props.vatPercentage || 0) > 0;
+
+  const showCustomOneOffPackageDiscount =
+    props.ProposalObject.DiscountLines &&
+    activeCustomOneOffPackageFooters.some(
+      (footer) => footer.hasPositiveDiscount,
+    );
 
   //   function setDefaultFontFamily(htmlContent, fontFamily) {
   //     const parser = new DOMParser();
@@ -3046,7 +5562,6 @@ export default function PreviewComponentPdf(props) {
     if (props.templateElementList) {
       const pdfDataArray = [];
       let currentArray = [];
-      const packageCount = props.selectedPackagesList.length;
       let TermAndConditionAddedOrNot = props.templateElementList.some(
         (item) => item.templateElementTypeID === 11,
       );
@@ -3239,171 +5754,169 @@ export default function PreviewComponentPdf(props) {
               prevElementType !== ElementType.AWS_PDF_LINK
             ) {
               currentArray.push({
-                textbox: props.serviceDescriptionHTML,
-                // textbox: `${imgTag}<div style="padding-left: 40px; padding-right: 40px;">
-                // ${
-                //   props?.selectedRecurringServiceList.length !== 0
-                //     ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
-                //      Ongoing/Recurring Services
-                //     </p>`
-                //     : ""
-                // }
-                //    ${props?.selectedRecurringServiceList
-                //      .map(
-                //        (serviceCat) => `
-                //       <div>
-                //           <p style="color: black; font-weight: bold;font-family:${fontFamily}; font-size: ${fontSizeHeading};">
-                //               ${serviceCat.serviceCatName}
-                //           </p>
-                //           <hr style="color: gray; margin-top: -15px;">
-                //           ${serviceCat.servicesList
-                //             .map(
-                //               (subService) => `
-                //               <p style=" color:black;font-family:${fontFamily}; font-size: ${fontSizeContent};">
-                //                   ${subService.serviceName}
-                //               </p>
-                //               <p style=" color:black;">
-                //                 ${
-                //                   subService.serviceDescription === null ||
-                //                   subService.serviceDescription === undefined ||
-                //                   subService.serviceDescription === ""
-                //                     ? ""
-                //                     : subService.serviceDescription
-                //                 }
-                //             </p>
-                //           `
-                //             )
-                //             .join("")}
-                //       </div>
-                //   `
-                //      )
-                //      .join("")}
-
-                //  ${
-                //    props?.selectedOneOffServiceList.length !== 0
-                //      ? `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
-                //           One-Off/Ad hoc Services
-                //         </p>`
-                //      : ""
-                //  }
-                //    ${props?.selectedOneOffServiceList
-                //      .map(
-                //        (serviceCat) => `
-                //       <div >
-                //           <p style=" color: black; font-family:${fontFamily}; font-size: ${fontSizeHeading}; font-weight: bold;">
-                //               ${serviceCat.serviceCatName}
-                //           </p>
-                //           <hr style="color: gray; margin-top: -15px;">
-                //           ${serviceCat.servicesList
-                //             .map(
-                //               (subService) => `
-                //              <p style=" color:black; font-family:${fontFamily}; font-size: ${fontSizeContent};">
-                //                   ${subService.serviceName}
-                //               </p>
-                //               <p style=" color:black;">
-                //                 ${
-                //                   subService.serviceDescription === null ||
-                //                   subService.serviceDescription === undefined ||
-                //                   subService.serviceDescription === ""
-                //                     ? ""
-                //                     : subService.serviceDescription
-                //                 }
-                //             </p>
-                //           `
-                //             )
-                //             .join("")}
-                //       </div>
-                //   `
-                //      )
-                //      .join("")}
-                // </div>
-                // `,
+                textbox: `${imgTag}<div style="padding-left: 40px; padding-right: 40px;">
+                ${
+                  props?.selectedRecurringServiceList.length !== 0
+                    ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
+                     Ongoing/Recurring Services
+                    </p>`
+                    : ""
+                }
+                   ${props?.selectedRecurringServiceList
+                     .map(
+                       (serviceCat) => `
+                      <div>
+                          <p style="color: black; font-weight: bold;font-family:${fontFamily}; font-size: ${fontSizeHeading};">
+                              ${serviceCat.serviceCatName}
+                          </p>
+                          <hr style="color: gray; margin-top: -15px;">
+                          ${serviceCat.servicesList
+                            .map(
+                              (subService) => `
+                              <p style=" color:black;font-family:${fontFamily}; font-size: ${fontSizeContent};">
+                                  ${subService.serviceName}
+                              </p>
+                              <p style=" color:black;">
+                                ${
+                                  subService.serviceDescription === null ||
+                                  subService.serviceDescription === undefined ||
+                                  subService.serviceDescription === ""
+                                    ? ""
+                                    : subService.serviceDescription
+                                }
+                            </p>
+                          `,
+                            )
+                            .join("")}
+                      </div>
+                  `,
+                     )
+                     .join("")}
+                  
+                 ${
+                   props?.selectedOneOffServiceList.length !== 0
+                     ? `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
+                          One-Off/Ad hoc Services
+                        </p>`
+                     : ""
+                 }
+                   ${props?.selectedOneOffServiceList
+                     .map(
+                       (serviceCat) => `
+                      <div >
+                          <p style=" color: black; font-family:${fontFamily}; font-size: ${fontSizeHeading}; font-weight: bold;">
+                              ${serviceCat.serviceCatName}
+                          </p>
+                          <hr style="color: gray; margin-top: -15px;">
+                          ${serviceCat.servicesList
+                            .map(
+                              (subService) => `
+                             <p style=" color:black; font-family:${fontFamily}; font-size: ${fontSizeContent};">
+                                  ${subService.serviceName}
+                              </p>
+                              <p style=" color:black;">
+                                ${
+                                  subService.serviceDescription === null ||
+                                  subService.serviceDescription === undefined ||
+                                  subService.serviceDescription === ""
+                                    ? ""
+                                    : subService.serviceDescription
+                                }
+                            </p>
+                          `,
+                            )
+                            .join("")}
+                      </div>
+                  `,
+                     )
+                     .join("")}
+                </div>
+                `,
               });
             } else {
               pdfDataArray.push(currentArray);
               currentArray = [
                 {
-                  textbox: props.serviceDescriptionHTML,
-                  //     textbox: `
-                  //   ${imgTag}
-                  //   <div style="padding-left: 40px; padding-right: 40px;">
-
-                  //   ${
-                  //     props?.selectedRecurringServiceList.length !== 0
-                  //       ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
-                  //        Ongoing/Recurring Services
-                  //       </p>`
-                  //       : ""
-                  //   }
-                  // ${props?.selectedRecurringServiceList
-                  //   .map(
-                  //     (serviceCat) => `
-                  //       <div>
-                  //           <p style=" color: black;font-family:${fontFamily}; font-size: ${fontSizeHeading}; font-weight: bold;">
-                  //               ${serviceCat.serviceCatName}
-                  //           </p>
-                  //           <hr style="color: gray; margin-top: -15px;">
-                  //           ${serviceCat.servicesList
-                  //             .map(
-                  //               (subService) => `
-                  //               <p style=" color:black;font-family:${fontFamily}; font-size: ${fontSizeContent};">
-                  //                   ${subService.serviceName}
-                  //               </p>
-                  //               <p style=" color:black;">
-                  //                  ${
-                  //                    subService.serviceDescription === null ||
-                  //                    subService.serviceDescription === undefined ||
-                  //                    subService.serviceDescription === ""
-                  //                      ? ""
-                  //                      : subService.serviceDescription
-                  //                  }
-                  //               </p>
-                  //           `
-                  //             )
-                  //             .join("")}
-                  //       </div>
-                  //   `
-                  //   )
-                  //   .join("")}
-                  //          ${
-                  //            props?.selectedOneOffServiceList.length !== 0
-                  //              ? `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
-                  //             One-Off/Ad hoc Services
-                  //           </p>`
-                  //              : ""
-                  //          }
-                  //   ${props?.selectedOneOffServiceList
-                  //     .map(
-                  //       (serviceCat) => `
-                  //         <div>
-                  //             <p style=" color: black;font-family:${fontFamily}; font-size: ${fontSizeHeading};font-weight: bold;">
-                  //                 ${serviceCat.serviceCatName}
-                  //             </p>
-                  //             <hr style="color: gray; margin-top: -15px;">
-                  //             ${serviceCat.servicesList
-                  //               .map(
-                  //                 (subService) => `
-                  //                 <p style="color:black;font-family:${fontFamily}; font-size: ${fontSizeContent};">
-                  //                     ${subService.serviceName}
-                  //                 </p>
-                  //                 <p style=" color:black;">
-                  //                   ${
-                  //                     subService.serviceDescription === null ||
-                  //                     subService.serviceDescription === undefined ||
-                  //                     subService.serviceDescription === ""
-                  //                       ? ""
-                  //                       : subService.serviceDescription
-                  //                   }
-                  //               </p>
-                  //             `
-                  //               )
-                  //               .join("")}
-                  //         </div>
-                  //     `
-                  //     )
-                  //     .join("")}
-                  //   </div>
-                  //   `,
+                  textbox: `
+                ${imgTag}
+                <div style="padding-left: 40px; padding-right: 40px;">
+              
+                ${
+                  props?.selectedRecurringServiceList.length !== 0
+                    ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
+                     Ongoing/Recurring Services
+                    </p>`
+                    : ""
+                }
+              ${props?.selectedRecurringServiceList
+                .map(
+                  (serviceCat) => `
+                    <div>
+                        <p style=" color: black;font-family:${fontFamily}; font-size: ${fontSizeHeading}; font-weight: bold;">
+                            ${serviceCat.serviceCatName}
+                        </p>
+                        <hr style="color: gray; margin-top: -15px;">
+                        ${serviceCat.servicesList
+                          .map(
+                            (subService) => `
+                            <p style=" color:black;font-family:${fontFamily}; font-size: ${fontSizeContent};">
+                                ${subService.serviceName}
+                            </p>
+                            <p style=" color:black;">
+                               ${
+                                 subService.serviceDescription === null ||
+                                 subService.serviceDescription === undefined ||
+                                 subService.serviceDescription === ""
+                                   ? ""
+                                   : subService.serviceDescription
+                               }
+                            </p>
+                        `,
+                          )
+                          .join("")}
+                    </div>
+                `,
+                )
+                .join("")}
+                       ${
+                         props?.selectedOneOffServiceList.length !== 0
+                           ? `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
+                          One-Off/Ad hoc Services
+                        </p>`
+                           : ""
+                       }
+                ${props?.selectedOneOffServiceList
+                  .map(
+                    (serviceCat) => `
+                      <div>
+                          <p style=" color: black;font-family:${fontFamily}; font-size: ${fontSizeHeading};font-weight: bold;">
+                              ${serviceCat.serviceCatName}
+                          </p>
+                          <hr style="color: gray; margin-top: -15px;">
+                          ${serviceCat.servicesList
+                            .map(
+                              (subService) => `
+                              <p style="color:black;font-family:${fontFamily}; font-size: ${fontSizeContent};">
+                                  ${subService.serviceName}
+                              </p>
+                              <p style=" color:black;">
+                                ${
+                                  subService.serviceDescription === null ||
+                                  subService.serviceDescription === undefined ||
+                                  subService.serviceDescription === ""
+                                    ? ""
+                                    : subService.serviceDescription
+                                }
+                            </p>
+                          `,
+                            )
+                            .join("")}
+                      </div>
+                  `,
+                  )
+                  .join("")}
+                </div>
+                `,
                 },
               ];
             }
@@ -3422,7 +5935,7 @@ export default function PreviewComponentPdf(props) {
                 currentArray = [
                   {
                     textbox: `
-      <div style=" 
+      <div data-first-page="true" style="
         page-break-after: always;
       ">
         ${coloredHtmlContent}
@@ -3435,7 +5948,7 @@ export default function PreviewComponentPdf(props) {
                 currentArray = [
                   {
                     textbox: `
-      <div style="
+      <div data-first-page="true" style=" 
         page-break-after: always;
       ">
         ${coloredHtmlContent}
@@ -3456,519 +5969,644 @@ export default function PreviewComponentPdf(props) {
                 props?.ProposalObject?.selectedProposalTypeValue === 2
               ) {
                 currentArray.push({
-                  textbox: props.statementOfFactsHTML,
-                  //               textbox: `
-                  //                 ${imgTag}
-                  //                 <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};">
-                  //                 ${props.StatementOfFact.map(
-                  //                   (SelectedPackage) =>
-                  //                     `<div style="font-family:${fontFamily};">
-                  //                       <p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
-                  //                         Package Name:  ${SelectedPackage.servicePackageName}
-                  //                       </p>
-                  //                       <hr style="color: gray; margin-top: -15px;">
-                  //                        ${
-                  //                          SelectedPackage.reccuring.length !== 0
-                  //                            ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
-                  //                        Ongoing/Recurring Services
-                  //                       </p>`
-                  //                            : ""
-                  //                        }
-                  //                       ${SelectedPackage.reccuring
-                  //                         .map(
-                  //                           (SelectedServiceCat) =>
-                  //                             ` <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
-                  //                           ${SelectedServiceCat.serviceCategoryName}
-                  //                       </p>
-                  //                      ${SelectedServiceCat.servicesList
-                  //                        .map(
-                  //                          (subService) => `
-                  //                           <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
-                  //                               ${subService.serviceName}
-                  //                           </p>
-                  //                           ${(subService?.gpdList)
-                  //                             .filter(
-                  //                               (pricingDriver) =>
-                  //                                 pricingDriver.driverTypeID !== 1
-                  //                             )
-                  //                             .map(
-                  //                               (pricingDriver) => `
-                  //                             <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
-                  //                             ${pricingDriver.driverName}:
-                  //                                <strong> ${
-                  //                                  pricingDriver.driverTypeID === 2
-                  //                                    ? props.formatValueWithoutCurrencySymbol(
-                  //                                        pricingDriver.value
-                  //                                      )
-                  //                                    : pricingDriver.driverTypeID === 3
-                  //                                    ? pricingDriver.variationName
-                  //                                    : pricingDriver.driverTypeID === 4
-                  //                                    ? pricingDriver.slabTypeID === 2
-                  //                                      ? props.formatValueWithoutCurrencySymbol(
-                  //                                          pricingDriver.value
-                  //                                        )
-                  //                                      : pricingDriver.slabFrom +
-                  //                                        "-" +
-                  //                                        pricingDriver.slabTo
-                  //                                    : ""
-                  //                                }</strong>
-                  //                         </li>
-                  //                           `
-                  //                             )
-                  //                             .join("")}
-                  //                       `
-                  //                        )
-                  //                        .join("")}
-                  //                       `
-                  //                         )
-                  //                         .join(" ")}
-                  //                          ${
-                  //                            SelectedPackage.oneOff.length !== 0
-                  //                              ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
-                  //                         One-Off/Ad hoc Services
-                  //                       </p>`
-                  //                              : ""
-                  //                          }
-                  //                       ${SelectedPackage.oneOff
-                  //                         .map(
-                  //                           (SelectedServiceCat) =>
-                  //                             ` <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
-                  //                           ${SelectedServiceCat.serviceCategoryName}
-                  //                       </p>
-                  //                      ${SelectedServiceCat.servicesList
-                  //                        .map(
-                  //                          (subService) => `
-                  //                           <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
-                  //                               ${subService.serviceName}
-                  //                           </p>
-                  //                           ${(subService?.gpdList)
-                  //                             .filter(
-                  //                               (pricingDriver) =>
-                  //                                 pricingDriver.driverTypeID !== 1
-                  //                             )
-                  //                             .map(
-                  //                               (pricingDriver) => `
-                  //                             <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
-                  //                             ${pricingDriver.driverName}:
-                  //                                 <strong> ${
-                  //                                   pricingDriver.driverTypeID === 2
-                  //                                     ? props.formatValueWithoutCurrencySymbol(
-                  //                                         pricingDriver.value
-                  //                                       )
-                  //                                     : pricingDriver.driverTypeID === 3
-                  //                                     ? pricingDriver.variationName
-                  //                                     : pricingDriver.driverTypeID === 4
-                  //                                     ? pricingDriver.slabTypeID === 2
-                  //                                       ? props.formatValueWithoutCurrencySymbol(
-                  //                                           pricingDriver.value
-                  //                                         )
-                  //                                       : pricingDriver.slabFrom +
-                  //                                         "-" +
-                  //                                         pricingDriver.slabTo
-                  //                                     : ""
-                  //                                 }</strong>
-                  //                         </li>
-                  //                           `
-                  //                             )
-                  //                             .join("")}
-                  //                       `
-                  //                        )
-                  //                        .join("")}
-                  //                       `
-                  //                         )
-                  //                         .join(" ")}
+                  textbox: `
+                    ${imgTag}
+                    <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};">
+                    ${props.StatementOfFact.map(
+                      (SelectedPackage) =>
+                        `<div style="font-family:${fontFamily};">
+                          <p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
+                            Package Name:  ${SelectedPackage.servicePackageName}
+                          </p>
+                          <hr style="color: gray; margin-top: -15px;">
+                           ${
+                             SelectedPackage.reccuring.length !== 0
+                               ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
+                           Ongoing/Recurring Services
+                          </p>`
+                               : ""
+                           }
+                          ${SelectedPackage.reccuring
+                            .map(
+                              (SelectedServiceCat) =>
+                                ` <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
+                              ${SelectedServiceCat.serviceCategoryName}
+                          </p>
+                         ${SelectedServiceCat.servicesList
+                           .map(
+                             (subService) => `
+                              <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
+                                  ${subService.serviceName}
+                              </p>
+                              ${(subService?.gpdList)
+                                .filter(
+                                  (pricingDriver) =>
+                                    pricingDriver.driverTypeID !== 1,
+                                )
+                                .map(
+                                  (pricingDriver) => `
+                                <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
+                                ${pricingDriver.driverName}: 
+                                   <strong> ${
+                                     pricingDriver.driverTypeID === 2
+                                       ? props.formatValueWithoutCurrencySymbol_v1(
+                                           pricingDriver.value,
+                                           pricingDriver.quantity?.[0]
+                                             ?.quantityDecimalPlaces,
+                                         )
+                                       : pricingDriver.driverTypeID === 3
+                                         ? pricingDriver.variationName
+                                         : pricingDriver.driverTypeID === 4
+                                           ? pricingDriver.slabTypeID === 2
+                                             ? props.formatValueWithoutCurrencySymbol(
+                                                 pricingDriver.value,
+                                               )
+                                             : pricingDriver.slabFrom +
+                                               "-" +
+                                               pricingDriver.slabTo
+                                           : pricingDriver.driverTypeID === 5
+                                             ? pricingDriver?.enteredText
+                                             : pricingDriver.driverTypeID === 6
+                                               ? pricingDriver?.enteredDate
+                                               : //  && pricingDriver?.enteredDateFormat
+                                                 //     ? (() => {
+                                                 //       const dateObj = convertAndParseDate(
+                                                 //         pricingDriver.enteredDate,
+                                                 //         pricingDriver.enteredDateFormat,
+                                                 //         pricingDriver.date?.[0]?.dateFormat
+                                                 //       );
+                                                 //       return dateObj && isValid(dateObj)
+                                                 //         ? format(dateObj, pricingDriver.date?.[0]?.dateFormat)
+                                                 //         : "";
+                                                 //     })()
+                                                 //     : ""
+                                                 ""
+                                   }</strong>
+                            </li>
+                              `,
+                                )
+                                .join("")}
+                          `,
+                           )
+                           .join("")}
+                          `,
+                            )
+                            .join(" ")}
+                             ${
+                               SelectedPackage.oneOff.length !== 0
+                                 ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
+                            One-Off/Ad hoc Services
+                          </p>`
+                                 : ""
+                             }
+                          ${SelectedPackage.oneOff
+                            .map(
+                              (SelectedServiceCat) =>
+                                ` <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
+                              ${SelectedServiceCat.serviceCategoryName}
+                          </p>
+                         ${SelectedServiceCat.servicesList
+                           .map(
+                             (subService) => `
+                              <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
+                                  ${subService.serviceName}
+                              </p>
+                              ${(subService?.gpdList)
+                                .filter(
+                                  (pricingDriver) =>
+                                    pricingDriver.driverTypeID !== 1,
+                                )
+                                .map(
+                                  (pricingDriver) => `
+                                <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
+                                ${pricingDriver.driverName}: 
+                                    <strong> ${
+                                      pricingDriver.driverTypeID === 2
+                                        ? props.formatValueWithoutCurrencySymbol_v1(
+                                            pricingDriver.value,
+                                            pricingDriver.quantity?.[0]
+                                              ?.quantityDecimalPlaces,
+                                          )
+                                        : pricingDriver.driverTypeID === 3
+                                          ? pricingDriver.variationName
+                                          : pricingDriver.driverTypeID === 4
+                                            ? pricingDriver.slabTypeID === 2
+                                              ? props.formatValueWithoutCurrencySymbol(
+                                                  pricingDriver.value,
+                                                )
+                                              : pricingDriver.slabFrom +
+                                                "-" +
+                                                pricingDriver.slabTo
+                                            : pricingDriver.driverTypeID === 5
+                                              ? pricingDriver?.enteredText
+                                              : pricingDriver.driverTypeID === 6
+                                                ? pricingDriver?.enteredDate
+                                                : //  && pricingDriver?.enteredDateFormat
+                                                  //     ? (() => {
+                                                  //       const dateObj = convertAndParseDate(
+                                                  //         pricingDriver.enteredDate,
+                                                  //         pricingDriver.enteredDateFormat,
+                                                  //         pricingDriver.date?.[0]?.dateFormat
+                                                  //       );
+                                                  //       return dateObj && isValid(dateObj)
+                                                  //         ? format(dateObj, pricingDriver.date?.[0]?.dateFormat)
+                                                  //         : "";
+                                                  //     })()
+                                                  //     : ""
+                                                  ""
+                                    }</strong>
+                            </li>
+                              `,
+                                )
+                                .join("")}
+                          `,
+                           )
+                           .join("")}
+                          `,
+                            )
+                            .join(" ")}
 
-                  //                         ${
-                  //                           SelectedPackage.additionalInformationList
-                  //                             ?.length > 0
-                  //                             ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
-                  //     Additional Information
-                  // </p>
-                  // <hr style="color: gray; margin-top: -15px;" />` +
-                  //                               SelectedPackage.additionalInformationList
-                  //                                 .filter((item) => item.driverTypeID !== 1)
-                  //                                 .map(
-                  //                                   (serviceCat) => `
-                  //     <div>
-                  //         <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                  //             ${serviceCat.driverName}: ${
-                  //                                     serviceCat.driverTypeID === 4
-                  //                                       ? serviceCat.slabTypeID === 2
-                  //                                         ? `<strong>${props.formatValueWithoutCurrencySymbol(
-                  //                                             serviceCat.value
-                  //                                           )}</strong>`
-                  //                                         : `<strong>${props.formatValueWithoutCurrencySymbol(
-                  //                                             serviceCat.slabFrom
-                  //                                           )}-${props.formatValueWithoutCurrencySymbol(
-                  //                                             serviceCat.slabTo
-                  //                                           )}</strong>`
-                  //                                       : serviceCat.driverTypeID === 3
-                  //                                       ? `<strong>${serviceCat.variationName}</strong>`
-                  //                                       : `${
-                  //                                           serviceCat.driverName
-                  //                                         }: <strong>${props.formatValueWithoutCurrencySymbol(
-                  //                                           serviceCat.value
-                  //                                         )}</strong>`
-                  //                                   }
-                  //         </p>
-                  //     </div>
-                  // `
-                  //                                 )
-                  //                                 .join("")
-                  //                             : ""
-                  //                         }
+                            ${
+                              SelectedPackage.additionalInformationList
+                                ?.length > 0
+                                ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
+        Additional Information
+    </p>
+    <hr style="color: gray; margin-top: -15px;" />` +
+                                  SelectedPackage.additionalInformationList
+                                    .filter((item) => item.driverTypeID !== 1)
+                                    .map(
+                                      (serviceCat) => `
+        <div>
+            <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                ${serviceCat.driverName}: ${
+                  serviceCat.driverTypeID === 4
+                    ? serviceCat.slabTypeID === 2
+                      ? `<strong>${props.formatValueWithoutCurrencySymbol(
+                          serviceCat.value,
+                        )}</strong>`
+                      : `<strong>${props.formatValueWithoutCurrencySymbol(
+                          serviceCat.slabFrom,
+                        )}-${props.formatValueWithoutCurrencySymbol(
+                          serviceCat.slabTo,
+                        )}</strong>`
+                    : serviceCat.driverTypeID === 3
+                      ? `<strong>${serviceCat.variationName}</strong>`
+                      : serviceCat.driverTypeID === 5
+                        ? (`<strong>${serviceCat?.enteredText}</strong>` ?? "")
+                        : serviceCat.driverTypeID === 6
+                          ? `<strong>${serviceCat?.enteredDate}</strong>`
+                          : `${
+                              serviceCat.driverName
+                            }: <strong>${props.formatValueWithoutCurrencySymbol(
+                              serviceCat.value,
+                            )}</strong>`
+                }
+            </p>
+        </div>
+    `,
+                                    )
+                                    .join("")
+                                : ""
+                            }
 
-                  //                     </div>`
-                  //                 ).join(" ")}`,
+                        </div>`,
+                    ).join(" ")}`,
                 });
               } else {
                 currentArray.push({
-                  textbox: props.statementOfFactsHTML,
-                  //                 textbox: `${imgTag}<div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};">
-                  //                 ${
-                  //                   props?.selectedRecurringServiceList.length !== 0
-                  //                     ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
-                  //                      Ongoing/Recurring Services
-                  //                     </p>`
-                  //                     : ""
-                  //                 }
-                  //                 ${props?.selectedRecurringServiceList
-                  //                   .map(
-                  //                     (serviceCat) => `
-                  //                      <div style="font-family:${fontFamily};">
-                  //                         <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
-                  //                             ${serviceCat.serviceCatName}
-                  //                         </p>
-                  //                         <hr style="color: gray; margin-top: -15px;">
-                  //                         ${serviceCat.servicesList
-                  //                           .map(
-                  //                             (subService) => `
-                  //                             <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
-                  //                                 ${subService.serviceName}
-                  //                             </p>
-                  //                             ${(
-                  //                               subService?.pricingDriverList ||
-                  //                               subService?.gpdList ||
-                  //                               []
-                  //                             )
-                  //                               .filter((pricingDriver) =>
-                  //                                 subService?.pricingDriverList !== undefined
-                  //                                   ? pricingDriver.driverVisibility === true
-                  //                                   : true
-                  //                               )
-                  //                               .filter(
-                  //                                 (pricingDriver) =>
-                  //                                   pricingDriver.driverTypeID !== 1
-                  //                               )
-                  //                               .map(
-                  //                                 (pricingDriver) => `
-                  //                               <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
-                  //                               ${pricingDriver.driverName}:
-                  //                                   <strong> ${
-                  //                                     pricingDriver.driverTypeID === 2
-                  //                                       ? props.formatValueWithoutCurrencySymbol(
-                  //                                           pricingDriver.driverValue
-                  //                                         )
-                  //                                       : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
-                  //                                       //   /\B(?=(\d{3})+(?!\d))/g,
-                  //                                       //   ","
-                  //                                       // )
-                  //                                       pricingDriver.driverTypeID === 3
-                  //                                       ? subService?.pricingDriverList ==
-                  //                                         undefined
-                  //                                         ? pricingDriver.variationName
-                  //                                         : pricingDriver.variation.find(
-                  //                                             (item) => item.isDefault
-                  //                                           ).variationName
-                  //                                       : pricingDriver.driverTypeID === 4
-                  //                                       ? subService?.pricingDriverList ==
-                  //                                         undefined
-                  //                                         ? pricingDriver.slabTypeID === 2
-                  //                                           ? props.formatValueWithoutCurrencySymbol(
-                  //                                               pricingDriver.driverValue
-                  //                                             )
-                  //                                           : props.formatValueWithoutCurrencySymbol(
-                  //                                               pricingDriver.slabFrom
-                  //                                             ) -
-                  //                                             props.formatValueWithoutCurrencySymbol(
-                  //                                               pricingDriver.slabTo
-                  //                                             )
-                  //                                         : pricingDriver.slab.find(
-                  //                                             (item) => item.isDefault
-                  //                                           ).slabTypeID === 2
-                  //                                         ? Number(
-                  //                                             pricingDriver.slab.find(
-                  //                                               (item) => item.isDefault
-                  //                                             ).slabValue
-                  //                                           )
-                  //                                             .toFixed(2)
-                  //                                             .toString()
-                  //                                             .replace(
-                  //                                               /\B(?=(\d{3})+(?!\d))/g,
-                  //                                               ","
-                  //                                             )
-                  //                                         : Number(
-                  //                                             pricingDriver.slab.find(
-                  //                                               (item) => item.isDefault
-                  //                                             ).slabFrom
-                  //                                           )
-                  //                                             .toFixed(2)
-                  //                                             .toString()
-                  //                                             .replace(
-                  //                                               /\B(?=(\d{3})+(?!\d))/g,
-                  //                                               ","
-                  //                                             ) +
-                  //                                           "-" +
-                  //                                           Number(
-                  //                                             pricingDriver.slab.find(
-                  //                                               (item) => item.isDefault
-                  //                                             ).slabTo
-                  //                                           )
-                  //                                             .toFixed(2)
-                  //                                             .toString()
-                  //                                             .replace(
-                  //                                               /\B(?=(\d{3})+(?!\d))/g,
-                  //                                               ","
-                  //                                             )
-                  //                                       : ""
-                  //                                   }</strong>
-                  //                           </li>
-                  //                             `
-                  //                               )
-                  //                               .join("")}
-                  //                         `
-                  //                           )
-                  //                           .join("")}
-                  //                     </div>
-                  //                 `
-                  //                   )
-                  //                   .join("")}
-                  //                   ${
-                  //                     props?.selectedOneOffServiceList.length !== 0
-                  //                       ? `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
-                  //                         One-Off/Ad hoc Services
-                  //                       </p>`
-                  //                       : ""
-                  //                   }
-                  //                 ${props?.selectedOneOffServiceList
-                  //                   .map(
-                  //                     (serviceCat) => `
-                  //                        <div style="font-family:${fontFamily};">
-                  //                           <p style="font-family: ${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
-                  //                               ${serviceCat.serviceCatName}
-                  //                           </p>
-                  //                           <hr style="color: gray; margin-top: -15px;">
-                  //                           ${serviceCat.servicesList
-                  //                             .map(
-                  //                               (subService) => `
-                  //                            <p style="font-family: ${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                  //                                 ${subService.serviceName}
-                  //                             </p>
-                  //                             ${(
-                  //                               subService?.pricingDriverList ||
-                  //                               subService?.gpdList ||
-                  //                               []
-                  //                             )
-                  //                               .filter((pricingDriver) =>
-                  //                                 subService?.pricingDriverList !== undefined
-                  //                                   ? pricingDriver.driverVisibility === true
-                  //                                   : true
-                  //                               )
-                  //                               .filter(
-                  //                                 (pricingDriver) =>
-                  //                                   pricingDriver.driverTypeID !== 1
-                  //                               )
-                  //                               .map(
-                  //                                 (pricingDriver) => `
-                  //                               <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
-                  //                               ${pricingDriver.driverName}:
-                  //                                   <strong> ${
-                  //                                     pricingDriver.driverTypeID === 2
-                  //                                       ? props.formatValueWithoutCurrencySymbol(
-                  //                                           pricingDriver.driverValue
-                  //                                         )
-                  //                                       : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
-                  //                                       //   /\B(?=(\d{3})+(?!\d))/g,
-                  //                                       //   ","
-                  //                                       // )
-                  //                                       pricingDriver.driverTypeID === 3
-                  //                                       ? subService?.pricingDriverList ==
-                  //                                         undefined
-                  //                                         ? pricingDriver.variationName
-                  //                                         : pricingDriver.variation.find(
-                  //                                             (item) => item.isDefault
-                  //                                           ).variationName
-                  //                                       : pricingDriver.driverTypeID === 4
-                  //                                       ? subService?.pricingDriverList ==
-                  //                                         undefined
-                  //                                         ? pricingDriver.slabTypeID === 2
-                  //                                           ? props.formatValueWithoutCurrencySymbol(
-                  //                                               pricingDriver.driverValue
-                  //                                             )
-                  //                                           : props.formatValueWithoutCurrencySymbol(
-                  //                                               pricingDriver.slabFrom
-                  //                                             ) -
-                  //                                             props.formatValueWithoutCurrencySymbol(
-                  //                                               pricingDriver.slabTo
-                  //                                             )
-                  //                                         : pricingDriver.slab.find(
-                  //                                             (item) => item.isDefault
-                  //                                           ).slabTypeID === 2
-                  //                                         ? Number(
-                  //                                             pricingDriver.slab.find(
-                  //                                               (item) => item.isDefault
-                  //                                             ).slabValue
-                  //                                           )
-                  //                                             .toFixed(2)
-                  //                                             .toString()
-                  //                                             .replace(
-                  //                                               /\B(?=(\d{3})+(?!\d))/g,
-                  //                                               ","
-                  //                                             )
-                  //                                         : Number(
-                  //                                             pricingDriver.slab.find(
-                  //                                               (item) => item.isDefault
-                  //                                             ).slabFrom
-                  //                                           )
-                  //                                             .toFixed(2)
-                  //                                             .toString()
-                  //                                             .replace(
-                  //                                               /\B(?=(\d{3})+(?!\d))/g,
-                  //                                               ","
-                  //                                             ) +
-                  //                                           "-" +
-                  //                                           Number(
-                  //                                             pricingDriver.slab.find(
-                  //                                               (item) => item.isDefault
-                  //                                             ).slabTo
-                  //                                           )
-                  //                                             .toFixed(2)
-                  //                                             .toString()
-                  //                                             .replace(
-                  //                                               /\B(?=(\d{3})+(?!\d))/g,
-                  //                                               ","
-                  //                                             )
-                  //                                       : ""
-                  //                                   }</strong>
-                  //                           </li>
-                  //                             `
-                  //                               )
-                  //                               .join("")}
-                  //                           `
-                  //                             )
-                  //                             .join("")}
-                  //                       </div>
-                  //                   `
-                  //                   )
-                  //                   .join("")}
-
-                  //                     ${
-                  //                       props?.additionalInformationList?.filter(
-                  //                         (item) => item.driverTypeID !== 1
-                  //                       ).length >
-                  //                       0 >
-                  //                       0
-                  //                         ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
-                  //         Additional Information
-                  //     </p><hr style="color: gray; margin-top: -15px;" ></hr>` +
-                  //                           props.additionalInformationList
-                  //                             .map(
-                  //                               (serviceCat) => `
-                  //         <div>
-                  //             ${
-                  //               serviceCat.driverTypeID === 2 &&
-                  //               serviceCat.variation === null &&
-                  //               serviceCat.slab === null
-                  //                 ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                  //                         ${
-                  //                           serviceCat.driverName
-                  //                         }:  <strong> ${props.formatValueWithoutCurrencySymbol(
-                  //                     serviceCat.driverValue
-                  //                   )} </strong >
-                  //                     </p>`
-                  //                 : (serviceCat.driverTypeID === 4
-                  //                     ? serviceCat.slab
-                  //                     : serviceCat.driverTypeID === 3
-                  //                     ? serviceCat.variation
-                  //                     : []
-                  //                   )
-                  //                     .filter((item) => item.isDefault)
-                  //                     .map(
-                  //                       (subService) => `
-                  // <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                  //     ${serviceCat.driverName}: ${
-                  //                         serviceCat.driverTypeID === 4
-                  //                           ? subService.slabTypeID === 2
-                  //                             ? `<strong>${props.formatValueWithoutCurrencySymbol(
-                  //                                 subService.slabValue
-                  //                               )}</strong>`
-                  //                             : `<strong>${props.formatValueWithoutCurrencySymbol(
-                  //                                 subService.slabFrom
-                  //                               )}-${props.formatValueWithoutCurrencySymbol(
-                  //                                 subService.slabTo
-                  //                               )}</strong>`
-                  //                           : `<strong>${subService.variationName}</strong>`
-                  //                       }
-                  // </p>
-                  // `
-                  //                     )
-                  //                     .join("")
-                  //             }
-                  //         </div>
-                  //     `
-                  //                             )
-                  //                             .join("")
-                  //                         : ""
-                  //                     }
-
-                  //                 ${
-                  //                   props?.quoteAdditionalInfoGlobalPricingDriver?.filter(
-                  //                     (item) => item.driverTypeID !== 1
-                  //                   ).length > 0
-                  //                     ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
-                  //       Additional Information
-                  //   </p>
-                  //   <hr style="color: gray; margin-top: -15px;" />` +
-                  //                       props.quoteAdditionalInfoGlobalPricingDriver
-                  //                         .map(
-                  //                           (serviceCat) => `
-                  //       <div>
-                  //         ${
-                  //           serviceCat.driverTypeID === 2
-                  //             ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                  //               ${
-                  //                 serviceCat.driverName
-                  //               }: <strong>${props.formatValueWithoutCurrencySymbol(
-                  //                 serviceCat.driverValue
-                  //               )}</strong>
-                  //           </p>`
-                  //             : serviceCat.driverTypeID === 3
-                  //             ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                  //               ${serviceCat.driverName}: <strong>${serviceCat.variationName}</strong>
-                  //           </p>`
-                  //             : serviceCat.driverTypeID === 4
-                  //             ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                  //               ${serviceCat.driverName}: ${
-                  //                 serviceCat.slabTypeID == 2
-                  //                   ? `<strong>${props.formatValueWithoutCurrencySymbol(
-                  //                       serviceCat.driverValue
-                  //                     )} <strong>`
-                  //                   : `<strong>${props.formatValueWithoutCurrencySymbol(
-                  //                       serviceCat.slabFrom
-                  //                     )}</strong> - <strong>${props.formatValueWithoutCurrencySymbol(
-                  //                       serviceCat.slabTo
-                  //                     )}</strong>`
-                  //               }
-                  //           </p>`
-                  //             : ""
-                  //         }
-                  //       </div>`
-                  //                         )
-                  //                         .join("")
-                  //                     : ""
-                  //                 }
-
-                  //                 </div>`,
+                  textbox: `${imgTag}<div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};">
+                  ${
+                    props?.selectedRecurringServiceList.length !== 0
+                      ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
+                       Ongoing/Recurring Services
+                      </p>`
+                      : ""
+                  }
+                  ${props?.selectedRecurringServiceList
+                    .map(
+                      (serviceCat) => `
+                       <div style="font-family:${fontFamily};">
+                          <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
+                              ${serviceCat.serviceCatName}
+                          </p>
+                          <hr style="color: gray; margin-top: -15px;">
+                          ${serviceCat.servicesList
+                            .map(
+                              (subService) => `
+                              <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
+                                  ${subService.serviceName}
+                              </p>
+                              ${(
+                                subService?.pricingDriverList ||
+                                subService?.gpdList ||
+                                []
+                              )
+                                .filter((pricingDriver) =>
+                                  subService?.pricingDriverList !== undefined
+                                    ? pricingDriver.driverVisibility === true
+                                    : true,
+                                )
+                                .filter(
+                                  (pricingDriver) =>
+                                    pricingDriver.driverTypeID !== 1,
+                                )
+                                .map(
+                                  (pricingDriver) => `
+                                <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
+                                ${pricingDriver.driverName}: 
+                                    <strong> ${
+                                      pricingDriver.driverTypeID === 2
+                                        ? props.formatValueWithoutCurrencySymbol_v1(
+                                            pricingDriver.driverValue,
+                                            getDecimalPlaces(pricingDriver),
+                                          )
+                                        : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
+                                          //   /\B(?=(\d{3})+(?!\d))/g,
+                                          //   ","
+                                          // )
+                                          pricingDriver.driverTypeID === 3
+                                          ? subService?.pricingDriverList ==
+                                            undefined
+                                            ? pricingDriver.variationName
+                                            : pricingDriver.variation.find(
+                                                (item) => item.isDefault,
+                                              ).variationName
+                                          : pricingDriver.driverTypeID === 4
+                                            ? subService?.pricingDriverList ==
+                                              undefined
+                                              ? pricingDriver.slabTypeID === 2
+                                                ? props.formatValueWithoutCurrencySymbol_v1(
+                                                    pricingDriver.driverValue,
+                                                    getDecimalPlaces(
+                                                      pricingDriver,
+                                                    ),
+                                                  )
+                                                : props.formatValueWithoutCurrencySymbol_v1(
+                                                    pricingDriver.driverValue,
+                                                    getDecimalPlaces(
+                                                      pricingDriver,
+                                                    ),
+                                                  ) -
+                                                  props.formatValueWithoutCurrencySymbol_v1(
+                                                    pricingDriver.driverValue,
+                                                    getDecimalPlaces(
+                                                      pricingDriver,
+                                                    ),
+                                                  )
+                                              : pricingDriver.slab.find(
+                                                    (item) => item.isDefault,
+                                                  ).slabTypeID === 2
+                                                ? Number(
+                                                    pricingDriver.slab.find(
+                                                      (item) => item.isDefault,
+                                                    ).slabValue,
+                                                  )
+                                                    .toFixed(2)
+                                                    .toString()
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ",",
+                                                    )
+                                                : Number(
+                                                    pricingDriver.slab.find(
+                                                      (item) => item.isDefault,
+                                                    ).slabFrom,
+                                                  )
+                                                    .toFixed(
+                                                      getDecimalPlaces(
+                                                        pricingDriver,
+                                                      ),
+                                                    )
+                                                    .toString()
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ",",
+                                                    ) +
+                                                  "-" +
+                                                  Number(
+                                                    pricingDriver.slab.find(
+                                                      (item) => item.isDefault,
+                                                    ).slabTo,
+                                                  )
+                                                    .toFixed(
+                                                      getDecimalPlaces(
+                                                        pricingDriver,
+                                                      ),
+                                                    )
+                                                    .toString()
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ",",
+                                                    )
+                                            : pricingDriver.driverTypeID === 5
+                                              ? (pricingDriver?.enteredText ??
+                                                "")
+                                              : pricingDriver.driverTypeID === 6
+                                                ? pricingDriver.enteredDate
+                                                : // ? pricingDriver.date && pricingDriver.date.length > 0
+                                                  //   ? (() => {
+                                                  //     const inputFormat = pricingDriver.enteredDateFormat;
+                                                  //     const outputFormat = pricingDriver.date[0]?.dateFormat;
+                                                  //     const dateObj = convertAndParseDate(pricingDriver.enteredDate, inputFormat, outputFormat);
+                                                  //     return dateObj && isValid(dateObj) ? format(dateObj, outputFormat) : "";
+                                                  //   })()
+                                                  //   : pricingDriver.enteredDate
+                                                  // : ""
+                                                  ""
+                                    }</strong>
+                            </li>
+                              `,
+                                )
+                                .join("")}
+                          `,
+                            )
+                            .join("")}
+                      </div>
+                  `,
+                    )
+                    .join("")}
+                    ${
+                      props?.selectedOneOffServiceList.length !== 0
+                        ? `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
+                          One-Off/Ad hoc Services
+                        </p>`
+                        : ""
+                    }
+                  ${props?.selectedOneOffServiceList
+                    .map(
+                      (serviceCat) => `
+                         <div style="font-family:${fontFamily};">
+                            <p style="font-family: ${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
+                                ${serviceCat.serviceCatName}
+                            </p>
+                            <hr style="color: gray; margin-top: -15px;">
+                            ${serviceCat.servicesList
+                              .map(
+                                (subService) => `
+                             <p style="font-family: ${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                                  ${subService.serviceName}
+                              </p>
+                              ${(
+                                subService?.pricingDriverList ||
+                                subService?.gpdList ||
+                                []
+                              )
+                                .filter((pricingDriver) =>
+                                  subService?.pricingDriverList !== undefined
+                                    ? pricingDriver.driverVisibility === true
+                                    : true,
+                                )
+                                .filter(
+                                  (pricingDriver) =>
+                                    pricingDriver.driverTypeID !== 1,
+                                )
+                                .map(
+                                  (pricingDriver) => `
+                                <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
+                                ${pricingDriver.driverName}: 
+                                    <strong> ${
+                                      pricingDriver.driverTypeID === 2
+                                        ? props.formatValueWithoutCurrencySymbol_v1(
+                                            pricingDriver.driverValue,
+                                            getDecimalPlaces(pricingDriver),
+                                          )
+                                        : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
+                                          //   /\B(?=(\d{3})+(?!\d))/g,
+                                          //   ","
+                                          // )
+                                          pricingDriver.driverTypeID === 3
+                                          ? subService?.pricingDriverList ==
+                                            undefined
+                                            ? pricingDriver.variationName
+                                            : pricingDriver.variation.find(
+                                                (item) => item.isDefault,
+                                              ).variationName
+                                          : pricingDriver.driverTypeID === 4
+                                            ? subService?.pricingDriverList ==
+                                              undefined
+                                              ? pricingDriver.slabTypeID === 2
+                                                ? props.formatValueWithoutCurrencySymbol_v1(
+                                                    pricingDriver.driverValue,
+                                                    getDecimalPlaces(
+                                                      pricingDriver,
+                                                    ),
+                                                  )
+                                                : props.formatValueWithoutCurrencySymbol_v1(
+                                                    pricingDriver.slabFrom,
+                                                    getDecimalPlaces(
+                                                      pricingDriver,
+                                                    ),
+                                                  ) +
+                                                  "-" +
+                                                  props.formatValueWithoutCurrencySymbol_v1(
+                                                    pricingDriver.slabTo,
+                                                    getDecimalPlaces(
+                                                      pricingDriver,
+                                                    ),
+                                                  )
+                                              : pricingDriver.slab?.find(
+                                                    (item) => item.isDefault,
+                                                  )?.slabTypeID === 2
+                                                ? Number(
+                                                    pricingDriver?.slab?.find(
+                                                      (item) => item.isDefault,
+                                                    )?.slabValue ??
+                                                      pricingDriver.driverValue,
+                                                  )
+                                                    .toFixed(2)
+                                                    .toString()
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ",",
+                                                    )
+                                                : Number(
+                                                    pricingDriver.slab?.find(
+                                                      (item) => item.isDefault,
+                                                    )?.slabFrom ??
+                                                      pricingDriver.driverValue,
+                                                  )
+                                                    .toFixed(
+                                                      pricingDriver?.slab?.[0]
+                                                        ?.decimalPlaces ?? 2,
+                                                    )
+                                                    .toString()
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ",",
+                                                    ) +
+                                                  "-" +
+                                                  Number(
+                                                    pricingDriver.slab?.find(
+                                                      (item) => item.isDefault,
+                                                    )?.slabTo ??
+                                                      pricingDriver.driverValue,
+                                                  )
+                                                    .toFixed(
+                                                      pricingDriver?.slab?.[0]
+                                                        ?.decimalPlaces ?? 2,
+                                                    )
+                                                    .toString()
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ",",
+                                                    )
+                                            : pricingDriver.driverTypeID === 5
+                                              ? (pricingDriver?.enteredText ??
+                                                "")
+                                              : pricingDriver.driverTypeID === 6
+                                                ? pricingDriver?.enteredDate
+                                                : //  && pricingDriver?.enteredDateFormat
+                                                  //   ? (() => {
+                                                  //     const dateObj = convertAndParseDate(
+                                                  //       pricingDriver.enteredDate,
+                                                  //       pricingDriver.enteredDateFormat,
+                                                  //       pricingDriver.date?.[0]?.dateFormat
+                                                  //     );
+                                                  //     return dateObj && isValid(dateObj)
+                                                  //       ? format(dateObj, pricingDriver.date?.[0]?.dateFormat)
+                                                  //       : "";
+                                                  //   })()
+                                                  //   : "" ?? ""
+                                                  ""
+                                    }</strong>
+                            </li>
+                              `,
+                                )
+                                .join("")}
+                            `,
+                              )
+                              .join("")}
+                        </div>
+                    `,
+                    )
+                    .join("")}
+                      
+               
+                      ${
+                        props?.additionalInformationList?.filter(
+                          (item) => item.driverTypeID !== 1,
+                        ).length >
+                        0 >
+                        0
+                          ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
+          Additional Information
+      </p><hr style="color: gray; margin-top: -15px;" ></hr>` +
+                            props.additionalInformationList
+                              .map(
+                                (serviceCat) => `
+          <div>
+              ${
+                serviceCat.driverTypeID === 2 &&
+                serviceCat.variation === null &&
+                serviceCat.slab === null
+                  ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                          ${
+                            serviceCat.driverName
+                          }:  <strong> ${props.formatValueWithoutCurrencySymbol(
+                            serviceCat.driverValue,
+                          )} </strong > 
+                      </p>`
+                  : serviceCat.driverTypeID === 5 ||
+                      serviceCat.driverTypeID === 6
+                    ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+      ${serviceCat.driverName}: <strong>${
+        serviceCat.driverTypeID === 5
+          ? (serviceCat.enteredText ?? "")
+          : (serviceCat.enteredDate ?? "")
+      }</strong>
+    </p>`
+                    : (serviceCat.driverTypeID === 4
+                        ? serviceCat.slab
+                        : serviceCat.driverTypeID === 3
+                          ? serviceCat.variation
+                          : []
+                      )
+                        .filter((item) => item.isDefault)
+                        .map(
+                          (subService) => `
+  <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+      ${serviceCat.driverName}: ${
+        serviceCat.driverTypeID === 4
+          ? subService.slabTypeID === 2
+            ? `<strong>${props.formatValueWithoutCurrencySymbol(
+                subService.slabValue,
+              )}</strong>`
+            : `<strong>${props.formatValueWithoutCurrencySymbol(
+                subService.slabFrom,
+              )}-${props.formatValueWithoutCurrencySymbol(
+                subService.slabTo,
+              )}</strong>`
+          : `<strong>${subService.variationName}</strong>`
+      }
+  </p>
+  `,
+                        )
+                        .join("")
+              }
+          </div>
+      `,
+                              )
+                              .join("")
+                          : ""
+                      }
+  
+                  ${
+                    props?.quoteAdditionalInfoGlobalPricingDriver?.filter(
+                      (item) => item.driverTypeID !== 1,
+                    ).length > 0
+                      ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
+        Additional Information
+    </p>
+    <hr style="color: gray; margin-top: -15px;" />` +
+                        props.quoteAdditionalInfoGlobalPricingDriver
+                          .map(
+                            (serviceCat) => `
+        <div>
+          ${
+            serviceCat.driverTypeID === 2
+              ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                ${
+                  serviceCat.driverName
+                }: <strong>${props.formatValueWithoutCurrencySymbol(
+                  serviceCat.driverValue,
+                )}</strong> 
+            </p>`
+              : serviceCat.driverTypeID === 3
+                ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                ${serviceCat.driverName}: <strong>${serviceCat.variationName}</strong>
+            </p>`
+                : serviceCat.driverTypeID === 5
+                  ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                ${serviceCat.driverName}: <strong>${serviceCat?.enteredText}</strong>
+            </p>`
+                  : serviceCat.driverTypeID === 6
+                    ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                ${serviceCat.driverName}: <strong>${serviceCat?.enteredDate}</strong>
+            </p>`
+                    : serviceCat.driverTypeID === 4
+                      ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                ${serviceCat.driverName}: ${
+                  serviceCat.slabTypeID == 2
+                    ? `<strong>${props.formatValueWithoutCurrencySymbol(
+                        serviceCat.driverValue,
+                      )} <strong>`
+                    : `<strong>${props.formatValueWithoutCurrencySymbol(
+                        serviceCat.slabFrom,
+                      )}</strong> - <strong>${props.formatValueWithoutCurrencySymbol(
+                        serviceCat.slabTo,
+                      )}</strong>`
+                }
+            </p>`
+                      : ""
+          }
+        </div>`,
+                          )
+                          .join("")
+                      : ""
+                  }
+  
+                  </div>`,
                 });
               }
             } else {
@@ -3978,519 +6616,574 @@ export default function PreviewComponentPdf(props) {
                 props?.ProposalObject?.selectedProposalTypeValue === 2
               ) {
                 currentArray.push({
-                  textbox: props.statementOfFactsHTML,
-                  //               textbox: `
-                  //                 ${imgTag}
-                  //                 <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};">
-                  //                 ${props.StatementOfFact.map(
-                  //                   (SelectedPackage) =>
-                  //                     `<div style="font-family:${fontFamily};">
-                  //                       <p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
-                  //                         Package Name:  ${SelectedPackage.servicePackageName}
-                  //                       </p>
-                  //                       <hr style="color: gray; margin-top: -15px;">
-                  //                           ${
-                  //                             SelectedPackage.reccuring.length !== 0
-                  //                               ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
-                  //                        Ongoing/Recurring Services
-                  //                       </p>`
-                  //                               : ""
-                  //                           }
+                  textbox: `
+                    ${imgTag}
+                    <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};">
+                    ${props.StatementOfFact.map(
+                      (SelectedPackage) =>
+                        `<div style="font-family:${fontFamily};">
+                          <p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
+                            Package Name:  ${SelectedPackage.servicePackageName}
+                          </p>
+                          <hr style="color: gray; margin-top: -15px;">
+                              ${
+                                SelectedPackage.reccuring.length !== 0
+                                  ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
+                           Ongoing/Recurring Services
+                          </p>`
+                                  : ""
+                              }
 
-                  //                       ${SelectedPackage.reccuring
-                  //                         .map(
-                  //                           (SelectedServiceCat) =>
-                  //                             ` <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
-                  //                           ${SelectedServiceCat.serviceCategoryName}
-                  //                       </p>
-                  //                      ${SelectedServiceCat.servicesList
-                  //                        .map(
-                  //                          (subService) => `
-                  //                           <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
-                  //                               ${subService.serviceName}
-                  //                           </p>
-                  //                           ${(subService?.gpdList)
-                  //                             .filter(
-                  //                               (pricingDriver) =>
-                  //                                 pricingDriver.driverTypeID !== 1
-                  //                             )
-                  //                             .map(
-                  //                               (pricingDriver) => `
-                  //                             <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
-                  //                             ${pricingDriver.driverName}:
-                  //                                 <strong> ${
-                  //                                   pricingDriver.driverTypeID === 2
-                  //                                     ? props.formatValueWithoutCurrencySymbol(
-                  //                                         pricingDriver.value
-                  //                                       )
-                  //                                     : pricingDriver.driverTypeID === 3
-                  //                                     ? pricingDriver.variationName
-                  //                                     : pricingDriver.driverTypeID === 4
-                  //                                     ? pricingDriver.slabTypeID === 2
-                  //                                       ? props.formatValueWithoutCurrencySymbol(
-                  //                                           pricingDriver.value
-                  //                                         )
-                  //                                       : pricingDriver.slabFrom +
-                  //                                         "-" +
-                  //                                         pricingDriver.slabTo
-                  //                                     : ""
-                  //                                 }</strong>
-                  //                         </li>
-                  //                           `
-                  //                             )
-                  //                             .join("")}
-                  //                       `
-                  //                        )
-                  //                        .join("")}
-                  //                       `
-                  //                         )
-                  //                         .join(" ")}
-                  //                          ${
-                  //                            SelectedPackage.oneOff.length !== 0
-                  //                              ? `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
-                  //                         One-Off/Ad hoc Services
-                  //                       </p>`
-                  //                              : ""
-                  //                          }
+                          ${SelectedPackage.reccuring
+                            .map(
+                              (SelectedServiceCat) =>
+                                ` <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
+                              ${SelectedServiceCat.serviceCategoryName}
+                          </p>
+                         ${SelectedServiceCat.servicesList
+                           .map(
+                             (subService) => `
+                              <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
+                                  ${subService.serviceName}
+                              </p>
+                              ${(subService?.gpdList)
+                                .filter(
+                                  (pricingDriver) =>
+                                    pricingDriver.driverTypeID !== 1,
+                                )
+                                .map(
+                                  (pricingDriver) => `
+                                <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
+                                ${pricingDriver.driverName}: 
+                                    <strong> ${
+                                      pricingDriver.driverTypeID === 2
+                                        ? props.formatValueWithoutCurrencySymbol_v1(
+                                            pricingDriver.value,
+                                            pricingDriver.quantity?.[0]
+                                              ?.quantityDecimalPlaces,
+                                          )
+                                        : pricingDriver.driverTypeID === 3
+                                          ? pricingDriver.variationName
+                                          : pricingDriver.driverTypeID === 4
+                                            ? pricingDriver.slabTypeID === 2
+                                              ? props.formatValueWithoutCurrencySymbol(
+                                                  pricingDriver.value,
+                                                )
+                                              : pricingDriver.slabFrom +
+                                                "-" +
+                                                pricingDriver.slabTo
+                                            : ""
+                                    }</strong>
+                            </li>
+                              `,
+                                )
+                                .join("")}
+                          `,
+                           )
+                           .join("")}
+                          `,
+                            )
+                            .join(" ")}
+                             ${
+                               SelectedPackage.oneOff.length !== 0
+                                 ? `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
+                            One-Off/Ad hoc Services
+                          </p>`
+                                 : ""
+                             }
 
-                  //                       ${SelectedPackage.oneOff
-                  //                         .map(
-                  //                           (SelectedServiceCat) =>
-                  //                             ` <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
-                  //                           ${SelectedServiceCat.serviceCategoryName}
-                  //                       </p>
-                  //                      ${SelectedServiceCat.servicesList
-                  //                        .map(
-                  //                          (subService) => `
-                  //                           <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
-                  //                               ${subService.serviceName}
-                  //                           </p>
-                  //                           ${(subService?.gpdList)
-                  //                             .filter(
-                  //                               (pricingDriver) =>
-                  //                                 pricingDriver.driverTypeID !== 1
-                  //                             )
-                  //                             .map(
-                  //                               (pricingDriver) => `
-                  //                             <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
-                  //                             ${pricingDriver.driverName}:
-                  //                                 <strong> ${
-                  //                                   pricingDriver.driverTypeID === 2
-                  //                                     ? props.formatValueWithoutCurrencySymbol(
-                  //                                         pricingDriver.value
-                  //                                       )
-                  //                                     : pricingDriver.driverTypeID === 3
-                  //                                     ? pricingDriver.variationName
-                  //                                     : pricingDriver.driverTypeID === 4
-                  //                                     ? pricingDriver.slabTypeID === 2
-                  //                                       ? props.formatValueWithoutCurrencySymbol(
-                  //                                           pricingDriver.value
-                  //                                         )
-                  //                                       : pricingDriver.slabFrom +
-                  //                                         "-" +
-                  //                                         pricingDriver.slabTo
-                  //                                     : ""
-                  //                                 }</strong>
-                  //                         </li>
-                  //                           `
-                  //                             )
-                  //                             .join("")}
-                  //                       `
-                  //                        )
-                  //                        .join("")}
-                  //                       `
-                  //                         )
-                  //                         .join(" ")}
+                          ${SelectedPackage.oneOff
+                            .map(
+                              (SelectedServiceCat) =>
+                                ` <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
+                              ${SelectedServiceCat.serviceCategoryName}
+                          </p>
+                         ${SelectedServiceCat.servicesList
+                           .map(
+                             (subService) => `
+                              <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
+                                  ${subService.serviceName}
+                              </p>
+                              ${(subService?.gpdList)
+                                .filter(
+                                  (pricingDriver) =>
+                                    pricingDriver.driverTypeID !== 1,
+                                )
+                                .map(
+                                  (pricingDriver) => `
+                                <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
+                                ${pricingDriver.driverName}: 
+                                    <strong> ${
+                                      pricingDriver.driverTypeID === 2
+                                        ? props.formatValueWithoutCurrencySymbol_v1(
+                                            pricingDriver.driverValue,
+                                            pricingDriver.quantity?.[0]
+                                              ?.quantityDecimalPlaces,
+                                          )
+                                        : pricingDriver.driverTypeID === 3
+                                          ? pricingDriver.variationName
+                                          : pricingDriver.driverTypeID === 4
+                                            ? pricingDriver.slabTypeID === 2
+                                              ? props.formatValueWithoutCurrencySymbol(
+                                                  pricingDriver.value,
+                                                )
+                                              : pricingDriver.slabFrom +
+                                                "-" +
+                                                pricingDriver.slabTo
+                                            : ""
+                                    }</strong>
+                            </li>
+                              `,
+                                )
+                                .join("")}
+                          `,
+                           )
+                           .join("")}
+                          `,
+                            )
+                            .join(" ")}
+                    
+                            ${
+                              SelectedPackage.additionalInformationList
+                                ?.length > 0
+                                ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
+        Additional Information
+    </p>
+    <hr style="color: gray; margin-top: -15px;" />` +
+                                  SelectedPackage.additionalInformationList
+                                    .filter((item) => item.driverTypeID !== 1)
+                                    .map(
+                                      (serviceCat) => `
+        <div>
+            <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                ${serviceCat.driverName}: ${
+                  serviceCat.driverTypeID === 4
+                    ? serviceCat.slabTypeID === 2
+                      ? `<strong>${props.formatValueWithoutCurrencySymbol(
+                          serviceCat.value,
+                        )}</strong>`
+                      : `<strong>${props.formatValueWithoutCurrencySymbol(
+                          serviceCat.slabFrom,
+                        )}-${props.formatValueWithoutCurrencySymbol(
+                          serviceCat.slabTo,
+                        )}</strong>`
+                    : serviceCat.driverTypeID === 3
+                      ? `<strong>${serviceCat.variationName}</strong>`
+                      : serviceCat.driverTypID === 5
+                        ? `<strong>${serviceCat.enteredText}</strong>`
+                        : serviceCat.driverTypID === 6
+                          ? `<strong>${serviceCat.enteredDate}</strong>`
+                          : `${
+                              serviceCat.driverName
+                            }: <strong>${props.formatValueWithoutCurrencySymbol(
+                              serviceCat.value,
+                            )}</strong>`
+                }
+            </p>
+        </div>
+    `,
+                                    )
+                                    .join("")
+                                : ""
+                            }
 
-                  //                         ${
-                  //                           SelectedPackage.additionalInformationList
-                  //                             ?.length > 0
-                  //                             ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
-                  //     Additional Information
-                  // </p>
-                  // <hr style="color: gray; margin-top: -15px;" />` +
-                  //                               SelectedPackage.additionalInformationList
-                  //                                 .filter((item) => item.driverTypeID !== 1)
-                  //                                 .map(
-                  //                                   (serviceCat) => `
-                  //     <div>
-                  //         <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                  //             ${serviceCat.driverName}: ${
-                  //                                     serviceCat.driverTypeID === 4
-                  //                                       ? serviceCat.slabTypeID === 2
-                  //                                         ? `<strong>${props.formatValueWithoutCurrencySymbol(
-                  //                                             serviceCat.value
-                  //                                           )}</strong>`
-                  //                                         : `<strong>${props.formatValueWithoutCurrencySymbol(
-                  //                                             serviceCat.slabFrom
-                  //                                           )}-${props.formatValueWithoutCurrencySymbol(
-                  //                                             serviceCat.slabTo
-                  //                                           )}</strong>`
-                  //                                       : serviceCat.driverTypeID === 3
-                  //                                       ? `<strong>${serviceCat.variationName}</strong>`
-                  //                                       : `${
-                  //                                           serviceCat.driverName
-                  //                                         }: <strong>${props.formatValueWithoutCurrencySymbol(
-                  //                                           serviceCat.value
-                  //                                         )}</strong>`
-                  //                                   }
-                  //         </p>
-                  //     </div>
-                  // `
-                  //                                 )
-                  //                                 .join("")
-                  //                             : ""
-                  //                         }
-
-                  //                     </div>`
-                  //                 ).join(" ")}`,
+                        </div>`,
+                    ).join(" ")}`,
                 });
               } else {
                 currentArray = [
                   {
-                    textbox: props.statementOfFactsHTML,
-                    //                     textbox: `${imgTag}<div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily}">
-                    //                        ${
-                    //                          props?.selectedRecurringServiceList.length !== 0
-                    //                            ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
-                    //                            Ongoing/Recurring Services
-                    //                           </p>`
-                    //                            : ""
-                    //                        }
-                    //                     ${props?.selectedRecurringServiceList
-                    //                       .map(
-                    //                         (serviceCat) => `
-                    //                       <div>
-                    //                           <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
-                    //                               ${serviceCat.serviceCatName}
-                    //                           </p>
-                    //                           <hr style="color: gray; margin-top: -15px;">
-                    //                           ${serviceCat.servicesList
-                    //                             .map(
-                    //                               (subService) => `
-                    //                              <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
-                    //                                 ${subService.serviceName}
-                    //                             </p>
-                    //                             ${(
-                    //                               subService?.pricingDriverList ||
-                    //                               subService?.gpdList ||
-                    //                               []
-                    //                             )
-                    //                               .filter((pricingDriver) =>
-                    //                                 subService?.pricingDriverList !== undefined
-                    //                                   ? pricingDriver.driverVisibility === true
-                    //                                   : true
-                    //                               )
-                    //                               .filter(
-                    //                                 (pricingDriver) =>
-                    //                                   pricingDriver.driverTypeID !== 1
-                    //                               )
-                    //                               .map(
-                    //                                 (pricingDriver) => `
-                    //                               <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
-                    //                               ${pricingDriver.driverName}:
-                    //                                   <strong> ${
-                    //                                     pricingDriver.driverTypeID === 2
-                    //                                       ? props.formatValueWithoutCurrencySymbol(
-                    //                                           pricingDriver.driverValue
-                    //                                         )
-                    //                                       : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
-                    //                                       //   /\B(?=(\d{3})+(?!\d))/g,
-                    //                                       //   ","
-                    //                                       // )
-                    //                                       pricingDriver.driverTypeID === 3
-                    //                                       ? subService?.pricingDriverList ==
-                    //                                         undefined
-                    //                                         ? pricingDriver.variationName
-                    //                                         : pricingDriver.variation.find(
-                    //                                             (item) => item.isDefault
-                    //                                           ).variationName
-                    //                                       : pricingDriver.driverTypeID === 4
-                    //                                       ? subService?.pricingDriverList ==
-                    //                                         undefined
-                    //                                         ? pricingDriver.slabTypeID === 2
-                    //                                           ? props.formatValueWithoutCurrencySymbol(
-                    //                                               pricingDriver.driverValue
-                    //                                             )
-                    //                                           : props.formatValueWithoutCurrencySymbol(
-                    //                                               pricingDriver.slabFrom
-                    //                                             ) -
-                    //                                             props.formatValueWithoutCurrencySymbol(
-                    //                                               pricingDriver.slabTo
-                    //                                             )
-                    //                                         : pricingDriver.slab.find(
-                    //                                             (item) => item.isDefault
-                    //                                           ).slabTypeID === 2
-                    //                                         ? Number(
-                    //                                             pricingDriver.slab.find(
-                    //                                               (item) => item.isDefault
-                    //                                             ).slabValue
-                    //                                           )
-                    //                                             .toFixed(2)
-                    //                                             .toString()
-                    //                                             .replace(
-                    //                                               /\B(?=(\d{3})+(?!\d))/g,
-                    //                                               ","
-                    //                                             )
-                    //                                         : Number(
-                    //                                             pricingDriver.slab.find(
-                    //                                               (item) => item.isDefault
-                    //                                             ).slabFrom
-                    //                                           )
-                    //                                             .toFixed(2)
-                    //                                             .toString()
-                    //                                             .replace(
-                    //                                               /\B(?=(\d{3})+(?!\d))/g,
-                    //                                               ","
-                    //                                             ) +
-                    //                                           "-" +
-                    //                                           Number(
-                    //                                             pricingDriver.slab.find(
-                    //                                               (item) => item.isDefault
-                    //                                             ).slabTo
-                    //                                           )
-                    //                                             .toFixed(2)
-                    //                                             .toString()
-                    //                                             .replace(
-                    //                                               /\B(?=(\d{3})+(?!\d))/g,
-                    //                                               ","
-                    //                                             )
-                    //                                       : ""
-                    //                                   }</strong>
-                    //                           </li>
-                    //                             `
-                    //                               )
-                    //                               .join("")}
-                    //                           `
-                    //                             )
-                    //                             .join("")}
-                    //                       </div>
-                    //                   `
-                    //                       )
-                    //                       .join("")}
-                    //                       ${
-                    //                         props?.selectedOneOffServiceList.length !== 0
-                    //                           ? `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
-                    //                             One-Off/Ad hoc Services
-                    //                           </p>`
-                    //                           : ""
-                    //                       }
-                    //                   ${props?.selectedOneOffServiceList
-                    //                     .map(
-                    //                       (serviceCat) => `
-                    //                         <div>
-                    //                             <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
-                    //                                 ${serviceCat.serviceCatName}
-                    //                             </p>
-                    //                             <hr style="color: gray; margin-top: -15px;">
-                    //                             ${serviceCat.servicesList
-                    //                               .map(
-                    //                                 (subService) => `
-                    //                                 <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
-                    //                                 ${subService.serviceName}
-                    //                             </p>
-                    //                             ${(
-                    //                               subService?.pricingDriverList ||
-                    //                               subService?.gpdList ||
-                    //                               []
-                    //                             )
-                    //                               .filter((pricingDriver) =>
-                    //                                 subService?.pricingDriverList !== undefined
-                    //                                   ? pricingDriver.driverVisibility === true
-                    //                                   : true
-                    //                               )
-                    //                               .filter(
-                    //                                 (pricingDriver) =>
-                    //                                   pricingDriver.driverTypeID !== 1
-                    //                               )
-                    //                               .map(
-                    //                                 (pricingDriver) => `
-                    //                               <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
-                    //                               ${pricingDriver.driverName}:
-                    //                                   <strong> ${
-                    //                                     pricingDriver.driverTypeID === 2
-                    //                                       ? props.formatValueWithoutCurrencySymbol(
-                    //                                           pricingDriver.driverValue
-                    //                                         )
-                    //                                       : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
-                    //                                       //   /\B(?=(\d{3})+(?!\d))/g,
-                    //                                       //   ","
-                    //                                       // )
-                    //                                       pricingDriver.driverTypeID === 3
-                    //                                       ? subService?.pricingDriverList ==
-                    //                                         undefined
-                    //                                         ? pricingDriver.variationName
-                    //                                         : pricingDriver.variation.find(
-                    //                                             (item) => item.isDefault
-                    //                                           ).variationName
-                    //                                       : pricingDriver.driverTypeID === 4
-                    //                                       ? subService?.pricingDriverList ==
-                    //                                         undefined
-                    //                                         ? pricingDriver.slabTypeID === 2
-                    //                                           ? props.formatValueWithoutCurrencySymbol(
-                    //                                               pricingDriver.driverValue
-                    //                                             )
-                    //                                           : props.formatValueWithoutCurrencySymbol(
-                    //                                               pricingDriver.slabFrom
-                    //                                             ) -
-                    //                                             props.formatValueWithoutCurrencySymbol(
-                    //                                               pricingDriver.slabTo
-                    //                                             )
-                    //                                         : pricingDriver.slab.find(
-                    //                                             (item) => item.isDefault
-                    //                                           ).slabTypeID === 2
-                    //                                         ? Number(
-                    //                                             pricingDriver.slab.find(
-                    //                                               (item) => item.isDefault
-                    //                                             ).slabValue
-                    //                                           )
-                    //                                             .toFixed(2)
-                    //                                             .toString()
-                    //                                             .replace(
-                    //                                               /\B(?=(\d{3})+(?!\d))/g,
-                    //                                               ","
-                    //                                             )
-                    //                                         : Number(
-                    //                                             pricingDriver.slab.find(
-                    //                                               (item) => item.isDefault
-                    //                                             ).slabFrom
-                    //                                           )
-                    //                                             .toFixed(2)
-                    //                                             .toString()
-                    //                                             .replace(
-                    //                                               /\B(?=(\d{3})+(?!\d))/g,
-                    //                                               ","
-                    //                                             ) +
-                    //                                           "-" +
-                    //                                           Number(
-                    //                                             pricingDriver.slab.find(
-                    //                                               (item) => item.isDefault
-                    //                                             ).slabTo
-                    //                                           )
-                    //                                             .toFixed(2)
-                    //                                             .toString()
-                    //                                             .replace(
-                    //                                               /\B(?=(\d{3})+(?!\d))/g,
-                    //                                               ","
-                    //                                             )
-                    //                                       : ""
-                    //                                   }</strong>
-                    //                           </li>
-                    //                             `
-                    //                               )
-                    //                               .join("")}
-                    //                             `
-                    //                               )
-                    //                               .join("")}
-                    //                         </div>
-                    //                     `
-                    //                     )
-                    //                     .join("")}
+                    textbox: `${imgTag}<div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily}">
+                       ${
+                         props?.selectedRecurringServiceList.length !== 0
+                           ? `<p style="font-family:${fontFamily};font-size: ${fontSizeHeading};color: ${newColorCode}; font-weight: bold;">
+                           Ongoing/Recurring Services
+                          </p>`
+                           : ""
+                       }
+                    ${props?.selectedRecurringServiceList
+                      .map(
+                        (serviceCat) => `
+                      <div>
+                          <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
+                              ${serviceCat.serviceCatName}
+                          </p>
+                          <hr style="color: gray; margin-top: -15px;">
+                          ${serviceCat.servicesList
+                            .map(
+                              (subService) => `
+                             <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
+                                ${subService.serviceName}
+                            </p>
+                            ${(
+                              subService?.pricingDriverList ||
+                              subService?.gpdList ||
+                              []
+                            )
+                              .filter((pricingDriver) =>
+                                subService?.pricingDriverList !== undefined
+                                  ? pricingDriver.driverVisibility === true
+                                  : true,
+                              )
+                              .filter(
+                                (pricingDriver) =>
+                                  pricingDriver.driverTypeID !== 1,
+                              )
+                              .map(
+                                (pricingDriver) => `
+                              <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
+                              ${pricingDriver.driverName}: 
+                                  <strong> ${
+                                    pricingDriver.driverTypeID === 2
+                                      ? props.formatValueWithoutCurrencySymbol_v1(
+                                          pricingDriver.driverValue,
+                                          pricingDriver.quantity?.[0]
+                                            ?.quantityDecimalPlaces,
+                                        )
+                                      : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
+                                        //   /\B(?=(\d{3})+(?!\d))/g,
+                                        //   ","
+                                        // )
+                                        pricingDriver.driverTypeID === 3
+                                        ? subService?.pricingDriverList ==
+                                          undefined
+                                          ? pricingDriver.variationName
+                                          : pricingDriver.variation.find(
+                                              (item) => item.isDefault,
+                                            ).variationName
+                                        : pricingDriver.driverTypeID === 4
+                                          ? subService?.pricingDriverList ==
+                                            undefined
+                                            ? pricingDriver.slabTypeID === 2
+                                              ? props.formatValueWithoutCurrencySymbol_v1(
+                                                  pricingDriver.driverValue,
+                                                  getDecimalPlaces(
+                                                    pricingDriver,
+                                                  ),
+                                                )
+                                              : props.formatValueWithoutCurrencySymbol_v1(
+                                                  pricingDriver.slabFrom,
+                                                  getDecimalPlaces(
+                                                    pricingDriver,
+                                                  ),
+                                                ) +
+                                                "-" +
+                                                props.formatValueWithoutCurrencySymbol_v1(
+                                                  pricingDriver.slabTo,
+                                                  getDecimalPlaces(
+                                                    pricingDriver,
+                                                  ),
+                                                )
+                                            : pricingDriver.slab?.find(
+                                                  (item) => item.isDefault,
+                                                )?.slabTypeID === 2
+                                              ? Number(
+                                                  pricingDriver?.slab?.find(
+                                                    (item) => item.isDefault,
+                                                  )?.slabValue ??
+                                                    pricingDriver.driverValue,
+                                                )
+                                                  .toFixed(2)
+                                                  .toString()
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ",",
+                                                  )
+                                              : Number(
+                                                  pricingDriver.slab?.find(
+                                                    (item) => item.isDefault,
+                                                  )?.slabFrom ??
+                                                    pricingDriver.driverValue,
+                                                )
+                                                  .toFixed(
+                                                    pricingDriver?.slab?.[0]
+                                                      ?.decimalPlaces ?? 2,
+                                                  )
+                                                  .toString()
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ",",
+                                                  ) +
+                                                "-" +
+                                                Number(
+                                                  pricingDriver.slab?.find(
+                                                    (item) => item.isDefault,
+                                                  )?.slabTo ??
+                                                    pricingDriver.driverValue,
+                                                )
+                                                  .toFixed(
+                                                    pricingDriver?.slab?.[0]
+                                                      ?.decimalPlaces ?? 2,
+                                                  )
+                                                  .toString()
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ",",
+                                                  )
+                                          : pricingDriver.driverTypeID === 5
+                                            ? (pricingDriver?.enteredText ?? "")
+                                            : pricingDriver.driverTypeID === 6
+                                              ? pricingDriver?.enteredDate
+                                              : //  && pricingDriver?.enteredDateFormat
+                                                //   ? (() => {
+                                                //     const dateObj = convertAndParseDate(
+                                                //       pricingDriver.enteredDate,
+                                                //       pricingDriver.enteredDateFormat,
+                                                //       pricingDriver.date?.[0]?.dateFormat
+                                                //     );
+                                                //     return dateObj && isValid(dateObj)
+                                                //       ? format(dateObj, pricingDriver.date?.[0]?.dateFormat)
+                                                //       : "";
+                                                //   })()
+                                                //   : "" ?? ""
+                                                ""
+                                  }</strong>
+                          </li>
+                            `,
+                              )
+                              .join("")}
+                          `,
+                            )
+                            .join("")}
+                      </div>
+                  `,
+                      )
+                      .join("")}
+                      ${
+                        props?.selectedOneOffServiceList.length !== 0
+                          ? `<p style="font-family:${fontFamily}; color: ${newColorCode};font-size: ${fontSizeHeading}; font-weight: bold;">
+                            One-Off/Ad hoc Services
+                          </p>`
+                          : ""
+                      }
+                  ${props?.selectedOneOffServiceList
+                    .map(
+                      (serviceCat) => `
+                        <div>
+                            <p style="font-family:${fontFamily}; color: black; font-size: ${fontSizeHeading}; font-weight: bold;">
+                                ${serviceCat.serviceCatName}
+                            </p>
+                            <hr style="color: gray; margin-top: -15px;">
+                            ${serviceCat.servicesList
+                              .map(
+                                (subService) => `
+                                <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; ">
+                                ${subService.serviceName}
+                            </p>
+                            ${(
+                              subService?.pricingDriverList ||
+                              subService?.gpdList ||
+                              []
+                            )
+                              .filter((pricingDriver) =>
+                                subService?.pricingDriverList !== undefined
+                                  ? pricingDriver.driverVisibility === true
+                                  : true,
+                              )
+                              .filter(
+                                (pricingDriver) =>
+                                  pricingDriver.driverTypeID !== 1,
+                              )
+                              .map(
+                                (pricingDriver) => `
+                              <li style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent}; margin-top:5px;">
+                              ${pricingDriver.driverName}: 
+                                  <strong> ${
+                                    pricingDriver.driverTypeID === 2
+                                      ? props.formatValueWithoutCurrencySymbol(
+                                          pricingDriver.driverValue,
+                                        )
+                                      : // Number(pricingDriver.driverValue).toFixed(2).toString().replace(
+                                        //   /\B(?=(\d{3})+(?!\d))/g,
+                                        //   ","
+                                        // )
+                                        pricingDriver.driverTypeID === 3
+                                        ? subService?.pricingDriverList ==
+                                          undefined
+                                          ? pricingDriver.variationName
+                                          : pricingDriver.variation.find(
+                                              (item) => item.isDefault,
+                                            ).variationName
+                                        : pricingDriver.driverTypeID === 4
+                                          ? subService?.pricingDriverList ==
+                                            undefined
+                                            ? pricingDriver.slabTypeID === 2
+                                              ? props.formatValueWithoutCurrencySymbol(
+                                                  pricingDriver.driverValue,
+                                                )
+                                              : props.formatValueWithoutCurrencySymbol(
+                                                  pricingDriver.slabFrom,
+                                                ) -
+                                                props.formatValueWithoutCurrencySymbol(
+                                                  pricingDriver.slabTo,
+                                                )
+                                            : pricingDriver.slab.find(
+                                                  (item) => item.isDefault,
+                                                ).slabTypeID === 2
+                                              ? Number(
+                                                  pricingDriver.slab.find(
+                                                    (item) => item.isDefault,
+                                                  ).slabValue,
+                                                )
+                                                  .toFixed(2)
+                                                  .toString()
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ",",
+                                                  )
+                                              : Number(
+                                                  pricingDriver.slab.find(
+                                                    (item) => item.isDefault,
+                                                  ).slabFrom,
+                                                )
+                                                  .toFixed(2)
+                                                  .toString()
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ",",
+                                                  ) +
+                                                "-" +
+                                                Number(
+                                                  pricingDriver.slab.find(
+                                                    (item) => item.isDefault,
+                                                  ).slabTo,
+                                                )
+                                                  .toFixed(2)
+                                                  .toString()
+                                                  .replace(
+                                                    /\B(?=(\d{3})+(?!\d))/g,
+                                                    ",",
+                                                  )
+                                          : pricingDriver.driverTypeID === 5
+                                            ? (pricingDriver?.enteredText ?? "")
+                                            : pricingDriver.driverTypeID === 6
+                                              ? pricingDriver?.enteredDate
+                                              : ""
+                                  }</strong>
+                          </li>
+                            `,
+                              )
+                              .join("")}
+                            `,
+                              )
+                              .join("")}
+                        </div>
+                    `,
+                    )
+                    .join("")}
 
-                    //                           ${
-                    //                             props?.additionalInformationList?.filter(
-                    //                               (item) => item.driverTypeID !== 1
-                    //                             ).length > 0
-                    //                               ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
-                    //         Additional Information
-                    //     </p><hr style="color: gray; margin-top: -15px;" ></hr>` +
-                    //                                 props.additionalInformationList
-                    //                                   .map(
-                    //                                     (serviceCat) => `
-                    //         <div>
-                    //             ${
-                    //               serviceCat.driverTypeID === 2 &&
-                    //               serviceCat.variation === null &&
-                    //               serviceCat.slab === null
-                    //                 ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                    //                         ${
-                    //                           serviceCat.driverName
-                    //                         }:  <strong> ${props.formatValueWithoutCurrencySymbol(
-                    //                     serviceCat.driverValue
-                    //                   )} </strong >
-                    //                     </p>`
-                    //                 : (serviceCat.driverTypeID === 4
-                    //                     ? serviceCat.slab
-                    //                     : serviceCat.driverTypeID === 3
-                    //                     ? serviceCat.variation
-                    //                     : []
-                    //                   )
-                    //                     .filter((item) => item.isDefault)
-                    //                     .map(
-                    //                       (subService) => `
-                    // <p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                    //     ${serviceCat.driverName}: ${
-                    //                         serviceCat.driverTypeID === 4
-                    //                           ? subService.slabTypeID === 2
-                    //                             ? `<strong>${props.formatValueWithoutCurrencySymbol(
-                    //                                 subService.slabValue
-                    //                               )}</strong>`
-                    //                             : `<strong>${props.formatValueWithoutCurrencySymbol(
-                    //                                 subService.slabFrom
-                    //                               )}-${props.formatValueWithoutCurrencySymbol(
-                    //                                 subService.slabTo
-                    //                               )}</strong>`
-                    //                           : `<strong>${subService.variationName}</strong>`
-                    //                       }
-                    // </p>
-                    // `
-                    //                     )
-                    //                     .join("")
-                    //             }
-                    //         </div>
-                    //     `
-                    //                                   )
-                    //                                   .join("")
-                    //                               : ""
-                    //                           }
+                          ${
+                            props?.additionalInformationList?.filter(
+                              (item) => item.driverTypeID !== 1,
+                            ).length > 0
+                              ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
+        Additional Information
+    </p><hr style="color: gray; margin-top: -15px;" ></hr>` +
+                                props.additionalInformationList
+                                  .map(
+                                    (serviceCat) => `
+        <div>
+            ${
+              serviceCat.driverTypeID === 2 &&
+              serviceCat.variation === null &&
+              serviceCat.slab === null
+                ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                        ${
+                          serviceCat.driverName
+                        }:  <strong> ${props.formatValueWithoutCurrencySymbol(
+                          serviceCat.driverValue,
+                        )} </strong > 
+                    </p>`
+                : serviceCat.driverTypeID === 5 || serviceCat.driverTypeID === 6
+                  ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+      ${serviceCat.driverName}: <strong>${
+        serviceCat.driverTypeID === 5
+          ? (serviceCat.enteredText ?? "")
+          : (serviceCat.enteredDate ?? "")
+      }</strong>
+    </p>`
+                  : (serviceCat.driverTypeID === 4
+                      ? serviceCat.slab
+                      : serviceCat.driverTypeID === 3
+                        ? serviceCat.variation
+                        : []
+                    )
+                      .filter((item) => item.isDefault)
+                      .map(
+                        (subService) => `
+<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+    ${serviceCat.driverName}: ${
+      serviceCat.driverTypeID === 4
+        ? subService.slabTypeID === 2
+          ? `<strong>${props.formatValueWithoutCurrencySymbol(
+              subService.slabValue,
+            )}</strong>`
+          : `<strong>${props.formatValueWithoutCurrencySymbol(
+              subService.slabFrom,
+            )}-${props.formatValueWithoutCurrencySymbol(
+              subService.slabTo,
+            )}</strong>`
+        : `<strong>${subService.variationName}</strong>`
+    }
+</p>
+`,
+                      )
+                      .join("")
+            }
+        </div>
+    `,
+                                  )
+                                  .join("")
+                              : ""
+                          }
 
-                    //                     ${
-                    //                       props?.quoteAdditionalInfoGlobalPricingDriver?.filter(
-                    //                         (item) => item.driverTypeID !== 1
-                    //                       ).length > 0
-                    //                         ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
-                    //       Additional Information
-                    //   </p>
-                    //   <hr style="color: gray; margin-top: -15px;" />` +
-                    //                           props.quoteAdditionalInfoGlobalPricingDriver
-                    //                             .map(
-                    //                               (serviceCat) => `
-                    //       <div>
-                    //         ${
-                    //           serviceCat.driverTypeID === 2
-                    //             ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                    //               ${
-                    //                 serviceCat.driverName
-                    //               }: <strong>${props.formatValueWithoutCurrencySymbol(
-                    //                 serviceCat.driverValue
-                    //               )}</strong>
-                    //           </p>`
-                    //             : serviceCat.driverTypeID === 3
-                    //             ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                    //               ${serviceCat.driverName}: <strong>${serviceCat.variationName}</strong>
-                    //           </p>`
-                    //             : serviceCat.driverTypeID === 4
-                    //             ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
-                    //                 ${serviceCat.driverName}: ${
-                    //                 serviceCat.slabTypeID == 2
-                    //                   ? `<strong>${props.formatValueWithoutCurrencySymbol(
-                    //                       serviceCat.driverValue
-                    //                     )} <strong>`
-                    //                   : `<strong>${props.formatValueWithoutCurrencySymbol(
-                    //                       serviceCat.slabFrom
-                    //                     )}</strong> - <strong>${props.formatValueWithoutCurrencySymbol(
-                    //                       serviceCat.slabTo
-                    //                     )}</strong>`
-                    //               }
-                    //           </p>`
-                    //             : ""
-                    //         }
-                    //       </div>`
-                    //                             )
-                    //                             .join("")
-                    //                         : ""
-                    //                     }
-                    //                   </div>`,
+                    ${
+                      props?.quoteAdditionalInfoGlobalPricingDriver?.filter(
+                        (item) => item.driverTypeID !== 1,
+                      ).length > 0
+                        ? `<p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: ${fontSizeHeading}; font-weight: bold;">
+      Additional Information
+  </p>
+  <hr style="color: gray; margin-top: -15px;" />` +
+                          props.quoteAdditionalInfoGlobalPricingDriver
+                            .map(
+                              (serviceCat) => `
+      <div>
+        ${
+          serviceCat.driverTypeID === 2
+            ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+              ${
+                serviceCat.driverName
+              }: <strong>${props.formatValueWithoutCurrencySymbol(
+                serviceCat.driverValue,
+              )}</strong> 
+          </p>`
+            : serviceCat.driverTypeID === 3
+              ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+              ${serviceCat.driverName}: <strong>${serviceCat.variationName}</strong>
+          </p>`
+              : serviceCat.driverTypeID === 4
+                ? `<p style="font-family:${fontFamily}; color:black; font-size: ${fontSizeContent};">
+                ${serviceCat.driverName}: ${
+                  serviceCat.slabTypeID == 2
+                    ? `<strong>${props.formatValueWithoutCurrencySymbol(
+                        serviceCat.driverValue,
+                      )} <strong>`
+                    : `<strong>${props.formatValueWithoutCurrencySymbol(
+                        serviceCat.slabFrom,
+                      )}</strong> - <strong>${props.formatValueWithoutCurrencySymbol(
+                        serviceCat.slabTo,
+                      )}</strong>`
+                }
+          </p>`
+                : ""
+        }
+      </div>`,
+                            )
+                            .join("")
+                        : ""
+                    }
+                  </div>`,
                   },
                 ];
               }
@@ -4505,18 +7198,6 @@ export default function PreviewComponentPdf(props) {
               pdfDataArray.push(currentArray);
               currentArray = [];
             }
-
-            // if (props.currentPricingTableDesignOneOff) {
-            //   currentArray.push({
-            //     table: `${props.currentPricingTableDesignOneOff} `,
-            //   });
-            // }
-            // if (props.currentPricingTableDesignRecurring) {
-            //   currentArray.push({
-            //     table: `${props.currentPricingTableDesignRecurring} `,
-            //   });
-            // }
-
             if (props?.servicePackageName?.length > 0) {
               currentArray.push({
                 table: `<div style="padding-left: 40px; padding-right: 40px; color:${newColorCode}; font-size: 30px;">Package : ${props?.servicePackageName} </div>`,
@@ -4532,9 +7213,9 @@ export default function PreviewComponentPdf(props) {
                     <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily}; page-break-inside: avoid; break-inside: avoid;">
                     
                     <p style="font-family:${fontFamily}; color: ${newColorCode}; font-size: 20px; margin-top: 15px;"> Recurring Fees (${getPaymentFrequencyLabel()})</p>
-                                  ${
-                                    props.selectedTemplateID === 0
-                                      ? `<table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
+                    ${
+                      props.selectedTemplateID === 0
+                        ? `<table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
                         <tr style="background-color:${newColorCode};">
                           <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
                           ${props?.selectedPackagesList
@@ -4916,7 +7597,7 @@ export default function PreviewComponentPdf(props) {
                         }
 
        ${
-         (Number(props.vatPercentage) || 0) > 0
+         props.vatPercentage
            ? `
         <tr style="background-color: #DCDCDC";>
            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;color: black;">
@@ -4928,8 +7609,6 @@ export default function PreviewComponentPdf(props) {
               props.formatValue(
                 props.RecurringPricingInfo.PackageOneVaTPrice,
                 props.currencyID,
-                // props.RecurringPricingInfo.PackageOneVaTPrice,
-                // props.currencyID
               )
 
               // Number(props.RecurringPricingInfo.PackageOneVaTPrice).toFixed(2).toString().replace(
@@ -4947,8 +7626,6 @@ export default function PreviewComponentPdf(props) {
                 props.formatValue(
                   props.RecurringPricingInfo.PackageTwoVaTPrice,
                   props.currencyID,
-                  // props.RecurringPricingInfo.PackageTwoVaTPrice,
-                  // props.currencyID
                 )
                 // Number(props.RecurringPricingInfo.PackageTwoVaTPrice).toFixed(2).toString().replace(
                 //         /\B(?=(\d{3})+(?!\d))/g,
@@ -4968,8 +7645,6 @@ export default function PreviewComponentPdf(props) {
                 props.formatValue(
                   props.RecurringPricingInfo.PackageThreeVaTPrice,
                   props.currencyID,
-                  // props.RecurringPricingInfo.PackageThreeVaTPrice,
-                  // props.currencyID
                 )
                 // Number(props.RecurringPricingInfo.PackageThreeVaTPrice).toFixed(2).toString().replace(
                 //         /\B(?=(\d{3})+(?!\d))/g,
@@ -4988,46 +7663,63 @@ export default function PreviewComponentPdf(props) {
             </td>
           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                
-                           ${props.formatValue(
-                             props.RecurringPricingInfo.PackageOneGrandTotal,
-                             props.currencyID,
-                           )}
-                      </td>
-                      ${
-                        props?.selectedPackagesList?.length >= 2
-                          ? `
-                        <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-
-                          ${props.formatValue(
-                            props.RecurringPricingInfo.PackageTwoGrandTotal,
-                            props.currencyID,
-                          )}
-                        </td>
-                      `
-                          : ``
-                      }
-                      ${
-                        props?.selectedPackagesList?.length === 3
-                          ? `
-                        <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
-
-                          ${props.formatValue(
-                            props.RecurringPricingInfo.PackageThreeGrandTotal,
-                            props.currencyID,
-                          )}
-                        </td>
-                      `
-                          : ``
-                      }
-                    </tr>
-
-                `
+            ${
+              props.formatValue(
+                props.RecurringPricingInfo.PackageOneGrandTotal,
+                props.currencyID,
+              )
+              // Number(props.RecurringPricingInfo.PackageOneGrandTotal).toFixed(2).toString().replace(
+              //           /\B(?=(\d{3})+(?!\d))/g,
+              //           ","
+              //         )
+            }
+          </td>
+          ${
+            props?.selectedPackagesList?.length >= 2
+              ? `
+            <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
+                 
+              ${
+                props.formatValue(
+                  props.RecurringPricingInfo.PackageTwoGrandTotal,
+                  props.currencyID,
+                )
+                // Number(props.RecurringPricingInfo.PackageTwoGrandTotal).toFixed(2).toString().replace(
+                //         /\B(?=(\d{3})+(?!\d))/g,
+                //         ","
+                //       )
+              }
+            </td>
+          `
+              : ``
+          }
+          ${
+            props?.selectedPackagesList?.length === 3
+              ? `
+            <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
+                 
+              ${
+                props.formatValue(
+                  props.RecurringPricingInfo.PackageThreeGrandTotal,
+                  props.currencyID,
+                )
+                // Number(props.RecurringPricingInfo.PackageThreeGrandTotal).toFixed(2).toString().replace(
+                //         /\B(?=(\d{3})+(?!\d))/g,
+                //         ","
+                //       )
+              }
+            </td>
+          `
+              : ``
+          }
+        </tr>
+      
+    `
            : ``
        }
-
-                                  </table>`
-                                      : props.selectedTemplateID === 6
-                                        ? `<table style="width:100%; border-collapse: collapse; font-family:${fontFamily};">
+                      
+                      </table>`
+                        : `<table style="width:100%; border-collapse: collapse; font-family:${fontFamily};">
   <tr style="background-color:${newColorCode};">
     <td style="border:1px solid #dddddd; padding:8px;"></td>
     ${props.selectedPackagesList
@@ -5045,14 +7737,29 @@ export default function PreviewComponentPdf(props) {
               : pkg.servicePackageName
           }
         </td>
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-          ? `<td style="border:1px solid #dddddd; padding:8px;"></td>` : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-          ? `<td style="border:1px solid #dddddd; padding:8px;"></td>` : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-          ? `<td style="border:1px solid #dddddd; padding:8px;"></td>` : ""}
-        ${props.visibleFieldsCustomTemp.serviceScope
-          ? `<td style="border:1px solid #dddddd; padding:8px;"></td>` : ""}
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.vatRate
+            ? `<td style="border:1px solid #dddddd; padding:8px;"></td>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.vat
+            ? `<td style="border:1px solid #dddddd; padding:8px;"></td>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.feesIncVat
+            ? `<td style="border:1px solid #dddddd; padding:8px;"></td>`
+            : ""
+        }
+        ${
+          props.visibleFieldsCustomTemp.serviceScope
+            ? `<td style="border:1px solid #dddddd; padding:8px;"></td>`
+            : ""
+        }
       `,
       )
       .join("")}
@@ -5066,21 +7773,34 @@ export default function PreviewComponentPdf(props) {
     ${props.selectedPackagesList
       .map(
         () => `
-        ${props.visibleFieldsCustomTemp.fees
-          ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees (${props.currencySymbol})</th>`
-          : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-          ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">${props.taxName} Rate</th>`
-          : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-          ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">${props.taxName} (${props.currencySymbol})</th>`
-          : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-          ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees inc ${props.taxName} (${props.currencySymbol})</th>`
-          : ""}
-        ${props.visibleFieldsCustomTemp.serviceScope
-          ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Service Scope</th>`
-          : ""}
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees (${props.currencySymbol})</th>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.vatRate
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">${props.taxName} Rate</th>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.vat
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">${props.taxName} (${props.currencySymbol})</th>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.feesIncVat
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees inc ${props.taxName} (${props.currencySymbol})</th>`
+            : ""
+        }
+        ${
+          props.visibleFieldsCustomTemp.serviceScope
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Service Scope</th>`
+            : ""
+        }
       `,
       )
       .join("")}
@@ -5095,48 +7815,138 @@ export default function PreviewComponentPdf(props) {
               ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; font-size:18px;">${service.serviceCatName}</th>`
               : ""
           }
-          ${props.visibleFieldsCustomTemp.fees
-              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-          ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-          ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-          ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-          ${props.visibleFieldsCustomTemp.serviceScope
-              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
           ${
-            packageCount >= 2
-              ? `${props.visibleFieldsCustomTemp.fees
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${props.visibleFieldsCustomTemp.serviceScope
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}`
+            props.visibleFieldsCustomTemp.fees
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
               : ""
           }
           ${
-            packageCount === 3
-              ? `${props.visibleFieldsCustomTemp.fees
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${props.visibleFieldsCustomTemp.serviceScope
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}`
+            (Number(props.vatPercentage) || 0) > 0 &&
+            props.visibleFieldsCustomTemp.vatRate
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+              : ""
+          }
+          ${
+            (Number(props.vatPercentage) || 0) > 0 &&
+            props.visibleFieldsCustomTemp.vat
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+              : ""
+          }
+          ${
+            (Number(props.vatPercentage) || 0) > 0 &&
+            props.visibleFieldsCustomTemp.feesIncVat
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+              : ""
+          }
+          ${
+            props.visibleFieldsCustomTemp.serviceScope
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+              : ""
+          }
+          ${
+            props?.selectedPackagesList?.length >= 2
+              ? `${
+                  props.visibleFieldsCustomTemp.fees
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.vatRate
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.vat
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.feesIncVat
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  props.visibleFieldsCustomTemp.serviceScope
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }`
+              : ""
+          }
+          ${
+            props?.selectedPackagesList?.length === 3
+              ? `${
+                  props.visibleFieldsCustomTemp.fees
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.vatRate
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.vat
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.feesIncVat
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  props.visibleFieldsCustomTemp.serviceScope
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }`
               : ""
           }
         </tr>
-        ${service.servicesList
-          .map(
-            (subService) => `
+     ${service.servicesList
+       .map((subService) => {
+         const packageOneRow = calculateCustomPackageRow({
+           service: subService,
+           packageIndex: 0,
+           fallbackVatPercentage: props.vatPercentage || 0,
+         });
+
+         const packageTwoRow = calculateCustomPackageRow({
+           service: subService,
+           packageIndex: 1,
+           fallbackVatPercentage: props.vatPercentage || 0,
+         });
+
+         const packageThreeRow = calculateCustomPackageRow({
+           service: subService,
+           packageIndex: 2,
+           fallbackVatPercentage: props.vatPercentage || 0,
+         });
+
+         const packageOnePrice = packageOneRow.fees;
+         const packageTwoPrice = packageTwoRow.fees;
+         const packageThreePrice = packageThreeRow.fees;
+
+         const packageOneVatRate = packageOneRow.vatRate;
+         const packageTwoVatRate = packageTwoRow.vatRate;
+         const packageThreeVatRate = packageThreeRow.vatRate;
+
+         const vatOne = packageOneRow.vat;
+         const vatTwo = packageTwoRow.vat;
+         const vatThree = packageThreeRow.vat;
+
+         const totalOne = packageOneRow.feesIncVat;
+         const totalTwo = packageTwoRow.feesIncVat;
+         const totalThree = packageThreeRow.feesIncVat;
+
+         const driverList = subService.pricingDriverList || [];
+
+         return `
             <tr ${
               subService?.isAdditionalService !== null
                 ? 'style="background-color:#17a2b8; color:white;"'
@@ -5160,908 +7970,874 @@ export default function PreviewComponentPdf(props) {
               }
 
               <!-- Package One Fees -->
-              ${props.visibleFieldsCustomTemp.fees ? `
-              <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                ${
-                  props.ProposalObject.feeTypeId === 1
-                    ? (subService.packageOneValue === 0 ||
-                        subService.packageOneValue === null) &&
-                      !subService.servicePackageIDs.some(
-                        (item) =>
-                          item ==
-                          props.selectedPackagesList[0]?.servicePackageID,
-                      )
-                      ? `<span>&#10007;</span>`
-                      : !subService?.servicePackageIDs.includes(
-                            subService.packageOneID,
-                          )
-                        ? `<span>&#10007;</span>`
-                        : `${props.formatValue(subService.packageOneValue, props.currencyID)}`
-                    : Number(subService.packageOneValue) !== null &&
-                        subService?.servicePackageIDs.includes(
-                          subService.packageOneID,
-                        )
-                      ? `<span>&#10003;</span>`
-                      : `<span>&#10007;</span>`
-                }
-          </td>` : ""}
-
-          ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-            ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                ${(subService.packageOneValue === 0 || subService.packageOneValue === null) &&
-                  !subService.servicePackageIDs.some((item) => item == props.selectedPackagesList[0]?.servicePackageID)
-                  ? `<span>&#10007;</span>`
-                  : !subService?.servicePackageIDs.includes(subService.packageOneID)
-                    ? `<span>&#10007;</span>`
-                    : `${subService.service_vat_percentage ?? 0}%`}
-              </td>` : ""}
-
-          ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-            ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                      ${
-                        props.ProposalObject.feeTypeId === 1
-                          ? (subService.packageOneValue === 0 ||
-                              subService.packageOneValue === null) &&
-                            !subService.servicePackageIDs.some(
-                              (item) =>
-                                item ===
-                                props.selectedPackagesList[0]?.servicePackageID,
-                            )
-                            ? `<span>&#10007;</span>`
-                            : !subService?.servicePackageIDs.includes(
-                                  subService.packageOneID,
-                                )
-                              ? `<span>&#10007;</span>`
-                              : `${props.formatValue(
-                                  (subService.packageOneValue * (subService.service_vat_percentage ?? 0)) / 100,
-                                  props.currencyID,
-                                )}`
-                          : Number(subService.packageOneValue) !== null &&
-                              subService?.servicePackageIDs.includes(
-                                subService.packageOneID,
-                              )
-                            ? `<span>&#10003;</span>`
-                            : `<span>&#10007;</span>`
-                      }
-                    </td>` : ""}
-
-          ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-            ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                      ${
-                        props.ProposalObject.feeTypeId === 1
-                          ? (subService.packageOneValue === 0 ||
-                              subService.packageOneValue === null) &&
-                            !subService.servicePackageIDs.some(
-                              (item) =>
-                                item ===
-                                props.selectedPackagesList[0]?.servicePackageID,
-                            )
-                            ? `<span>&#10007;</span>`
-                            : !subService?.servicePackageIDs.includes(
-                                  subService.packageOneID,
-                                )
-                              ? `<span>&#10007;</span>`
-                              : `${props.formatValue(
-                                  Number(subService.packageOneValue) + (subService.packageOneValue * (subService.service_vat_percentage ?? 0)) / 100,
-                                  props.currencyID,
-                                )}`
-                          : Number(subService.packageOneValue) !== null &&
-                              subService?.servicePackageIDs.includes(
-                                subService.packageOneID,
-                              )
-                            ? `<span>&#10003;</span>`
-                            : `<span>&#10007;</span>`
-                      }
-                    </td>` : ""}
-
               ${
-                props.visibleFieldsCustomTemp.serviceScope
-                  ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                      ${
-                        getServiceScopeDriverList(subService).length > 0
-                          ? getServiceScopeDriverList(subService)
-                              .filter((d) => d.driverValue !== null)
-                              .map(
-                                (d, i, arr) => `
-                                  ${
-                                    (subService.packageOneValue === 0 ||
-                                      subService.packageOneValue === null) &&
-                                    !subService.servicePackageIDs.some(
-                                      (item) =>
-                                        item ===
-                                        props.selectedPackagesList[0]
-                                          ?.servicePackageID,
-                                    )
-                                      ? "-"
-                                      : !subService?.servicePackageIDs.includes(
-                                            subService.packageOneID,
-                                          )
-                                        ? "-"
-                                        : `${d.driverName} = ${d.driverValue}${
-                                            i !== arr.length - 1 ? ", " : ""
-                                          }`
-                                  }
-                                `,
-                              )
-                              .join("")
-                          : "-"
-                      }
-                    </td>`
+                props.visibleFieldsCustomTemp.fees
+                  ? `
+      <td
+        style="
+          border:1px solid #dddddd;
+          text-align:right;
+          padding:8px;
+        "
+      >
+        ${
+          props.ProposalObject.feeTypeId === 1
+            ? packageOneRow.isIncluded
+              ? `${props.formatValue(packageOneRow.fees, props.currencyID)}`
+              : `<span>&#10007;</span>`
+            : packageOneRow.isIncluded
+              ? `<span>&#10003;</span>`
+              : `<span>&#10007;</span>`
+        }
+      </td>
+    `
                   : ""
               }
+
+${
+  (Number(props.vatPercentage) || 0) > 0 &&
+  props.visibleFieldsCustomTemp.vatRate
+    ? `
+      <td
+        style="
+          border:1px solid #dddddd;
+          text-align:right;
+          padding:8px;
+        "
+      >
+        ${
+          packageOneRow.isIncluded
+            ? `${Number(packageOneRow.vatRate || 0).toFixed(2)}%`
+            : `<span>&#10007;</span>`
+        }
+      </td>
+    `
+    : ""
+}
+
+${
+  (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
+    ? `
+      <td
+        style="
+          border:1px solid #dddddd;
+          text-align:right;
+          padding:8px;
+        "
+      >
+        ${
+          props.ProposalObject.feeTypeId === 1
+            ? packageOneRow.isIncluded
+              ? `${props.formatValue(packageOneRow.vat, props.currencyID)}`
+              : `<span>&#10007;</span>`
+            : packageOneRow.isIncluded
+              ? `<span>&#10003;</span>`
+              : `<span>&#10007;</span>`
+        }
+      </td>
+    `
+    : ""
+}
+
+${
+  (Number(props.vatPercentage) || 0) > 0 &&
+  props.visibleFieldsCustomTemp.feesIncVat
+    ? `
+      <td
+        style="
+          border:1px solid #dddddd;
+          text-align:right;
+          padding:8px;
+        "
+      >
+        ${
+          props.ProposalObject.feeTypeId === 1
+            ? packageOneRow.isIncluded
+              ? `${props.formatValue(
+                  packageOneRow.feesIncVat,
+                  props.currencyID,
+                )}`
+              : `<span>&#10007;</span>`
+            : packageOneRow.isIncluded
+              ? `<span>&#10003;</span>`
+              : `<span>&#10007;</span>`
+        }
+      </td>
+    `
+    : ""
+}
+
+${
+  props.visibleFieldsCustomTemp.serviceScope
+    ? `
+      <td
+        style="
+          border:1px solid #dddddd;
+          text-align:right;
+          padding:8px;
+        "
+      >
+        ${
+          driverList.length > 0
+            ? driverList
+                .filter((driver) => driver.driverValue !== null)
+                .map(
+                  (driver, driverIndex, driverArray) => `
+                    ${
+                      packageOneRow.isIncluded
+                        ? `${driver.driverName} = ${driver.driverValue}${
+                            driverIndex !== driverArray.length - 1 ? ", " : ""
+                          }`
+                        : "-"
+                    }
+                  `,
+                )
+                .join("")
+            : "-"
+        }
+      </td>
+    `
+    : ""
+}
 
               <!-- Package Two Fees -->
               ${
-                packageCount >= 2
+                props?.selectedPackagesList?.length >= 2
                   ? `
-                  ${props.visibleFieldsCustomTemp.fees ? `
-                  <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                    ${
-                      props.ProposalObject.feeTypeId === 1
-                        ? (subService.packageTwoValue === 0 ||
-                            subService.packageTwoValue === null) &&
-                          !subService.servicePackageIDs.some(
-                            (item) =>
-                              item ==
-                              props.selectedPackagesList[0]?.servicePackageID,
-                          )
-                          ? `<span>&#10007;</span>`
-                          : !subService?.servicePackageIDs.includes(
-                                subService.packageTwoID,
-                              )
-                            ? `<span>&#10007;</span>`
-                            : `${props.formatValue(subService.packageTwoValue, props.currencyID)}`
-                        : Number(subService.packageTwoValue) !== null &&
-                            subService?.servicePackageIDs.includes(
-                              subService.packageTwoID,
-                            )
-                          ? `<span>&#10003;</span>`
-                          : `<span>&#10007;</span>`
-                    }
-
-                    ${
-                      subService?.isAdditionalService !== null
-                        ? `<input 
-                            style="margin-left:5px;" 
-                            type="checkbox"
-                            ${
-                              subService?.servicePackageIDs.includes(
-                                subService.packageTwoID,
-                              ) && subService?.servicePackageIDs.length === 1
-                                ? "disabled"
-                                : ""
-                            }
-                            ${
-                              subService?.servicePackageIDs.includes(
-                                subService.packageTwoID,
-                              )
-                                ? "checked"
-                                : ""
-                            }
-                            onchange="handleAddAndRemoveAdditionalServices(
-                              1, 
-                              ${service.serviceCatID}, 
-                              ${subService.serviceID}, 
-                              ${subService.packageOneID}, 
-                              this.checked
-                            )"
-                          />`
-                        : `<div>&nbsp;&nbsp;</div>`
-                    }
-            </td>` : ""}
-
-                  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-                    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                        ${(subService.packageTwoValue === 0 || subService.packageTwoValue === null) &&
-                          !subService.servicePackageIDs.some((item) => item == props.selectedPackagesList[0]?.servicePackageID)
-                          ? `<span>&#10007;</span>`
-                          : !subService?.servicePackageIDs.includes(subService.packageTwoID)
-                            ? `<span>&#10007;</span>`
-                            : `${subService.service_vat_percentage ?? 0}%`}
-                      </td>` : ""}
-
-                  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-                    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-          ${
-            props.ProposalObject.feeTypeId === 1
-              ? (subService.packageTwoValue === 0 ||
-                  subService.packageTwoValue === null) &&
-                !subService.servicePackageIDs.some(
-                  (item) =>
-                    item === props.selectedPackagesList[0]?.servicePackageID,
-                )
-                ? `<span>&#10007;</span>`
-                : !subService?.servicePackageIDs.includes(
-                      subService.packageTwoID,
-                    )
-                  ? `<span>&#10007;</span>`
-                  : `${props.formatValue(
-                      (subService.packageTwoValue * (subService.service_vat_percentage ?? 0)) / 100,
-                      props.currencyID,
-                    )}`
-              : Number(subService.packageTwoValue) !== null &&
-                  subService?.servicePackageIDs.includes(
-                    subService.packageTwoID,
-                  )
-                ? `<span>&#10003;</span>`
-                : `<span>&#10007;</span>`
-          }
-                    </td>` : ""}
-
-                  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-                    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-          ${
-            props.ProposalObject.feeTypeId === 1
-              ? (subService.packageTwoValue === 0 ||
-                  subService.packageTwoValue === null) &&
-                !subService.servicePackageIDs.some(
-                  (item) =>
-                    item === props.selectedPackagesList[0]?.servicePackageID,
-                )
-                ? `<span>&#10007;</span>`
-                : !subService?.servicePackageIDs.includes(
-                      subService.packageTwoID,
-                    )
-                  ? `<span>&#10007;</span>`
-                  : `${props.formatValue(
-                      Number(subService.packageTwoValue) + (subService.packageTwoValue * (subService.service_vat_percentage ?? 0)) / 100,
-                      props.currencyID,
-                    )}`
-              : Number(subService.packageTwoValue) !== null &&
-                  subService?.servicePackageIDs.includes(
-                    subService.packageTwoID,
-                  )
-                ? `<span>&#10003;</span>`
-                : `<span>&#10007;</span>`
-          }
-                    </td>` : ""}
+      <!-- PACKAGE TWO FEES -->
+      ${
+        props.visibleFieldsCustomTemp.fees
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageTwoRow.isIncluded
+                    ? `${props.formatValue(packageTwoPrice, props.currencyID)}`
+                    : `<span>&#10007;</span>`
+                  : packageTwoRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
 
               ${
-                props.visibleFieldsCustomTemp.serviceScope
-                  ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+                subService?.isAdditionalService !== null
+                  ? `
+                    <input
+                      style="margin-left:5px;"
+                      type="checkbox"
                       ${
-                        getServiceScopeDriverList(subService).length > 0
-                          ? getServiceScopeDriverList(subService)
-                              .filter((d) => d.driverValue !== null)
-                              .map(
-                                (d, i, arr) => `
-                                  ${
-                                    (subService.packageTwoValue === 0 ||
-                                      subService.packageTwoValue === null) &&
-                                    !subService.servicePackageIDs.some(
-                                      (item) =>
-                                        item ===
-                                        props.selectedPackagesList[0]
-                                          ?.servicePackageID,
-                                    )
-                                      ? "-"
-                                      : !subService?.servicePackageIDs.includes(
-                                            subService.packageTwoID,
-                                          )
-                                        ? "-"
-                                        : `${d.driverName} = ${d.driverValue}${
-                                            i !== arr.length - 1 ? ", " : ""
-                                          }`
-                                  }
-                                `,
-                              )
-                              .join("")
-                          : "-"
+                        subService?.servicePackageIDs?.includes(
+                          subService.packageTwoID,
+                        ) && subService?.servicePackageIDs?.length === 1
+                          ? "disabled"
+                          : ""
                       }
-                    </td>`
-                  : ""
-              }
+                      ${
+                        subService?.servicePackageIDs?.includes(
+                          subService.packageTwoID,
+                        )
+                          ? "checked"
+                          : ""
+                      }
+                      onchange="handleAddAndRemoveAdditionalServices(
+                        1,
+                        ${service.serviceCatID},
+                        ${subService.serviceID},
+                        ${subService.packageTwoID},
+                        this.checked
+                      )"
+                    />
                   `
+                  : `<div>&nbsp;&nbsp;</div>`
+              }
+            </td>
+          `
+          : ""
+      }
+
+      <!-- PACKAGE TWO VAT RATE -->
+      ${
+        (Number(props.vatPercentage) || 0) > 0 &&
+        props.visibleFieldsCustomTemp.vatRate
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                packageTwoRow.isIncluded
+                  ? `${Number(packageTwoVatRate || 0).toFixed(2)}%`
+                  : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+          : ""
+      }
+
+      <!-- PACKAGE TWO VAT -->
+      ${
+        (Number(props.vatPercentage) || 0) > 0 &&
+        props.visibleFieldsCustomTemp.vat
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageTwoRow.isIncluded
+                    ? `${props.formatValue(vatTwo, props.currencyID)}`
+                    : `<span>&#10007;</span>`
+                  : packageTwoRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+          : ""
+      }
+
+      <!-- PACKAGE TWO FEES INC VAT -->
+      ${
+        (Number(props.vatPercentage) || 0) > 0 &&
+        props.visibleFieldsCustomTemp.feesIncVat
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageTwoRow.isIncluded
+                    ? `${props.formatValue(totalTwo, props.currencyID)}`
+                    : `<span>&#10007;</span>`
+                  : packageTwoRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+          : ""
+      }
+
+      <!-- PACKAGE TWO SERVICE SCOPE -->
+      ${
+        props.visibleFieldsCustomTemp.serviceScope
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                driverList.length > 0
+                  ? driverList
+                      .filter((driver) => driver.driverValue !== null)
+                      .map(
+                        (driver, driverIndex, driverArray) => `
+                          ${
+                            packageTwoRow.isIncluded
+                              ? `${driver.driverName} = ${driver.driverValue}${
+                                  driverIndex !== driverArray.length - 1
+                                    ? ", "
+                                    : ""
+                                }`
+                              : "-"
+                          }
+                        `,
+                      )
+                      .join("")
+                  : "-"
+              }
+            </td>
+          `
+          : ""
+      }
+    `
                   : ""
               }
 
             ${
-              packageCount === 3
+              props?.selectedPackagesList?.length === 3
                 ? `
-                  ${props.visibleFieldsCustomTemp.fees ? `
-                  <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                    ${
-                      props.ProposalObject.feeTypeId === 1
-                        ? (subService.packageThreeValue === 0 ||
-                            subService.packageThreeValue === null) &&
-                          !subService.servicePackageIDs.some(
-                            (item) =>
-                              item ==
-                              props.selectedPackagesList[0]?.servicePackageID,
-                          )
-                          ? `<span>&#10007;</span>`
-                          : !subService?.servicePackageIDs.includes(
-                                subService.packageThreeID,
-                              )
-                            ? `<span>&#10007;</span>`
-                            : `${props.formatValue(subService.packageThreeValue, props.currencyID)}`
-                        : Number(subService.packageThreeValue) !== null &&
-                            subService?.servicePackageIDs.includes(
-                              subService.packageThreeID,
-                            )
-                          ? `<span>&#10003;</span>`
-                          : `<span>&#10007;</span>`
-                    }
-
-                    ${
-                      subService?.isAdditionalService !== null
-                        ? `<input 
-                            style="margin-left:5px;" 
-                            type="checkbox"
-                            ${
-                              subService?.servicePackageIDs.includes(
-                                subService.packageThreeID,
-                              ) && subService?.servicePackageIDs.length === 1
-                                ? "disabled"
-                                : ""
-                            }
-                            ${
-                              subService?.servicePackageIDs.includes(
-                                subService.packageThreeID,
-                              )
-                                ? "checked"
-                                : ""
-                            }
-                            onchange="handleAddAndRemoveAdditionalServices(
-                              1, 
-                              ${service.serviceCatID}, 
-                              ${subService.serviceID}, 
-                              ${subService.packageOneID}, 
-                              this.checked
-                            )"
-                          />`
-                        : `<div>&nbsp;&nbsp;</div>`
-                    }
-            </td>` : ""}
-
-                  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-                    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                        ${(subService.packageThreeValue === 0 || subService.packageThreeValue === null) &&
-                          !subService.servicePackageIDs.some((item) => item == props.selectedPackagesList[0]?.servicePackageID)
-                          ? `<span>&#10007;</span>`
-                          : !subService?.servicePackageIDs.includes(subService.packageThreeID)
-                            ? `<span>&#10007;</span>`
-                            : `${subService.service_vat_percentage ?? 0}%`}
-                      </td>` : ""}
-
-                  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-                    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                      ${
-                        props.ProposalObject.feeTypeId === 1
-                          ? (subService.packageThreeValue === 0 ||
-                              subService.packageThreeValue === null) &&
-                            !subService.servicePackageIDs.some(
-                              (item) =>
-                                item ===
-                                props.selectedPackagesList[0]?.servicePackageID,
-                            )
-                            ? `<span>&#10007;</span>`
-                            : !subService?.servicePackageIDs.includes(
-                                  subService.packageThreeID,
-                                )
-                              ? `<span>&#10007;</span>`
-                              : `${props.formatValue(
-                                  (subService.packageThreeValue * (subService.service_vat_percentage ?? 0)) / 100,
-                                  props.currencyID,
-                                )}`
-                          : Number(subService.packageThreeValue) !== null &&
-                              subService?.servicePackageIDs.includes(
-                                subService.packageThreeID,
-                              )
-                            ? `<span>&#10003;</span>`
-                            : `<span>&#10007;</span>`
-                      }
-                    </td>` : ""}
-
-                  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-                    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                      ${
-                        props.ProposalObject.feeTypeId === 1
-                          ? (subService.packageThreeValue === 0 ||
-                              subService.packageThreeValue === null) &&
-                            !subService.servicePackageIDs.some(
-                              (item) =>
-                                item ===
-                                props.selectedPackagesList[0]?.servicePackageID,
-                            )
-                            ? `<span>&#10007;</span>`
-                            : !subService?.servicePackageIDs.includes(
-                                  subService.packageThreeID,
-                                )
-                              ? `<span>&#10007;</span>`
-                              : `${props.formatValue(
-                                  Number(subService.packageThreeValue) + (subService.packageThreeValue * (subService.service_vat_percentage ?? 0)) / 100,
-                                  props.currencyID,
-                                )}`
-                          : Number(subService.packageThreeValue) !== null &&
-                              subService?.servicePackageIDs.includes(
-                                subService.packageThreeID,
-                              )
-                            ? `<span>&#10003;</span>`
-                            : `<span>&#10007;</span>`
-                      }
-                    </td>` : ""}
+      <!-- PACKAGE THREE FEES -->
+      ${
+        props.visibleFieldsCustomTemp.fees
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageThreeRow.isIncluded
+                    ? `${props.formatValue(
+                        packageThreePrice,
+                        props.currencyID,
+                      )}`
+                    : `<span>&#10007;</span>`
+                  : packageThreeRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
 
               ${
-                props.visibleFieldsCustomTemp.serviceScope
-                  ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+                subService?.isAdditionalService !== null
+                  ? `
+                    <input
+                      style="margin-left:5px;"
+                      type="checkbox"
                       ${
-                        getServiceScopeDriverList(subService).length > 0
-                          ? getServiceScopeDriverList(subService)
-                              .filter((d) => d.driverValue !== null)
-                              .map(
-                                (d, i, arr) => `
-                                  ${
-                                    (subService.packageThreeValue === 0 ||
-                                      subService.packageThreeValue === null) &&
-                                    !subService.servicePackageIDs.some(
-                                      (item) =>
-                                        item ===
-                                        props.selectedPackagesList[0]
-                                          ?.servicePackageID,
-                                    )
-                                      ? "-"
-                                      : !subService?.servicePackageIDs.includes(
-                                            subService.packageThreeID,
-                                          )
-                                        ? "-"
-                                        : `${d.driverName} = ${d.driverValue}${
-                                            i !== arr.length - 1 ? ", " : ""
-                                          }`
-                                  }
-                                `,
-                              )
-                              .join("")
-                          : "-"
+                        subService?.servicePackageIDs?.includes(
+                          subService.packageThreeID,
+                        ) && subService?.servicePackageIDs?.length === 1
+                          ? "disabled"
+                          : ""
                       }
-                    </td>`
-                  : ""
-              }
+                      ${
+                        subService?.servicePackageIDs?.includes(
+                          subService.packageThreeID,
+                        )
+                          ? "checked"
+                          : ""
+                      }
+                      onchange="handleAddAndRemoveAdditionalServices(
+                        1,
+                        ${service.serviceCatID},
+                        ${subService.serviceID},
+                        ${subService.packageThreeID},
+                        this.checked
+                      )"
+                    />
                   `
+                  : `<div>&nbsp;&nbsp;</div>`
+              }
+            </td>
+          `
+          : ""
+      }
+
+      <!-- PACKAGE THREE VAT RATE -->
+      ${
+        (Number(props.vatPercentage) || 0) > 0 &&
+        props.visibleFieldsCustomTemp.vatRate
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                packageThreeRow.isIncluded
+                  ? `${Number(packageThreeVatRate || 0).toFixed(2)}%`
+                  : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+          : ""
+      }
+
+      <!-- PACKAGE THREE VAT -->
+      ${
+        (Number(props.vatPercentage) || 0) > 0 &&
+        props.visibleFieldsCustomTemp.vat
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageThreeRow.isIncluded
+                    ? `${props.formatValue(vatThree, props.currencyID)}`
+                    : `<span>&#10007;</span>`
+                  : packageThreeRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+          : ""
+      }
+
+      <!-- PACKAGE THREE FEES INC VAT -->
+      ${
+        (Number(props.vatPercentage) || 0) > 0 &&
+        props.visibleFieldsCustomTemp.feesIncVat
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageThreeRow.isIncluded
+                    ? `${props.formatValue(totalThree, props.currencyID)}`
+                    : `<span>&#10007;</span>`
+                  : packageThreeRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+          : ""
+      }
+
+      <!-- PACKAGE THREE SERVICE SCOPE -->
+      ${
+        props.visibleFieldsCustomTemp.serviceScope
+          ? `
+            <td
+              style="
+                border:1px solid #dddddd;
+                text-align:right;
+                padding:8px;
+              "
+            >
+              ${
+                driverList.length > 0
+                  ? driverList
+                      .filter((driver) => driver.driverValue !== null)
+                      .map(
+                        (driver, driverIndex, driverArray) => `
+                          ${
+                            packageThreeRow.isIncluded
+                              ? `${driver.driverName} = ${driver.driverValue}${
+                                  driverIndex !== driverArray.length - 1
+                                    ? ", "
+                                    : ""
+                                }`
+                              : "-"
+                          }
+                        `,
+                      )
+                      .join("")
+                  : "-"
+              }
+            </td>
+          `
+          : ""
+      }
+    `
                 : ""
             }
             </tr>
-          `,
-          )
-          .join("")}
+            `;
+       })
+       .join("")}
       `,
       )
       .join("")}
   </tbody>
   <tr style="background-color:#808080;">
-  <td style="border:1px solid #dddddd; text-align:left; padding:8px; color:white;">
+  <td
+    style="
+      border:1px solid #dddddd;
+      text-align:left;
+      padding:8px;
+      color:white;
+    "
+  >
     Net Total
   </td>
-  ${props.visibleFieldsCustomTemp.fees ? `
-  <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-    ${
-      totalOnePackageValue >
-        Number(props.RecurringPricingInfo.packageOneNetTotal) ||
-      (Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
-        !props.ProposalObject.DiscountLines)
-        ? Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
-          !props.ProposalObject.DiscountLines
-          ? props.formatValue(
-              props.RecurringPricingInfo.packageOneDisCountedTotal,
-              props.currencyID,
-            )
-          : props.formatValue(totalOnePackageValue, props.currencyID)
-        : props.formatValue(
-            props.RecurringPricingInfo.packageOneNetTotal,
-            props.currencyID,
-          )
-    }
-  </td>` : ""}
-  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${props.formatValue(
-            props.RecurringPricingInfo.PackageOneStaticVaTPrice,
-            props.currencyID,
-          )}
-        </td>` : ""}
-  ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${props.formatValue(
-            (totalOnePackageValue >
-              Number(props.RecurringPricingInfo.packageOneNetTotal) ||
-            (Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
-              !props.ProposalObject.DiscountLines)
-              ? Number(props.RecurringPricingInfo.packageOneDisCount) > 0 &&
-                !props.ProposalObject.DiscountLines
-                ? Number(props.RecurringPricingInfo.packageOneDisCountedTotal)
-                : totalOnePackageValue
-              : Number(props.RecurringPricingInfo.packageOneNetTotal))
-            + Number(props.RecurringPricingInfo.PackageOneStaticVaTPrice),
-            props.currencyID,
-          )}
-        </td>` : ""}
-  ${props.visibleFieldsCustomTemp.serviceScope
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-  ${
-    packageCount >= 2
-      ? `
-        ${props.visibleFieldsCustomTemp.fees ? `
-        <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${
-            totalTwoPackageValue >
-              Number(props.RecurringPricingInfo.packageTwoNetTotal) ||
-            (Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
-              !props.ProposalObject.DiscountLines)
-              ? Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
-                !props.ProposalObject.DiscountLines
-                ? props.formatValue(
-                    props.RecurringPricingInfo.packageTwoDisCountedTotal,
-                    props.currencyID,
-                  )
-                : props.formatValue(totalTwoPackageValue, props.currencyID)
-              : props.formatValue(
-                  props.RecurringPricingInfo.packageTwoNetTotal,
-                  props.currencyID,
-                )
-          }
-        </td>` : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+
+  ${activeRecurringPackageFooters
+    .map(
+      (footer) => `
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
                 ${props.formatValue(
-                  props.RecurringPricingInfo.PackageTwoStaticVaTPrice,
+                  props.ProposalObject.DiscountLines
+                    ? footer.net
+                    : footer.finalNet,
                   props.currencyID,
                 )}
-              </td>` : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          hasRecurringPackageVAT && props.visibleFieldsCustomTemp.vatRate
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              ></td>
+            `
+            : ""
+        }
+
+        ${
+          hasRecurringPackageVAT && props.visibleFieldsCustomTemp.vat
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
                 ${props.formatValue(
-                  (totalTwoPackageValue >
-                    Number(props.RecurringPricingInfo.packageTwoNetTotal) ||
-                  (Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
-                    !props.ProposalObject.DiscountLines)
-                    ? Number(props.RecurringPricingInfo.packageTwoDisCount) > 0 &&
-                      !props.ProposalObject.DiscountLines
-                      ? Number(props.RecurringPricingInfo.packageTwoDisCountedTotal)
-                      : totalTwoPackageValue
-                    : Number(props.RecurringPricingInfo.packageTwoNetTotal))
-                  + Number(props.RecurringPricingInfo.PackageTwoStaticVaTPrice),
+                  props.ProposalObject.DiscountLines
+                    ? footer.vat
+                    : footer.finalVat,
                   props.currencyID,
                 )}
-              </td>` : ""}
-        ${props.visibleFieldsCustomTemp.serviceScope ? `<td></td>` : ""}
-      `
-      : ""
-  }
-  ${
-    packageCount === 3
-      ? `
-        ${props.visibleFieldsCustomTemp.fees ? `
-        <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${
-            totalThreePackageValue >
-              Number(props.RecurringPricingInfo.packageThreeNetTotal) ||
-            (Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
-              !props.ProposalObject.DiscountLines)
-              ? Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
-                !props.ProposalObject.DiscountLines
-                ? props.formatValue(
-                    props.RecurringPricingInfo.packageThreeDisCountedTotal,
-                    props.currencyID,
-                  )
-                : props.formatValue(totalThreePackageValue, props.currencyID)
-              : props.formatValue(
-                  props.RecurringPricingInfo.packageThreeNetTotal,
-                  props.currencyID,
-                )
-          }
-        </td>` : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          hasRecurringPackageVAT && props.visibleFieldsCustomTemp.feesIncVat
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
                 ${props.formatValue(
-                  props.RecurringPricingInfo.PackageThreeStaticVaTPrice,
+                  props.ProposalObject.DiscountLines
+                    ? footer.feesIncVat
+                    : footer.finalFeesIncVat,
                   props.currencyID,
                 )}
-              </td>` : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-                ${props.formatValue(
-                  (totalThreePackageValue >
-                    Number(props.RecurringPricingInfo.packageThreeNetTotal) ||
-                  (Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
-                    !props.ProposalObject.DiscountLines)
-                    ? Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 &&
-                      !props.ProposalObject.DiscountLines
-                      ? Number(props.RecurringPricingInfo.packageThreeDisCountedTotal)
-                      : totalThreePackageValue
-                    : Number(props.RecurringPricingInfo.packageThreeNetTotal))
-                  + Number(props.RecurringPricingInfo.PackageThreeStaticVaTPrice),
-                  props.currencyID,
-                )}
-              </td>` : ""}
-        ${props.visibleFieldsCustomTemp.serviceScope ? `<td></td>` : ""}
-      `
-      : ""
-  }
-        </tr>
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.visibleFieldsCustomTemp.serviceScope
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              ></td>
+            `
+            : ""
+        }
+      `,
+    )
+    .join("")}
+</tr>
       
 ${
-  (Number(props.RecurringPricingInfo.packageThreeDisCount) > 0 ||
-    Number(props.RecurringPricingInfo.packageOneDisCount) > 0 ||
-    Number(props.RecurringPricingInfo.packageTwoDisCount) > 0) &&
-  props.ProposalObject.DiscountLines
+  showCustomPackageDiscount
     ? `
       <tr style="background-color:#DCDCDC;">
-        <td style="border:1px solid #dddddd; text-align:left; padding:8px; color:black;">
+        <td
+          style="
+            border:1px solid #dddddd;
+            text-align:left;
+            padding:8px;
+            color:black;
+          "
+        >
           Discount
         </td>
-        ${props.visibleFieldsCustomTemp.fees ? `
-        <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
-          (-) ${props.formatValue(
-            props.RecurringPricingInfo.packageOneDisCount,
-            props.currencyID,
-          )}
-        </td>` : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
-                (-) ${props.formatValue(
-                  Number(props.RecurringPricingInfo.PackageOneStaticVaTPrice) -
-                    Number(props.RecurringPricingInfo.PackageOneVaTPrice),
-                  props.currencyID,
-                )}
-              </td>` : ""}
-        ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
-                (-) ${props.formatValue(
-                  Number(props.RecurringPricingInfo.packageOneDisCount) +
-                    (Number(props.RecurringPricingInfo.PackageOneStaticVaTPrice) -
-                      Number(props.RecurringPricingInfo.PackageOneVaTPrice)),
-                  props.currencyID,
-                )}
-              </td>` : ""}
-        ${props.visibleFieldsCustomTemp.serviceScope
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
 
-        ${
-          packageCount >= 2
-            ? `
-              ${props.visibleFieldsCustomTemp.fees ? `
-              <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
-                (-) ${props.formatValue(
-                  props.RecurringPricingInfo.packageTwoDisCount,
-                  props.currencyID,
-                )}
-              </td>` : ""}
-              ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-              ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
+        ${activeRecurringPackageFooters
+          .map(
+            (footer) => `
+              ${
+                props.visibleFieldsCustomTemp.fees
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                        color:black;
+                      "
+                    >
                       (-) ${props.formatValue(
-                        Number(props.RecurringPricingInfo.PackageTwoStaticVaTPrice) -
-                          Number(props.RecurringPricingInfo.PackageTwoVaTPrice),
+                        footer.discount,
                         props.currencyID,
                       )}
-                    </td>` : ""}
-              ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
-                      (-) ${props.formatValue(
-                        Number(props.RecurringPricingInfo.packageTwoDisCount) +
-                          (Number(props.RecurringPricingInfo.PackageTwoStaticVaTPrice) -
-                            Number(props.RecurringPricingInfo.PackageTwoVaTPrice)),
-                        props.currencyID,
-                      )}
-                    </td>` : ""}
-              ${props.visibleFieldsCustomTemp.serviceScope
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-            `
-            : ""
-        }
+                    </td>
+                  `
+                  : ""
+              }
 
-        ${
-          packageCount === 3
-            ? `
-              ${props.visibleFieldsCustomTemp.fees ? `
-              <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
-                (-) ${props.formatValue(
-                  props.RecurringPricingInfo.packageThreeDisCount,
-                  props.currencyID,
-                )}
-              </td>` : ""}
-              ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-              ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
+              ${
+                hasRecurringPackageVAT && props.visibleFieldsCustomTemp.vatRate
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                      "
+                    ></td>
+                  `
+                  : ""
+              }
+
+              ${
+                hasRecurringPackageVAT && props.visibleFieldsCustomTemp.vat
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                        color:black;
+                      "
+                    >
                       (-) ${props.formatValue(
-                        Number(props.RecurringPricingInfo.PackageThreeStaticVaTPrice) -
-                          Number(props.RecurringPricingInfo.PackageThreeVaTPrice),
+                        footer.vatDiscount,
                         props.currencyID,
                       )}
-                    </td>` : ""}
-              ${(Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
+                    </td>
+                  `
+                  : ""
+              }
+
+              ${
+                hasRecurringPackageVAT &&
+                props.visibleFieldsCustomTemp.feesIncVat
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                        color:black;
+                      "
+                    >
                       (-) ${props.formatValue(
-                        Number(props.RecurringPricingInfo.packageThreeDisCount) +
-                          (Number(props.RecurringPricingInfo.PackageThreeStaticVaTPrice) -
-                            Number(props.RecurringPricingInfo.PackageThreeVaTPrice)),
+                        footer.feesIncVatDiscount,
                         props.currencyID,
                       )}
-                    </td>` : ""}
-              ${props.visibleFieldsCustomTemp.serviceScope
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-            `
-            : ""
-        }
+                    </td>
+                  `
+                  : ""
+              }
+
+              ${
+                props.visibleFieldsCustomTemp.serviceScope
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                      "
+                    ></td>
+                  `
+                  : ""
+              }
+            `,
+          )
+          .join("")}
       </tr>
 
       ${
-  (Number(props.vatPercentage) || 0) > 0
-    ? `
+        (Number(props.vatPercentage) || 0) > 0
+          ? `
 <tr style="background-color:#808080;">
-  <td style="border:1px solid #dddddd; text-align:left; padding:8px; color:white;">
+  <td
+    style="
+      border:1px solid #dddddd;
+      text-align:left;
+      padding:8px;
+      color:white;
+    "
+  >
     Grand Total
   </td>
 
-  ${props.visibleFieldsCustomTemp.fees ? `
-  <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-    ${props.formatValue(
-      Number(props.RecurringPricingInfo.PackageOneGrandTotal ?? 0) -
-        Number(props.RecurringPricingInfo.PackageOneVaTPrice ?? 0),
-      props.currencyID
-    )}
-  </td>` : ""}
+  ${activeRecurringPackageFooters
+    .map(
+      (footer) => `
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
+                ${props.formatValue(footer.finalNet, props.currencyID)}
+              </td>
+            `
+            : ""
+        }
 
-  ${props.visibleFieldsCustomTemp.vatRate
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
+        ${
+          hasRecurringPackageVAT && props.visibleFieldsCustomTemp.vatRate
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              ></td>
+            `
+            : ""
+        }
 
-  ${props.visibleFieldsCustomTemp.vat
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${props.formatValue(
-            Number(props.RecurringPricingInfo.PackageOneVaTPrice),
-            props.currencyID
-          )}
-        </td>` : ""}
+        ${
+          hasRecurringPackageVAT && props.visibleFieldsCustomTemp.vat
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
+                ${props.formatValue(footer.finalVat, props.currencyID)}
+              </td>
+            `
+            : ""
+        }
 
-  ${props.visibleFieldsCustomTemp.feesIncVat
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${props.formatValue(
-            Number(props.RecurringPricingInfo.PackageOneGrandTotal ?? 0),
-            props.currencyID
-          )}
-        </td>` : ""}
+        ${
+          hasRecurringPackageVAT && props.visibleFieldsCustomTemp.feesIncVat
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
+                ${props.formatValue(footer.finalFeesIncVat, props.currencyID)}
+              </td>
+            `
+            : ""
+        }
 
-  ${props.visibleFieldsCustomTemp.serviceScope
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-
-  ${
-    packageCount >= 2
-      ? `
-  ${props.visibleFieldsCustomTemp.fees ? `
-  <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-    ${props.formatValue(
-      Number(props.RecurringPricingInfo.PackageTwoGrandTotal ?? 0) -
-        Number(props.RecurringPricingInfo.PackageTwoVaTPrice ?? 0),
-      props.currencyID
-    )}
-  </td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.vatRate
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.vat
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${props.formatValue(
-            Number(props.RecurringPricingInfo.PackageTwoVaTPrice),
-            props.currencyID
-          )}
-        </td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.feesIncVat
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${props.formatValue(
-            Number(props.RecurringPricingInfo.PackageTwoGrandTotal ?? 0),
-            props.currencyID
-          )}
-        </td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.serviceScope
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-  `
-      : ""
-  }
-
-  ${
-    packageCount === 3
-      ? `
-  ${props.visibleFieldsCustomTemp.fees ? `
-  <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-    ${props.formatValue(
-      Number(props.RecurringPricingInfo.PackageThreeGrandTotal ?? 0) -
-        Number(props.RecurringPricingInfo.PackageThreeVaTPrice ?? 0),
-      props.currencyID
-    )}
-  </td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.vatRate
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.vat
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${props.formatValue(
-            Number(props.RecurringPricingInfo.PackageThreeVaTPrice),
-            props.currencyID
-          )}
-        </td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.feesIncVat
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${props.formatValue(
-            Number(props.RecurringPricingInfo.PackageThreeGrandTotal ?? 0),
-            props.currencyID
-          )}
-        </td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.serviceScope
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-  `
-      : ""
-  }
+        ${
+          props.visibleFieldsCustomTemp.serviceScope
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              ></td>
+            `
+            : ""
+        }
+      `,
+    )
+    .join("")}
 </tr>
 `
-    : `
+          : `
 <tr style="background-color:#808080;">
-  <td style="border:1px solid #dddddd; text-align:left; padding:8px; color:white;">
+  <td
+    style="
+      border:1px solid #dddddd;
+      text-align:left;
+      padding:8px;
+      color:white;
+    "
+  >
     Discounted Total
   </td>
 
-  ${props.visibleFieldsCustomTemp.fees ? `
-  <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-    ${props.formatValue(
-      props.RecurringPricingInfo.packageOneDisCountedTotal,
-      props.currencyID
-    )}
-  </td>` : ""}
+  ${activeRecurringPackageFooters
+    .map(
+      (footer) => `
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
+                ${props.formatValue(footer.finalNet, props.currencyID)}
+              </td>
+            `
+            : ""
+        }
 
-  ${props.visibleFieldsCustomTemp.serviceScope
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-
-  ${
-    packageCount >= 2
-      ? `
-  ${props.visibleFieldsCustomTemp.fees ? `
-  <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-    ${props.formatValue(
-      props.RecurringPricingInfo.packageTwoDisCountedTotal,
-      props.currencyID
-    )}
-  </td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.serviceScope
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-  `
-      : ""
-  }
-
-  ${
-    packageCount === 3
-      ? `
-  ${props.visibleFieldsCustomTemp.fees ? `
-  <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-    ${props.formatValue(
-      props.RecurringPricingInfo.packageThreeDisCountedTotal,
-      props.currencyID
-    )}
-  </td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.serviceScope
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-  `
-      : ""
-  }
+        ${
+          props.visibleFieldsCustomTemp.serviceScope
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                "
+              ></td>
+            `
+            : ""
+        }
+      `,
+    )
+    .join("")}
 </tr>
 `
-}
+      }
 
       
     `
@@ -6069,10 +8845,8 @@ ${
 }
 
                       
-                      </table>
-`
-                                        : ""
-                                  }
+                      </table>`
+                    }
                     </div>
                   `,
                 });
@@ -6081,13 +8855,12 @@ ${
               if (props.selectedOneOffServiceList.length > 0) {
                 currentArray.push({
                   table: `
-                    <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
-                      <p style="font-family:${fontFamily}; color:${newColorCode}; font-size: 20px; margin-top: 15px;"> One-Off Fees </p>
-
-                                  ${
-                                    props.selectedTemplateIDOneOff === 0
-                                      ? `
-                      <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
+                  <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
+                  <p style="font-family:${fontFamily}; color:${newColorCode}; font-size: 20px; margin-top: 15px;"> One-Off Fees </p>
+                  
+                  ${
+                    props.selectedTemplateID === 0
+                      ? `<table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px;">
                         <tr style="background-color:${newColorCode};">
                           <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; font-size: 18px;">Services</th>
                           ${props?.selectedPackagesList
@@ -6300,22 +9073,23 @@ ${
                          <tr style="background-color:#808080;">
                         <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">Net Total</td>
                         <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">  ${
-      totalOnePackageValue >
-        Number(props.OneOffPricingInfo.packageOneNetTotal) ||
-      (Number(props.OneOffPricingInfo.packageOneDisCount) > 0 &&
-        !props.ProposalObject.DiscountLines)
-        ? Number(props.OneOffPricingInfo.packageOneDisCount) > 0 &&
-          !props.ProposalObject.DiscountLines
-          ? props.formatValue(
-              props.OneOffPricingInfo.packageOneDisCountedTotal,
-              props.currencyID,
-            )
-          : props.formatValue(totalOnePackageValue, props.currencyID)
-        : props.formatValue(
-            props.OneOffPricingInfo.packageOneNetTotal,
-            props.currencyID,
-          )
-    }</td>
+                          Number(props.OneOffPricingInfo.packageOneNetTotal) <
+                            Number(
+                              props.OneOffPricingInfo.packageOneDisCountedTotal,
+                            ) ||
+                          (Number(props.OneOffPricingInfo.packageOneDisCount) >
+                            0 &&
+                            !props.DiscountLines)
+                            ? props.formatValue(
+                                props.OneOffPricingInfo
+                                  .packageOneDisCountedTotal,
+                                props.currencyID,
+                              )
+                            : props.formatValue(
+                                props.OneOffPricingInfo.packageOneNetTotal,
+                                props.currencyID,
+                              )
+                        }</td>
                           
                            ${
                              props?.selectedPackages.length >= 2
@@ -6489,7 +9263,7 @@ ${
                         }
 
        ${
-         (Number(props.vatPercentageOneOff) || 0) > 0
+         props.vatPercentage
            ? `
         <tr style="background-color: #DCDCDC";>
            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;color: black;">
@@ -6556,20 +9330,34 @@ ${
             </td>
           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                
-            ${props.formatValue(
-              props.OneOffPricingInfo.PackageOneGrandTotal,
-              props.currencyID,
-            )}
+            ${
+              props.formatValue(
+                props.OneOffPricingInfo.PackageOneGrandTotal,
+                props.currencyID,
+              )
+              // Number(props.OneOffPricingInfo.PackageOneGrandTotal)
+              //           .toFixed(2).toString().replace(
+              //             /\B(?=(\d{3})+(?!\d))/g,
+              //             ","
+              //           )
+            }
           </td>
           ${
             props?.selectedPackagesList?.length >= 2
               ? `
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                  
-              ${props.formatValue(
-                props.OneOffPricingInfo.PackageTwoGrandTotal,
-                props.currencyID,
-              )}
+              ${
+                props.formatValue(
+                  props.OneOffPricingInfo.PackageTwoGrandTotal,
+                  props.currencyID,
+                )
+                // Number(props.OneOffPricingInfo.PackageTwoGrandTotal)
+                //           .toFixed(2).toString().replace(
+                //             /\B(?=(\d{3})+(?!\d))/g,
+                //             ","
+                //           )
+              }
             </td>
           `
               : ``
@@ -6579,10 +9367,17 @@ ${
               ? `
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                  
-              ${props.formatValue(
-                props.OneOffPricingInfo.PackageThreeGrandTotal,
-                props.currencyID,
-              )}
+              ${
+                props.formatValue(
+                  props.OneOffPricingInfo.PackageThreeGrandTotal,
+                  props.currencyID,
+                )
+                // Number(props.OneOffPricingInfo.PackageThreeGrandTotal)
+                //           .toFixed(2).toString().replace(
+                //             /\B(?=(\d{3})+(?!\d))/g,
+                //             ","
+                //           )
+              }
             </td>
           `
               : ``
@@ -6593,11 +9388,10 @@ ${
            : ``
        }
                       
-                                    </tr>
-                                  </table>
-                                    `
-                                      : props.selectedTemplateIDOneOff === 6
-                                        ? `<table style="width:100%; border-collapse: collapse; font-family:${fontFamily};">
+                         
+                        </tr>
+                      </table>`
+                      : `<table style="width:100%; border-collapse: collapse; font-family:${fontFamily};">
   <tr style="background-color:${newColorCode};">
     <td style="border:1px solid #dddddd; padding:8px;"></td>
     ${props.selectedPackagesList
@@ -6615,14 +9409,29 @@ ${
               : pkg.servicePackageName
           }
         </td>
-        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-          ? `<td style="border:1px solid #dddddd; padding:8px;"></td>` : ""}
-        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-          ? `<td style="border:1px solid #dddddd; padding:8px;"></td>` : ""}
-        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-          ? `<td style="border:1px solid #dddddd; padding:8px;"></td>` : ""}
-        ${props.visibleFieldsCustomTemp.serviceScope
-          ? `<td style="border:1px solid #dddddd; padding:8px;"></td>` : ""}
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.vatRate
+            ? `<td style="border:1px solid #dddddd; padding:8px;"></td>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.vat
+            ? `<td style="border:1px solid #dddddd; padding:8px;"></td>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.feesIncVat
+            ? `<td style="border:1px solid #dddddd; padding:8px;"></td>`
+            : ""
+        }
+        ${
+          props.visibleFieldsCustomTemp.serviceScope
+            ? `<td style="border:1px solid #dddddd; padding:8px;"></td>`
+            : ""
+        }
       `,
       )
       .join("")}
@@ -6636,21 +9445,34 @@ ${
     ${props.selectedPackagesList
       .map(
         () => `
-        ${props.visibleFieldsCustomTemp.fees
-          ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees (${props.currencySymbol})</th>`
-          : ""}
-        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-          ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">${props.taxName} Rate</th>`
-          : ""}
-        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-          ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">${props.taxName} (${props.currencySymbol})</th>`
-          : ""}
-        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-          ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees inc ${props.taxName} (${props.currencySymbol})</th>`
-          : ""}
-        ${props.visibleFieldsCustomTemp.serviceScope
-          ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Service Scope</th>`
-          : ""}
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees (${props.currencySymbol})</th>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.vatRate
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">${props.taxName} Rate</th>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.vat
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">${props.taxName} (${props.currencySymbol})</th>`
+            : ""
+        }
+        ${
+          (Number(props.vatPercentage) || 0) > 0 &&
+          props.visibleFieldsCustomTemp.feesIncVat
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Fees inc ${props.taxName} (${props.currencySymbol})</th>`
+            : ""
+        }
+        ${
+          props.visibleFieldsCustomTemp.serviceScope
+            ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; color:white; font-size:18px; width:16.66%;">Service Scope</th>`
+            : ""
+        }
       `,
       )
       .join("")}
@@ -6660,51 +9482,138 @@ ${
       .map(
         (service) => `
          <tr style="background-color:#DCDCDC;">
-        ${props.visibleFieldsCustomTemp.serviceName
+        ${
+          props.visibleFieldsCustomTemp.serviceName
             ? `<th style="border:1px solid #dddddd; text-align:left; padding:8px; font-size:16px;">${service.serviceCatName}</th>`
-            : ""}
-          ${props.visibleFieldsCustomTemp.fees
-              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-          ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-          ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-          ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-          ${props.visibleFieldsCustomTemp.serviceScope
-              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
+            : ""
+        }
           ${
-            packageCount >= 2
-              ? `${props.visibleFieldsCustomTemp.fees
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${props.visibleFieldsCustomTemp.serviceScope
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}`
+            props.visibleFieldsCustomTemp.fees
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
               : ""
           }
           ${
-            packageCount === 3
-              ? `${props.visibleFieldsCustomTemp.fees
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}
-                ${props.visibleFieldsCustomTemp.serviceScope
-                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>` : ""}`
+            (Number(props.vatPercentage) || 0) > 0 &&
+            props.visibleFieldsCustomTemp.vatRate
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+              : ""
+          }
+          ${
+            (Number(props.vatPercentage) || 0) > 0 &&
+            props.visibleFieldsCustomTemp.vat
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+              : ""
+          }
+          ${
+            (Number(props.vatPercentage) || 0) > 0 &&
+            props.visibleFieldsCustomTemp.feesIncVat
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+              : ""
+          }
+          ${
+            props.visibleFieldsCustomTemp.serviceScope
+              ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+              : ""
+          }
+          ${
+            props?.selectedPackagesList?.length >= 2
+              ? `${
+                  props.visibleFieldsCustomTemp.fees
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.vatRate
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.vat
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.feesIncVat
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  props.visibleFieldsCustomTemp.serviceScope
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }`
+              : ""
+          }
+          ${
+            props?.selectedPackagesList?.length === 3
+              ? `${
+                  props.visibleFieldsCustomTemp.fees
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.vatRate
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.vat
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  (Number(props.vatPercentage) || 0) > 0 &&
+                  props.visibleFieldsCustomTemp.feesIncVat
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }
+                ${
+                  props.visibleFieldsCustomTemp.serviceScope
+                    ? `<th style="border:1px solid #dddddd; padding:8px;"></th>`
+                    : ""
+                }`
               : ""
           }
                         </tr>
         ${service.servicesList
-          .map(
-            (subService) => `
+          .map((subService) => {
+            const packageOneOneOffRow = calculateCustomOneOffPackageRow({
+              service: subService,
+              packageIndex: 0,
+              selectedPackageID:
+                props.selectedPackagesList?.[0]?.servicePackageID ?? null,
+              fallbackVatPercentage:
+                props.vatPercentage ?? props.vatPercentage ?? 0,
+            });
+
+            const packageTwoOneOffRow = calculateCustomOneOffPackageRow({
+              service: subService,
+              packageIndex: 1,
+              selectedPackageID:
+                props.selectedPackagesList?.[1]?.servicePackageID ?? null,
+              fallbackVatPercentage:
+                props.vatPercentage ?? props.vatPercentage ?? 0,
+            });
+
+            const packageThreeOneOffRow = calculateCustomOneOffPackageRow({
+              service: subService,
+              packageIndex: 2,
+              selectedPackageID:
+                props.selectedPackagesList?.[2]?.servicePackageID ?? null,
+              fallbackVatPercentage:
+                props.vatPercentage ?? props.vatPercentage ?? 0,
+            });
+
+            const driverList = Array.isArray(subService?.pricingDriverList)
+              ? subService.pricingDriverList
+              : [];
+
+            return `
             <tr ${
               subService?.isAdditionalService !== null
                 ? 'style="background-color:#17a2b8; color:white;"'
@@ -6728,297 +9637,255 @@ ${
               }
 
               <!-- Package One Fees -->
-              ${props.visibleFieldsCustomTemp.fees ? `
-              <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                ${
-                  props.ProposalObject.feeTypeId === 1
-                    ? (subService.packageOneValue === 0 ||
-                        subService.packageOneValue === null) &&
-                      !subService.servicePackageIDs.some(
-                        (item) =>
-                          item ==
-                          props.selectedPackagesList[0]?.servicePackageID,
-                      )
-                      ? `<span>&#10007;</span>`
-                      : !subService?.servicePackageIDs.includes(
-                            subService.packageOneID,
-                          )
-                        ? `<span>&#10007;</span>`
-                        : `${props.formatValue(subService.packageOneValue, props.currencyID)}`
-                    : Number(subService.packageOneValue) !== null &&
-                        subService?.servicePackageIDs.includes(
-                          subService.packageOneID,
-                        )
-                      ? `<span>&#10003;</span>`
-                      : `<span>&#10007;</span>`
-                }
-              </td>` : ""}
+              ${
+                props.visibleFieldsCustomTemp.fees
+                  ? `
+      <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+        ${
+          props.ProposalObject.feeTypeId === 1
+            ? packageOneOneOffRow.isIncluded
+              ? `${props.formatValue(
+                  packageOneOneOffRow.fees,
+                  props.currencyID,
+                )}`
+              : `<span>&#10007;</span>`
+            : packageOneOneOffRow.isIncluded
+              ? `<span>&#10003;</span>`
+              : `<span>&#10007;</span>`
+        }
+      </td>
+    `
+                  : ""
+              }
 
-              ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                    ${(subService.packageOneValue === 0 || subService.packageOneValue === null) &&
-                      !subService.servicePackageIDs.some((item) => item == props.selectedPackagesList[0]?.servicePackageID)
-                      ? `<span>&#10007;</span>`
-                      : !subService?.servicePackageIDs.includes(subService.packageOneID)
-                        ? `<span>&#10007;</span>`
-                        : `${subService.service_vat_percentage ?? 0}%`}
-                  </td>` : ""}
+              ${
+                (Number(props.vatPercentage) || 0) > 0 &&
+                props.visibleFieldsCustomTemp.vatRate
+                  ? `
+      <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+        ${
+          packageOneOneOffRow.isIncluded
+            ? `${Number(packageOneOneOffRow.vatRate || 0).toFixed(2)}%`
+            : `<span>&#10007;</span>`
+        }
+      </td>
+    `
+                  : ""
+              }
 
-              ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                      ${
-                        props.ProposalObject.feeTypeId === 1
-                          ? (subService.packageOneValue === 0 ||
-                              subService.packageOneValue === null) &&
-                            !subService.servicePackageIDs.some(
-                              (item) =>
-                                item ===
-                                props.selectedPackagesList[0]?.servicePackageID,
-                            )
-                            ? `<span>&#10007;</span>`
-                            : !subService?.servicePackageIDs.includes(
-                                  subService.packageOneID,
-                                )
-                              ? `<span>&#10007;</span>`
-                              : `${props.formatValue(
-                                  (subService.packageOneValue * (subService.service_vat_percentage ?? 0)) / 100,
-                                  props.currencyID,
-                                )}`
-                          : Number(subService.packageOneValue) !== null &&
-                              subService?.servicePackageIDs.includes(
-                                subService.packageOneID,
-                              )
-                            ? `<span>&#10003;</span>`
-                            : `<span>&#10007;</span>`
-                      }
-                    </td>` : ""}
+              ${
+                (Number(props.vatPercentage) || 0) > 0 &&
+                props.visibleFieldsCustomTemp.vat
+                  ? `
+      <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+        ${
+          props.ProposalObject.feeTypeId === 1
+            ? packageOneOneOffRow.isIncluded
+              ? `${props.formatValue(
+                  packageOneOneOffRow.vat,
+                  props.currencyID,
+                )}`
+              : `<span>&#10007;</span>`
+            : packageOneOneOffRow.isIncluded
+              ? `<span>&#10003;</span>`
+              : `<span>&#10007;</span>`
+        }
+      </td>
+    `
+                  : ""
+              }
 
-              ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                      ${
-                        props.ProposalObject.feeTypeId === 1
-                          ? (subService.packageOneValue === 0 ||
-                              subService.packageOneValue === null) &&
-                            !subService.servicePackageIDs.some(
-                              (item) =>
-                                item ===
-                                props.selectedPackagesList[0]?.servicePackageID,
-                            )
-                            ? `<span>&#10007;</span>`
-                            : !subService?.servicePackageIDs.includes(
-                                  subService.packageOneID,
-                                )
-                              ? `<span>&#10007;</span>`
-                              : `${props.formatValue(
-                                  Number(subService.packageOneValue) + (subService.packageOneValue * (subService.service_vat_percentage ?? 0)) / 100,
-                                  props.currencyID,
-                                )}`
-                          : Number(subService.packageOneValue) !== null &&
-                              subService?.servicePackageIDs.includes(
-                                subService.packageOneID,
-                              )
-                            ? `<span>&#10003;</span>`
-                            : `<span>&#10007;</span>`
-                      }
-                    </td>` : ""}
+              ${
+                (Number(props.vatPercentage) || 0) > 0 &&
+                props.visibleFieldsCustomTemp.feesIncVat
+                  ? `
+      <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+        ${
+          props.ProposalObject.feeTypeId === 1
+            ? packageOneOneOffRow.isIncluded
+              ? `${props.formatValue(
+                  packageOneOneOffRow.feesIncVat,
+                  props.currencyID,
+                )}`
+              : `<span>&#10007;</span>`
+            : packageOneOneOffRow.isIncluded
+              ? `<span>&#10003;</span>`
+              : `<span>&#10007;</span>`
+        }
+      </td>
+    `
+                  : ""
+              }
 
               ${
                 props.visibleFieldsCustomTemp.serviceScope
-                  ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                      ${
-                        getServiceScopeDriverList(subService).length > 0
-                          ? getServiceScopeDriverList(subService)
-                              .filter((d) => d.driverValue !== null)
-                              .map(
-                                (d, i, arr) => `
-                                  ${
-                                    (subService.packageOneValue === 0 ||
-                                      subService.packageOneValue === null) &&
-                                    !subService.servicePackageIDs.some(
-                                      (item) =>
-                                        item ===
-                                        props.selectedPackagesList[0]
-                                          ?.servicePackageID,
-                                    )
-                                      ? "-"
-                                      : !subService?.servicePackageIDs.includes(
-                                            subService.packageOneID,
-                                          )
-                                        ? "-"
-                                        : `${d.driverName} = ${d.driverValue}${
-                                            i !== arr.length - 1 ? "; " : ""
-                                          }`
-                                  }
-                                `,
-                              )
-                              .join("")
-                          : "-"
-                      }
-                    </td>`
+                  ? `
+      <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+        ${
+          driverList.length > 0
+            ? driverList
+                .filter((driver) => driver.driverValue !== null)
+                .map(
+                  (driver, driverIndex, driverArray) => `
+                    ${
+                      packageOneOneOffRow.isIncluded
+                        ? `${driver.driverName} = ${driver.driverValue}${
+                            driverIndex !== driverArray.length - 1 ? "; " : ""
+                          }`
+                        : "-"
+                    }
+                  `,
+                )
+                .join("")
+            : "-"
+        }
+      </td>
+    `
                   : ""
               }
 
               <!-- Package Two Fees -->
               ${
-                packageCount >= 2
+                props?.selectedPackagesList?.length >= 2
                   ? `
-                  ${props.visibleFieldsCustomTemp.fees ? `
-                  <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                    ${
-                      props.ProposalObject.feeTypeId === 1
-                        ? (subService.packageTwoValue === 0 ||
-                            subService.packageTwoValue === null) &&
-                          !subService.servicePackageIDs.some(
-                            (item) =>
-                              item ==
-                              props.selectedPackagesList[0]?.servicePackageID,
-                          )
-                          ? `<span>&#10007;</span>`
-                          : !subService?.servicePackageIDs.includes(
-                                subService.packageTwoID,
-                              )
-                            ? `<span>&#10007;</span>`
-                            : `${props.formatValue(subService.packageTwoValue, props.currencyID)}`
-                        : Number(subService.packageTwoValue) !== null &&
-                            subService?.servicePackageIDs.includes(
-                              subService.packageTwoID,
-                            )
-                          ? `<span>&#10003;</span>`
-                          : `<span>&#10007;</span>`
-                    }
+                  ${
+                    props.visibleFieldsCustomTemp.fees
+                      ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageTwoOneOffRow.isIncluded
+                    ? `${props.formatValue(
+                        packageTwoOneOffRow.fees,
+                        props.currencyID,
+                      )}`
+                    : `<span>&#10007;</span>`
+                  : packageTwoOneOffRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
 
-                    ${
-                      subService?.isAdditionalService !== null
-                        ? `<input 
-                            style="margin-left:5px;" 
-                            type="checkbox"
-                            ${
-                              subService?.servicePackageIDs.includes(
-                                subService.packageTwoID,
-                              ) && subService?.servicePackageIDs.length === 1
-                                ? "disabled"
-                                : ""
-                            }
-                            ${
-                              subService?.servicePackageIDs.includes(
-                                subService.packageTwoID,
-                              )
-                                ? "checked"
-                                : ""
-                            }
-                            onchange="handleAddAndRemoveAdditionalServices(
-                              1, 
-                              ${service.serviceCatID}, 
-                              ${subService.serviceID}, 
-                              ${subService.packageOneID}, 
-                              this.checked
-                            )"
-                          />`
-                        : `<div>&nbsp;&nbsp;</div>`
-                    }
-                  </td>` : ""}
-
-                  ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-                    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                        ${(subService.packageTwoValue === 0 || subService.packageTwoValue === null) &&
-                          !subService.servicePackageIDs.some((item) => item == props.selectedPackagesList[0]?.servicePackageID)
-                          ? `<span>&#10007;</span>`
-                          : !subService?.servicePackageIDs.includes(subService.packageTwoID)
-                            ? `<span>&#10007;</span>`
-                            : `${subService.service_vat_percentage ?? 0}%`}
-                      </td>` : ""}
-
-                  ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-                    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                subService?.isAdditionalService !== null
+                  ? `
+                    <input
+                      style="margin-left:5px;"
+                      type="checkbox"
                       ${
-                        props.ProposalObject.feeTypeId === 1
-                          ? (subService.packageTwoValue === 0 ||
-                              subService.packageTwoValue === null) &&
-                            !subService.servicePackageIDs.some(
-                              (item) =>
-                                item ===
-                                props.selectedPackagesList[0]?.servicePackageID,
-                            )
-                            ? `<span>&#10007;</span>`
-                            : !subService?.servicePackageIDs.includes(
-                                  subService.packageTwoID,
-                                )
-                              ? `<span>&#10007;</span>`
-                              : `${props.formatValue(
-                                  (subService.packageTwoValue * (subService.service_vat_percentage ?? 0)) / 100,
-                                  props.currencyID,
-                                )}`
-                          : Number(subService.packageTwoValue) !== null &&
-                              subService?.servicePackageIDs.includes(
-                                subService.packageTwoID,
-                              )
-                            ? `<span>&#10003;</span>`
-                            : `<span>&#10007;</span>`
+                        subService?.servicePackageIDs?.includes(
+                          subService.packageTwoID,
+                        ) && subService?.servicePackageIDs?.length === 1
+                          ? "disabled"
+                          : ""
                       }
-                    </td>` : ""}
-
-                  ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-                    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
                       ${
-                        props.ProposalObject.feeTypeId === 1
-                          ? (subService.packageTwoValue === 0 ||
-                              subService.packageTwoValue === null) &&
-                            !subService.servicePackageIDs.some(
-                              (item) =>
-                                item ===
-                                props.selectedPackagesList[0]?.servicePackageID,
-                            )
-                            ? `<span>&#10007;</span>`
-                            : !subService?.servicePackageIDs.includes(
-                                  subService.packageTwoID,
-                                )
-                              ? `<span>&#10007;</span>`
-                              : `${props.formatValue(
-                                  Number(subService.packageTwoValue) + (subService.packageTwoValue * (subService.service_vat_percentage ?? 0)) / 100,
-                                  props.currencyID,
-                                )}`
-                          : Number(subService.packageTwoValue) !== null &&
-                              subService?.servicePackageIDs.includes(
-                                subService.packageTwoID,
-                              )
-                            ? `<span>&#10003;</span>`
-                            : `<span>&#10007;</span>`
+                        subService?.servicePackageIDs?.includes(
+                          subService.packageTwoID,
+                        )
+                          ? "checked"
+                          : ""
                       }
-                    </td>` : ""}
+                      onchange="handleAddAndRemoveAdditionalServices(
+                        2,
+                        ${service.serviceCatID},
+                        ${subService.serviceID},
+                        ${subService.packageTwoID},
+                        this.checked
+                      )"
+                    />
+                  `
+                  : `<div>&nbsp;&nbsp;</div>`
+              }
+            </td>
+          `
+                      : ""
+                  }
+
+                  ${
+                    (Number(props.vatPercentage) || 0) > 0 &&
+                    props.visibleFieldsCustomTemp.vatRate
+                      ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                packageTwoOneOffRow.isIncluded
+                  ? `${Number(packageTwoOneOffRow.vatRate || 0).toFixed(2)}%`
+                  : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+                      : ""
+                  }
+
+                  ${
+                    (Number(props.vatPercentage) || 0) > 0 &&
+                    props.visibleFieldsCustomTemp.vat
+                      ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageTwoOneOffRow.isIncluded
+                    ? `${props.formatValue(
+                        packageTwoOneOffRow.vat,
+                        props.currencyID,
+                      )}`
+                    : `<span>&#10007;</span>`
+                  : packageTwoOneOffRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+                      : ""
+                  }
+
+                  ${
+                    (Number(props.vatPercentage) || 0) > 0 &&
+                    props.visibleFieldsCustomTemp.feesIncVat
+                      ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageTwoOneOffRow.isIncluded
+                    ? `${props.formatValue(
+                        packageTwoOneOffRow.feesIncVat,
+                        props.currencyID,
+                      )}`
+                    : `<span>&#10007;</span>`
+                  : packageTwoOneOffRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+                      : ""
+                  }
 
               ${
                 props.visibleFieldsCustomTemp.serviceScope
-                  ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                      ${
-                        getServiceScopeDriverList(subService).length > 0
-                          ? getServiceScopeDriverList(subService)
-                              .filter((d) => d.driverValue !== null)
-                              .map(
-                                (d, i, arr) => `
-                                  ${
-                                    (subService.packageTwoValue === 0 ||
-                                      subService.packageTwoValue === null) &&
-                                    !subService.servicePackageIDs.some(
-                                      (item) =>
-                                        item ===
-                                        props.selectedPackagesList[0]
-                                          ?.servicePackageID,
-                                    )
-                                      ? "-"
-                                      : !subService?.servicePackageIDs.includes(
-                                            subService.packageTwoID,
-                                          )
-                                        ? "-"
-                                        : `${d.driverName} = ${d.driverValue}${
-                                            i !== arr.length - 1 ? "; " : ""
-                                          }`
-                                  }
-                                `,
-                              )
-                              .join("")
-                          : "-"
-                      }
-                    </td>`
+                  ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                driverList.length > 0
+                  ? driverList
+                      .filter((driver) => driver.driverValue !== null)
+                      .map(
+                        (driver, driverIndex, driverArray) => `
+                          ${
+                            packageTwoOneOffRow.isIncluded
+                              ? `${driver.driverName} = ${driver.driverValue}${
+                                  driverIndex !== driverArray.length - 1
+                                    ? "; "
+                                    : ""
+                                }`
+                              : "-"
+                          }
+                        `,
+                      )
+                      .join("")
+                  : "-"
+              }
+            </td>
+          `
                   : ""
               }
                   `
@@ -7026,621 +9893,563 @@ ${
               }
 
             ${
-              packageCount === 3
+              props?.selectedPackagesList?.length === 3
                 ? `
-                  ${props.visibleFieldsCustomTemp.fees ? `
-                  <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                    ${
-                      props.ProposalObject.feeTypeId === 1
-                        ? (subService.packageThreeValue === 0 ||
-                            subService.packageThreeValue === null) &&
-                          !subService.servicePackageIDs.some(
-                            (item) =>
-                              item ==
-                              props.selectedPackagesList[0]?.servicePackageID,
-                          )
-                          ? `<span>&#10007;</span>`
-                          : !subService?.servicePackageIDs.includes(
-                                subService.packageThreeID,
-                              )
-                            ? `<span>&#10007;</span>`
-                            : `${props.formatValue(subService.packageThreeValue, props.currencyID)}`
-                        : Number(subService.packageThreeValue) !== null &&
-                            subService?.servicePackageIDs.includes(
-                              subService.packageThreeID,
-                            )
-                          ? `<span>&#10003;</span>`
-                          : `<span>&#10007;</span>`
-                    }
-
-                    ${
-                      subService?.isAdditionalService !== null
-                        ? `<input 
-                            style="margin-left:5px;" 
-                            type="checkbox"
-                            ${
-                              subService?.servicePackageIDs.includes(
-                                subService.packageThreeID,
-                              ) && subService?.servicePackageIDs.length === 1
-                                ? "disabled"
-                                : ""
-                            }
-                            ${
-                              subService?.servicePackageIDs.includes(
-                                subService.packageThreeID,
-                              )
-                                ? "checked"
-                                : ""
-                            }
-                            onchange="handleAddAndRemoveAdditionalServices(
-                              1, 
-                              ${service.serviceCatID}, 
-                              ${subService.serviceID}, 
-                              ${subService.packageOneID}, 
-                              this.checked
-                            )"
-                          />`
-                        : `<div>&nbsp;&nbsp;</div>`
-                    }
-                  </td>` : ""}
-
-                  ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-                    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                        ${(subService.packageThreeValue === 0 || subService.packageThreeValue === null) &&
-                          !subService.servicePackageIDs.some((item) => item == props.selectedPackagesList[0]?.servicePackageID)
-                          ? `<span>&#10007;</span>`
-                          : !subService?.servicePackageIDs.includes(subService.packageThreeID)
-                            ? `<span>&#10007;</span>`
-                            : `${subService.service_vat_percentage ?? 0}%`}
-                      </td>` : ""}
-
-                  ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-                    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                      ${
-                        props.ProposalObject.feeTypeId === 1
-                          ? (subService.packageThreeValue === 0 ||
-                              subService.packageThreeValue === null) &&
-                            !subService.servicePackageIDs.some(
-                              (item) =>
-                                item ===
-                                props.selectedPackagesList[0]?.servicePackageID,
-                            )
-                            ? `<span>&#10007;</span>`
-                            : !subService?.servicePackageIDs.includes(
-                                  subService.packageThreeID,
-                                )
-                              ? `<span>&#10007;</span>`
-                              : `${props.formatValue(
-                                  (subService.packageThreeValue * (subService.service_vat_percentage ?? 0)) / 100,
-                                  props.currencyID,
-                                )}`
-                          : Number(subService.packageThreeValue) !== null &&
-                              subService?.servicePackageIDs.includes(
-                                subService.packageThreeID,
-                              )
-                            ? `<span>&#10003;</span>`
-                            : `<span>&#10007;</span>`
-                      }
-                    </td>` : ""}
-
-                  ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-                    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
-                      ${
-                        props.ProposalObject.feeTypeId === 1
-                          ? (subService.packageThreeValue === 0 ||
-                              subService.packageThreeValue === null) &&
-                            !subService.servicePackageIDs.some(
-                              (item) =>
-                                item ===
-                                props.selectedPackagesList[0]?.servicePackageID,
-                            )
-                            ? `<span>&#10007;</span>`
-                            : !subService?.servicePackageIDs.includes(
-                                  subService.packageThreeID,
-                                )
-                              ? `<span>&#10007;</span>`
-                              : `${props.formatValue(
-                                  Number(subService.packageThreeValue) + (subService.packageThreeValue * (subService.service_vat_percentage ?? 0)) / 100,
-                                  props.currencyID,
-                                )}`
-                          : Number(subService.packageThreeValue) !== null &&
-                              subService?.servicePackageIDs.includes(
-                                subService.packageThreeID,
-                              )
-                            ? `<span>&#10003;</span>`
-                            : `<span>&#10007;</span>`
-                      }
-                    </td>` : ""}
+                  ${
+                    props.visibleFieldsCustomTemp.fees
+                      ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageThreeOneOffRow.isIncluded
+                    ? `${props.formatValue(
+                        packageThreeOneOffRow.fees,
+                        props.currencyID,
+                      )}`
+                    : `<span>&#10007;</span>`
+                  : packageThreeOneOffRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
 
               ${
-                props.visibleFieldsCustomTemp.serviceScope
-                  ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+                subService?.isAdditionalService !== null
+                  ? `
+                    <input
+                      style="margin-left:5px;"
+                      type="checkbox"
                       ${
-                        getServiceScopeDriverList(subService).length > 0
-                          ? getServiceScopeDriverList(subService)
-                              .filter((d) => d.driverValue !== null)
-                              .map(
-                                (d, i, arr) => `
-                                  ${
-                                    (subService.packageThreeValue === 0 ||
-                                      subService.packageThreeValue === null) &&
-                                    !subService.servicePackageIDs.some(
-                                      (item) =>
-                                        item ===
-                                        props.selectedPackagesList[0]
-                                          ?.servicePackageID,
-                                    )
-                                      ? "-"
-                                      : !subService?.servicePackageIDs.includes(
-                                            subService.packageThreeID,
-                                          )
-                                        ? "-"
-                                        : `${d.driverName} = ${d.driverValue}${
-                                            i !== arr.length - 1 ? "; " : ""
-                                          }`
-                                  }
-                                `,
-                              )
-                              .join("")
-                          : "-"
+                        subService?.servicePackageIDs?.includes(
+                          subService.packageThreeID,
+                        ) && subService?.servicePackageIDs?.length === 1
+                          ? "disabled"
+                          : ""
                       }
-                    </td>`
-                  : ""
+                      ${
+                        subService?.servicePackageIDs?.includes(
+                          subService.packageThreeID,
+                        )
+                          ? "checked"
+                          : ""
+                      }
+                      onchange="handleAddAndRemoveAdditionalServices(
+                        2,
+                        ${service.serviceCatID},
+                        ${subService.serviceID},
+                        ${subService.packageThreeID},
+                        this.checked
+                      )"
+                    />
+                  `
+                  : `<div>&nbsp;&nbsp;</div>`
               }
+            </td>
+          `
+                      : ""
+                  }
+
+                   ${
+                     (Number(props.vatPercentage) || 0) > 0 &&
+                     props.visibleFieldsCustomTemp.vatRate
+                       ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                packageThreeOneOffRow.isIncluded
+                  ? `${Number(packageThreeOneOffRow.vatRate || 0).toFixed(2)}%`
+                  : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+                       : ""
+                   }
+
+      <!-- PACKAGE THREE VAT -->
+      ${
+        (Number(props.vatPercentage) || 0) > 0 &&
+        props.visibleFieldsCustomTemp.vat
+          ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageThreeOneOffRow.isIncluded
+                    ? `${props.formatValue(
+                        packageThreeOneOffRow.vat,
+                        props.currencyID,
+                      )}`
+                    : `<span>&#10007;</span>`
+                  : packageThreeOneOffRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+          : ""
+      }
+
+                  ${
+                    (Number(props.vatPercentage) || 0) > 0 &&
+                    props.visibleFieldsCustomTemp.feesIncVat
+                      ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                props.ProposalObject.feeTypeId === 1
+                  ? packageThreeOneOffRow.isIncluded
+                    ? `${props.formatValue(
+                        packageThreeOneOffRow.feesIncVat,
+                        props.currencyID,
+                      )}`
+                    : `<span>&#10007;</span>`
+                  : packageThreeOneOffRow.isIncluded
+                    ? `<span>&#10003;</span>`
+                    : `<span>&#10007;</span>`
+              }
+            </td>
+          `
+                      : ""
+                  }
+
+      <!-- PACKAGE THREE SERVICE SCOPE -->
+      ${
+        props.visibleFieldsCustomTemp.serviceScope
+          ? `
+            <td style="border:1px solid #dddddd; text-align:right; padding:8px;">
+              ${
+                driverList.length > 0
+                  ? driverList
+                      .filter((driver) => driver.driverValue !== null)
+                      .map(
+                        (driver, driverIndex, driverArray) => `
+                          ${
+                            packageThreeOneOffRow.isIncluded
+                              ? `${driver.driverName} = ${driver.driverValue}${
+                                  driverIndex !== driverArray.length - 1
+                                    ? "; "
+                                    : ""
+                                }`
+                              : "-"
+                          }
+                        `,
+                      )
+                      .join("")
+                  : "-"
+              }
+            </td>
+          `
+          : ""
+      }
                   `
                 : ""
             }
             </tr>
-          `,
-          )
+           `;
+          })
           .join("")}
       `,
       )
       .join("")}
   </tbody>
   <tr style="background-color:#808080;">
-  <td style="border:1px solid #dddddd; text-align:left; padding:8px; color:white;">
+  <td
+    style="
+      border:1px solid #dddddd;
+      text-align:left;
+      padding:8px;
+      color:white;
+    "
+  >
     Net Total
   </td>
-  ${props.visibleFieldsCustomTemp.fees ? `
-  <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-    ${
-      totalOnePackageValue >
-        Number(props.OneOffPricingInfo.packageOneNetTotal) ||
-      (Number(props.OneOffPricingInfo.packageOneDisCount) > 0 &&
-        !props.ProposalObject.DiscountLines)
-        ? Number(props.OneOffPricingInfo.packageOneDisCount) > 0 &&
-          !props.ProposalObject.DiscountLines
-          ? props.formatValue(
-              props.OneOffPricingInfo.packageOneDisCountedTotal,
-              props.currencyID,
-            )
-          : props.formatValue(totalOnePackageValue, props.currencyID)
-        : props.formatValue(
-            props.OneOffPricingInfo.packageOneNetTotal,
-            props.currencyID,
-          )
-    }
-  </td>` : ""}
-  ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-  ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${props.formatValue(
-            props.OneOffPricingInfo.PackageOneStaticVaTPrice,
-            props.currencyID,
-          )}
-        </td>` : ""}
-  ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${props.formatValue(
-            (totalOnePackageValue >
-              Number(props.OneOffPricingInfo.packageOneNetTotal) ||
-            (Number(props.OneOffPricingInfo.packageOneDisCount) > 0 &&
-              !props.ProposalObject.DiscountLines)
-              ? Number(props.OneOffPricingInfo.packageOneDisCount) > 0 &&
-                !props.ProposalObject.DiscountLines
-                ? Number(props.OneOffPricingInfo.packageOneDisCountedTotal)
-                : totalOnePackageValue
-              : Number(props.OneOffPricingInfo.packageOneNetTotal))
-            + Number(props.OneOffPricingInfo.PackageOneStaticVaTPrice),
-            props.currencyID,
-          )}
-        </td>` : ""}
-  ${props.visibleFieldsCustomTemp.serviceScope
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-  ${
-    packageCount >= 2
-      ? `
-        ${props.visibleFieldsCustomTemp.fees ? `
-        <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${
-            totalTwoPackageValue >
-              Number(props.OneOffPricingInfo.packageTwoNetTotal) ||
-            (Number(props.OneOffPricingInfo.packageTwoDisCount) > 0 &&
-              !props.ProposalObject.DiscountLines)
-              ? Number(props.OneOffPricingInfo.packageTwoDisCount) > 0 &&
-                !props.ProposalObject.DiscountLines
-                ? props.formatValue(
-                    props.OneOffPricingInfo.packageTwoDisCountedTotal,
-                    props.currencyID,
-                  )
-                : props.formatValue(totalTwoPackageValue, props.currencyID)
-              : props.formatValue(
-                  props.OneOffPricingInfo.packageTwoNetTotal,
-                  props.currencyID,
-                )
-          }
-        </td>` : ""}
-        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+
+  ${activeCustomOneOffPackageFooters
+    .map(
+      (footer) => `
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
                 ${props.formatValue(
-                  props.OneOffPricingInfo.PackageTwoStaticVaTPrice,
+                  props.ProposalObject.DiscountLines
+                    ? footer.net
+                    : footer.finalNet,
                   props.currencyID,
                 )}
-              </td>` : ""}
-        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          hasCustomOneOffPackageVAT && props.visibleFieldsCustomTemp.vatRate
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              ></td>
+            `
+            : ""
+        }
+
+        ${
+          hasCustomOneOffPackageVAT && props.visibleFieldsCustomTemp.vat
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
                 ${props.formatValue(
-                  (totalTwoPackageValue >
-                    Number(props.OneOffPricingInfo.packageTwoNetTotal) ||
-                  (Number(props.OneOffPricingInfo.packageTwoDisCount) > 0 &&
-                    !props.ProposalObject.DiscountLines)
-                    ? Number(props.OneOffPricingInfo.packageTwoDisCount) > 0 &&
-                      !props.ProposalObject.DiscountLines
-                      ? Number(props.OneOffPricingInfo.packageTwoDisCountedTotal)
-                      : totalTwoPackageValue
-                    : Number(props.OneOffPricingInfo.packageTwoNetTotal))
-                  + Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice),
+                  props.ProposalObject.DiscountLines
+                    ? footer.vat
+                    : footer.finalVat,
                   props.currencyID,
                 )}
-              </td>` : ""}
-        ${props.visibleFieldsCustomTemp.serviceScope ? `<td></td>` : ""}
-      `
-      : ""
-  }
-  ${
-    packageCount === 3
-      ? `
-        ${props.visibleFieldsCustomTemp.fees ? `
-        <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${
-            totalThreePackageValue >
-              Number(props.OneOffPricingInfo.packageThreeNetTotal) ||
-            (Number(props.OneOffPricingInfo.packageThreeDisCount) > 0 &&
-              !props.ProposalObject.DiscountLines)
-              ? Number(props.OneOffPricingInfo.packageThreeDisCount) > 0 &&
-                !props.ProposalObject.DiscountLines
-                ? props.formatValue(
-                    props.OneOffPricingInfo.packageThreeDisCountedTotal,
-                    props.currencyID,
-                  )
-                : props.formatValue(totalThreePackageValue, props.currencyID)
-              : props.formatValue(
-                  props.OneOffPricingInfo.packageThreeNetTotal,
-                  props.currencyID,
-                )
-          }
-        </td>` : ""}
-        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          hasCustomOneOffPackageVAT && props.visibleFieldsCustomTemp.feesIncVat
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              >
                 ${props.formatValue(
-                  props.OneOffPricingInfo.PackageThreeStaticVaTPrice,
+                  props.ProposalObject.DiscountLines
+                    ? footer.feesIncVat
+                    : footer.finalFeesIncVat,
                   props.currencyID,
                 )}
-              </td>` : ""}
-        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-                ${props.formatValue(
-                  (totalThreePackageValue >
-                    Number(props.OneOffPricingInfo.packageThreeNetTotal) ||
-                  (Number(props.OneOffPricingInfo.packageThreeDisCount) > 0 &&
-                    !props.ProposalObject.DiscountLines)
-                    ? Number(props.OneOffPricingInfo.packageThreeDisCount) > 0 &&
-                      !props.ProposalObject.DiscountLines
-                      ? Number(props.OneOffPricingInfo.packageThreeDisCountedTotal)
-                      : totalThreePackageValue
-                    : Number(props.OneOffPricingInfo.packageThreeNetTotal))
-                  + Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice),
-                  props.currencyID,
-                )}
-              </td>` : ""}
-        ${props.visibleFieldsCustomTemp.serviceScope ? `<td></td>` : ""}
-      `
-      : ""
-  }
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.visibleFieldsCustomTemp.serviceScope
+            ? `
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:right;
+                  padding:8px;
+                  color:white;
+                "
+              ></td>
+            `
+            : ""
+        }
+      `,
+    )
+    .join("")}
 </tr>
 
 ${
-  (Number(props.OneOffPricingInfo.packageThreeDisCount) > 0 ||
-    Number(props.OneOffPricingInfo.packageOneDisCount) > 0 ||
-    Number(props.OneOffPricingInfo.packageTwoDisCount) > 0) &&
-  props.ProposalObject.DiscountLines
+  showCustomOneOffPackageDiscount
     ? `
+      <!-- ONE-OFF PACKAGE DISCOUNT -->
       <tr style="background-color:#DCDCDC;">
-        <td style="border:1px solid #dddddd; text-align:left; padding:8px; color:black;">
+        <td
+          style="
+            border:1px solid #dddddd;
+            text-align:left;
+            padding:8px;
+            color:black;
+          "
+        >
           Discount
         </td>
-        ${props.visibleFieldsCustomTemp.fees ? `
-        <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
-          (-) ${props.formatValue(props.OneOffPricingInfo.packageOneDisCount, props.currencyID)}
-        </td>` : ""}
-        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
-                (-) ${props.formatValue(
-                  Number(props.OneOffPricingInfo.PackageOneStaticVaTPrice) -
-                    Number(props.OneOffPricingInfo.PackageOneVaTPrice),
-                  props.currencyID,
-                )}
-              </td>` : ""}
-        ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
-                (-) ${props.formatValue(
-                  Number(props.OneOffPricingInfo.packageOneDisCount) +
-                    (Number(props.OneOffPricingInfo.PackageOneStaticVaTPrice) -
-                      Number(props.OneOffPricingInfo.PackageOneVaTPrice)),
-                  props.currencyID,
-                )}
-              </td>` : ""}
-        ${props.visibleFieldsCustomTemp.serviceScope
-          ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
 
-        ${
-          packageCount >= 2
-            ? `
-              ${props.visibleFieldsCustomTemp.fees ? `
-              <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
-                (-) ${props.formatValue(
-                  props.OneOffPricingInfo.packageTwoDisCount,
-                  props.currencyID,
-                )}
-              </td>` : ""}
-              ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-              ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
+        ${activeCustomOneOffPackageFooters
+          .map(
+            (footer) => `
+              ${
+                props.visibleFieldsCustomTemp.fees
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                        color:black;
+                      "
+                    >
                       (-) ${props.formatValue(
-                        Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice) -
-                          Number(props.OneOffPricingInfo.PackageTwoVaTPrice),
+                        footer.discount,
                         props.currencyID,
                       )}
-                    </td>` : ""}
-              ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
-                      (-) ${props.formatValue(
-                        Number(props.OneOffPricingInfo.packageTwoDisCount) +
-                          (Number(props.OneOffPricingInfo.PackageTwoStaticVaTPrice) -
-                            Number(props.OneOffPricingInfo.PackageTwoVaTPrice)),
-                        props.currencyID,
-                      )}
-                    </td>` : ""}
-              ${props.visibleFieldsCustomTemp.serviceScope
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-            `
-            : ""
-        }
+                    </td>
+                  `
+                  : ""
+              }
 
-        ${
-          packageCount === 3
-            ? `
-              ${props.visibleFieldsCustomTemp.fees ? `
-              <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
-                (-) ${props.formatValue(
-                  props.OneOffPricingInfo.packageThreeDisCount,
-                  props.currencyID,
-                )}
-              </td>` : ""}
-              ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-              ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
+              ${
+                hasCustomOneOffPackageVAT &&
+                props.visibleFieldsCustomTemp.vatRate
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                      "
+                    ></td>
+                  `
+                  : ""
+              }
+
+              ${
+                hasCustomOneOffPackageVAT && props.visibleFieldsCustomTemp.vat
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                        color:black;
+                      "
+                    >
                       (-) ${props.formatValue(
-                        Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice) -
-                          Number(props.OneOffPricingInfo.PackageThreeVaTPrice),
+                        footer.vatDiscount,
                         props.currencyID,
                       )}
-                    </td>` : ""}
-              ${(Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:black;">
+                    </td>
+                  `
+                  : ""
+              }
+
+              ${
+                hasCustomOneOffPackageVAT &&
+                props.visibleFieldsCustomTemp.feesIncVat
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                        color:black;
+                      "
+                    >
                       (-) ${props.formatValue(
-                        Number(props.OneOffPricingInfo.packageThreeDisCount) +
-                          (Number(props.OneOffPricingInfo.PackageThreeStaticVaTPrice) -
-                            Number(props.OneOffPricingInfo.PackageThreeVaTPrice)),
+                        footer.feesIncVatDiscount,
                         props.currencyID,
                       )}
-                    </td>` : ""}
-              ${props.visibleFieldsCustomTemp.serviceScope
-                ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-            `
-            : ""
-        }
+                    </td>
+                  `
+                  : ""
+              }
+
+              ${
+                props.visibleFieldsCustomTemp.serviceScope
+                  ? `
+                    <td
+                      style="
+                        border:1px solid #dddddd;
+                        text-align:right;
+                        padding:8px;
+                      "
+                    ></td>
+                  `
+                  : ""
+              }
+            `,
+          )
+          .join("")}
       </tr>
 
       ${
-  (Number(props.vatPercentageOneOff) || 0) > 0
-    ? `
-<tr style="background-color:#808080;">
-  <td style="border:1px solid #dddddd; text-align:left; padding:8px; color:white;">
-    Grand Total
-  </td>
+        hasCustomOneOffPackageVAT
+          ? `
+            <!-- ONE-OFF PACKAGE GRAND TOTAL -->
+            <tr style="background-color:#808080;">
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:left;
+                  padding:8px;
+                  color:white;
+                "
+              >
+                Grand Total
+              </td>
 
-  ${props.visibleFieldsCustomTemp.fees ? `
-  <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-    ${props.formatValue(
-      Number(props.OneOffPricingInfo.PackageOneGrandTotal ?? 0) -
-        Number(props.OneOffPricingInfo.PackageOneVaTPrice ?? 0),
-      props.currencyID
-    )}
-  </td>` : ""}
+              ${activeCustomOneOffPackageFooters
+                .map(
+                  (footer) => `
+                    ${
+                      props.visibleFieldsCustomTemp.fees
+                        ? `
+                          <td
+                            style="
+                              border:1px solid #dddddd;
+                              text-align:right;
+                              padding:8px;
+                              color:white;
+                            "
+                          >
+                            ${props.formatValue(
+                              footer.finalNet,
+                              props.currencyID,
+                            )}
+                          </td>
+                        `
+                        : ""
+                    }
 
-  ${props.visibleFieldsCustomTemp.vatRate
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
+                    ${
+                      props.visibleFieldsCustomTemp.vatRate
+                        ? `
+                          <td
+                            style="
+                              border:1px solid #dddddd;
+                              text-align:right;
+                              padding:8px;
+                            "
+                          ></td>
+                        `
+                        : ""
+                    }
 
-  ${props.visibleFieldsCustomTemp.vat
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${props.formatValue(
-            Number(props.OneOffPricingInfo.PackageOneVaTPrice),
-            props.currencyID
-          )}
-        </td>` : ""}
+                    ${
+                      props.visibleFieldsCustomTemp.vat
+                        ? `
+                          <td
+                            style="
+                              border:1px solid #dddddd;
+                              text-align:right;
+                              padding:8px;
+                              color:white;
+                            "
+                          >
+                            ${props.formatValue(
+                              footer.finalVat,
+                              props.currencyID,
+                            )}
+                          </td>
+                        `
+                        : ""
+                    }
 
-  ${props.visibleFieldsCustomTemp.feesIncVat
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${props.formatValue(
-            Number(props.OneOffPricingInfo.PackageOneGrandTotal ?? 0),
-            props.currencyID
-          )}
-        </td>` : ""}
+                    ${
+                      props.visibleFieldsCustomTemp.feesIncVat
+                        ? `
+                          <td
+                            style="
+                              border:1px solid #dddddd;
+                              text-align:right;
+                              padding:8px;
+                              color:white;
+                            "
+                          >
+                            ${props.formatValue(
+                              footer.finalFeesIncVat,
+                              props.currencyID,
+                            )}
+                          </td>
+                        `
+                        : ""
+                    }
 
-  ${props.visibleFieldsCustomTemp.serviceScope
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
+                    ${
+                      props.visibleFieldsCustomTemp.serviceScope
+                        ? `
+                          <td
+                            style="
+                              border:1px solid #dddddd;
+                              text-align:right;
+                              padding:8px;
+                            "
+                          ></td>
+                        `
+                        : ""
+                    }
+                  `,
+                )
+                .join("")}
+            </tr>
+          `
+          : `
+            <!-- ONE-OFF PACKAGE DISCOUNTED TOTAL -->
+            <tr style="background-color:#808080;">
+              <td
+                style="
+                  border:1px solid #dddddd;
+                  text-align:left;
+                  padding:8px;
+                  color:white;
+                "
+              >
+                Discounted Total
+              </td>
 
-  ${
-    packageCount >= 2
-      ? `
-  ${props.visibleFieldsCustomTemp.fees ? `
-  <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-    ${props.formatValue(
-      Number(props.OneOffPricingInfo.PackageTwoGrandTotal ?? 0) -
-        Number(props.OneOffPricingInfo.PackageTwoVaTPrice ?? 0),
-      props.currencyID
-    )}
-  </td>` : ""}
+              ${activeCustomOneOffPackageFooters
+                .map(
+                  (footer) => `
+                    ${
+                      props.visibleFieldsCustomTemp.fees
+                        ? `
+                          <td
+                            style="
+                              border:1px solid #dddddd;
+                              text-align:right;
+                              padding:8px;
+                              color:white;
+                            "
+                          >
+                            ${props.formatValue(
+                              footer.finalNet,
+                              props.currencyID,
+                            )}
+                          </td>
+                        `
+                        : ""
+                    }
 
-  ${props.visibleFieldsCustomTemp.vatRate
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.vat
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${props.formatValue(
-            Number(props.OneOffPricingInfo.PackageTwoVaTPrice),
-            props.currencyID
-          )}
-        </td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.feesIncVat
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${props.formatValue(
-            Number(props.OneOffPricingInfo.PackageTwoGrandTotal ?? 0),
-            props.currencyID
-          )}
-        </td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.serviceScope
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-  `
-      : ""
-  }
-
-  ${
-    packageCount === 3
-      ? `
-  ${props.visibleFieldsCustomTemp.fees ? `
-  <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-    ${props.formatValue(
-      Number(props.OneOffPricingInfo.PackageThreeGrandTotal ?? 0) -
-        Number(props.OneOffPricingInfo.PackageThreeVaTPrice ?? 0),
-      props.currencyID
-    )}
-  </td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.vatRate
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.vat
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${props.formatValue(
-            Number(props.OneOffPricingInfo.PackageThreeVaTPrice),
-            props.currencyID
-          )}
-        </td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.feesIncVat
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-          ${props.formatValue(
-            Number(props.OneOffPricingInfo.PackageThreeGrandTotal ?? 0),
-            props.currencyID
-          )}
-        </td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.serviceScope
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-  `
-      : ""
-  }
-
-</tr>
-`
-    : `
-<tr style="background-color:#808080;">
-  <td style="border:1px solid #dddddd; text-align:left; padding:8px; color:white;">
-    Discounted Total
-  </td>
-
-  ${props.visibleFieldsCustomTemp.fees ? `
-  <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-    ${props.formatValue(
-      props.OneOffPricingInfo.packageOneDisCountedTotal,
-      props.currencyID
-    )}
-  </td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.serviceScope
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-
-  ${
-    packageCount >= 2
-      ? `
-  ${props.visibleFieldsCustomTemp.fees ? `
-  <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-    ${props.formatValue(
-      props.OneOffPricingInfo.packageTwoDisCountedTotal,
-      props.currencyID
-    )}
-  </td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.serviceScope
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-  `
-      : ""
-  }
-
-  ${
-    packageCount === 3
-      ? `
-  ${props.visibleFieldsCustomTemp.fees ? `
-  <td style="border:1px solid #dddddd; text-align:right; padding:8px; color:white;">
-    ${props.formatValue(
-      props.OneOffPricingInfo.packageThreeDisCountedTotal,
-      props.currencyID
-    )}
-  </td>` : ""}
-
-  ${props.visibleFieldsCustomTemp.serviceScope
-    ? `<td style="border:1px solid #dddddd; text-align:right; padding:8px;"></td>` : ""}
-  `
-      : ""
-  }
-
-</tr>
-`
-}
-      
+                    ${
+                      props.visibleFieldsCustomTemp.serviceScope
+                        ? `
+                          <td
+                            style="
+                              border:1px solid #dddddd;
+                              text-align:right;
+                              padding:8px;
+                            "
+                          ></td>
+                        `
+                        : ""
+                    }
+                  `,
+                )
+                .join("")}
+            </tr>
+          `
+      }
     `
     : ""
 }
 
 
-                      </table>
-`
-                                        : ``
-                                  }
+                      </table>`
+                  }
                     </div>
                   `,
                 });
@@ -7706,24 +10515,29 @@ ${
                           .join("")}
                         <tr style="background-color:#808080;">
                           <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">Net Total</td>
-                          <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">   ${Number(
-                                  props.RecurringPricingInfo.OriginalPrice,
-                                ) <
-                                  Number(
+                          <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">   ${
+                            Number(props.RecurringPricingInfo.OriginalPrice) <
+                              Number(
+                                props.RecurringPricingInfo.DiscountedPrice,
+                              ) ||
+                            (Number(props.RecurringPricingInfo.Discount) > 0 &&
+                              !props.DiscountLines)
+                              ? Number(
+                                  props.RecurringPricingInfo.DiscountedPrice,
+                                ) === 0
+                                ? props.formatValue(
+                                    props.RecurringPricingInfo.OriginalPrice,
+                                    props.currencyID,
+                                  )
+                                : props.formatValue(
                                     props.RecurringPricingInfo.DiscountedPrice,
-                                  ) ||
-                                (Number(props.RecurringPricingInfo.Discount) >
-                                  0 &&
-                                  !props.ProposalObject.DiscountLines)
-                                  ? props.formatValue(
-                                      props.RecurringPricingInfo
-                                        .DiscountedPrice,
-                                      props.currencyID,
-                                    )
-                                  : props.formatValue(
-                                      props.RecurringPricingInfo.OriginalPrice,
-                                      props.currencyID,
-                                    )}
+                                    props.currencyID,
+                                  )
+                              : props.formatValue(
+                                  props.RecurringPricingInfo.OriginalPrice,
+                                  props.currencyID,
+                                )
+                          }
                     </td>
                     </tr>
                    ${
@@ -7762,7 +10576,7 @@ ${
                    }
      
       ${
-        (Number(props.vatPercentage) || 0) > 0
+        props.vatPercentage
           ? `      
           <tr style="background-color: #DCDCDC";>
            <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;color: black;">
@@ -7770,7 +10584,7 @@ ${
           </td>
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;">   ${
               props.formatValue(
-                props.RecurringPricingInfo.totalServiceWiseVAT,
+                props.RecurringPricingInfo.VATPrice,
                 props.currencyID,
               )
               // Number(props.RecurringPricingInfo.VATPrice)
@@ -7787,74 +10601,66 @@ ${
             </td>
           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
                   
-                        ${Number(
-                                      props.RecurringPricingInfo.Discount,
-                                    ) > 0
-                                      ? // If discount is applied → use discounted total + VAT
-                                        props.formatValue(
-                                          Number(
-                                            props.RecurringPricingInfo
-                                              .GrandTotal,
-                                          ),
-                                          props.currencyID,
-                                        )
-                                      : // If no discount → use original total + VAT
-                                        props.formatValue(
-                                          Number(
-                                            props.RecurringPricingInfo
-                                              .GrandTotal,
-                                          ),
-                                          props.currencyID,
-                                        )}
-                        </td>
-                      </tr> `
+              ${
+                props.formatValue(
+                  props.RecurringPricingInfo.GrandTotal,
+                  props.currencyID,
+                )
+                // Number(props.RecurringPricingInfo.GrandTotal)
+                //         .toFixed(2).toString().replace(
+                //           /\B(?=(\d{3})+(?!\d))/g,
+                //           ","
+                //         )
+              }
+            </td>
+          </tr> `
           : ``
       }
-
-                                  </table>
-                                </div>
-                              `
+   
+                      </table>
+                    </div>
+                  `
                       : props.selectedTemplateID === 6
                         ? `<div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily}; page-break-inside: avoid; break-inside: avoid;">
   <p style="font-family:${fontFamily}; color:${newColorCode}; font-size: 20px; margin-top: 15px;">
-    Recurring Fees (${getPaymentFrequencyLabel()})'
+    Recurring Fees (${getPaymentFrequencyLabel()})
   </p>
 
   <table style="font-family:${fontFamily}; border-collapse: collapse; width: 100%; margin-top: -15px; table-layout: fixed;">
     <tr style="background-color:${newColorCode};">
       ${
         props.visibleFieldsCustomTemp.serviceCategory
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Service Category</th>`
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 14px;">Service Category</th>`
           : ""
       }
       ${
         props.visibleFieldsCustomTemp.serviceName
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Services</th>`
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 14px;">Services</th>`
           : ""
       }
       ${
         props.visibleFieldsCustomTemp.serviceScope
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Service Scope</th>`
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 14px;">Service Scope</th>`
           : ""
       }
       ${
         props.visibleFieldsCustomTemp.fees
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Fees (${props.currencySymbol})</th>`
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 14px;">Fees (${props.currencySymbol})</th>`
           : ""
       }
       ${
-        (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">${props.taxName} Rate</th>`
+        props.vatPercentage !== null && props.visibleFieldsCustomTemp.vatRate
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 14px;">${props.taxName} Rate</th>`
           : ""
       }
       ${
-        (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">${props.taxName} (${props.currencySymbol})</th>`
+        props.vatPercentage !== null && props.visibleFieldsCustomTemp.vat
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 14px;">${props.taxName} (${props.currencySymbol})</th>`
           : ""
       }
       ${
-        (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Fees inc ${props.taxName} (${props.currencySymbol})</th>`
+        props.vatPercentage !== null && props.visibleFieldsCustomTemp.feesIncVat
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 14px;">Fees inc ${props.taxName} (${props.currencySymbol})</th>`
           : ""
       }
     </tr>
@@ -7866,10 +10672,33 @@ ${
 
         ${serviceCat.servicesList
           .map((subService) => {
-            const price = Number(subService.price) || 0;
-            const vat = (price * subService.service_vat_percentage) / 100;
-            const total = price + vat;
-            const driverList = getServiceScopeDriverList(subService);
+            const rawPrice = hasCalculationValue(subService?.price)
+              ? subService.price
+              : hasCalculationValue(subService?.quotationPriceWithAllDecimal)
+                ? subService.quotationPriceWithAllDecimal
+                : hasCalculationValue(subService?.quotationPrice)
+                  ? subService.quotationPrice
+                  : 0;
+
+            const priceExact = decimalValue(rawPrice);
+
+            const vatRateExact = decimalValue(
+              subService?.service_vat_percentage ??
+                subService?.serviceVatPercentage ??
+                subService?.vatPercentage ??
+                props.vatPercentage ??
+                0,
+            );
+
+            const vatExact = priceExact.mul(vatRateExact).div(100);
+            const feesIncVatExact = priceExact.plus(vatExact);
+
+            const rowFees = truncateMoney(priceExact);
+            const rowVat = truncateMoney(vatExact);
+            const rowFeesIncVat = truncateMoney(feesIncVatExact);
+            const rowVatRate = vatRateExact.toNumber();
+
+            const driverList = subService.pricingDriverList || [];
 
             return `
               <tr>
@@ -7919,37 +10748,34 @@ ${
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">
           ${
             props.ProposalObject.feeTypeId === 1
-              ? props.formatValue(price, props.currencyID)
+              ? props.formatValue(rowFees, props.currencyID)
               : "&#10003;"
           }
         </td>`
       : ""
   }
   ${
-    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">${subService.service_vat_percentage}%</td>`
+    props.vatPercentage !== null && props.visibleFieldsCustomTemp.vatRate
+      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">${rowVatRate.toFixed(2)}%</td>`
       : ""
   }
   ${
-    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
+    props.vatPercentage !== null && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">
           ${
             props.ProposalObject.feeTypeId === 1
-              ? props.formatValue(vat, props.currencyID)
+              ? props.formatValue(rowVat, props.currencyID)
               : "&#10003;"
           }
         </td>`
       : ""
   }
   ${
-    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
+    props.vatPercentage !== null && props.visibleFieldsCustomTemp.feesIncVat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">
           ${
             props.ProposalObject.feeTypeId === 1
-              ? props.formatValue(
-                  price + Number(subService.service_vat_amount),
-                  props.currencyID,
-                )
+              ? props.formatValue(rowFeesIncVat, props.currencyID)
               : "&#10003;"
           }
         </td>`
@@ -7981,232 +10807,274 @@ ${
   ${
     props.visibleFieldsCustomTemp.fees
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
-          ${
-            Number(props.RecurringPricingInfo.OriginalPrice) <
-              Number(props.RecurringPricingInfo.DiscountedPrice) ||
-            (Number(props.RecurringPricingInfo.Discount) > 0 &&
-              !props.ProposalObject.DiscountLines)
-              ? props.formatValue(
-                  props.RecurringPricingInfo.DiscountedPrice,
-                  props.currencyID,
-                )
-              : props.formatValue(
-                  props.RecurringPricingInfo.OriginalPrice,
-                  props.currencyID,
-                )
-          }
-        </td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;"></td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
           ${props.formatValue(
-            Number(props.RecurringPricingInfo.staticTotalVAT),
+            useCustomRecurringFinalAsNet
+              ? customRecurringFooter.discountedFees
+              : customRecurringFooter.netFees,
             props.currencyID,
           )}
         </td>`
       : ""
   }
   ${
-    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
+    props.vatPercentage !== null && props.visibleFieldsCustomTemp.vatRate
+      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;"></td>`
+      : ""
+  }
+  ${
+    props.vatPercentage !== null && props.visibleFieldsCustomTemp.vat
       ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
-          ${
-            Number(props.RecurringPricingInfo.OriginalPrice) <
-              Number(props.RecurringPricingInfo.DiscountedPrice) ||
-            (Number(props.RecurringPricingInfo.Discount) > 0 &&
-              !props.ProposalObject.DiscountLines)
-              ? props.formatValue(
-                  Number(props.RecurringPricingInfo.DiscountedPrice) +
-                    Number(props.RecurringPricingInfo.staticTotalVAT),
-                  props.currencyID,
-                )
-              : props.formatValue(
-                  Number(props.RecurringPricingInfo.OriginalPrice) +
-                    Number(props.RecurringPricingInfo.staticTotalVAT),
-                  props.currencyID,
-                )
-          }
+          ${props.formatValue(
+            useCustomRecurringFinalAsNet
+              ? customRecurringFooter.discountedVat
+              : customRecurringFooter.netVat,
+            props.currencyID,
+          )}
+        </td>`
+      : ""
+  }
+  ${
+    props.vatPercentage !== null && props.visibleFieldsCustomTemp.feesIncVat
+      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
+          ${props.formatValue(
+            useCustomRecurringFinalAsNet
+              ? customRecurringFooter.discountedFeesIncVat
+              : customRecurringFooter.netFeesIncVat,
+            props.currencyID,
+          )}
         </td>`
       : ""
   }
 </tr>
 
-    ${
-      Number(props.RecurringPricingInfo.Discount) > 0 &&
-      props.ProposalObject.DiscountLines
-        ? `
-        <tr style="background-color:#DCDCDC;">
-  <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black; word-break: break-word; white-space: normal; overflow-wrap: break-word;">Discount</td>
-  ${
-    props.visibleFieldsCustomTemp.serviceCategory
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;"></td>`
-      : ""
-  }
-  ${
-    props.visibleFieldsCustomTemp.serviceScope
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;"></td>`
-      : ""
-  }
-  ${
-    props.visibleFieldsCustomTemp.fees
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black; word-break: break-word; white-space: normal; overflow-wrap: break-word;">(-) ${props.formatValue(
-          props.RecurringPricingInfo.Discount,
-          props.currencyID,
-        )}</td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;"></td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black; word-break: break-word; white-space: normal; overflow-wrap: break-word;">(-) ${props.formatValue(
-          Number(props.RecurringPricingInfo.staticTotalVAT) -
-            Number(props.RecurringPricingInfo.totalServiceWiseVAT),
-          props.currencyID,
-        )}</td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black; word-break: break-word; white-space: normal; overflow-wrap: break-word;">(-) ${props.formatValue(
-          Number(props.RecurringPricingInfo.Discount) +
-            (Number(props.RecurringPricingInfo.staticTotalVAT) -
-              Number(props.RecurringPricingInfo.totalServiceWiseVAT)),
-          props.currencyID,
-        )}</td>`
-      : ""
-  }
-</tr>
-
 ${
-  (Number(props.vatPercentage) || 0) > 0 &&
-  Number(props.RecurringPricingInfo.Discount) > 0 &&
-  props.ProposalObject.DiscountLines
-    ? `<tr style="background-color:#808080;">
-  <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">Grand Total</td>
-  ${
-    props.visibleFieldsCustomTemp.serviceCategory
-      ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;"></td>`
-      : ""
-  }
-  ${
-    props.visibleFieldsCustomTemp.serviceScope
-      ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;"></td>`
-      : ""
-  }
-  ${
-    props.visibleFieldsCustomTemp.fees
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">${
-          Number(props.RecurringPricingInfo.OriginalPrice) <
-            Number(props.RecurringPricingInfo.DiscountedPrice) ||
-          (Number(props.RecurringPricingInfo.Discount) > 0 &&
-            !props.ProposalObject.DiscountLines)
-            ? props.formatValue(
-                props.RecurringPricingInfo.DiscountedPrice -
-                  props.RecurringPricingInfo.Discount,
-                props.currencyID,
-              )
-            : props.formatValue(
-                props.RecurringPricingInfo.OriginalPrice -
-                  props.RecurringPricingInfo.Discount,
-                props.currencyID,
-              )
-        }</td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;"></td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
-          Number(props.RecurringPricingInfo.totalServiceWiseVAT),
-          props.currencyID,
-        )}</td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
-          props.RecurringPricingInfo.GrandTotal,
-          props.currencyID,
-        )}</td>`
-      : ""
-  }
-</tr>`
-    : Number(props.RecurringPricingInfo.Discount) > 0 &&
-        props.ProposalObject.DiscountLines
-      ? `<tr style="background-color:#808080;">
-  <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">Discounted Total</td>
-  ${
-    props.visibleFieldsCustomTemp.serviceCategory
-      ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;"></td>`
-      : ""
-  }
-  ${
-    props.visibleFieldsCustomTemp.serviceScope
-      ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;"></td>`
-      : ""
-  }
-  ${
-    props.visibleFieldsCustomTemp.fees
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">${
-          Number(props.RecurringPricingInfo.OriginalPrice) <
-            Number(props.RecurringPricingInfo.DiscountedPrice) ||
-          (Number(props.RecurringPricingInfo.Discount) > 0 &&
-            !props.ProposalObject.DiscountLines)
-            ? props.formatValue(
-                props.RecurringPricingInfo.DiscountedPrice -
-                  props.RecurringPricingInfo.Discount,
-                props.currencyID,
-              )
-            : props.formatValue(
-                props.RecurringPricingInfo.OriginalPrice -
-                  props.RecurringPricingInfo.Discount,
-                props.currencyID,
-              )
-        }</td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;"></td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
-          Number(props.RecurringPricingInfo.totalServiceWiseVAT),
-          props.currencyID,
-        )}</td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentage) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
-          props.RecurringPricingInfo.GrandTotal,
-          props.currencyID,
-        )}</td>`
-      : ""
-  }
-</tr>`
-      : ""
-}
+  showCustomDiscount
+    ? `
+      <!-- DISCOUNT ROW -->
+      <tr style="background-color:#DCDCDC;">
+        ${
+          customDescriptionColumnCount > 0
+            ? `
+              <td
+                colspan="${customDescriptionColumnCount}"
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: left;
+                  padding: 8px;
+                  color: black;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                Discount
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: black;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                (-) ${props.formatValue(
+                  customRecurringFooter.discountFees,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.vatPercentage !== null && props.visibleFieldsCustomTemp.vatRate
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: black;
+                "
+              ></td>
+            `
+            : ""
+        }
+
+        ${
+          props.vatPercentage !== null && props.visibleFieldsCustomTemp.vat
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: black;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                (-) ${props.formatValue(
+                  customRecurringFooter.discountVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.vatPercentage !== null &&
+          props.visibleFieldsCustomTemp.feesIncVat
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: black;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                (-) ${props.formatValue(
+                  customRecurringFooter.discountFeesIncVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+      </tr>
+
+       <!-- DISCOUNTED / GRAND TOTAL ROW -->
+      <tr style="background-color:#808080;">
+        ${
+          customDescriptionColumnCount > 0
+            ? `
+              <td
+                colspan="${customDescriptionColumnCount}"
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: left;
+                  padding: 8px;
+                  color: white;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                ${
+                  Number(props.vatPercentage) > 0
+                    ? "Grand Total"
+                    : "Discounted Total"
+                }
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: white;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                ${props.formatValue(
+                  customRecurringFooter.discountedFees,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.vatPercentage !== null && props.visibleFieldsCustomTemp.vatRate
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: white;
+                "
+              ></td>
+            `
+            : ""
+        }
+
+        ${
+          props.vatPercentage !== null && props.visibleFieldsCustomTemp.vat
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: white;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                ${props.formatValue(
+                  customRecurringFooter.discountedVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.vatPercentage !== null &&
+          props.visibleFieldsCustomTemp.feesIncVat
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: white;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                ${props.formatValue(
+                  customRecurringFooter.discountedFeesIncVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+      </tr>
 
       `
-        : ``
-    }
+    : ""
+}
                       </table>
                     </div>
 
@@ -8223,7 +11091,7 @@ ${
                 // Append the table for selectedOneOffServiceList
                 currentArray.push({
                   table:
-                    props.selectedTemplateIDOneOff === 0
+                    props.selectedTemplateID === 0
                       ? `
                       <div style="padding: 40px;font-family:${fontFamily};page-break-inside: avoid; break-inside: avoid;">
                         <p style="font-family:${fontFamily}; color:${newColorCode}; font-size: 20px;">One-Off Fees </p>
@@ -8335,7 +11203,7 @@ ${
                           : ``
                       }
       ${
-        (Number(props.vatPercentageOneOff) || 0) > 0
+        props.vatPercentage
           ? `
        
           <tr style="background-color: #DCDCDC";>
@@ -8344,7 +11212,7 @@ ${
           </td>
             <td style="border: 1px solid #dddddd; text-align: right; padding: 8px;">   ${
               props.formatValue(
-                props.OneOffPricingInfo.totalServiceWiseVATOneOff,
+                props.OneOffPricingInfo.VATPrice,
                 props.currencyID,
               )
               // Number(props.OneOffPricingInfo.VATPrice)
@@ -8361,42 +11229,29 @@ ${
             </td>
           <td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;">
               
-                         ${Number(props.OneOffPricingInfo.Discount) > 0 &&
-    props.ProposalObject.DiscountLines
-
-      ? props.formatValue(
-          Number(props.OneOffPricingInfo.DiscountedTotal) +
-            Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff || 0),
-          props.currencyID
-        )
-
-      : Number(props.OneOffPricingInfo.OriginalPrice) <
-        Number(props.OneOffPricingInfo.DiscountedPrice) ||
-        (Number(props.OneOffPricingInfo.Discount) > 0 &&
-          !props.ProposalObject.DiscountLines)
-
-      ? props.formatValue(
-          Number(props.OneOffPricingInfo.DiscountedPrice) +
-            Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff || 0),
-          props.currencyID
-        )
-
-      : props.formatValue(
-          Number(props.OneOffPricingInfo.OriginalPrice) +
-            Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff || 0),
-          props.currencyID
-        )}
-                        </td>
-                      </tr>
-
-                          `
+                  
+              ${
+                props.formatValue(
+                  props.OneOffPricingInfo.GrandTotal,
+                  props.currencyID,
+                )
+                // Number(props.OneOffPricingInfo.GrandTotal)
+                //         .toFixed(2).toString().replace(
+                //           /\B(?=(\d{3})+(?!\d))/g,
+                //           ","
+                //         )
+              }
+            </td>
+          </tr>
+     
+              `
           : ``
       }
-                                      </tr>
-                                    </table>
-                                  </div>
-                                `
-                      : props.selectedTemplateIDOneOff === 6
+                          </tr>
+                        </table>
+                      </div>
+                    `
+                      : props.selectedTemplateID === 6
                         ? `
 <div style="padding-left: 40px; padding-right: 40px; font-family:${fontFamily}; page-break-inside: avoid; break-inside: avoid;">
   <p style="font-family:${fontFamily}; color:${newColorCode}; font-size: 20px; margin-top: 15px;">
@@ -8407,37 +11262,37 @@ ${
     <tr style="background-color:${newColorCode};">
       ${
         props.visibleFieldsCustomTemp.serviceCategory
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Service Category</th>`
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 14px;">Service Category</th>`
           : ""
       }
       ${
         props.visibleFieldsCustomTemp.serviceName
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Services</th>`
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 14px;">Services</th>`
           : ""
       }
       ${
         props.visibleFieldsCustomTemp.serviceScope
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Service scope</th>`
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 14px;">Service scope</th>`
           : ""
       }
       ${
         props.visibleFieldsCustomTemp.fees
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Fees (${props.currencySymbol})</th>`
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 14px;">Fees (${props.currencySymbol})</th>`
           : ""
       }
       ${
-        (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">${props.taxName} Rate</th>`
+        props.vatPercentage !== null && props.visibleFieldsCustomTemp.vatRate
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 14px;">${props.taxName} Rate</th>`
           : ""
       }
       ${
-        (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">${props.taxName} (${props.currencySymbol})</th>`
+        props.vatPercentage !== null && props.visibleFieldsCustomTemp.vat
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 14px;">${props.taxName} (${props.currencySymbol})</th>`
           : ""
       }
       ${
-        (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 18px;">Fees inc ${props.taxName} (${props.currencySymbol})</th>`
+        props.vatPercentage !== null && props.visibleFieldsCustomTemp.feesIncVat
+          ? `<th style="border: 1px solid #dddddd; text-align: center; padding: 8px; color: white; font-size: 14px;">Fees inc ${props.taxName} (${props.currencySymbol})</th>`
           : ""
       }
     </tr>
@@ -8448,10 +11303,33 @@ ${
 
         ${serviceCat.servicesList
           .map((subService) => {
-            const price = subService.price || 0;
-            const vat = (price * subService.service_vat_percentage) / 100;
-            const total = price + vat;
-            const driverList = getServiceScopeDriverList(subService);
+            const rawPrice = hasCalculationValue(subService?.price)
+              ? subService.price
+              : hasCalculationValue(subService?.quotationPriceWithAllDecimal)
+                ? subService.quotationPriceWithAllDecimal
+                : hasCalculationValue(subService?.quotationPrice)
+                  ? subService.quotationPrice
+                  : 0;
+
+            const priceExact = decimalValue(rawPrice);
+
+            const vatRateExact = decimalValue(
+              subService?.service_vat_percentage ??
+                subService?.serviceVatPercentage ??
+                subService?.vatPercentage ??
+                props.vatPercentage ??
+                0,
+            );
+
+            const vatExact = priceExact.mul(vatRateExact).div(100);
+            const feesIncVatExact = priceExact.plus(vatExact);
+
+            const rowFees = truncateMoney(priceExact);
+            const rowVat = truncateMoney(vatExact);
+            const rowFeesIncVat = truncateMoney(feesIncVatExact);
+            const rowVatRate = vatRateExact.toNumber();
+
+            const driverList = subService.pricingDriverList || [];
 
             return `
               <tr>
@@ -8502,36 +11380,37 @@ ${
                     ? `<td style="border: 1px solid #dddddd; padding: 8px; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: right;">
                         ${
                           props.ProposalObject.feeTypeId === 1
-                            ? props.formatValue(price, props.currencyID)
+                            ? props.formatValue(rowFees, props.currencyID)
                             : "&#10003;"
                         }
                       </td>`
                     : ""
                 }
                 ${
-                  (Number(props.vatPercentageOneOff) || 0) > 0 &&
+                  props.vatPercentage !== null &&
                   props.visibleFieldsCustomTemp.vatRate
-                    ? `<td style="border: 1px solid #dddddd; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: right; padding: 8px;">${subService.service_vat_percentage}%</td>`
+                    ? `<td style="border: 1px solid #dddddd; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: right; padding: 8px;">${rowVatRate.toFixed(2)}%</td>`
                     : ""
                 }
                 ${
-                  (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
+                  props.vatPercentage !== null &&
+                  props.visibleFieldsCustomTemp.vat
                     ? `<td style="border: 1px solid #dddddd; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: right; padding: 8px;">
                         ${
                           props.ProposalObject.feeTypeId === 1
-                            ? props.formatValue(vat, props.currencyID)
+                            ? props.formatValue(rowVat, props.currencyID)
                             : "&#10003;"
                         }
                       </td>`
                     : ""
                 }
                 ${
-                  (Number(props.vatPercentageOneOff) || 0) > 0 &&
+                  props.vatPercentage !== null &&
                   props.visibleFieldsCustomTemp.feesIncVat
                     ? `<td style="border: 1px solid #dddddd; width: 150px; word-wrap: break-word; white-space: normal; overflow-wrap: break-word; text-align: right; padding: 8px;">
                         ${
                           props.ProposalObject.feeTypeId === 1
-                            ? props.formatValue(total, props.currencyID)
+                            ? props.formatValue(rowFeesIncVat, props.currencyID)
                             : "&#10003;"
                         }
                       </td>`
@@ -8547,223 +11426,339 @@ ${
 
     <!-- NET TOTAL ROW -->
     <tr style="background-color:#808080;">
-  <td style="border: 1px solid #dddddd; padding: 8px; color: white;">Net Total</td>
   ${
-    props.visibleFieldsCustomTemp.serviceCategory
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;"></td>`
+    customOneOffDescriptionColumnCount > 0
+      ? `
+        <td
+          colspan="${customOneOffDescriptionColumnCount}"
+          style="
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+            color: white;
+            word-break: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
+          "
+        >
+          Net Total
+        </td>
+      `
       : ""
   }
-  ${
-    props.visibleFieldsCustomTemp.serviceScope
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;"></td>`
-      : ""
-  }
+
   ${
     props.visibleFieldsCustomTemp.fees
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
-          ${
-            Number(props.OneOffPricingInfo.OriginalPrice) <
-              Number(props.OneOffPricingInfo.DiscountedPrice) ||
-            (Number(props.OneOffPricingInfo.Discount) > 0 &&
-              !props.ProposalObject.DiscountLines)
-              ? props.formatValue(
-                  props.OneOffPricingInfo.DiscountedPrice,
-                  props.currencyID,
-                )
-              : props.formatValue(
-                  props.OneOffPricingInfo.OriginalPrice,
-                  props.currencyID,
-                )
-          }
-        </td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;"></td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
+      ? `
+        <td
+          style="
+            border: 1px solid #dddddd;
+            text-align: right;
+            padding: 8px;
+            color: white;
+            word-break: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
+          "
+        >
           ${props.formatValue(
-            Number(props.OneOffPricingInfo.staticTotalVATOneOff),
+            useCustomOneOffFinalAsNet
+              ? customOneOffFooter.discountedFees
+              : customOneOffFooter.netFees,
             props.currencyID,
           )}
-        </td>`
+        </td>
+      `
       : ""
   }
+
   ${
-    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">
-          ${
-            Number(props.OneOffPricingInfo.OriginalPrice) <
-              Number(props.OneOffPricingInfo.DiscountedPrice) ||
-            (Number(props.OneOffPricingInfo.Discount) > 0 &&
-              !props.ProposalObject.DiscountLines)
-              ? props.formatValue(
-                  Number(props.OneOffPricingInfo.DiscountedPrice) +
-                    Number(props.OneOffPricingInfo.staticTotalVATOneOff),
-                  props.currencyID,
-                )
-              : props.formatValue(
-                  Number(props.OneOffPricingInfo.OriginalPrice) +
-                    Number(props.OneOffPricingInfo.staticTotalVATOneOff),
-                  props.currencyID,
-                )
-          }
-        </td>`
+    hasCustomOneOffVAT && props.visibleFieldsCustomTemp.vatRate
+      ? `
+        <td
+          style="
+            border: 1px solid #dddddd;
+            text-align: right;
+            padding: 8px;
+            color: white;
+          "
+        ></td>
+      `
+      : ""
+  }
+
+  ${
+    hasCustomOneOffVAT && props.visibleFieldsCustomTemp.vat
+      ? `
+        <td
+          style="
+            border: 1px solid #dddddd;
+            text-align: right;
+            padding: 8px;
+            color: white;
+            word-break: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
+          "
+        >
+          ${props.formatValue(
+            useCustomOneOffFinalAsNet
+              ? customOneOffFooter.discountedVat
+              : customOneOffFooter.netVat,
+            props.currencyID,
+          )}
+        </td>
+      `
+      : ""
+  }
+
+  ${
+    hasCustomOneOffVAT && props.visibleFieldsCustomTemp.feesIncVat
+      ? `
+        <td
+          style="
+            border: 1px solid #dddddd;
+            text-align: right;
+            padding: 8px;
+            color: white;
+            word-break: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
+          "
+        >
+          ${props.formatValue(
+            useCustomOneOffFinalAsNet
+              ? customOneOffFooter.discountedFeesIncVat
+              : customOneOffFooter.netFeesIncVat,
+            props.currencyID,
+          )}
+        </td>
+      `
       : ""
   }
 </tr>
 
     ${
-      Number(props.OneOffPricingInfo.Discount) > 0 &&
-      props.ProposalObject.DiscountLines
+      showCustomOneOffDiscount
         ? `
-        <tr style="background-color:#DCDCDC;">
-  <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;">Discount</td>
-  ${
-    props.visibleFieldsCustomTemp.serviceCategory
-      ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;"></td>`
-      : ""
-  }
-  ${
-    props.visibleFieldsCustomTemp.serviceScope
-      ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;"></td>`
-      : ""
-  }
-  ${
-    props.visibleFieldsCustomTemp.fees
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black; word-break: break-word; white-space: normal; overflow-wrap: break-word;">(-) ${props.formatValue(
-          props.OneOffPricingInfo.Discount,
-          props.currencyID,
-        )}</td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black;"></td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black; word-break: break-word; white-space: normal; overflow-wrap: break-word;">(-) ${props.formatValue(
-          Number(props.OneOffPricingInfo.staticTotalVATOneOff) -
-            Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff),
-          props.currencyID,
-        )}</td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: black; word-break: break-word; white-space: normal; overflow-wrap: break-word;">(-) ${props.formatValue(
-          Number(props.OneOffPricingInfo.Discount) +
-            (Number(props.OneOffPricingInfo.staticTotalVATOneOff) -
-              Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff)),
-          props.currencyID,
-        )}</td>`
-      : ""
-  }
-</tr>
-              `
-        : ``
-    }
+      <!-- DISCOUNT ROW -->
+      <tr style="background-color:#DCDCDC;">
+        ${
+          customOneOffDescriptionColumnCount > 0
+            ? `
+              <td
+                colspan="${customOneOffDescriptionColumnCount}"
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: left;
+                  padding: 8px;
+                  color: black;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                Discount
+              </td>
+            `
+            : ""
+        }
 
-${
-  (Number(props.vatPercentageOneOff) || 0) > 0 &&
-  Number(props.OneOffPricingInfo.Discount) > 0 &&
-  props.ProposalObject.DiscountLines
-    ? `<tr style="background-color:#808080;">
-  <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">Grand Total</td>
-  ${
-    props.visibleFieldsCustomTemp.serviceCategory
-      ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;"></td>`
-      : ""
-  }
-  ${
-    props.visibleFieldsCustomTemp.serviceScope
-      ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;"></td>`
-      : ""
-  }
-  ${
-    props.visibleFieldsCustomTemp.fees
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
-          props.OneOffPricingInfo.DiscountedPrice,
-          props.currencyID,
-        )}</td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;"></td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
-          Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff),
-          props.currencyID,
-        )}</td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
-          Number(props.OneOffPricingInfo.DiscountedPrice) +
-            Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff),
-          props.currencyID,
-        )}</td>`
-      : ""
-  }
-</tr>`
-    : Number(props.OneOffPricingInfo.Discount) > 0 &&
-        props.ProposalObject.DiscountLines
-      ? `<tr style="background-color:#808080;">
-  <td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: white;">Discounted Total</td>
-  ${
-    props.visibleFieldsCustomTemp.serviceCategory
-      ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;"></td>`
-      : ""
-  }
-  ${
-    props.visibleFieldsCustomTemp.serviceScope
-      ? `<td style="border: 1px solid #dddddd; text-align: left; padding: 8px; color: black;"></td>`
-      : ""
-  }
-  ${
-    props.visibleFieldsCustomTemp.fees
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
-          props.OneOffPricingInfo.DiscountedPrice,
-          props.currencyID,
-        )}</td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vatRate
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white;"></td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.vat
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
-          Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff),
-          props.currencyID,
-        )}</td>`
-      : ""
-  }
-  ${
-    (Number(props.vatPercentageOneOff) || 0) > 0 && props.visibleFieldsCustomTemp.feesIncVat
-      ? `<td style="border: 1px solid #dddddd; text-align: right; padding: 8px; color: white; word-break: break-word; white-space: normal; overflow-wrap: break-word;">${props.formatValue(
-          Number(props.OneOffPricingInfo.DiscountedPrice) +
-            Number(props.OneOffPricingInfo.totalServiceWiseVATOneOff),
-          props.currencyID,
-        )}</td>`
-      : ""
-  }
-</tr>`
-      : ""
-}
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: black;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                (-) ${props.formatValue(
+                  customOneOffFooter.discountFees,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          hasCustomOneOffVAT && props.visibleFieldsCustomTemp.vatRate
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: black;
+                "
+              ></td>
+            `
+            : ""
+        }
+
+        ${
+          hasCustomOneOffVAT && props.visibleFieldsCustomTemp.vat
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: black;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                (-) ${props.formatValue(
+                  customOneOffFooter.discountVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          hasCustomOneOffVAT && props.visibleFieldsCustomTemp.feesIncVat
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: black;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                (-) ${props.formatValue(
+                  customOneOffFooter.discountFeesIncVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+      </tr>
+
+      <!-- GRAND TOTAL / DISCOUNTED TOTAL ROW -->
+      <tr style="background-color:#808080;">
+        ${
+          customOneOffDescriptionColumnCount > 0
+            ? `
+              <td
+                colspan="${customOneOffDescriptionColumnCount}"
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: left;
+                  padding: 8px;
+                  color: white;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                ${hasCustomOneOffVAT ? "Grand Total" : "Discounted Total"}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          props.visibleFieldsCustomTemp.fees
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: white;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                ${props.formatValue(
+                  customOneOffFooter.discountedFees,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          hasCustomOneOffVAT && props.visibleFieldsCustomTemp.vatRate
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: white;
+                "
+              ></td>
+            `
+            : ""
+        }
+
+        ${
+          hasCustomOneOffVAT && props.visibleFieldsCustomTemp.vat
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: white;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                ${props.formatValue(
+                  customOneOffFooter.discountedVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+
+        ${
+          hasCustomOneOffVAT && props.visibleFieldsCustomTemp.feesIncVat
+            ? `
+              <td
+                style="
+                  border: 1px solid #dddddd;
+                  text-align: right;
+                  padding: 8px;
+                  color: white;
+                  word-break: break-word;
+                  white-space: normal;
+                  overflow-wrap: break-word;
+                "
+              >
+                ${props.formatValue(
+                  customOneOffFooter.discountedFeesIncVat,
+                  props.currencyID,
+                )}
+              </td>
+            `
+            : ""
+        }
+      </tr>
+    `
+        : ""
+    }
 
                         </table>
 </div>`
@@ -8804,7 +11799,7 @@ ${
               prevElementType === ElementType.PAGE_BREAK ||
               prevElementType === ElementType.AWS_PDF_LINK
             ) {
-              if (props?.updatedTnCData || props?.pdf) {
+              if (props?.updatedTnCData || props?.engagementObj?.pdf) {
                 if (
                   props?.updatedTnCData !== null &&
                   props?.updatedTnCData !== undefined
@@ -8815,19 +11810,19 @@ ${
                       <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
                   });
                 } else if (
-                  props?.pdf !== null ||
+                  props?.engagementObj?.pdf !== null ||
                   props?.updatedTnCData === null
                 ) {
                   pdfDataArray.push(currentArray);
                   currentArray = [];
                   currentArray.push({
-                    ["awsLink"]: props?.pdf,
+                    ["awsLink"]: props.engagementObj.pdf,
                   });
                 }
               }
             } else {
               pdfDataArray.push(currentArray);
-              if (props?.updatedTnCData || props?.pdf) {
+              if (props?.updatedTnCData || props?.engagementObj?.pdf) {
                 if (
                   props?.updatedTnCData !== null &&
                   props?.updatedTnCData !== undefined
@@ -8840,12 +11835,12 @@ ${
                     },
                   ];
                 } else if (
-                  props?.pdf !== null ||
+                  props?.engagementObj?.pdf !== null ||
                   props?.updatedTnCData === null
                 ) {
                   currentArray = [
                     {
-                      ["awsLink"]: props?.pdf,
+                      ["awsLink"]: props.engagementObj.pdf,
                     },
                   ];
                 }
@@ -8866,7 +11861,7 @@ ${
                   prevElementType === ElementType.PAGE_BREAK ||
                   prevElementType === ElementType.AWS_PDF_LINK
                 ) {
-                  if (props?.updatedTnCData || props?.pdf) {
+                  if (props?.updatedTnCData || props?.engagementObj?.pdf) {
                     if (
                       props?.updatedTnCData !== null &&
                       props?.updatedTnCData !== undefined
@@ -8877,19 +11872,19 @@ ${
                         <div style="padding-left: 40px; padding-right: 40px;">${appliedFontTNCContent}</div>`,
                       });
                     } else if (
-                      props?.pdf !== null ||
+                      props?.engagementObj?.pdf !== null ||
                       props?.updatedTnCData === null
                     ) {
                       pdfDataArray.push(currentArray);
                       currentArray = [];
                       currentArray.push({
-                        ["awsLink"]: props?.pdf,
+                        ["awsLink"]: props.engagementObj.pdf,
                       });
                     }
                   }
                 } else {
                   pdfDataArray.push(currentArray);
-                  if (props?.updatedTnCData || props?.pdf) {
+                  if (props?.updatedTnCData || props?.engagementObj?.pdf) {
                     if (
                       props?.updatedTnCData !== null &&
                       props?.updatedTnCData !== undefined
@@ -8902,12 +11897,12 @@ ${
                         },
                       ];
                     } else if (
-                      props?.pdf !== null ||
+                      props?.engagementObj?.pdf !== null ||
                       props?.updatedTnCData === null
                     ) {
                       currentArray = [
                         {
-                          ["awsLink"]: props?.pdf,
+                          ["awsLink"]: props.engagementObj.pdf,
                         },
                       ];
                     }
@@ -9146,30 +12141,27 @@ ${
           style={{ height: isMobile ? "" : "54vh" }}
           className="tab-pane active"
         >
-          <button
-            onClick={toggleLandscape}
-            className="btn btn-primary btn-sm mt-2"
-            style={{ marginBottom: 10 }}
-          >
-            <Landscape />
-            {landscapeMode ? "Switch to Portrait" : "Switch to Landscape"}
-          </button>
+          {!flagForTemplatePdf && (
+            <button
+              onClick={toggleLandscape}
+              className="btn btn-primary btn-sm mt-2"
+              style={{ marginBottom: 10 }}
+            >
+              <Landscape />
+              {landscapeMode ? "Switch to Portrait" : "Switch to Landscape"}
+            </button>
+          )}
           {MergePdfUrl &&
             (isMobile ? (
-              <Suspense>
-                <PdfViewer isVisible={false} pdfFile={MergePdfUrl} />
-              </Suspense>
+              <PdfViewer isVisible={false} pdfFile={MergePdfUrl} />
             ) : (
-              <>
-                <iframe
-                  title="PDF Viewer"
-                  src={MergePdfUrl}
-                  // width="100%"
-                  // height="700px"
-                  style={{ width: "100%", height: "100vh", border: "none" }}
-                  loading="lazy"
-                ></iframe>
-              </>
+              <iframe
+                title="PDF Viewer"
+                src={MergePdfUrl}
+                // width="100%"
+                // height="700px"
+                style={{ width: "100%", height: "100vh", border: "none" }}
+              ></iframe>
             ))}
 
           {/* </div> */}
@@ -9426,7 +12418,10 @@ ${
                       </a>
                     </li>
                     <li>
-                      <a className="dropdown-item" onClick={openPopup}>
+                      <a
+                        className="dropdown-item"
+                        onClick={() => setIsPopUpVisible(true)}
+                      >
                         <span style={{ fontSize: "0.75rem" }}>
                           Customize Email and Send
                         </span>
@@ -9533,8 +12528,7 @@ ${
                 </div>
               </div>
             )}
-            {(common.enableEL == 1 ||
-              !props?.pricingSettingObj?.remainingESignatures) &&
+            {common.enableEL == 1 &&
               userAccessData.Admin_Engagement_Latter_CanAdd &&
               userAccessData.Admin_Engagement_Latter_CanView &&
               props.moduleName == "Quote" && (
@@ -9627,7 +12621,10 @@ ${
                       </button>
                     </li>
                     <li>
-                      <button className="dropdown-item" onClick={openPopup}>
+                      <button
+                        className="dropdown-item"
+                        onClick={() => setIsPopUpVisible(true)}
+                      >
                         <span style={{ fontSize: "0.75rem" }}>
                           Customize Email and Send
                         </span>
@@ -9685,7 +12682,7 @@ ${
                             <input
                               type="checkbox"
                               className="me-2"
-                              checked={props?.engagementObj?.selectedAttachments.find(
+                              checked={props.ProposalObject.selectedAttachments.find(
                                 (att) =>
                                   att.templatePDFKeyID ===
                                   item.templatePDFKeyID,

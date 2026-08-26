@@ -93,7 +93,7 @@ const Dashboard = () => {
   const { cardBackgroundColor, cardStyle } = useContext(ColorContext);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const [currencyID, setCurrencyID] = useState(1);
+  const [currencyID,setCurrencyID] = useState(1);
   const [selectedOption, setSelectedOption] = useState(Utils.CalenderFilter[0]);
   const [showUserModal, setShowUserModal] = useState(false);
   const [fromDate, setFromDate] = useState(dayjs());
@@ -303,7 +303,7 @@ const Dashboard = () => {
       let BusinessTypeListData = [];
       const ProspectData = await GetProspectTypeVariationLookupList(
         common.organisationKeyID,
-        common.userKeyID,
+        common.userKeyID
       );
       if (ProspectData?.data?.statusCode === 200) {
         if (ProspectData?.data?.responseData?.data) {
@@ -311,17 +311,17 @@ const Dashboard = () => {
             (BusinessType) => ({
               value: BusinessType.businessTypeID,
               label: BusinessType.businessTypeName,
-            }),
+            })
           );
         }
       }
       let NoBTypeListData = [];
       const NOBType = await GetNOBTypeLookupList(
         common.organisationKeyID,
-        common.userKeyID,
+        common.userKeyID
       );
       if (NOBType?.data?.statusCode === 200) {
-        // console.log(NOBType?.data?.responseData?.data);
+        console.log(NOBType?.data?.responseData?.data);
         if (NOBType?.data?.responseData?.data) {
           NoBTypeListData = NOBType.data.responseData.data.map((NOB) => ({
             value: NOB.businessNatureID,
@@ -346,7 +346,7 @@ const Dashboard = () => {
           }
           const orgName =
             OrganisationListData.find(
-              (org) => org.organisationKeyID === common.organisationKeyID,
+              (org) => org.organisationKeyID === common.organisationKeyID
             )?.organisationName || "Unknown";
 
           const headersArray = [
@@ -418,7 +418,7 @@ const Dashboard = () => {
           if (proposalDataResponse?.data?.statusCode === 200) {
             const proposalData =
               proposalDataResponse.data.responseData.data || [];
-            // console.log(proposalData);
+            console.log(proposalData);
             // Define status mappings
             const statusMappings = [
               { id: 1, label: "Draft" },
@@ -428,7 +428,7 @@ const Dashboard = () => {
             // Filter and process data for each status
             statusMappings.forEach(({ id, label }) => {
               const filteredData = proposalData.filter(
-                (item) => item.statusID === id,
+                (item) => item.statusID === id
               );
               const dataRows = filteredData.map((item) => [
                 item.prefix,
@@ -479,7 +479,7 @@ const Dashboard = () => {
             if (contractDataResponse?.data?.statusCode === 200) {
               const contractData =
                 contractDataResponse.data.responseData.data || [];
-              // console.log(contractData);
+              console.log(contractData);
               const statusMappings = [
                 { id: 1, label: "Draft" },
                 { id: 2, label: "Sent" },
@@ -490,7 +490,7 @@ const Dashboard = () => {
               ];
               statusMappings.forEach(({ id, label }) => {
                 const filteredData = contractData.filter(
-                  (item) => item.statusID === id,
+                  (item) => item.statusID === id
                 );
                 const dataRows = filteredData.map((item) => [
                   item.prefix,
@@ -519,10 +519,10 @@ const Dashboard = () => {
           const workbook = XLSX.utils.book_new();
           const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
           const worksheetProposal = XLSX.utils.aoa_to_sheet(
-            worksheetProposalData,
+            worksheetProposalData
           );
           const worksheetContract = XLSX.utils.aoa_to_sheet(
-            worksheetContractData,
+            worksheetContractData
           );
 
           const maxWidths = worksheetData.reduce((widths, row) => {
@@ -542,7 +542,7 @@ const Dashboard = () => {
               });
               return widths;
             },
-            [],
+            []
           );
           const maxWidthsContract = worksheetContractData.reduce(
             (widths, row) => {
@@ -553,7 +553,7 @@ const Dashboard = () => {
               });
               return widths;
             },
-            [],
+            []
           );
           worksheet["!cols"] = maxWidths.map((w) => ({ wch: w + 2 }));
           worksheetProposal["!cols"] = maxWidthsProposal.map((w) => ({
@@ -568,13 +568,13 @@ const Dashboard = () => {
             XLSX.utils.book_append_sheet(
               workbook,
               worksheetProposal,
-              "Proposal",
+              "Proposal"
             );
             if (common.enableEL === 1) {
               XLSX.utils.book_append_sheet(
                 workbook,
                 worksheetContract,
-                "Engagement Letter",
+                "Engagement Letter"
               );
             }
           }
@@ -636,7 +636,7 @@ const Dashboard = () => {
           if (startDate !== undefined && endDate !== undefined) {
             setLoader(false);
           }
-          if (response?.data?.responseData?.currencyID) {
+          if(response?.data?.responseData?.currencyID) {
             const currency = response?.data?.responseData?.currencyID;
             setCurrencyID(currency);
           } else {
@@ -689,10 +689,10 @@ const Dashboard = () => {
         break;
       case CalenderFilterEnum.This_Week:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).fromDate
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).toDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).toDate
         );
 
         DashboardCountData(
@@ -700,172 +700,170 @@ const Dashboard = () => {
           GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).toDate,
 
           setFromDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).fromDate,
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).fromDate
           ),
           setToDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).toDate,
-          ),
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_Week).toDate
+          )
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.Last_Week:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).fromDate
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).toDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).toDate
         );
         DashboardCountData(
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).fromDate,
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).toDate,
 
           setFromDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).fromDate,
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).fromDate
           ),
           setToDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).toDate,
-          ),
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Week).toDate
+          )
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.This_Month:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).fromDate
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).toDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).toDate
         );
         DashboardCountData(
           GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).fromDate,
           GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).toDate,
           setFromDateForFilter(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).fromDate,
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).fromDate
           ),
           setToDateForFilter(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).toDate,
-          ),
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_Month).toDate
+          )
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.Last_Month:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).fromDate
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).toDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).toDate
         );
         DashboardCountData(
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).fromDate,
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).toDate,
           setToDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).toDate,
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).toDate
           ),
 
           setFromDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).fromDate,
-          ),
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Month).fromDate
+          )
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.This_Quarter:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).fromDate
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).toDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).toDate
         );
         DashboardCountData(
           GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).fromDate,
           GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).toDate,
 
           setFromDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).fromDate,
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).fromDate
           ),
           setToDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).toDate,
-          ),
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_Quarter).toDate
+          )
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.Last_Quarter:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).fromDate
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).toDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).toDate
         );
         DashboardCountData(
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).fromDate,
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).toDate,
 
           setFromDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).fromDate,
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).fromDate
           ),
           setToDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).toDate,
-          ),
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Quarter).toDate
+          )
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.This_6_Months:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).fromDate
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).toDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).toDate
         );
         DashboardCountData(
           GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).fromDate,
           GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).toDate,
 
           setFromDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months)
-              .fromDate,
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).fromDate
           ),
           setToDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).toDate,
-          ),
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_6_Months).toDate
+          )
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.Last_6_Months:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).fromDate
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).toDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).toDate
         );
         DashboardCountData(
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).fromDate,
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).toDate,
 
           setFromDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months)
-              .fromDate,
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).fromDate
           ),
           setToDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).toDate,
-          ),
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_6_Months).toDate
+          )
         );
         setShowDatePicker(false);
         break;
       case CalenderFilterEnum.This_Year:
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).fromDate
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).toDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).toDate
         );
         DashboardCountData(
           GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).fromDate,
           GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).toDate,
 
           setFromDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).fromDate,
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).fromDate
           ),
           setToDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).toDate,
-          ),
+            GetCustomDate(dateFormat, CalenderFilterEnum.This_Year).toDate
+          )
         );
         setShowDatePicker(false);
         break;
@@ -878,21 +876,21 @@ const Dashboard = () => {
         DashboardCountData(dates.fromDate, dates.toDate);
         setShowDatePicker(false);
         setFromDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).fromDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).fromDate
         );
         setToDateForFilter(
-          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).toDate,
+          GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).toDate
         );
         DashboardCountData(
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).fromDate,
           GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).toDate,
 
           setFromDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).fromDate,
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).fromDate
           ),
           setToDateForExport(
-            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).toDate,
-          ),
+            GetCustomDate(dateFormat, CalenderFilterEnum.Last_Year).toDate
+          )
         );
         setShowDatePicker(false);
         break;
@@ -915,7 +913,7 @@ const Dashboard = () => {
       let OrganisationListData = JSON.parse(OrganisationList);
       setOrganisationsList(OrganisationListData);
       const MatchOrganisationKeyID = OrganisationListData.filter(
-        (item) => item.organisationKeyID == common.organisationKeyID,
+        (item) => item.organisationKeyID == common.organisationKeyID
       );
       // Check if userThemeSettings is not null or undefined
 
@@ -947,7 +945,7 @@ const Dashboard = () => {
 
       localStorage.setItem(
         "userAccess",
-        JSON.stringify(organisationData.accessList),
+        JSON.stringify(organisationData.accessList)
       );
       setActiveOrganization(organisationData.accessList);
 
@@ -987,7 +985,7 @@ const Dashboard = () => {
               professionTypeLists: organisationData.professionTypeLists,
               organisationCount: OrganisationListData.length,
               enableEL: organisationData.enableEL,
-            }),
+            })
           );
         }
       }
@@ -997,7 +995,7 @@ const Dashboard = () => {
   const getOrganizationNameByKeyID = (organisationsList, organisationKeyID) => {
     // Find the organization object in the organisationsList array that matches the organisationKeyID
     const organization = organisationsList.find(
-      (org) => org.organisationKeyID === organisationKeyID,
+      (org) => org.organisationKeyID === organisationKeyID
     );
 
     // If the organization object is found, return its organisationName
@@ -1012,7 +1010,7 @@ const Dashboard = () => {
   // Usage
   const orgName = getOrganizationNameByKeyID(
     organisationsList,
-    common.organisationKeyID,
+    common.organisationKeyID
   );
 
   const GetOrganisationsListData = async (KeyID) => {
@@ -1028,7 +1026,7 @@ const Dashboard = () => {
           localStorage.removeItem("OrganisationLocalList");
           localStorage.setItem(
             "OrganisationLocalList",
-            JSON.stringify(OrganisationsListData),
+            JSON.stringify(OrganisationsListData)
           );
           setOrganisationsList(OrganisationsListData);
 
@@ -1052,7 +1050,7 @@ const Dashboard = () => {
           }
           localStorage.setItem(
             "userAccess",
-            JSON.stringify(organisationData.accessList),
+            JSON.stringify(organisationData.accessList)
           );
           setActiveOrganization(organisationData.accessList);
 
@@ -1095,7 +1093,7 @@ const Dashboard = () => {
                     ? []
                     : organisationData.professionTypeLists,
                 enableEL: organisationData.enableEL,
-              }),
+              })
             );
           } else if (
             getOrganisationLookupListApiCallCount < maxCountToRecallApi
@@ -1235,20 +1233,11 @@ const Dashboard = () => {
       formattedAmount = `${currencySymbol}${formatWithCommas(value)}k`;
     } else {
       formattedAmount = new Intl.NumberFormat(
-        currencyID === 3 ? "en-US" : "en-GB",
-        {
-          currency:
-            currencyID === 1
-              ? "GBP"
-              : currencyID === 2
-                ? "EUR"
-                : currencyID === 3
-                  ? "USD"
-                  : "INR",
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
-        },
-      ).format(total);
+        currencyID === 3 ? "en-US" : "en-GB", {
+        currency: currencyID === 1 ? "GBP" : currencyID === 2 ? "EUR" : currencyID === 3 ? "USD" : "INR",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(total);
     }
 
     return formattedAmount;
@@ -1256,7 +1245,7 @@ const Dashboard = () => {
 
   return (
     <div class="main-content">
-      <div class="page-content" style={{ height: "90vh", marginLeft: "300px" }}>
+      <div class="page-content" style={{ height: "90vh" }}>
         {accessCount === undefined || loader ? (
           <div className="center-screen">
             <div className="text-center">
@@ -1363,7 +1352,7 @@ const Dashboard = () => {
                                           <h5 class="text-white mb-0">
                                             {calculateGBPAmount(
                                               dashboardCount.quotationDraft_AmountOneOff,
-                                              dashboardCount.quotationDraft_AmountRecc,
+                                              dashboardCount.quotationDraft_AmountRecc
                                             )}
                                           </h5>
                                         </div>
@@ -1421,7 +1410,7 @@ const Dashboard = () => {
                                           <h5 class=" text-white  mb-0">
                                             {calculateGBPAmount(
                                               dashboardCount.quotationSent_AmountOneOff,
-                                              dashboardCount.quotationSent_AmountRecc,
+                                              dashboardCount.quotationSent_AmountRecc
                                             )}
                                           </h5>
                                         </div>
@@ -1484,7 +1473,7 @@ const Dashboard = () => {
                                           <h5 class="mb-0 text-white ">
                                             {calculateGBPAmount(
                                               dashboardCount.quotationAccepted_AmountOneOff,
-                                              dashboardCount.quotationAccepted_AmountRecc,
+                                              dashboardCount.quotationAccepted_AmountRecc
                                             )}
                                           </h5>
                                         </div>
@@ -1528,7 +1517,7 @@ const Dashboard = () => {
                                       onClick={() =>
                                         handleAddData(
                                           "Sent",
-                                          statusID.Awaiting_Signature,
+                                          statusID.Awaiting_Signature
                                         )
                                       }
                                     >
@@ -1549,7 +1538,7 @@ const Dashboard = () => {
                                               <h5 class="mb-0 text-white ">
                                                 {calculateGBPAmount(
                                                   dashboardCount.quotationAwaitingSignatureEnd_AmountOneOff,
-                                                  dashboardCount.quotationAwaitingSignatureEnd_AmountRecc,
+                                                  dashboardCount.quotationAwaitingSignatureEnd_AmountRecc
                                                 )}
                                               </h5>
                                             </div>
@@ -1568,9 +1557,7 @@ const Dashboard = () => {
                                         </p>
                                         <div class="text-end pt-1">
                                           <h5 class="mb-0 text-white ">
-                                            {
-                                              dashboardCount?.quotationAccepted
-                                            }{" "}
+                                            {dashboardCount?.quotationAccepted}{" "}
                                           </h5>
                                         </div>
                                       </div>
@@ -1650,7 +1637,7 @@ const Dashboard = () => {
                                       onClick={() =>
                                         handleAddData(
                                           "Decline",
-                                          statusID.Declined,
+                                          statusID.Declined
                                         )
                                       }
                                     >
@@ -1671,7 +1658,7 @@ const Dashboard = () => {
                                               <h5 class="mb-0 text-white ">
                                                 {calculateGBPAmount(
                                                   dashboardCount.quotationDeclined_AmountOneOff,
-                                                  dashboardCount.quotationDeclined_AmountRecc,
+                                                  dashboardCount.quotationDeclined_AmountRecc
                                                 )}
                                               </h5>
                                             </div>
@@ -1723,7 +1710,7 @@ const Dashboard = () => {
                                     onClick={() =>
                                       GetHandleChangeFilter(
                                         "Draft",
-                                        statusID.Draft,
+                                        statusID.Draft
                                       )
                                     }
                                   >
@@ -1744,7 +1731,7 @@ const Dashboard = () => {
                                             <h5 class="mb-0 text-white ">
                                               {calculateGBPAmount(
                                                 dashboardCount.contractDraft_AmountOneOff,
-                                                dashboardCount.contractDraft_AmountRecc,
+                                                dashboardCount.contractDraft_AmountRecc
                                               )}
                                             </h5>
                                           </div>
@@ -1772,60 +1759,60 @@ const Dashboard = () => {
                               </div>
 
                               {/* Void EL hidden */}
-                              {dashboardCount?.contractVoid > 0 && (
-                                <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
-                                    common.organisationKeyID !== null
-                                      ? "cursor-pointer"
-                                      : ""
-                                  } `}
-                                >
-                                  <div className="dashboard-new-design">
+                              {dashboardCount?.contractVoid > 0 && (                
+                              <div
+                                className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${
+                                  common.organisationKeyID !== null
+                                    ? "cursor-pointer"
+                                    : ""
+                                } `}
+                              >
+                                <div className="dashboard-new-design">
+                                  <div
+                                    class="card"
+                                    onClick={() =>
+                                      GetHandleChangeFilter(
+                                        "Void",
+                                        statusID.Void
+                                      )
+                                    }
+                                  >
                                     <div
-                                      class="card"
-                                      onClick={() =>
-                                        GetHandleChangeFilter(
-                                          "Void",
-                                          statusID.Void,
-                                        )
-                                      }
+                                      class="card-header p-3 pt-2"
+                                      style={cardStyle}
                                     >
-                                      <div
-                                        class="card-header p-3 pt-2"
-                                        style={cardStyle}
-                                      >
-                                        <div className="row">
-                                          <div className="col-lg-6">
-                                            <img
-                                              src={EngagementLatterSignedSvg}
-                                              className="CardImage"
-                                              alt
-                                            />
-                                          </div>
-                                          <div className="col-lg-6">
-                                            <div class="text-end pt-1">
-                                              <h4 class="mb-0 text-white ">
-                                                {" "}
-                                                {dashboardCount?.contractVoid}
-                                              </h4>
-                                            </div>
+                                      <div className="row">
+                                        <div className="col-lg-6">
+                                          <img
+                                            src={EngagementLatterSignedSvg}
+                                            className="CardImage"
+                                            alt
+                                          />
+                                        </div>
+                                        <div className="col-lg-6">
+                                          <div class="text-end pt-1">
+                                            <h4 class="mb-0 text-white ">
+                                              {" "}
+                                              {dashboardCount?.contractVoid}
+                                            </h4>
                                           </div>
                                         </div>
-                                        <div class="text-end pt-1"></div>
                                       </div>
-                                      <hr class="dark horizontal my-0" />
-                                      <div
-                                        class="card-footer p-3"
-                                        style={cardStyle}
-                                      >
-                                        <p class="mb-0 font-weight-bolder">
-                                          <span class="text-success text-sm font-weight-bolder" />
-                                          Void {EngagementName}
-                                        </p>
-                                      </div>
+                                      <div class="text-end pt-1"></div>
+                                    </div>
+                                    <hr class="dark horizontal my-0" />
+                                    <div
+                                      class="card-footer p-3"
+                                      style={cardStyle}
+                                    >
+                                      <p class="mb-0 font-weight-bolder">
+                                        <span class="text-success text-sm font-weight-bolder" />
+                                        Void {EngagementName}
+                                      </p>
                                     </div>
                                   </div>
                                 </div>
+                              </div>
                               )}
 
                               <div
@@ -1841,7 +1828,7 @@ const Dashboard = () => {
                                     onClick={() =>
                                       GetHandleChangeFilter(
                                         "sent",
-                                        statusID.Sent,
+                                        statusID.Sent
                                       )
                                     }
                                   >
@@ -1862,7 +1849,7 @@ const Dashboard = () => {
                                             <h5 class="mb-0 text-white ">
                                               {calculateGBPAmount(
                                                 dashboardCount.contractSent_AmountOneOff,
-                                                dashboardCount.contractSent_AmountRecc,
+                                                dashboardCount.contractSent_AmountRecc
                                               )}
                                             </h5>
                                           </div>
@@ -1961,7 +1948,7 @@ const Dashboard = () => {
                                     onClick={() =>
                                       GetHandleChangeFilter(
                                         "Signed",
-                                        statusID.Signed,
+                                        statusID.Signed
                                       )
                                     }
                                   >
@@ -1982,7 +1969,7 @@ const Dashboard = () => {
                                             <h5 class="mb-0 text-white ">
                                               {calculateGBPAmount(
                                                 dashboardCount.contractSigned_AmountOneOff,
-                                                dashboardCount.contractSigned_AmountRecc,
+                                                dashboardCount.contractSigned_AmountRecc
                                               )}
                                             </h5>
                                           </div>
@@ -2024,7 +2011,7 @@ const Dashboard = () => {
                                     onClick={() =>
                                       GetHandleChangeFilter(
                                         "Decline",
-                                        statusID.Declined,
+                                        statusID.Declined
                                       )
                                     }
                                   >
@@ -2045,7 +2032,7 @@ const Dashboard = () => {
                                             <h4 class="mb-0 text-white ">
                                               {calculateGBPAmount(
                                                 dashboardCount.contractDeclined_AmountOneOff,
-                                                dashboardCount.contractDeclined_AmountRecc,
+                                                dashboardCount.contractDeclined_AmountRecc
                                               )}
                                             </h4>
                                           </div>
@@ -2115,29 +2102,29 @@ const Dashboard = () => {
                                                   }}
                                                   onClick={() => {
                                                     navigate(
-                                                      `/${ActivityLogList?.moduleURL}`,
+                                                      `/${ActivityLogList?.moduleURL}`
                                                     );
                                                   }}
                                                 >
                                                   {ActivityLogList.logMessage
                                                     ?.replace(
                                                       /quotation/g,
-                                                      proposalName,
+                                                      proposalName
                                                     )
                                                     ?.replace(
                                                       /client/g,
-                                                      prospectName,
+                                                      prospectName
                                                     )
                                                     ?.replace(
                                                       /contract/g,
-                                                      EngagementName,
+                                                      EngagementName
                                                     )}
                                                 </span>
                                               </div>
                                             </li>
                                           </>
                                         );
-                                      },
+                                      }
                                     )}
                                   </>
                                 )}

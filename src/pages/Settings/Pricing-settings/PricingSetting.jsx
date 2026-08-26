@@ -6,19 +6,34 @@ import {
   AddUpdatePricingSetting,
   GetPricingSettingModel,
 } from "../../../redux/Services/Setting/PricingSettingApi";
+import { 
+  GetServiceFeeInflationList,
+  AddUpdateServiceFeeInflation,
+  DeleteAllServiceFeeInflationConfiguration,
+  AcceptServiceFeeInflationSAChanges,
+  DeclineServiceFeeInflation,
+  GetDraftsAffectedByFeeInflationBatch
+ }  
+ from "../../../redux/Services/Config/ServicesApi";
 import { useSelector } from "react-redux";
 import SuccessModal from "../../../components/SuccessModal";
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
 import Footer from "../../../components/Footer";
 import Select from "react-select";
 import Utils from "../../../Middleware/Utils";
+import ConfirmModel from "../../../components/ConfirmationBox";
+import SAPredefinedChangesNotifyMessageModel from "../../../components/SAPredefinedChangesNotifyMessageModel";
+import ConfirmSAChangesModel from "../../../components/AcceptSuperAdminChangesConfirmation";
 
 const Pricing_Settings = () => {
+  const moduleName = "FeeInflation";
   // A] States Declaration :
+  const [activeTab, setActiveTab] = useState("PricingSetting");
   const [requireErrorMessage, setRequireErrorMessage] = useState(false);
   const [isAddUpdateActionDone, setIsAddUpdateActionDone] = useState(false);
   const [dismissModal, setDismissModal] = useState(null);
   const [prevError, SetPrevError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
   const [selectedFrequency, setSelectedFrequency] = useState(Utils.Payment_Frequency[0]);
   const masterProposalType = Utils.select_Quote_Type.find((item) => item.value === 4)?.label;
@@ -26,11 +41,36 @@ const Pricing_Settings = () => {
     userKeyID: null,
     minOneOffPriceForQC: "",
     minMonthlyPriceForQC: "",
+    minQuarterlyPriceForQC: "",
+    minHalfYearlyPriceForQC: "",
+    minYearlyPriceForQC: "",
     maxDiscountForQC: null,
     paymentFrequencyID:null,
     enableMasterProposalType: false,
     defaultProposalFormatID: null,
   });
+  const [ServiceFeeInflationConfig, setServiceFeeInflationConfig] = useState({
+    OrganisationKeyID: null,
+    UserKeyID: null,
+    ServiceFeeInflationList: [],        // full list from API
+    HasExistingConfig: false,
+    SelectionError: "",                // error message related to service selection
+    SelectedServices: [],               // array of selected service objects
+    InflationRule: {                    // single rule applied to all selected services
+      operator: null,                 // '+' | '-' | '*' | '/' | null
+      value: null,                    // decimal or null
+    },
+  });
+  const [modelRequestData, setModelRequestData] = useState({
+    message: null,
+    status: null,
+    Action: null,
+    keyID: null,
+    SearchKeyword: "",
+    RefId: null
+  });
+  const [SAConfirmStatus, setSAConfirmStatus] = useState(true); // true = accept, false = decline
+  const [SAConfirmBatchID, setSAConfirmBatchID] = useState(null);
 // const ProposalObject = {
   //   Payment_Frequency: 2 // Example initial value, adjust as needed
   // };
@@ -54,15 +94,18 @@ const Pricing_Settings = () => {
     remainingESignatures: null
   });
   const [errorMessage, setErrorMessage] = useState("");
+  const [feeInflationErrorMessage, setFeeInflationErrorMessage] = useState("");
   const {
     setLoader,
     setTopbar,
     proposalName,
     EngagementName,
     staticCurrencySymbols,
+    getCurrencySymbol,
     userAccessData,
   } = useContext(AuthContextProvider);
   const common = useSelector((state) => state.Storage); //Getting Logged Users Details From Persist Storage of redux hooks
+  const currencySymbol = getCurrencySymbol(common.currency);
   const [isFormChanged, setIsFormChanged] = useState(false);
   // B] Initial useEffect : Will call when Add/Update button click from list page
   useEffect(() => {
@@ -106,6 +149,9 @@ const Pricing_Settings = () => {
             userKeyID: common.userKeyID,
             minOneOffPriceForQC: ModelData.minOneOffPriceForQC,
             minMonthlyPriceForQC: ModelData.minMonthlyPriceForQC,
+            minQuarterlyPriceForQC: ModelData.minQuarterlyPriceForQC,
+            minHalfYearlyPriceForQC: ModelData.minHalfYearlyPriceForQC,
+            minYearlyPriceForQC: ModelData.minYearlyPriceForQC,
             maxDiscountForQC: ModelData.maxDiscountForQC,
             organisationKeyID: ModelData.organisationKeyID,
             paymentFrequencyID: ModelData.paymentFrequencyID,
@@ -118,6 +164,9 @@ const Pricing_Settings = () => {
             userKeyID: common.userKeyID,
             minOneOffPriceForQC: ModelData.minOneOffPriceForQC,
             minMonthlyPriceForQC: ModelData.minMonthlyPriceForQC,
+            minQuarterlyPriceForQC: ModelData.minQuarterlyPriceForQC,
+            minHalfYearlyPriceForQC: ModelData.minHalfYearlyPriceForQC,
+            minYearlyPriceForQC: ModelData.minYearlyPriceForQC,
             maxDiscountForQC: ModelData.maxDiscountForQC,
             organisationKeyID: ModelData.organisationKeyID,
             paymentFrequencyID: ModelData.paymentFrequencyID,
@@ -134,6 +183,167 @@ const Pricing_Settings = () => {
       console.log(error);
     }
   };
+
+  const GetServiceFeeInflationConfigData = async () => {
+    if (!common.organisationKeyID || !common.userKeyID) {
+        return;
+    }
+    try {
+        const data = await GetServiceFeeInflationList({
+            organisationKeyID: common.organisationKeyID,
+            userKeyID: common.userKeyID,
+        });
+        if (data?.data?.statusCode === 200) {
+            if (data?.data?.responseData?.data) {
+                const ListData = data?.data?.responseData?.data;
+                console.log("ListData", ListData);
+              setServiceFeeInflationConfig((prev) => ({
+                ...prev,
+                OrganisationKeyID: common.organisationKeyID,
+                UserKeyID: common.userKeyID,
+                ServiceFeeInflationList: ListData,
+
+                // auto select configured services
+                SelectedServices:[],
+                HasExistingConfig: ListData.some(
+                  (s) => s.operator !== null && s.value !== null
+                ),
+                // auto populate first rule
+                InflationRule:
+                {
+                  operator: null,
+                  value: null,
+                },
+              }));
+            }
+        } else {
+            setServiceFeeInflationConfig({
+                ...ServiceFeeInflationConfig,
+                // IsLoading: false,
+            });
+            setErrorMessage(data?.data?.errorMessage);
+        }
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+// Submit Service Fee Inflation rules
+const SubmitServiceFeeInflation = async () => {
+  setServiceFeeInflationConfig({
+    ...ServiceFeeInflationConfig,
+    SelectionError: ""
+  });
+  if (!ServiceFeeInflationConfig.SelectedServices || ServiceFeeInflationConfig.SelectedServices.length === 0) {
+    setServiceFeeInflationConfig({
+      ...ServiceFeeInflationConfig,
+      SelectionError: "Please select one or more services to configure."
+    });
+    return;
+  }
+  if (!ServiceFeeInflationConfig.InflationRule.operator) {
+    setServiceFeeInflationConfig({
+      ...ServiceFeeInflationConfig,
+      SelectionError: "Please choose an operator."
+    });
+    return;
+  }
+  if (ServiceFeeInflationConfig.InflationRule.operator && 
+    ServiceFeeInflationConfig.InflationRule.value === null) {
+    setServiceFeeInflationConfig({
+      ...ServiceFeeInflationConfig,
+      SelectionError: "Please enter a value."
+    });
+    return;
+  }
+
+  setLoader(true);
+  try {
+    const serviceIDs = ServiceFeeInflationConfig.SelectedServices.map(
+      (s) => s.serviceID ?? s.serviceID ?? s.ServiceID
+    ).join(",");
+
+    const apiParams = {
+      organisationKeyID: common.organisationKeyID,
+      userKeyID: common.userKeyID,
+      operator: ServiceFeeInflationConfig.InflationRule.operator,
+      value: ServiceFeeInflationConfig.InflationRule.value,
+      serviceIDs: serviceIDs,
+    };
+
+    const response = await AddUpdateServiceFeeInflation(apiParams);
+    setLoader(false);
+    if (response?.data?.statusCode === 200) {
+      setOpenSuccessModal(true);
+      setIsAddUpdateActionDone(true);
+      // refresh list
+      GetServiceFeeInflationConfigData();
+    } else {
+      setFeeInflationErrorMessage(response?.data?.errorMessage || response?.response?.data?.errorMessage);
+    }
+  } catch (error) {
+    setLoader(false);
+    console.error(error);
+  }
+};
+
+// Check for draft PL/ELs
+const HandleDeleteRuleClick = async (row) => {
+  setLoader(true);
+  let drafts = [];
+  try {
+    const res = await GetDraftsAffectedByFeeInflationBatch({
+      organisationKeyID: common.organisationKeyID,
+      userKeyID: common.userKeyID,
+      batchID: row.batchID,
+    });
+    if (res?.data?.statusCode === 200) {
+      drafts = res?.data?.responseData?.data || [];
+    }
+  } catch (error) {
+    console.error(error);
+  }
+  setLoader(false);
+
+  setModelRequestData({
+    Action: "DeleteServiceFeeInflationRule",
+    batchID: row.batchID,
+    message:
+      drafts.length > 0
+        ? "Deleting this rule will change the pricing for the following draft records. Their prices will be recalculated the next time they are opened. Sent and accepted records are not affected."
+        : "This will delete the Inflation rule. Are you sure?",
+    ServiceName: drafts.map(
+      (d) => `${d.refID}${d.clientName ? " — " + d.clientName : ""} (${d.recordType})`
+    ),
+  });
+
+  $("#ConfirmModel").modal("show");
+};
+
+// Delete all Services and Configurations
+  const DeleteServiceFeeInflationConfig = async () => {
+    console.log("DeleteServiceFeeInflationConfig", modelRequestData);
+    if (!common.organisationKeyID || !common.userKeyID) {
+        return;
+    }
+    try {
+      const data = await DeleteAllServiceFeeInflationConfiguration(common.organisationKeyID,common.userKeyID, modelRequestData.batchID);
+      if (data?.data?.statusCode === 200) {
+        $("#ConfirmModel").one("hidden.bs.modal", () => {
+          setIsAddUpdateActionDone(true);
+          setOpenSuccessModal(true);
+          GetServiceFeeInflationConfigData();
+        });
+        $("#ConfirmModel").modal("hide");
+      } else {
+        setFeeInflationErrorMessage(data?.data?.errorMessage || data?.response?.data?.errorMessage);
+      }
+    }
+    catch(error) {
+      console.error(error);
+      setLoader(false);
+    }
+  }
   // 2) Add Update Button Click Function
   const PricingSettingAddUpdateBtnClicked = () => {
     if (
@@ -143,6 +353,12 @@ const Pricing_Settings = () => {
         PrevPricingSettingObj.minMonthlyPriceForQC &&
       pricingSettingObj.minOneOffPriceForQC ==
         PrevPricingSettingObj.minOneOffPriceForQC &&
+      pricingSettingObj.minQuarterlyPriceForQC ==
+        PrevPricingSettingObj.minQuarterlyPriceForQC &&
+      pricingSettingObj.minHalfYearlyPriceForQC ==
+        PrevPricingSettingObj.minHalfYearlyPriceForQC &&
+      pricingSettingObj.minYearlyPriceForQC ==
+        PrevPricingSettingObj.minYearlyPriceForQC &&
       pricingSettingObj.paymentFrequencyID ==
         PrevPricingSettingObj.paymentFrequencyID &&
       pricingSettingObj.enableMasterProposalType ==
@@ -154,6 +370,38 @@ const Pricing_Settings = () => {
       return false;
     }
 
+    // Validation Checks for Min. Reccuring prices
+    const priceLadder = [
+      { key: "minMonthlyPriceForQC", label: "Monthly", value: pricingSettingObj.minMonthlyPriceForQC },
+      { key: "minQuarterlyPriceForQC", label: "Quarterly", value: pricingSettingObj.minQuarterlyPriceForQC },
+      { key: "minHalfYearlyPriceForQC", label: "Half-Yearly", value: pricingSettingObj.minHalfYearlyPriceForQC },
+      { key: "minYearlyPriceForQC", label: "Yearly", value: pricingSettingObj.minYearlyPriceForQC },
+    ].filter(
+      (x) =>
+        x.value !== "" &&
+        x.value !== null &&
+        x.value !== undefined &&
+        !isNaN(Number(x.value))
+    );
+
+    let hasError = false;
+    const newFieldErrors = {};
+
+    for (let i = 1; i < priceLadder.length; i++) {
+      if (Number(priceLadder[i].value) <= Number(priceLadder[i - 1].value)) {
+        newFieldErrors[priceLadder[i].key] =
+          `Must be higher than Min. ${priceLadder[i - 1].label} price.`;
+        hasError = true;
+      }
+    }
+
+    setFieldErrors(newFieldErrors);
+
+    if (hasError) {
+      SetPrevError(false);
+      return false;
+    }
+
     const ApiRequest_ParamsObj = {
       // global level params: fixed
       organisationKeyID: common.organisationKeyID,
@@ -161,12 +409,16 @@ const Pricing_Settings = () => {
       // form level params: fixed
       minOneOffPriceForQC: pricingSettingObj.minOneOffPriceForQC || null,
       minMonthlyPriceForQC: pricingSettingObj.minMonthlyPriceForQC || null,
+      minQuarterlyPriceForQC: pricingSettingObj.minQuarterlyPriceForQC || null,
+      minHalfYearlyPriceForQC: pricingSettingObj.minHalfYearlyPriceForQC || null,
+      minYearlyPriceForQC: pricingSettingObj.minYearlyPriceForQC || null,
       maxDiscountForQC: pricingSettingObj.maxDiscountForQC || null,
       paymentFrequencyID: pricingSettingObj.paymentFrequencyID || null,
       enableMasterProposalType: pricingSettingObj.enableMasterProposalType || false,
       defaultProposalFormatID: pricingSettingObj.defaultProposalFormatID,
     };
 
+    setFieldErrors({});
     setErrorMessage("");
     AddUpdatePricingSettingData(ApiRequest_ParamsObj);
   };
@@ -201,6 +453,35 @@ const Pricing_Settings = () => {
     }
   };
 
+const TabHandle = async (tab) => {
+    if (tab === "PricingSetting") {
+      setActiveTab(tab);
+      if(common.organisationKeyID !== null) {
+        GetPricingSettingModelData(common.organisationKeyID);
+      }
+      setServiceFeeInflationConfig({
+        ServiceFeeInflationList: [],     
+        HasExistingConfig: false,
+        SelectionError: "",  
+        SelectedServices: [],    
+        InflationRule: {   
+          operator: null, 
+          value: null,   
+        },
+      })
+    } 
+    else if (tab === "FeeInflation") {
+      try {
+        const data = await GetServiceFeeInflationConfigData(common.organisationKeyID);
+      }
+      catch(error) {
+        setLoader(false);
+        console.log(error);
+        setErrorMessage(true);
+      }
+    }
+  };
+
   // handle Function
   const handleClose = () => {
     $("#" + "confirm").modal("hide");
@@ -218,10 +499,51 @@ const Pricing_Settings = () => {
   //Design part :
   return (
     <div>
-        <div class="page-content mt-2 page-background">
-            <div class="container">
-              <div class="page-title-cls">Pricing Settings</div>
+      <div class="page-content mt-2 page-background">
+        <div class="container">
+        <ul className="nav nav-tabs" role="tablist">
+              {/* <div class="page-title-cls">Pricing Settings</div> */}
+          <li className="nav-item">
+            <a
+              className={`nav-link tab_nav ${activeTab === "PricingSetting" ? "active" : ""
+                }`}
+              data-bs-toggle="tab"
+              href="#PricingSetting"
+              role="tab"
+              aria-selected={activeTab === "PricingSetting"}
+              onClick={() => {
+                setActiveTab("PricingSetting");
+                // setSelectedRows([]);
+                TabHandle("PricingSetting");
+              }}
+            >
+              <b>Pricing Setting{" "}</b>
+            </a>
+          </li>
+          {common.organisationKeyID !== null && (
+            <li className="nav-item">
+              <a
+                className={`nav-link tab_nav ${activeTab === "FeeInflation"
+                    ? "active"
+                    : ""
+                  }`}
+                data-bs-toggle="tab"
+                href="#FeeInflation"
+                role="tab"
+                aria-selected={activeTab === "FeeInflation"}
+                onClick={() => {
+                  setActiveTab("FeeInflation");
+                  // setSelectedRows([]);
+                  TabHandle("FeeInflation");
+                }}
+              >
+                <b>Service Fee Inflation{" "}</b>
+              </a>
+            </li>
+          )}
+          </ul>
             </div>
+          {activeTab === "PricingSetting" && (
           <div class="container">
             <div class="row">
               <div class="col-12 pricing_settings Pricing-container-card" >
@@ -234,7 +556,7 @@ const Pricing_Settings = () => {
                           <div class="fieldset  col-md-6 col-sm-12">
                             <label class="fieldset-label table-content-font ">
                               Min. One-Off Price for {proposalName}/
-                              {EngagementName} (£)
+                              {EngagementName} ({currencySymbol})
                             </label>
                           </div>
                           <div class="col-lg-12 col-md-12 col-sm-12 fieldset">
@@ -277,7 +599,7 @@ const Pricing_Settings = () => {
                           <div class="fieldset col-12 col-md-12 col-sm-12">
                             <label class="fieldset-label table-content-font PricingSetting-Proposal">
                               Min. Monthly Price for {proposalName}/
-                              {EngagementName} (£)
+                              {EngagementName} ({currencySymbol})
                             </label>
                           </div>
                           <div class="col-lg-12 col-md-12 col-sm-12 fieldset">
@@ -307,7 +629,8 @@ const Pricing_Settings = () => {
                                         12
                                       )}.${decimalPart.slice(0, 2)}`
                                     : integerPart.slice(0, 12);
-
+                                
+                                setFieldErrors((prev) => ({ ...prev, minMonthlyPriceForQC: "" }));
                                 setRequireErrorMessage(false);
                                 setPricingSettingObj({
                                   ...pricingSettingObj,
@@ -315,6 +638,150 @@ const Pricing_Settings = () => {
                                 });
                               }}
                             />
+                            {fieldErrors.minMonthlyPriceForQC && (
+                              <label className="validation">{fieldErrors.minMonthlyPriceForQC}</label>
+                            )}
+                          </div>
+
+                          <div class="fieldset col-12 col-md-12 col-sm-12">
+                            <label class="fieldset-label table-content-font PricingSetting-Proposal">
+                              Min. Quarterly Price for {proposalName}/
+                              {EngagementName} ({currencySymbol})
+                            </label>
+                          </div>
+                          <div class="col-lg-12 col-md-12 col-sm-12 fieldset">
+                            <input
+                              class="input-text table-content-font"
+                              type="text"
+                              placeholder="Enter Min. Quarterly Price"
+                              value={pricingSettingObj.minQuarterlyPriceForQC
+                                ?.toString()
+                                ?.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                              onChange={(e) => {
+                                SetPrevError(false);
+                                // Ensure that the input only contains numeric and dot characters
+                                const sanitizedInput = e.target.value
+                                  .replace(/[^0-9.]/g, "") // Allow only numeric and dot characters
+                                  .slice(0, 16); // Limit to 7 characters (5 digits + 1 dot + 1 decimal)
+
+                                // Split the input into integer and decimal parts
+                                const [integerPart, decimalPart] =
+                                  sanitizedInput.split(".");
+
+                                // Combine integer and decimal parts with appropriate precision
+                                const formattedInput =
+                                  decimalPart !== undefined
+                                    ? `${integerPart.slice(
+                                        0,
+                                        12
+                                      )}.${decimalPart.slice(0, 2)}`
+                                    : integerPart.slice(0, 12);
+                                
+                                setFieldErrors((prev) => ({ ...prev, minQuarterlyPriceForQC: "" }));
+                                setRequireErrorMessage(false);
+                                setPricingSettingObj({
+                                  ...pricingSettingObj,
+                                  minQuarterlyPriceForQC: formattedInput,
+                                });
+                              }}
+                            />
+                            {fieldErrors.minQuarterlyPriceForQC && (
+                              <label className="validation">{fieldErrors.minQuarterlyPriceForQC}</label>
+                            )}
+                          </div>
+
+                          <div class="fieldset col-12 col-md-12 col-sm-12">
+                            <label class="fieldset-label table-content-font PricingSetting-Proposal">
+                              Min. Half-Yearly Price for {proposalName}/
+                              {EngagementName} ({currencySymbol})
+                            </label>
+                          </div>
+                          <div class="col-lg-12 col-md-12 col-sm-12 fieldset">
+                            <input
+                              class="input-text table-content-font"
+                              type="text"
+                              placeholder="Enter Min. Half-Yearly Price"
+                              value={pricingSettingObj.minHalfYearlyPriceForQC
+                                ?.toString()
+                                ?.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                              onChange={(e) => {
+                                SetPrevError(false);
+                                // Ensure that the input only contains numeric and dot characters
+                                const sanitizedInput = e.target.value
+                                  .replace(/[^0-9.]/g, "") // Allow only numeric and dot characters
+                                  .slice(0, 16); // Limit to 7 characters (5 digits + 1 dot + 1 decimal)
+
+                                // Split the input into integer and decimal parts
+                                const [integerPart, decimalPart] =
+                                  sanitizedInput.split(".");
+
+                                // Combine integer and decimal parts with appropriate precision
+                                const formattedInput =
+                                  decimalPart !== undefined
+                                    ? `${integerPart.slice(
+                                        0,
+                                        12
+                                      )}.${decimalPart.slice(0, 2)}`
+                                    : integerPart.slice(0, 12);
+                                
+                                setFieldErrors((prev) => ({ ...prev, minHalfYearlyPriceForQC: "" }));
+                                setRequireErrorMessage(false);
+                                setPricingSettingObj({
+                                  ...pricingSettingObj,
+                                  minHalfYearlyPriceForQC: formattedInput,
+                                });
+                              }}
+                            />
+                            {fieldErrors.minHalfYearlyPriceForQC && (
+                              <label className="validation">{fieldErrors.minHalfYearlyPriceForQC}</label>
+                            )}
+                          </div>
+
+                          <div class="fieldset col-12 col-md-12 col-sm-12">
+                            <label class="fieldset-label table-content-font PricingSetting-Proposal">
+                              Min. Yearly Price for {proposalName}/
+                              {EngagementName} ({currencySymbol})
+                            </label>
+                          </div>
+                          <div class="col-lg-12 col-md-12 col-sm-12 fieldset">
+                            <input
+                              class="input-text table-content-font"
+                              type="text"
+                              placeholder="Enter Min. Yearly Price"
+                              value={pricingSettingObj.minYearlyPriceForQC
+                                ?.toString()
+                                ?.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                              onChange={(e) => {
+                                SetPrevError(false);
+                                // Ensure that the input only contains numeric and dot characters
+                                const sanitizedInput = e.target.value
+                                  .replace(/[^0-9.]/g, "") // Allow only numeric and dot characters
+                                  .slice(0, 16); // Limit to 7 characters (5 digits + 1 dot + 1 decimal)
+
+                                // Split the input into integer and decimal parts
+                                const [integerPart, decimalPart] =
+                                  sanitizedInput.split(".");
+
+                                // Combine integer and decimal parts with appropriate precision
+                                const formattedInput =
+                                  decimalPart !== undefined
+                                    ? `${integerPart.slice(
+                                        0,
+                                        12
+                                      )}.${decimalPart.slice(0, 2)}`
+                                    : integerPart.slice(0, 12);
+                                
+                                setFieldErrors((prev) => ({ ...prev, minYearlyPriceForQC: "" }));
+                                setRequireErrorMessage(false);
+                                setPricingSettingObj({
+                                  ...pricingSettingObj,
+                                  minYearlyPriceForQC: formattedInput,
+                                });
+                              }}
+                            />
+                            {fieldErrors.minYearlyPriceForQC && (
+                              <label className="validation">{fieldErrors.minYearlyPriceForQC}</label>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -370,7 +837,7 @@ const Pricing_Settings = () => {
                           {/* Select  */}
                           <div class="fieldset col-12">
                             <label class="fieldset-label table-content-font PricingSetting-Proposal">
-                            Payment Frequency
+                            Default Payment Frequency
                             </label>
                           </div>
                           <div class="col-lg-12 fieldset input-group">
@@ -383,6 +850,21 @@ const Pricing_Settings = () => {
                           </div>
                           <div class="col-lg-2 col-md-4 col-sm-12"></div>
                           <div class="col-lg-2 col-md-4 col-sm-12"></div>
+                          <div class="fieldset col-12">
+                            <label class=" fieldset-label pe-2">Default Proposal Format</label>
+                            <Select
+                              className="phone-input-country-code selectDropDown Drop-down-width pt-2"
+                              options={getProposalFormatOptions()}
+                              value={Utils.PreviewSelection.find(x => x.value === pricingSettingObj.defaultProposalFormatID)}
+                              // isDisabled={PrevPricingSettingObj.defaultProposalFormatID === 2}
+                              onChange={(selectedOption) => {
+                                setPricingSettingObj({
+                                  ...pricingSettingObj,
+                                  defaultProposalFormatID: selectedOption.value
+                                })
+                              }}
+                            />
+                      </div>
                         </div>
                       </div>
                       <div class="fieldset col-6">
@@ -396,21 +878,6 @@ const Pricing_Settings = () => {
                                 setPricingSettingObj({
                                   ...pricingSettingObj,
                                   enableMasterProposalType: e.target.checked
-                                })
-                              }}
-                            />
-                      </div>
-                       <div class="fieldset col-6">
-                            <label class=" fieldset-label pe-2">Default Proposal Format</label>
-                            <Select
-                              className="phone-input-country-code selectDropDown Drop-down-width pt-2"
-                              options={getProposalFormatOptions()}
-                              value={Utils.PreviewSelection.find(x => x.value === pricingSettingObj.defaultProposalFormatID)}
-                              // isDisabled={PrevPricingSettingObj.defaultProposalFormatID === 2}
-                              onChange={(selectedOption) => {
-                                setPricingSettingObj({
-                                  ...pricingSettingObj,
-                                  defaultProposalFormatID: selectedOption.value
                                 })
                               }}
                             />
@@ -443,18 +910,441 @@ const Pricing_Settings = () => {
               </div>
             </div>
           </div>
+          )}
+          {activeTab === "FeeInflation" && (
+  <div className="container">
+    <SAPredefinedChangesNotifyMessageModel
+      Params={{
+        SAChanges: ServiceFeeInflationConfig.ServiceFeeInflationList.some(
+          (s) => s.notifySAChanges
+        ),
+      }}
+    />
+    {/* ── Header ── */}
+    <div className="row mb-3">
+      <div className="col-12 mt-3">
+        <strong>
+          Configure a price adjustment rule for one or more services.<br />
+          Select the services you want to apply an inflation rule to, then choose an operator and value:
+        </strong>
+      </div>
+    </div>
+
+    {/* ── Service Select ── */}
+    <div className="row mt-4">
+      <div className="col-md-2">
+        <div className="form-label fw-bold pt-1" style={{fontSize: "14px"}}>Select Services</div>
+      </div>
+      <div className="col-md-6">
+        <Select
+          isMulti
+          options={ServiceFeeInflationConfig.ServiceFeeInflationList
+            .filter((s) => {
+              // Fixed price services (pricingTypeID !== formula type) that are
+              // already configured must not appear in the dropdown again
+              const isFixed = s.pricingTypeID !== 2; // use your actual constant
+              const isAlreadyConfigured = s.operator !== null && s.value !== null;
+              if (isFixed && isAlreadyConfigured) return false;
+              return true;
+            })
+            .map((s) => ({
+              value: s.serviceID,
+              label: s.serviceName,
+              isConfigured: s.operator !== null && s.value !== null,
+              data: s,
+            }))}
+          value={ServiceFeeInflationConfig.SelectedServices.map((s) => ({
+            value: s.serviceID,
+            label: s.serviceName,
+            isConfigured: s.operator !== null && s.value !== null,
+            data: s,
+          }))}
+          onChange={(selected) => {
+            // const isDeselectAll =
+            //   (!selected || selected.length === 0) &&
+            //   ServiceFeeInflationConfig.HasExistingConfig;
+
+            // if (isDeselectAll) {
+            //   setServiceFeeInflationConfig((prev) => ({
+            //     ...prev,
+            //     SelectionError: "At least one service must be selected.",
+            //   }));
+            //   return;
+            // }
+
+            setServiceFeeInflationConfig((prev) => ({
+              ...prev,
+              SelectedServices: selected ? selected.map((s) => s.data) : [],
+              SelectionError: "",
+              InflationRule:
+                selected && selected.length > 0
+                  ? prev.InflationRule
+                  : {
+                      operator: null,
+                      value: null,
+                    },
+            }));
+          }}
+          formatOptionLabel={(option) => (
+            <div className="d-flex align-items-center justify-content-between">
+              <span>{option.label}</span>
+              {option.isConfigured && (
+                <span className="badge bg-success ms-2">Configured</span>
+              )}
+            </div>
+          )}
+          isClearable
+          placeholder="Search and select services..."
+        />
+        {(ServiceFeeInflationConfig.SelectedServices.length === 0 &&
+          ServiceFeeInflationConfig.SelectionError )&& (
+          <label className="validation">
+            {ServiceFeeInflationConfig.SelectionError}
+          </label>
+        )}
+      </div>
+      {/* <label className="validation">{feeInflationErrorMessage}</label> */}
+      
+    </div>
+
+    {/* ── Inflation Rule Config ── */}
+    {ServiceFeeInflationConfig.SelectedServices.length > 0 && (
+      <div className="row mt-4">
+        <div className="col-12 mb-2">
+          <label className="form-label">Inflation Configuration</label>
+        </div>
+
+        {/* Operator Buttons */}
+        <div className="col-12 mb-3">
+          <div className="d-flex gap-2">
+            {[
+              { symbol: "+", label: "Add" },
+              { symbol: "-", label: "Subtract" },
+              { symbol: "*", label: "Markup (%)" },
+              { symbol: "/", label: "Discount (%)" },
+            ].map((op) => (
+              <button
+                key={op.symbol}
+                type="button"
+                className={`btn ${
+                  ServiceFeeInflationConfig.InflationRule.operator === op.symbol
+                    ? "btn-primary"
+                    : "btn-outline-secondary"
+                }`}
+                onClick={() =>
+                  setServiceFeeInflationConfig({
+                    ...ServiceFeeInflationConfig,
+                    InflationRule: {
+                      ...ServiceFeeInflationConfig.InflationRule,
+                      operator: op.symbol,
+                      value: null,
+                    },
+                    SelectionError: "",
+                  })
+                }
+              >
+                <div>{op.symbol}</div>
+                <small>{op.label}</small>
+              </button>
+            ))}
+          </div>
+        </div>
+        {(!ServiceFeeInflationConfig.InflationRule.operator &&
+          ServiceFeeInflationConfig.SelectionError)&& (
+          <label className="validation">
+            {ServiceFeeInflationConfig.SelectionError}
+          </label>
+        )}
+
+        {/* Value Input */}
+        {ServiceFeeInflationConfig.InflationRule.operator && (
+          <div className="col-md-4 mb-3">
+            <label className="form-label">
+              {ServiceFeeInflationConfig.InflationRule.operator === "+" ||
+              ServiceFeeInflationConfig.InflationRule.operator === "-"
+                ? `Amount (${currencySymbol})`
+                : `Percentage (%) (${currencySymbol})`}
+            </label>
+            <input
+              type="text"
+              inputMode="decimal"
+              className="form-control"
+              placeholder={
+                ServiceFeeInflationConfig.InflationRule.operator === "+" ||
+                ServiceFeeInflationConfig.InflationRule.operator === "-"
+                  ? "Enter flat amount"
+                  : "Enter percentage e.g. 10"
+              }
+              value={ServiceFeeInflationConfig.InflationRule.value ?? ""}
+              onChange={(e) => {
+                const value = e.target.value;
+
+                // Allow empty value
+                if (value === "") {
+                  setServiceFeeInflationConfig({
+                    ...ServiceFeeInflationConfig,
+                    InflationRule: {
+                      ...ServiceFeeInflationConfig.InflationRule,
+                      value: null,
+                    },
+                  });
+                  return;
+                }
+
+                // First digit must be 1-9, following digits can be 0-9
+                if (!/^[1-9][0-9]*$/.test(value)) {
+                  return;
+                }
+
+                const maxValue =
+                  ServiceFeeInflationConfig.InflationRule.operator === "+" ||
+                  ServiceFeeInflationConfig.InflationRule.operator === "-"
+                    ? 9999 : 100;
+
+                if (parseInt(value, 10) > maxValue) {
+                  return;
+                }
+
+                setServiceFeeInflationConfig({
+                  ...ServiceFeeInflationConfig,
+                  InflationRule: {
+                    ...ServiceFeeInflationConfig.InflationRule,
+                    value,
+                    SelectionError: "",
+                  },
+                });
+              }}
+            />
+            {ServiceFeeInflationConfig.InflationRule.value > 0 && (
+              <small className="text-muted mt-1 d-block">
+                {ServiceFeeInflationConfig.InflationRule.operator === "+" &&
+                  `Price + ${ServiceFeeInflationConfig.InflationRule.value}`}
+                {ServiceFeeInflationConfig.InflationRule.operator === "-" &&
+                  `Price − ${ServiceFeeInflationConfig.InflationRule.value}`}
+                {ServiceFeeInflationConfig.InflationRule.operator === "*" &&
+                  `Price × ${(1 + ServiceFeeInflationConfig.InflationRule.value / 100).toFixed(2)}`}
+                {ServiceFeeInflationConfig.InflationRule.operator === "/" &&
+                  `Price × ${(1 - ServiceFeeInflationConfig.InflationRule.value / 100).toFixed(2)}`}
+              </small>
+            )}
+            {(ServiceFeeInflationConfig.InflationRule.operator && 
+              ServiceFeeInflationConfig.InflationRule.value === null &&
+              ServiceFeeInflationConfig.SelectionError) && (
+                <label className="validation">
+                {ServiceFeeInflationConfig.SelectionError}
+              </label>
+            )}
+          </div>
+        )}
+      </div>
+    )}
+
+    {/* ── Submit / Delete Buttons ── */}
+    {userAccessData.Admin_Setting_Practice_Config_CanEdit && (
+      <>
+      <div className="col-12 text-start me-2 mt-3">
+        <button
+          style={{ fontSize: "14px", marginTop: "5px", marginRight: "25px" }}
+          className="btn btn-primary create-item-btn"
+          onClick={() => SubmitServiceFeeInflation()}
+        >
+          <span>Submit</span>
+        </button>
+
+        {/* {(ServiceFeeInflationConfig.HasExistingConfig ||
+          ServiceFeeInflationConfig.SelectedServices.length > 0) && (
+          <button
+            className="btn btn-danger btn-sm mt-2"
+            data-bs-toggle="modal"
+            data-bs-target="#ConfirmModel"
+            onClick={() =>
+              setModelRequestData({
+                Action: "DeleteServiceFeeInflationConfig",
+                message:
+                  "This will delete all existing service fee inflation configurations. Are you sure you want to proceed?",
+              })
+            }
+          >
+            Delete Configuration
+          </button>
+        )} */}
+      </div>
+      </>
+    )}
+
+    {/* ── Configured Rules Table ── */}
+    {(() => {
+      const configured = ServiceFeeInflationConfig.ServiceFeeInflationList.filter(
+        (s) => s.operator !== null && s.value !== null
+      );
+
+      if (configured.length === 0) return null;
+
+      // Group by batchID alone now — operator/value are guaranteed identical
+      // within a batch (they were submitted together), and batchID is the
+      // true unit of accept/delete/decline.
+      const grouped = configured.reduce((acc, s) => {
+        const key = s.batchID;
+        if (!acc[key]) {
+          acc[key] = {
+            operator: s.operator,
+            value: s.value,
+            batchID: s.batchID,
+            isPredefined: s.isPredefined,
+            notifySAChanges: false,
+            services: [],
+          };
+        }
+        if (s.notifySAChanges) acc[key].notifySAChanges = true;
+        acc[key].services.push({ serviceID: s.serviceID, serviceName: s.serviceName });
+        return acc;
+      }, {});
+
+      const rows = Object.values(grouped);
+
+      const operatorLabel = (op, val) => {
+        if (op === "+") return `+ ${val} (flat add)`;
+        if (op === "-") return `− ${val} (flat subtract)`;
+        if (op === "*") return `× ${(1 + val / 100).toFixed(2)} (${val}% markup)`;
+        if (op === "/") return `× ${(1 - val / 100).toFixed(2)} (${val}% discount)`;
+        return `${op} ${val}`;
+      };
+
+      return (
+        <div className="row mt-4">
+          <div className="col-12">
+            <div className="form-label fw-bold" style={{fontSize: "14px"}}>Configured Inflation Rules</div>
+            <table className="table table-bordered table-sm">
+              <thead className="table-light">
+                <tr>
+                  <th style={{ width: "35%", color: "white" }}>Inflation Rule</th>
+                  <th style={{ color: "white" }}>Services</th>
+                  {userAccessData.Admin_Setting_Practice_Config_CanEdit && (
+                    <th style={{ width: "160px", color: "white" }} className="text-center">Action</th>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <tr key={row.batchID}>
+                    <td className="align-middle" style={{ fontSize: "14px" }}>
+                      <code className="fw-bold">{operatorLabel(row.operator, row.value)}</code>
+                      {row.notifySAChanges && (
+                        <span className="badge bg-warning text-dark ms-2">
+                          Removed by Superadmin
+                        </span>
+                      )}
+                    </td>
+                    <td className="align-middle text-white" style={{ fontSize: "14px" }}>
+                      <div className="d-flex flex-wrap gap-1">
+                        {row.services.map((svc) => (
+                          <span key={svc.serviceID} className="badge bg-secondary text-white">
+                            {svc.serviceName}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    {userAccessData.Admin_Setting_Practice_Config_CanEdit && (
+                      <td className="text-center align-middle">
+                        {row.notifySAChanges ? (
+                          <div className="d-flex gap-1 justify-content-center">
+                            <button
+                              className="btn btn-success btn-sm"
+                              onClick={() => {
+                                setSAConfirmStatus(true); // Accept
+                                setSAConfirmBatchID(row.batchID);
+                                $("#" + "ConfirmSAChangesModel").modal("show");
+                              }}
+                            >
+                              Accept &amp; Remove
+                            </button>
+                            <button
+                              className="btn btn-outline-danger btn-sm"
+                              onClick={() => {
+                                setSAConfirmStatus(false); // Decline
+                                setSAConfirmBatchID(row.batchID);
+                                $("#" + "ConfirmSAChangesModel").modal("show");
+                              }}
+                            >
+                              Decline &amp; Keep Anyway
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            className="btn btn-danger text-white btn-outline-danger btn-sm"
+                            onClick={() => HandleDeleteRuleClick(row)}
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    })()}
+
+    <ConfirmSAChangesModel
+      ModelId={null}
+      Status={SAConfirmStatus}
+      modelRequestData={{ Action: "Update" }}
+      openSuccessModal={false}
+      openErrorModal={false}
+      UpdatedChanges={async () => {
+        $("#" + "ConfirmSAChangesModel").modal("hide");
+        setLoader(true);
+        try {
+          const apiCall = SAConfirmStatus
+            ? AcceptServiceFeeInflationSAChanges
+            : DeclineServiceFeeInflation;
+
+          const response = await apiCall({
+            organisationKeyID: common.organisationKeyID,
+            userKeyID: common.userKeyID,
+            batchID: SAConfirmBatchID,
+          });
+
+          if (response?.data?.statusCode === 200) {
+            GetServiceFeeInflationConfigData(); // re-fetch to reflect new state
+          } else {
+            setErrorMessage(response?.data?.errorMessage || "Unable to process this action.");
+          }
+        } catch (error) {
+          console.error(error);
+          setErrorMessage("Unable to process this action.");
+        } finally {
+          setLoader(false);
+        }
+      }}
+    />
+
+  </div>
+)}
         </div>
         <Footer />
       <button class="btn btn-danger btn-icon" id="back-to-top">
         <i class="ri-arrow-up-line"></i>
       </button>
+      <ConfirmModel
+        openSuccessModal={openSuccessModal}
+        modelRequestData={modelRequestData}
+        setModelRequestData={setModelRequestData}
+        UpdatedStatus={ 
+          modelRequestData.Action === "DeleteServiceFeeInflationRule"
+            ? DeleteServiceFeeInflationConfig : null
+        }
+       />
       <SuccessModal
         handleClose={handleClose}
         setDismissModal={setDismissModal}
         setOpenSuccessModal={setOpenSuccessModal}
         openSuccessModal={openSuccessModal}
         modelAction={"Update"}
-        message={"Pricing setting"}
+        message={activeTab === "FeeInflation" ? "Service Fee Inflation " : "Pricing Settings"}
       />
     </div>
   );

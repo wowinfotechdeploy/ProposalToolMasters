@@ -31,7 +31,9 @@ import {
   ChoosePlanApi,
   CreateStripeCheckoutSession,
 } from "../../redux/Services/Setting/PaymentGatewayApi";
-import { GetUserSubscriptionPackageModel } from "../../redux/Services/Subscription/UserListApi";
+import { GetUserSubscriptionPackageModel, UpdateUserSubscriptionPackage } from "../../redux/Services/Subscription/UserListApi";
+import SubscriptionPackageModel from "../subscription/subscription_package/SubscriptionPackageModel";
+import OrganisationSubscriptionPackageDetails from "../../components/OrganisationSubscriptionPackageDetails";
 const OrganisationViewDetails = () => {
   let getInviteUsersListApiCallCount = 0;
   // A] States Declaration :
@@ -66,6 +68,12 @@ const OrganisationViewDetails = () => {
   const [currencyType, setCurrencyType] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchKeywordUsers, setSearchKeywordUsers] = useState("");
+  const [requireErrorMessage, setRequireErrorMessage] = useState(false);
+  const [
+    requireErrorMessageForESignature,
+    setRequireErrorMessageForESignature,
+  ] = useState(false);
+
   const [primarySortDirectionUsers, setPrimarySortDirectionUsers] =
     useState(null); //setPrimarySortDirectionUsers
   const [primaryUserSortDirectionObj, setPrimaryUserSortDirectionObj] =
@@ -76,7 +84,7 @@ const OrganisationViewDetails = () => {
       EmailTypeSort: null,
     });
   const [subScriptionActiveList, setSubScriptionActiveList] = useState({});
-
+  const [showPackageModal, setShowPackageModal] = useState(false);
   const [UserSortType, setUserSortType] = useState("");
   const common = useSelector((state) => state.Storage); //Getting Logged Users Details From Persist Storage of redux hooks
   const [openErrorModal, setOpenErrorModal] = useState(false);
@@ -99,7 +107,8 @@ const OrganisationViewDetails = () => {
     userAccessData,
     GetCustomDate,
     formatValue,
-    formatValueWithoutCurrencySymbol
+    formatValueWithoutCurrencySymbol,
+    scrollUpDownByElementID
   } = useContext(AuthContextProvider);
   const [chooseApiData, setChooseApiData] = useState();
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
@@ -168,15 +177,19 @@ const OrganisationViewDetails = () => {
   const [subscriptionPackageObj, setSubscriptionPackageObj] = useState({
     ospKeyID: null,
     remainingESignatures: null,
+    remainingQuotesPerMonth: null,
     apiIntegration: null,
     subscriptionPackageKeyID: null,
     packageName: "",
     prepareQuote: false,
     sendQuote: false,
+    quotesPerMonth: null,
     prepareContract: false,
     sendContract: false,
     signContract: false,
     eSignaturePerMonth: "",
+    enablePdfToCsv: false,
+    noOfPages: null,
     yearlyValuePlan: "",
     discountPercentage: "",
     discountPrice: "",
@@ -279,6 +292,11 @@ const OrganisationViewDetails = () => {
     // setSubscriptionModal(true)
   };
 
+  const handleOrganisationSubscriptionPackageModel = async() => {
+    setShowPackageModal(true);
+    await GetSubscriptionPackageModelData(subScriptionActiveList.ospKeyID);
+    await GetOrganisationPlanListData(1);
+  }
   const GetSubscriptionPackageModelData = async (id) => {
     if (!id) {
       return;
@@ -294,14 +312,18 @@ const OrganisationViewDetails = () => {
             ospKeyID: ModelData.ospKeyID,
             apiIntegration: ModelData.apiIntegration,
             remainingESignatures: ModelData.remainingESignatures,
+            remainingQuotesPerMonth: ModelData.remainingQuotesPerMonth,
             subscriptionPackageKeyID: ModelData.subscriptionPackageKeyID,
             packageName: ModelData.packageName,
             prepareQuote: ModelData.prepareQuote,
             sendQuote: ModelData.sendQuote,
+            quotesPerMonth: ModelData.quotesPerMonth,
             prepareContract: ModelData.prepareContract,
             sendContract: ModelData.sendContract,
             signContract: ModelData.signContract,
             eSignaturePerMonth: ModelData.eSignaturePerMonth,
+            enablePdfToCsv: ModelData.enablePdfToCsv,
+            noOfPages: ModelData.noOfPages,
             yearlyValuePlan: ModelData.yearlyValuePlan,
             discountPercentage: ModelData.discountPercentage,
             discountPrice: ModelData.discountPrice,
@@ -326,6 +348,207 @@ const OrganisationViewDetails = () => {
       console.log(error);
     }
   };
+
+  //2]Add Update Button Click Function
+  const SubscriptionPackageAddUpdateBtnClicked = () => {
+    //Check Validations will be done here
+
+    if (
+      subscriptionPackageObj.packageName === undefined ||
+      subscriptionPackageObj.packageName === "" ||
+      subscriptionPackageObj.packageName === null
+    ) {
+      scrollUpDownByElementID("PackageName");
+      setRequireErrorMessage(true);
+      return false; // Return false or handle your error logic here if needed.
+    } else {
+      setRequireErrorMessage(""); // Clear the error message if there are no errors.
+    }
+    if (
+      subscriptionPackageObj.enablePdfToCsv &&
+      (subscriptionPackageObj.pages === undefined ||
+        subscriptionPackageObj.pages === "" ||
+        subscriptionPackageObj.pages === null)
+    ) {
+      scrollUpDownByElementID("Pages");
+      setRequireErrorMessage(true);
+      return false; // Return false or handle your error logic here if needed.
+    } else {
+      setRequireErrorMessage(""); // Clear the error message if there are no errors.
+    }
+    if (subscriptionPackageObj.sendContract === true) {
+      if (Number(subscriptionPackageObj.eSignaturePerMonth) < 1) {
+        scrollUpDownByElementID("ESignature");
+        setRequireErrorMessageForESignature(true);
+        return false;
+      }
+    }
+    const { yearlyValuePlan, discountPriceMonth, discountPriceYear } =
+      subscriptionPackageObj;
+
+    if (
+      Number(yearlyValuePlan) > 20000 ||
+      Number(discountPriceMonth) > 20000 ||
+      Number(discountPriceYear) > 20000
+    ) {
+      let exceededValue = "";
+
+      if (Number(yearlyValuePlan) > 20000) {
+        exceededValue = `The Yearly Plan Value (${yearlyValuePlan})`;
+      } else if (Number(discountPriceMonth) > 20000) {
+        exceededValue = `The Monthly Discount Price (${discountPriceMonth})`;
+      } else if (Number(discountPriceYear) > 20000) {
+        exceededValue = `The Yearly Discount Price (${discountPriceYear})`;
+      }
+
+      setErrorMessage(
+        `${exceededValue
+          ?.toString()
+          .replace(
+            /\B(?=(\d{3})+(?!\d))/g,
+            ",",
+          )} exceeds Stripe's transaction limit of £ 20,000. Please enter a lower amount.`,
+      );
+
+      scrollUpDownByElementID("ErrorMessage");
+      return false;
+    }
+
+    scrollUpDownByElementID("ErrorMessage");
+    // Clear the error message and set close to true if there are no errors.
+    setErrorMessage("");
+
+    // Preparing Object For Add Update and if any modification then it will done here
+    const ApiRequest_ParamsObj = {
+      //global level params : fixed
+      // Action: modelRequestData.Action,
+      userKeyID: common.userKeyID,
+      // organisationKeyID: common.organisationKeyID,
+
+      //form level params : fixed
+      // subscriptionPackageKeyID: props.modelRequestData.subscriptionPackageKeyID, //will change module wise
+      // subscriptionPackageKeyID: subscriptionPackageObj.subscriptionPackageKeyID, //will change module wise
+      ospKeyID: subscriptionPackageObj.ospKeyID,
+      //form level params : will change according to module
+      apiIntegration: subscriptionPackageObj.apiIntegration,
+      packageName: subscriptionPackageObj.packageName,
+      prepareQuote: subscriptionPackageObj.prepareQuote,
+      sendQuote: subscriptionPackageObj.sendQuote,
+      quotesPerMonth:
+        subscriptionPackageObj.quotesPerMonth === ""
+          ? null
+          : subscriptionPackageObj.quotesPerMonth,
+      prepareContract: subscriptionPackageObj.prepareContract,
+      enablePdfToCsv: subscriptionPackageObj.enablePdfToCsv,
+      noOfPages: subscriptionPackageObj.pages
+        ? subscriptionPackageObj.pages
+        : 0,
+      sendContract: subscriptionPackageObj.sendContract,
+      signContract: subscriptionPackageObj.sendContract,
+      isMailBox: subscriptionPackageObj.isMailBox,
+      eSignaturePerMonth:
+        subscriptionPackageObj.eSignaturePerMonth === ""
+          ? null
+          : subscriptionPackageObj.eSignaturePerMonth,
+      yearlyValuePlan:
+        subscriptionPackageObj.yearlyValuePlan === ""
+          ? null
+          : Number(subscriptionPackageObj.yearlyValuePlan),
+
+      // subscriptionOffers: subscriptionPackageObj.isFreePackage
+      //   ? null
+      //   : [
+      //     {
+      //       paymentFrequencyID: 4, // Monthly
+      //       discountPercentage:
+      //         subscriptionPackageObj.discountPercentageMonthCheck
+      //           ? subscriptionPackageObj.discountPercentageMonth === ""
+      //             ? null
+      //             : Number(subscriptionPackageObj.discountPercentageMonth)
+      //           : 0,
+      //       discountPrice: subscriptionPackageObj.discountPriceMonthCheck
+      //         ? subscriptionPackageObj.discountPriceMonth === ""
+      //           ? null
+      //           : Number(subscriptionPackageObj.discountPriceMonth)
+      //         : 0,
+      //       monthFree: subscriptionPackageObj.monthFreeMonthCheck
+      //         ? subscriptionPackageObj.monthFreeMonth === ""
+      //           ? null
+      //           : Number(subscriptionPackageObj.monthFreeMonth)
+      //         : 0,
+      //       getMonths: subscriptionPackageObj.getMonthsMonthCheck
+      //         ? subscriptionPackageObj.getMonthsMonth === ""
+      //           ? null
+      //           : Number(subscriptionPackageObj.getMonthsMonth)
+      //         : 0,
+      //       inPriceOfMonth:
+      //         subscriptionPackageObj.inPriceOfMonthMonth === ""
+      //           ? null
+      //           : Number(subscriptionPackageObj.inPriceOfMonthMonth),
+      //     },
+      //     {
+      //       paymentFrequencyID: 1, // Yearly
+      //       discountPercentage:
+      //         subscriptionPackageObj.discountPercentageYearCheck
+      //           ? subscriptionPackageObj.discountPercentageYear === ""
+      //             ? null
+      //             : Number(subscriptionPackageObj.discountPercentageYear)
+      //           : 0,
+      //       discountPrice: subscriptionPackageObj.discountPriceYearCheck
+      //         ? subscriptionPackageObj.discountPriceYear === ""
+      //           ? null
+      //           : Number(subscriptionPackageObj.discountPriceYear)
+      //         : 0,
+      //       monthFree: subscriptionPackageObj.monthFreeYearCheck
+      //         ? subscriptionPackageObj.monthFreeYear === ""
+      //           ? null
+      //           : Number(subscriptionPackageObj.monthFreeYear)
+      //         : 0,
+      //       getMonths: subscriptionPackageObj.getMonthsYearCheck
+      //         ? subscriptionPackageObj.getMonthsYear === ""
+      //           ? null
+      //           : Number(subscriptionPackageObj.getMonthsYear)
+      //         : 0,
+      //       inPriceOfMonth:
+      //         subscriptionPackageObj.inPriceOfMonthYear === ""
+      //           ? null
+      //           : Number(subscriptionPackageObj.inPriceOfMonthYear),
+      //     },
+      //   ],
+    };
+    AddUpdateSubscriptionPackageData(ApiRequest_ParamsObj);
+    // console.log("ApiRequest_ParamsObj", ApiRequest_ParamsObj);
+  };
+
+  // 3) Add Update Subscription package Data Api
+  const AddUpdateSubscriptionPackageData = async (ApiRequest_ParamsObj) => {
+    setLoader(true);
+    try {
+      const response = await UpdateUserSubscriptionPackage(ApiRequest_ParamsObj);
+      if (response) {
+        setLoader(false);
+        if (response?.data?.statusCode === 200) {
+          // $('#' + props.id).modal('hide')
+          // uncomment upper code for hide
+
+          if (ApiRequest_ParamsObj.Action === null) {
+            setOpenSuccessModal(true);
+            setIsAddUpdateActionDone(true);
+            navigate("/sub-package");
+          } else {
+            setOpenSuccessModal(true);
+            setIsAddUpdateActionDone(true);
+            navigate("/sub-package");
+          }
+        } else {
+          setErrorMessage(response?.response?.data?.errorMessage);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // C] Calling All Api's like List and other Here :
   // 1) Get Users List Data
   const GetInviteUsersListData = async (
@@ -803,1135 +1026,1419 @@ const OrganisationViewDetails = () => {
     (item) => companyForm?.incInID == item.value
   );
   return (
-    <div className="container">
-      <div class="main-content">
-        <div class="page-content page-background prospect-bg">
-          <div class="page-info-header page-info-strip">
-            <div class="container">
-              <div className="row">
-                <div className="col-md-6 col-sm-6 col-6 ">
-                  <div class="page-title-cls">
-                    Organisation/Practice Name: {basicInfo.tradingName}
-                  </div>
-                </div>
-                <div class="col-md-6 col-sm-6 col-6">
-                  <div
-                    class="d-flex justify-content-sm-end add-new-btn"
-                    style={{ float: "right" }}
-                  >
-                    <button
-                      className="btn btn-success create-item create-item-btn "
-                      onClick={() => navigate("/organisations")}
-                    >
-                      <Tooltip title={"Back"}>
-                        <span>Back</span>
-                      </Tooltip>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="container-fluid ">
-            <div class="row">
-              <div className="col-lg-12">
-                <div class="card" style={{ marginTop: "75px" }}>
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div class="search-box ms-2 width-searchbox prospect-form">
-                        <div class=" table-card  mb-3 Height_View_scroll scroll-hidden  ">
-                          <ul class="nav nav-tabs mb-3">
-                            <li class="nav-item">
-                              <a
-                                class="nav-link tab_nav active"
-                                data-bs-toggle="tab"
-                                href="#base-justified-home"
-                                role="tab"
-                                aria-selected="false"
-                              >
-                                Organisation/Practice Details
-                              </a>
-                            </li>
-                            <li class="nav-item">
-                              <a
-                                onClick={() => GetInviteUsersListData(1)}
-                                class="nav-link tab_nav"
-                                data-bs-toggle="tab"
-                                href="#product"
-                                role="tab"
-                                aria-selected="false"
-                              >
-                                Invite User
-                              </a>
-                            </li>
-                            <li class="nav-item">
-                              <a
-                                class="nav-link tab_nav"
-                                data-bs-toggle="tab"
-                                href="#Plan"
-                                role="tab"
-                                aria-selected="false"
-                              >
-                                Subscription Plan
-                              </a>
-                            </li>
-                          </ul>
-                          <div class="tab-content  text-muted">
-                            <div
-                              class="tab-pane active"
-                              id="base-justified-home"
-                              role="tabpanel"
+    <div className="container-fluid">
+      {/* <div class="main-content"> */}
+      <div class="services page-background">
+        <div class="">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                {/* end card header  */}
+                <div class="card-body mb-2">
+                  <div id="customerList" style={{ marginTop: "3rem" }}>
+                    <div class="bg-light border-bottom px-2">
+                      {/* <div className="container"> */}
+                      <div className="row">
+                        <div className="col-md-6 col-sm-6 col-6 ">
+                          <div class="page-title-cls">
+                            Organisation/Practice Name: {basicInfo.tradingName}
+                          </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-6">
+                          <div
+                            class="d-flex justify-content-sm-end add-new-btn"
+                            style={{ float: "right" }}
+                          >
+                            <button
+                              className="btn btn-success create-item create-item-btn "
+                              onClick={() => navigate("/organisations")}
                             >
-                              <table class="table table-striped fs-13 view-details-table">
-                                <tbody>
-                                  <tr>
-                                    <th colspan="2">Basic Information</th>
-                                  </tr>
-                                  <tr>
-                                    <td>Profession Type</td>
-                                    <td class="text-end">
-                                      {professionTypeValue}
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>Business Type</td>
-                                    <td class="text-end">
-                                      {basicInfo.businessTypeName}
-                                    </td>
-                                  </tr>
-
-                                  <tr>
-                                    <td class="break-table" colspan="2"></td>
-                                  </tr>
-                                  <tr>
-                                    <th colspan="2">Other Information</th>
-                                  </tr>
-                                  <tr>
-                                    <td>Currency Type</td>
-                                    <td class="text-end">
-                                      {currencyFilter?.label}
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>VAT Number</td>
-                                    <td class="text-end">
-                                      {otherInfo.vatNumber}
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>Contact Email</td>
-                                    <td class="text-end">
-                                      {otherInfo.contactEmail}
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>Contact Phone</td>
-                                    <td class="text-end">
-                                      {otherInfo.contactPhone}
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>Logo</td>
-                                    <td className="text-end">
-                                      {otherInfo.logoUrl ? (
-                                        <a
-                                          href={otherInfo.logoUrl}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                        >
-                                          View Logo
-                                        </a>
-                                      ) : (
-                                        <span>Not available</span>
-                                      )}
-                                    </td>
-                                  </tr>
-
-                                  <tr>
-                                    <td>Website</td>
-                                    <td class="text-end">
-                                      {otherInfo.website}
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>Color</td>
-                                    <td
-                                      className="text-end"
-                                      style={{
-                                        display: "flex",
-                                        justifyContent: "flex-end",
-                                      }}
+                              <Tooltip title={"Back"}>
+                                <span>Back</span>
+                              </Tooltip>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="container-fluid ">
+                    <div class="row">
+                      <div className="col-lg-12">
+                        <div class="card" style={{ marginTop: "75px" }}>
+                          <div class="card-body">
+                            <div id="customerList">
+                              <div class="row g-4 mb-3"></div>
+                              <div class="search-box ms-2 width-searchbox prospect-form">
+                                <div class=" table-card  mb-3 Height_View_scroll scroll-hidden  ">
+                                  <ul class="nav nav-tabs mb-3">
+                                    <li class="nav-item">
+                                      <a
+                                        class="nav-link tab_nav active"
+                                        data-bs-toggle="tab"
+                                        href="#base-justified-home"
+                                        role="tab"
+                                        aria-selected="false"
+                                      >
+                                        Organisation/Practice Details
+                                      </a>
+                                    </li>
+                                    <li class="nav-item">
+                                      <a
+                                        onClick={() =>
+                                          GetInviteUsersListData(1)
+                                        }
+                                        class="nav-link tab_nav"
+                                        data-bs-toggle="tab"
+                                        href="#product"
+                                        role="tab"
+                                        aria-selected="false"
+                                      >
+                                        Invite User
+                                      </a>
+                                    </li>
+                                    <li class="nav-item">
+                                      <a
+                                        class="nav-link tab_nav"
+                                        data-bs-toggle="tab"
+                                        href="#Plan"
+                                        role="tab"
+                                        aria-selected="false"
+                                      >
+                                        Subscription Plan
+                                      </a>
+                                    </li>
+                                  </ul>
+                                  <div class="tab-content  text-muted">
+                                    <div
+                                      class="tab-pane active"
+                                      id="base-justified-home"
+                                      role="tabpanel"
                                     >
-                                      <div
-                                        style={{
-                                          backgroundColor: otherInfo.brandColor,
-                                          width: "50px",
-                                          height: "30px",
-                                        }}
-                                      ></div>
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>Business Tagline </td>
-                                    <td class="text-end">
-                                      {otherInfo.businessTagline}
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>Affiliated Accounting Body Name</td>
-                                    <td class="text-end">
-                                      {otherInfo.AffiliatedAcBodyName}
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>
-                                      Website of Affiliated Accounting Body
-                                    </td>
-                                    <td class="text-end">
-                                      {otherInfo.webOfAffiliatedAccount}
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td class="break-table" colspan="2"></td>
-                                  </tr>
-                                  <tr>
-                                    <th colspan="2">Trading Details</th>
-                                  </tr>
-                                  <tr>
-                                    <td>Trading Name</td>
-                                    <td class="text-end">
-                                      {basicInfo.tradingName}
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>Trading Address</td>
-                                    <td class="text-end">
-                                      {concatenatedTradingAddress}
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>Trading Start Date</td>
-                                    <td class="text-end">
-                                      {basicInfo.tradingStartDate}
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td class="break-table" colspan="2"></td>
-                                  </tr>
-                                  {(basicInfo.businessTypeID ==
-                                    CLIENT_TYPES.LLP ||
-                                    basicInfo.businessTypeID ==
-                                    CLIENT_TYPES.Company) && (
-                                      <>
-                                        <tr>
-                                          <th colspan="2">Company Details</th>
-                                        </tr>
-                                        <tr>
-                                          <td>Company Name</td>
-                                          <td class="text-end">
-                                            {companyForm.companyName}
-                                          </td>
-                                        </tr>
-                                        <tr>
-                                          <td>Entity Type</td>
-                                          <td class="text-end">
-                                            {companyForm.companyType}
-                                          </td>
-                                        </tr>
-                                        <tr>
-                                          <td>Company Number</td>
-                                          <td class="text-end">
-                                            {" "}
-                                            {companyForm.companyNumber}
-                                          </td>
-                                        </tr>
-                                        <tr>
-                                          <td>Company Incorporated In</td>
-                                          <td class="text-end">
-                                            {IncorporatedValue[0]?.label}
-                                          </td>
-                                        </tr>
-                                        <tr>
-                                          <td>Company Incorporation Date</td>
-                                          <td class="text-end">
-                                            {" "}
-                                            {companyForm.incorporationDate}
-                                          </td>
-                                        </tr>
-                                        <tr>
-                                          <td>
-                                            Company Registered Office Address
-                                          </td>
-                                          <td class="text-end">
-                                            {concatenatedRegisterAddress}
-                                          </td>
-                                        </tr>
-                                        <tr>
-                                          <td
-                                            class="break-table"
-                                            colspan="2"
-                                          ></td>
-                                        </tr>
-                                      </>
-                                    )}
-
-                                  {officersForm.map((prospect, index) => (
-                                    <React.Fragment key={index}>
-                                      {basicInfo.businessTypeID ===
-                                        CLIENT_TYPES.LLP ||
-                                        basicInfo.businessTypeID ===
-                                        CLIENT_TYPES.Company ? (
-                                        <tr>
-                                          <th colspan="2">Officers Details</th>
-                                        </tr>
-                                      ) : null}
-                                      {basicInfo.businessTypeID ===
-                                        CLIENT_TYPES.Partnership ? (
-                                        <tr>
-                                          <th colspan="2">
-                                            Partnership Details
-                                          </th>
-                                        </tr>
-                                      ) : null}
-                                      <tr>
-                                        {basicInfo.businessTypeID ===
-                                          CLIENT_TYPES.Partnership ? (
-                                          <th colspan="2">
-                                            Partner {index + 1}
-                                          </th>
-                                        ) : null}
-                                        {basicInfo.businessTypeID ===
-                                          CLIENT_TYPES.Sole_Trader ? (
-                                          <th colspan="2">Officers Details</th>
-                                        ) : null}
-                                        {basicInfo.businessTypeID ===
-                                          CLIENT_TYPES.LLP ||
-                                          basicInfo.businessTypeID ===
-                                          CLIENT_TYPES.Company ? (
-                                          <th colspan="2">
-                                            Officer {index + 1}
-                                          </th>
-                                        ) : null}
-                                      </tr>
-                                      <tr>
-                                        <td>First Name</td>
-                                        <td className="text-end">
-                                          {officersForm[index].firstName}
-                                        </td>
-                                      </tr>
-
-                                      <tr>
-                                        <td>Last Name</td>
-                                        <td className="text-end">
-                                          {officersForm[index].lastName}
-                                        </td>
-                                      </tr>
-                                      <tr>
-                                        <td>Phone</td>
-                                        <td className="text-end">
-                                          {officersForm[index].phoneNo}
-                                        </td>
-                                      </tr>
-
-                                      <tr>
-                                        <td>Email</td>
-                                        <td className="text-end">
-                                          {officersForm[index].emailID}
-                                        </td>
-                                      </tr>
-                                      {basicInfo.businessTypeID ===
-                                        CLIENT_TYPES.Sole_Trader ||
-                                        basicInfo.businessTypeID ===
-                                        CLIENT_TYPES.Partnership ? null : (
-                                        <>
-                                          {" "}
+                                      <table class="table table-striped fs-13 view-details-table">
+                                        <tbody>
                                           <tr>
-                                            <td>Role</td>
-                                            <td className="text-end">
-                                              {officersForm[index].officerRole}
+                                            <th colspan="2">
+                                              Basic Information
+                                            </th>
+                                          </tr>
+                                          <tr>
+                                            <td>Profession Type</td>
+                                            <td class="text-end">
+                                              {professionTypeValue}
                                             </td>
                                           </tr>
                                           <tr>
-                                            <td>Appointed On</td>
+                                            <td>Business Type</td>
+                                            <td class="text-end">
+                                              {basicInfo.businessTypeName}
+                                            </td>
+                                          </tr>
+
+                                          <tr>
+                                            <td
+                                              class="break-table"
+                                              colspan="2"
+                                            ></td>
+                                          </tr>
+                                          <tr>
+                                            <th colspan="2">
+                                              Other Information
+                                            </th>
+                                          </tr>
+                                          <tr>
+                                            <td>Currency Type</td>
+                                            <td class="text-end">
+                                              {currencyFilter?.label}
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td>VAT Number</td>
+                                            <td class="text-end">
+                                              {otherInfo.vatNumber}
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td>Contact Email</td>
+                                            <td class="text-end">
+                                              {otherInfo.contactEmail}
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td>Contact Phone</td>
+                                            <td class="text-end">
+                                              {otherInfo.contactPhone}
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td>Logo</td>
                                             <td className="text-end">
-                                              {officersForm[index].appointedOn}
+                                              {otherInfo.logoUrl ? (
+                                                <a
+                                                  href={otherInfo.logoUrl}
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                >
+                                                  View Logo
+                                                </a>
+                                              ) : (
+                                                <span>Not available</span>
+                                              )}
                                             </td>
                                           </tr>
-                                        </>
-                                      )}
-                                      <tr>
-                                        {(basicInfo.businessTypeID ===
-                                          CLIENT_TYPES.Sole_Trader ||
-                                          basicInfo.businessTypeID ===
-                                          CLIENT_TYPES.Partnership) && (
-                                            <td>Residential Address</td>
-                                          )}
-                                        {(basicInfo.businessTypeID ===
-                                          CLIENT_TYPES.Company ||
-                                          basicInfo.businessTypeID ===
-                                          CLIENT_TYPES.LLP) && (
-                                            <td>Correspondence Address</td>
-                                          )}
 
-                                        <td className="text-end">
-                                          {
-                                            concatenatedResidentialAddress[
-                                              index
-                                            ]?.officersFullAddress
-                                          }
-                                        </td>
-                                      </tr>
-                                      <tr>
-                                        <td
-                                          class="break-table"
-                                          colspan="2"
-                                        ></td>
-                                      </tr>
-                                    </React.Fragment>
-                                  ))}
-                                  <tr>
-                                    <td class="break-table" colspan="2"></td>
-                                  </tr>
-                                  <tr>
-                                    <th colspan="2">E Signature</th>
-                                  </tr>
-                                  <tr>
-                                    <td>Signatory Name</td>
-                                    <td class="text-end">
-                                      {basicInfo.signatoryName}
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>Signature Image</td>
-                                    <td class="text-end">
-                                      {basicInfo.signatureImageUrl ? (
-                                        <a
-                                          href={basicInfo.signatureImageUrl}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                        >
-                                          View Signature
-                                        </a>
-                                      ) : (
-                                        <span>Not available</span>
-                                      )}
-                                    </td>
-                                  </tr>
-                                </tbody>
-                              </table>
-                            </div>
-                            {/* New Tab Start */}
-                            {/* Officer details */}
-                            <div class="tab-pane" id="product" role="tabpanel">
-                              <div
-                                class="tab-pane active"
-                                id="base-justified-home"
-                                role="tabpanel"
-                              >
-                                <div class="">
-                                  <div className="row">
-                                    <div class="col-md-6 col-6">
-                                      <div
-                                        class="search-box w-50 width-searchbox mb-2 "
-                                        id="w-100"
-                                      >
-                                        <i class="ri-search-line search-icon"></i>
-                                        <input
-                                          type="text"
-                                          value={searchKeywordUsers}
-                                          onChange={(e) => {
-                                            HandleSearch(e);
-                                          }}
-                                          className="form-control search"
-                                          placeholder="Search User"
-                                        />
-                                      </div>
-                                    </div>
-                                    <div class="col-md-6 col-6">
-                                      <div className="d-flex justify-content-sm-end add-new-btn">
-                                        {userAccessData.User_CanAdd && (
-                                          <CommonButtonComponent
-                                            title="Invite New User"
-                                            dataBsTarget="#addUpdateModal"
-                                            data_bs_toggle="modal"
-                                            name="Invite New User"
-                                            AddBtn={() => UsersAddBtnClicked()}
-                                          />
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <table
-                                    class="table align-middle table-nowrap"
-                                    id="customerTable"
-                                  >
-                                    <thead
-                                      class="table-light table-header-font"
-                                      style={{ width: "100%" }}
-                                    >
-                                      <tr className="head-row">
-                                        <td
-                                          className="tr-table-class text-white"
-                                          style={{ width: "30%" }}
-                                        >
-                                          First Name{" "}
-                                          {primaryUserSortDirectionObj.UserNameTypeSort ===
-                                            "desc" && (
-                                              <i
-                                                onClick={() => {
-                                                  setUserSortType("FirstName");
-                                                  handleUserSort(
-                                                    "asc",
-                                                    "FirstName"
-                                                  );
-                                                }}
-                                                style={{ cursor: "pointer" }}
-                                                class="fas fa-sort-alpha-up ml-1"
-                                              ></i>
-                                            )}
-                                          {(primaryUserSortDirectionObj.UserNameTypeSort ===
-                                            null ||
-                                            primaryUserSortDirectionObj.UserNameTypeSort ===
-                                            "asc") && (
-                                              <i
-                                                onClick={() => {
-                                                  setUserSortType("FirstName");
-                                                  handleUserSort(
-                                                    primaryUserSortDirectionObj.UserNameTypeSort ===
-                                                      null
-                                                      ? "asc"
-                                                      : "desc",
-                                                    "FirstName"
-                                                  );
-                                                }}
-                                                style={{ cursor: "pointer" }}
-                                                class="fas fa-sort-alpha-down ml-1"
-                                              ></i>
-                                            )}
-                                        </td>
-                                        <td className="tr-table-class text-white">
-                                          Last Name{" "}
-                                        </td>
-                                        <td className="tr-table-class text-white">
-                                          Email
-                                          {primaryUserSortDirectionObj.EmailTypeSort ===
-                                            "desc" && (
-                                              <i
-                                                onClick={() => {
-                                                  setUserSortType("Email");
-                                                  handleUserSort("asc", "Email");
-                                                }}
-                                                style={{ cursor: "pointer" }}
-                                                class="fas fa-sort-alpha-up ml-1"
-                                              ></i>
-                                            )}
-                                          {(primaryUserSortDirectionObj.EmailTypeSort ===
-                                            null ||
-                                            primaryUserSortDirectionObj.EmailTypeSort ===
-                                            "asc") && (
-                                              <i
-                                                onClick={() => {
-                                                  setUserSortType("Email");
-                                                  handleUserSort(
-                                                    primaryUserSortDirectionObj.EmailTypeSort ===
-                                                      null
-                                                      ? "asc"
-                                                      : "desc",
-                                                    "Email"
-                                                  );
-                                                }}
-                                                style={{ cursor: "pointer" }}
-                                                class="fas fa-sort-alpha-down ml-1"
-                                              ></i>
-                                            )}
-                                        </td>
-                                        <td className="tr-table-class text-white">
-                                          Role
-                                          {primaryUserSortDirectionObj.RoleTypeSort ===
-                                            "desc" && (
-                                              <i
-                                                onClick={() => {
-                                                  setUserSortType("RoleName");
-                                                  handleUserSort(
-                                                    "asc",
-                                                    "RoleName"
-                                                  );
-                                                }}
-                                                style={{ cursor: "pointer" }}
-                                                class="fas fa-sort-alpha-up ml-1"
-                                              ></i>
-                                            )}
-                                          {(primaryUserSortDirectionObj.RoleTypeSort ===
-                                            null ||
-                                            primaryUserSortDirectionObj.RoleTypeSort ===
-                                            "asc") && (
-                                              <i
-                                                onClick={() => {
-                                                  setUserSortType("RoleName");
-                                                  handleUserSort(
-                                                    primaryUserSortDirectionObj.RoleTypeSort ===
-                                                      null
-                                                      ? "asc"
-                                                      : "desc",
-                                                    "RoleName"
-                                                  );
-                                                }}
-                                                style={{ cursor: "pointer" }}
-                                                class="fas fa-sort-alpha-down ml-1"
-                                              ></i>
-                                            )}
-                                        </td>
-                                        <td className="tr-table-class  text-white">
-                                          Acceptance Status
-                                        </td>
-                                        <td className="tr-table-class text-white">
-                                          {userAccessData.User_CanDelete && (
-                                            <>Action</>
-                                          )}
-                                        </td>
-                                      </tr>
-                                    </thead>
-                                    <tbody class="list form-check-all table-content-font">
-                                      {inviteUsersList.map((users) => {
-                                        return (
-                                          <tr class="table_new">
-                                            <td className="table-content-font">
-                                              {users.firstName}
-                                            </td>
-                                            <td className="table-content-font">
-                                              {users.lastName}
-                                            </td>
-                                            <td className="table-content-font">
-                                              {users.email}
-                                            </td>
-                                            <td className="table-content-font">
-                                              {users.roleName}
-                                            </td>
-                                            <td className="table-content-font">
-                                              {users.acceptanceStatus}
-                                            </td>
-                                            <td className="switch table-content-font">
-                                              <div class="d-flex gap-2">
-                                                {userAccessData.User_CanDelete && (
-                                                  <Tooltip
-                                                    title={"Delete User"}
-                                                  >
-                                                    <div class="remove">
-                                                      <button
-                                                        class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#ConfirmModel"
-                                                        onClick={() =>
-                                                          setModelRequestData({
-                                                            ...modelRequestData,
-                                                            userName:
-                                                              users.firstName,
-                                                            inviteUserKeyID:
-                                                              users.inviteUserKeyID,
-                                                            status:
-                                                              users.statusName,
-                                                            user: "Invite User",
-                                                            Action: "Delete",
-                                                          })
-                                                        }
-                                                      >
-                                                        <i class="ri-delete-bin-5-fill"></i>
-                                                      </button>
-                                                    </div>
-                                                  </Tooltip>
-                                                )}
-                                              </div>
+                                          <tr>
+                                            <td>Website</td>
+                                            <td class="text-end">
+                                              {otherInfo.website}
                                             </td>
                                           </tr>
-                                        );
-                                      })}
-                                    </tbody>
-                                  </table>
-
-                                  {inviteUsersList &&
-                                    inviteUsersList.length === 0 && (
-                                      <noResultFoundModel />
-                                    )}
-                                  {UserListCount > 10 && (
-                                    <PaginationComponent
-                                      totalCount={UserListCount}
-                                      totalPages={totalUserPage}
-                                      currentPage={currentPageUsers}
-                                      onPageChange={HandlePageChangeUsers}
-                                    />
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            <div class="tab-pane" id="Plan" role="tabpanel">
-                              <div
-                                class="tab-pane active"
-                                id="base-justified-home"
-                                role="tabpanel"
-                              >
-                                <div className="d-flex justify-content-sm-end p-2">
-                                  <button
-                                    class="btn btn-md btn-success create-item-btn view"
-                                    // onClick={() =>
-                                    //   handleViewOrganisation(Org)
-                                    // }
-                                    onClick={() => handleOpenPurchaseModel()}
-                                  >
-                                    {/* <i class="ri-pencil-fill"></i> */}
-                                    <span>Upgrade Plan</span>{" "}
-                                  </button>
-                                </div>
-
-                                <div className="">
-                                  <div className="row">
-                                    <div className="col-lg-12">
-                                      <div
-                                        className="card mb-3"
-                                        style={{
-                                          border: "1px solid #ced4da",
-                                          borderRadius: "5px",
-                                          boxShadow:
-                                            "0 2px 4px rgba(0, 0, 0, 0.1)",
-                                          backgroundColor: "#fff",
-                                        }}
-                                      >
-                                        <div
-                                          // className="card-body"
-                                          style={{ padding: "20px" }}
-                                        >
-                                          <div className="row" style={{ marginLeft: "0px" }}>
-                                            {/* Left side for subscription details */}
-                                            <div
-                                              className="col-md-6 mt-2"
+                                          <tr>
+                                            <td>Color</td>
+                                            <td
+                                              className="text-end"
                                               style={{
-                                                backgroundColor: "#f8f8fa",
-                                                height: "303px",
+                                                display: "flex",
+                                                justifyContent: "flex-end",
                                               }}
                                             >
                                               <div
-                                                className="d-flex rounded"
                                                 style={{
-                                                  backgroundColor: "#f8f8fa",
-                                                  height: "303px",
+                                                  backgroundColor:
+                                                    otherInfo.brandColor,
+                                                  width: "50px",
+                                                  height: "30px",
                                                 }}
+                                              ></div>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td>Business Tagline </td>
+                                            <td class="text-end">
+                                              {otherInfo.businessTagline}
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td>
+                                              Affiliated Accounting Body Name
+                                            </td>
+                                            <td class="text-end">
+                                              {otherInfo.AffiliatedAcBodyName}
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td>
+                                              Website of Affiliated Accounting
+                                              Body
+                                            </td>
+                                            <td class="text-end">
+                                              {otherInfo.webOfAffiliatedAccount}
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td
+                                              class="break-table"
+                                              colspan="2"
+                                            ></td>
+                                          </tr>
+                                          <tr>
+                                            <th colspan="2">Trading Details</th>
+                                          </tr>
+                                          <tr>
+                                            <td>Trading Name</td>
+                                            <td class="text-end">
+                                              {basicInfo.tradingName}
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td>Trading Address</td>
+                                            <td class="text-end">
+                                              {concatenatedTradingAddress}
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td>Trading Start Date</td>
+                                            <td class="text-end">
+                                              {basicInfo.tradingStartDate}
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td
+                                              class="break-table"
+                                              colspan="2"
+                                            ></td>
+                                          </tr>
+                                          {(basicInfo.businessTypeID ==
+                                            CLIENT_TYPES.LLP ||
+                                            basicInfo.businessTypeID ==
+                                              CLIENT_TYPES.Company) && (
+                                            <>
+                                              <tr>
+                                                <th colspan="2">
+                                                  Company Details
+                                                </th>
+                                              </tr>
+                                              <tr>
+                                                <td>Company Name</td>
+                                                <td class="text-end">
+                                                  {companyForm.companyName}
+                                                </td>
+                                              </tr>
+                                              <tr>
+                                                <td>Entity Type</td>
+                                                <td class="text-end">
+                                                  {companyForm.companyType}
+                                                </td>
+                                              </tr>
+                                              <tr>
+                                                <td>Company Number</td>
+                                                <td class="text-end">
+                                                  {" "}
+                                                  {companyForm.companyNumber}
+                                                </td>
+                                              </tr>
+                                              <tr>
+                                                <td>Company Incorporated In</td>
+                                                <td class="text-end">
+                                                  {IncorporatedValue[0]?.label}
+                                                </td>
+                                              </tr>
+                                              <tr>
+                                                <td>
+                                                  Company Incorporation Date
+                                                </td>
+                                                <td class="text-end">
+                                                  {" "}
+                                                  {
+                                                    companyForm.incorporationDate
+                                                  }
+                                                </td>
+                                              </tr>
+                                              <tr>
+                                                <td>
+                                                  Company Registered Office
+                                                  Address
+                                                </td>
+                                                <td class="text-end">
+                                                  {concatenatedRegisterAddress}
+                                                </td>
+                                              </tr>
+                                              <tr>
+                                                <td
+                                                  class="break-table"
+                                                  colspan="2"
+                                                ></td>
+                                              </tr>
+                                            </>
+                                          )}
+
+                                          {officersForm.map(
+                                            (prospect, index) => (
+                                              <React.Fragment key={index}>
+                                                {basicInfo.businessTypeID ===
+                                                  CLIENT_TYPES.LLP ||
+                                                basicInfo.businessTypeID ===
+                                                  CLIENT_TYPES.Company ? (
+                                                  <tr>
+                                                    <th colspan="2">
+                                                      Officers Details
+                                                    </th>
+                                                  </tr>
+                                                ) : null}
+                                                {basicInfo.businessTypeID ===
+                                                CLIENT_TYPES.Partnership ? (
+                                                  <tr>
+                                                    <th colspan="2">
+                                                      Partnership Details
+                                                    </th>
+                                                  </tr>
+                                                ) : null}
+                                                <tr>
+                                                  {basicInfo.businessTypeID ===
+                                                  CLIENT_TYPES.Partnership ? (
+                                                    <th colspan="2">
+                                                      Partner {index + 1}
+                                                    </th>
+                                                  ) : null}
+                                                  {basicInfo.businessTypeID ===
+                                                  CLIENT_TYPES.Sole_Trader ? (
+                                                    <th colspan="2">
+                                                      Officers Details
+                                                    </th>
+                                                  ) : null}
+                                                  {basicInfo.businessTypeID ===
+                                                    CLIENT_TYPES.LLP ||
+                                                  basicInfo.businessTypeID ===
+                                                    CLIENT_TYPES.Company ? (
+                                                    <th colspan="2">
+                                                      Officer {index + 1}
+                                                    </th>
+                                                  ) : null}
+                                                </tr>
+                                                <tr>
+                                                  <td>First Name</td>
+                                                  <td className="text-end">
+                                                    {
+                                                      officersForm[index]
+                                                        .firstName
+                                                    }
+                                                  </td>
+                                                </tr>
+
+                                                <tr>
+                                                  <td>Last Name</td>
+                                                  <td className="text-end">
+                                                    {
+                                                      officersForm[index]
+                                                        .lastName
+                                                    }
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <td>Phone</td>
+                                                  <td className="text-end">
+                                                    {
+                                                      officersForm[index]
+                                                        .phoneNo
+                                                    }
+                                                  </td>
+                                                </tr>
+
+                                                <tr>
+                                                  <td>Email</td>
+                                                  <td className="text-end">
+                                                    {
+                                                      officersForm[index]
+                                                        .emailID
+                                                    }
+                                                  </td>
+                                                </tr>
+                                                {basicInfo.businessTypeID ===
+                                                  CLIENT_TYPES.Sole_Trader ||
+                                                basicInfo.businessTypeID ===
+                                                  CLIENT_TYPES.Partnership ? null : (
+                                                  <>
+                                                    {" "}
+                                                    <tr>
+                                                      <td>Role</td>
+                                                      <td className="text-end">
+                                                        {
+                                                          officersForm[index]
+                                                            .officerRole
+                                                        }
+                                                      </td>
+                                                    </tr>
+                                                    <tr>
+                                                      <td>Appointed On</td>
+                                                      <td className="text-end">
+                                                        {
+                                                          officersForm[index]
+                                                            .appointedOn
+                                                        }
+                                                      </td>
+                                                    </tr>
+                                                  </>
+                                                )}
+                                                <tr>
+                                                  {(basicInfo.businessTypeID ===
+                                                    CLIENT_TYPES.Sole_Trader ||
+                                                    basicInfo.businessTypeID ===
+                                                      CLIENT_TYPES.Partnership) && (
+                                                    <td>Residential Address</td>
+                                                  )}
+                                                  {(basicInfo.businessTypeID ===
+                                                    CLIENT_TYPES.Company ||
+                                                    basicInfo.businessTypeID ===
+                                                      CLIENT_TYPES.LLP) && (
+                                                    <td>
+                                                      Correspondence Address
+                                                    </td>
+                                                  )}
+
+                                                  <td className="text-end">
+                                                    {
+                                                      concatenatedResidentialAddress[
+                                                        index
+                                                      ]?.officersFullAddress
+                                                    }
+                                                  </td>
+                                                </tr>
+                                                <tr>
+                                                  <td
+                                                    class="break-table"
+                                                    colspan="2"
+                                                  ></td>
+                                                </tr>
+                                              </React.Fragment>
+                                            ),
+                                          )}
+                                          <tr>
+                                            <td
+                                              class="break-table"
+                                              colspan="2"
+                                            ></td>
+                                          </tr>
+                                          <tr>
+                                            <th colspan="2">E Signature</th>
+                                          </tr>
+                                          <tr>
+                                            <td>Signatory Name</td>
+                                            <td class="text-end">
+                                              {basicInfo.signatoryName}
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td>Signature Image</td>
+                                            <td class="text-end">
+                                              {basicInfo.signatureImageUrl ? (
+                                                <a
+                                                  href={
+                                                    basicInfo.signatureImageUrl
+                                                  }
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                >
+                                                  View Signature
+                                                </a>
+                                              ) : (
+                                                <span>Not available</span>
+                                              )}
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                    {/* New Tab Start */}
+                                    {/* Officer details */}
+                                    <div
+                                      class="tab-pane"
+                                      id="product"
+                                      role="tabpanel"
+                                    >
+                                      <div
+                                        class="tab-pane active"
+                                        id="base-justified-home"
+                                        role="tabpanel"
+                                      >
+                                        <div class="">
+                                          <div className="row">
+                                            <div class="col-md-6 col-6">
+                                              <div
+                                                class="search-box w-50 width-searchbox mb-2 "
+                                                id="w-100"
                                               >
-                                                <CardBody style={{ padding: "0px" }}>
-                                                  <div className="media ">
-                                                    <i className="ion ion-ios-airplane h1 align-self-center"></i>
-                                                    <div className="media-body text-center ">
-                                                      <div className="text-center login-logo">
-                                                        <div
-                                                          className="d-flex justify-content-between"
-
-                                                        >
-                                                          <h5 className="card-title">
-                                                            Subscription Details
-                                                          </h5>
-                                                          <p className="mt-2">
-                                                            {subScriptionActiveList.paymentStatus ===
-                                                              "Unpaid" && (
-                                                                <Tooltip
-                                                                  title={`Pay Now`}
-                                                                >
-                                                                  <button
-                                                                    className="btn btn-md btn-success create-item-btn"
-                                                                    onClick={() =>
-                                                                      RedirectStripeCheckout(
-                                                                        subScriptionActiveList
-                                                                      )
-                                                                    }
-                                                                  >
-                                                                    <span>
-                                                                      Pay Now
-                                                                    </span>
-                                                                  </button>
-                                                                </Tooltip>
-                                                              )}
-                                                            {subScriptionActiveList.paymentStatus ===
-                                                              "Paid" && (
-                                                                <Tooltip title={`Download`}>
-                                                                  <a
-                                                                    href={
-                                                                      subScriptionActiveList.hostedInvoiceUrl
-                                                                    }
-                                                                    className="btn btn-secondary btn-xs"
-                                                                  >
-                                                                    <i className="fa fa-download"></i>
-                                                                  </a>
-                                                                </Tooltip>
-                                                              )}
-                                                            {subScriptionActiveList.paymentStatus ===
-                                                              "Free" && (
-
-                                                                // <p>Free</p>
-                                                                <p class='text-white'
-                                                                  style={{
-                                                                    background: "#DAA520",
-                                                                    width: "100px",
-                                                                    padding: "1px",
-                                                                    display: "inline-block",
-                                                                    borderRadius: "0.5rem",
-                                                                  }}
-                                                                >
-                                                                  Free
-                                                                </p>
-
-                                                              )}
-                                                          </p>
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                  <div className="pricing-features">
-                                                    <p className="mt-2 mb-1 text-dark">
-                                                      <b>Package Name</b>:{" "}
-                                                      {
-                                                        subScriptionActiveList.packageName
-                                                      }
-                                                    </p>
-                                                    <p className="mt-0 mb-1 text-dark">
-                                                      <b>Payment Frequency</b>:{" "}
-                                                      {subScriptionActiveList.paymentFrequencyID ===
-                                                        1
-                                                        ? "Yearly"
-                                                        : subScriptionActiveList.paymentFrequencyID ===
-                                                          4
-                                                          ? "Monthly"
-                                                          : ""}
-                                                    </p>
-
-                                                    <p className="mt-0 mb-1 text-dark">
-                                                      <b>Days</b>:{" "}
-                                                      {subScriptionActiveList.paymentFrequencyID ===
-                                                        1
-                                                        ? "365 Days"
-                                                        : subScriptionActiveList.paymentFrequencyID ===
-                                                          4
-                                                          ? "30 Days"
-                                                          : "-"}
-                                                    </p>
-
-                                                    <p className="mt-0 mb-1 text-dark">
-                                                      <b>Subscription Date</b>:{" "}
-                                                      {
-                                                        subScriptionActiveList.subscriptionStartDate === null ? "-" : subScriptionActiveList.subscriptionStartDate
-                                                      }
-                                                    </p>
-                                                    <p className="mt-0 mb-1 text-dark">
-                                                      <b> Next Renewal Date</b>:{" "}
-                                                      {
-                                                        subScriptionActiveList.renewDate === null ? "-" : subScriptionActiveList.renewDate
-                                                      }
-                                                    </p>
-                                                    <p className="mt-0 mb-1 text-dark">
-                                                      <b>Payment Status</b>:{" "}
-                                                      {
-                                                        subScriptionActiveList.paymentStatus
-                                                      }
-                                                    </p>
-                                                    <p className="mt-0 mb-1 text-dark">
-                                                      <b>Subscription Status</b>
-                                                      :{" "}
-                                                      {
-                                                        subScriptionActiveList.paymentStatus
-                                                      }
-                                                    </p>
-                                                    <p className="mt-0 mb-1 text-dark">
-                                                      <b>Remaining E-Signatures</b>:{" "}
-                                                      {
-                                                        subScriptionActiveList.remainingESignatures < 0 ? 0 : subScriptionActiveList.remainingESignatures
-                                                      }
-                                                    </p>
-                                                  </div>
-                                                </CardBody>
+                                                <i class="ri-search-line search-icon"></i>
+                                                <input
+                                                  type="text"
+                                                  value={searchKeywordUsers}
+                                                  onChange={(e) => {
+                                                    HandleSearch(e);
+                                                  }}
+                                                  className="form-control search"
+                                                  placeholder="Search User"
+                                                />
                                               </div>
                                             </div>
+                                            <div class="col-md-6 col-6">
+                                              <div className="d-flex justify-content-sm-end add-new-btn">
+                                                {userAccessData.User_CanAdd && (
+                                                  <CommonButtonComponent
+                                                    title="Invite New User"
+                                                    dataBsTarget="#addUpdateModal"
+                                                    data_bs_toggle="modal"
+                                                    name="Invite New User"
+                                                    AddBtn={() =>
+                                                      UsersAddBtnClicked()
+                                                    }
+                                                  />
+                                                )}
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <table
+                                            class="table align-middle table-nowrap"
+                                            id="customerTable"
+                                          >
+                                            <thead
+                                              class="table-light table-header-font"
+                                              style={{ width: "100%" }}
+                                            >
+                                              <tr className="head-row">
+                                                <td
+                                                  className="tr-table-class text-white"
+                                                  style={{ width: "30%" }}
+                                                >
+                                                  First Name{" "}
+                                                  {primaryUserSortDirectionObj.UserNameTypeSort ===
+                                                    "desc" && (
+                                                    <i
+                                                      onClick={() => {
+                                                        setUserSortType(
+                                                          "FirstName",
+                                                        );
+                                                        handleUserSort(
+                                                          "asc",
+                                                          "FirstName",
+                                                        );
+                                                      }}
+                                                      style={{
+                                                        cursor: "pointer",
+                                                      }}
+                                                      class="fas fa-sort-alpha-up ml-1"
+                                                    ></i>
+                                                  )}
+                                                  {(primaryUserSortDirectionObj.UserNameTypeSort ===
+                                                    null ||
+                                                    primaryUserSortDirectionObj.UserNameTypeSort ===
+                                                      "asc") && (
+                                                    <i
+                                                      onClick={() => {
+                                                        setUserSortType(
+                                                          "FirstName",
+                                                        );
+                                                        handleUserSort(
+                                                          primaryUserSortDirectionObj.UserNameTypeSort ===
+                                                            null
+                                                            ? "asc"
+                                                            : "desc",
+                                                          "FirstName",
+                                                        );
+                                                      }}
+                                                      style={{
+                                                        cursor: "pointer",
+                                                      }}
+                                                      class="fas fa-sort-alpha-down ml-1"
+                                                    ></i>
+                                                  )}
+                                                </td>
+                                                <td className="tr-table-class text-white">
+                                                  Last Name{" "}
+                                                </td>
+                                                <td className="tr-table-class text-white">
+                                                  Email
+                                                  {primaryUserSortDirectionObj.EmailTypeSort ===
+                                                    "desc" && (
+                                                    <i
+                                                      onClick={() => {
+                                                        setUserSortType(
+                                                          "Email",
+                                                        );
+                                                        handleUserSort(
+                                                          "asc",
+                                                          "Email",
+                                                        );
+                                                      }}
+                                                      style={{
+                                                        cursor: "pointer",
+                                                      }}
+                                                      class="fas fa-sort-alpha-up ml-1"
+                                                    ></i>
+                                                  )}
+                                                  {(primaryUserSortDirectionObj.EmailTypeSort ===
+                                                    null ||
+                                                    primaryUserSortDirectionObj.EmailTypeSort ===
+                                                      "asc") && (
+                                                    <i
+                                                      onClick={() => {
+                                                        setUserSortType(
+                                                          "Email",
+                                                        );
+                                                        handleUserSort(
+                                                          primaryUserSortDirectionObj.EmailTypeSort ===
+                                                            null
+                                                            ? "asc"
+                                                            : "desc",
+                                                          "Email",
+                                                        );
+                                                      }}
+                                                      style={{
+                                                        cursor: "pointer",
+                                                      }}
+                                                      class="fas fa-sort-alpha-down ml-1"
+                                                    ></i>
+                                                  )}
+                                                </td>
+                                                <td className="tr-table-class text-white">
+                                                  Role
+                                                  {primaryUserSortDirectionObj.RoleTypeSort ===
+                                                    "desc" && (
+                                                    <i
+                                                      onClick={() => {
+                                                        setUserSortType(
+                                                          "RoleName",
+                                                        );
+                                                        handleUserSort(
+                                                          "asc",
+                                                          "RoleName",
+                                                        );
+                                                      }}
+                                                      style={{
+                                                        cursor: "pointer",
+                                                      }}
+                                                      class="fas fa-sort-alpha-up ml-1"
+                                                    ></i>
+                                                  )}
+                                                  {(primaryUserSortDirectionObj.RoleTypeSort ===
+                                                    null ||
+                                                    primaryUserSortDirectionObj.RoleTypeSort ===
+                                                      "asc") && (
+                                                    <i
+                                                      onClick={() => {
+                                                        setUserSortType(
+                                                          "RoleName",
+                                                        );
+                                                        handleUserSort(
+                                                          primaryUserSortDirectionObj.RoleTypeSort ===
+                                                            null
+                                                            ? "asc"
+                                                            : "desc",
+                                                          "RoleName",
+                                                        );
+                                                      }}
+                                                      style={{
+                                                        cursor: "pointer",
+                                                      }}
+                                                      class="fas fa-sort-alpha-down ml-1"
+                                                    ></i>
+                                                  )}
+                                                </td>
+                                                <td className="tr-table-class  text-white">
+                                                  Acceptance Status
+                                                </td>
+                                                <td className="tr-table-class text-white">
+                                                  {userAccessData.User_CanDelete && (
+                                                    <>Action</>
+                                                  )}
+                                                </td>
+                                              </tr>
+                                            </thead>
+                                            <tbody class="list form-check-all table-content-font">
+                                              {inviteUsersList.map((users) => {
+                                                return (
+                                                  <tr class="table_new">
+                                                    <td className="table-content-font">
+                                                      {users.firstName}
+                                                    </td>
+                                                    <td className="table-content-font">
+                                                      {users.lastName}
+                                                    </td>
+                                                    <td className="table-content-font">
+                                                      {users.email}
+                                                    </td>
+                                                    <td className="table-content-font">
+                                                      {users.roleName}
+                                                    </td>
+                                                    <td className="table-content-font">
+                                                      {users.acceptanceStatus}
+                                                    </td>
+                                                    <td className="switch table-content-font">
+                                                      <div class="d-flex gap-2">
+                                                        {userAccessData.User_CanDelete && (
+                                                          <Tooltip
+                                                            title={
+                                                              "Delete User"
+                                                            }
+                                                          >
+                                                            <div class="remove">
+                                                              <button
+                                                                class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#ConfirmModel"
+                                                                onClick={() =>
+                                                                  setModelRequestData(
+                                                                    {
+                                                                      ...modelRequestData,
+                                                                      userName:
+                                                                        users.firstName,
+                                                                      inviteUserKeyID:
+                                                                        users.inviteUserKeyID,
+                                                                      status:
+                                                                        users.statusName,
+                                                                      user: "Invite User",
+                                                                      Action:
+                                                                        "Delete",
+                                                                    },
+                                                                  )
+                                                                }
+                                                              >
+                                                                <i class="ri-delete-bin-5-fill"></i>
+                                                              </button>
+                                                            </div>
+                                                          </Tooltip>
+                                                        )}
+                                                      </div>
+                                                    </td>
+                                                  </tr>
+                                                );
+                                              })}
+                                            </tbody>
+                                          </table>
 
-                                            {/* Right side for user name */}
-                                            <div className="col-md-6 mt-2">
+                                          {inviteUsersList &&
+                                            inviteUsersList.length === 0 && (
+                                              <noResultFoundModel />
+                                            )}
+                                          {UserListCount > 10 && (
+                                            <PaginationComponent
+                                              totalCount={UserListCount}
+                                              totalPages={totalUserPage}
+                                              currentPage={currentPageUsers}
+                                              onPageChange={
+                                                HandlePageChangeUsers
+                                              }
+                                            />
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div
+                                      class="tab-pane"
+                                      id="Plan"
+                                      role="tabpanel"
+                                    >
+                                      <div
+                                        class="tab-pane active"
+                                        id="base-justified-home"
+                                        role="tabpanel"
+                                      >
+                                        <div className="d-flex justify-content-sm-end p-2">
+                                          <button
+                                            class="btn btn-md btn-success create-item-btn view"
+                                            // onClick={() =>
+                                            //   handleViewOrganisation(Org)
+                                            // }
+                                            onClick={() =>
+                                              handleOpenPurchaseModel()
+                                            }
+                                          >
+                                            {/* <i class="ri-pencil-fill"></i> */}
+                                            <span>Upgrade Plan</span>{" "}
+                                          </button>
+                                        </div>
+
+                                        <div className="">
+                                          <div className="row">
+                                            <div className="col-lg-12">
                                               <div
-                                                className="d-flex rounded"
+                                                className="card mb-3"
                                                 style={{
-                                                  backgroundColor: "#f8f8fa",
-                                                  height: "303px",
+                                                  border: "1px solid #ced4da",
+                                                  borderRadius: "5px",
+                                                  boxShadow:
+                                                    "0 2px 4px rgba(0, 0, 0, 0.1)",
+                                                  backgroundColor: "#fff",
                                                 }}
                                               >
-                                                <CardBody className="">
-                                                  <div className="media ">
-                                                    <i className="ion ion-ios-airplane h1 align-self-center"></i>
-                                                    <div className="media-body text-center ">
-                                                      <div className="text-center login-logo">
-                                                        <h5 className="card-title">
-                                                          Package Details{" "}
-                                                        </h5>
+                                                <div
+                                                  // className="card-body"
+                                                  style={{ padding: "20px" }}
+                                                >
+                                                  <div
+                                                    className="row"
+                                                    style={{
+                                                      marginLeft: "0px",
+                                                    }}
+                                                  >
+                                                    {/* Left side for subscription details */}
+                                                    <div
+                                                      className="col-md-6 mt-2 mb-2"
+                                                      style={{
+                                                        backgroundColor:
+                                                          "#f8f8fa",
+                                                        // height: "303px",
+                                                      }}
+                                                    >
+                                                      <div
+                                                        className="d-flex rounded"
+                                                        style={{
+                                                          backgroundColor:
+                                                            "#f8f8fa",
+                                                          // height: "303px",
+                                                        }}
+                                                      >
+                                                        <CardBody
+                                                          className=""
+                                                        >
+                                                          <div className="media ">
+                                                            <i className="ion ion-ios-airplane h1 align-self-center"></i>
+                                                            <div className="media-body text-center ">
+                                                              <div className="text-center login-logo">
+                                                                <div className="d-flex justify-content-between">
+                                                                  <h5 className="card-title">
+                                                                    Subscription
+                                                                    Details
+                                                                  </h5>
+                                                                  <p className="mt-2">
+                                                                    {subScriptionActiveList.paymentStatus ===
+                                                                      "Unpaid" && (
+                                                                      <Tooltip
+                                                                        title={`Pay Now`}
+                                                                      >
+                                                                        <button
+                                                                          className="btn btn-md btn-success create-item-btn"
+                                                                          onClick={() =>
+                                                                            RedirectStripeCheckout(
+                                                                              subScriptionActiveList,
+                                                                            )
+                                                                          }
+                                                                        >
+                                                                          <span>
+                                                                            Pay
+                                                                            Now
+                                                                          </span>
+                                                                        </button>
+                                                                      </Tooltip>
+                                                                    )}
+                                                                    {subScriptionActiveList.paymentStatus ===
+                                                                      "Paid" && (
+                                                                      <Tooltip
+                                                                        title={`Download`}
+                                                                      >
+                                                                        <a
+                                                                          href={
+                                                                            subScriptionActiveList.hostedInvoiceUrl
+                                                                          }
+                                                                          className="btn btn-secondary btn-xs"
+                                                                        >
+                                                                          <i className="fa fa-download"></i>
+                                                                        </a>
+                                                                      </Tooltip>
+                                                                    )}
+                                                                    {subScriptionActiveList.paymentStatus ===
+                                                                      "Free" && (
+                                                                      // <p>Free</p>
+                                                                      <p
+                                                                        class="text-white"
+                                                                        style={{
+                                                                          background:
+                                                                            "#DAA520",
+                                                                          width:
+                                                                            "100px",
+                                                                          padding:
+                                                                            "1px",
+                                                                          display:
+                                                                            "inline-block",
+                                                                          borderRadius:
+                                                                            "0.5rem",
+                                                                        }}
+                                                                      >
+                                                                        Free
+                                                                      </p>
+                                                                    )}
+                                                                  </p>
+                                                                </div>
+                                                              </div>
+                                                            </div>
+                                                          </div>
+                                                          <div className="pricing-features">
+                                                            <p className="mt-2 mb-1 text-dark">
+                                                              <b>
+                                                                Package Name
+                                                              </b>
+                                                              :{" "}
+                                                              {
+                                                                subScriptionActiveList.packageName
+                                                              }
+                                                            </p>
+                                                            <p className="mt-0 mb-1 text-dark">
+                                                              <b>
+                                                                Payment
+                                                                Frequency
+                                                              </b>
+                                                              :{" "}
+                                                              {subScriptionActiveList.paymentFrequencyID ===
+                                                              1
+                                                                ? "Yearly"
+                                                                : subScriptionActiveList.paymentFrequencyID ===
+                                                                    4
+                                                                  ? "Monthly"
+                                                                  : ""}
+                                                            </p>
+
+                                                            <p className="mt-0 mb-1 text-dark">
+                                                              <b>Days</b>:{" "}
+                                                              {subScriptionActiveList.paymentFrequencyID ===
+                                                              1
+                                                                ? "365 Days"
+                                                                : subScriptionActiveList.paymentFrequencyID ===
+                                                                    4
+                                                                  ? "30 Days"
+                                                                  : "-"}
+                                                            </p>
+
+                                                            <p className="mt-0 mb-1 text-dark">
+                                                              <b>
+                                                                Subscription
+                                                                Date
+                                                              </b>
+                                                              :{" "}
+                                                              {subScriptionActiveList.subscriptionStartDate ===
+                                                              null
+                                                                ? "-"
+                                                                : subScriptionActiveList.subscriptionStartDate}
+                                                            </p>
+                                                            <p className="mt-0 mb-1 text-dark">
+                                                              <b>
+                                                                {" "}
+                                                                Next Renewal
+                                                                Date
+                                                              </b>
+                                                              :{" "}
+                                                              {subScriptionActiveList.renewDate ===
+                                                              null
+                                                                ? "-"
+                                                                : subScriptionActiveList.renewDate}
+                                                            </p>
+                                                            <p className="mt-0 mb-1 text-dark">
+                                                              <b>
+                                                                Payment Status
+                                                              </b>
+                                                              :{" "}
+                                                              {
+                                                                subScriptionActiveList.paymentStatus
+                                                              }
+                                                            </p>
+                                                            <p className="mt-0 mb-1 text-dark">
+                                                              <b>
+                                                                Subscription
+                                                                Status
+                                                              </b>
+                                                              :{" "}
+                                                              {
+                                                                subScriptionActiveList.paymentStatus
+                                                              }
+                                                            </p>
+                                                            <p className="mt-0 mb-1 text-dark">
+                                                              <b>
+                                                                Remaining
+                                                                Proposals
+                                                              </b>
+                                                              :{" "}
+                                                              {subScriptionActiveList.remainingQuotesPerMonth <
+                                                              0
+                                                                ? 0
+                                                                : subScriptionActiveList.remainingQuotesPerMonth}
+                                                            </p>
+                                                            <p className="mt-0 mb-1 text-dark">
+                                                              <b>
+                                                                Remaining
+                                                                E-Signatures
+                                                              </b>
+                                                              :{" "}
+                                                              {subScriptionActiveList.remainingESignatures <
+                                                              0
+                                                                ? 0
+                                                                : subScriptionActiveList.remainingESignatures}
+                                                            </p>
+                                                          </div>
+                                                        </CardBody>
                                                       </div>
-                                                      <p>
-                                                        {formatValue(subScriptionActiveList?.yearlyValuePlan /
-                                                          12)}/ Month
-                                                      </p>
+                                                    </div>
+
+                                                    {/* Right side for user name */}
+                                                    <div className="col-md-6 mt-2 mb-2">
+                                                      <div
+                                                        className="d-flex rounded"
+                                                        style={{
+                                                          backgroundColor:
+                                                            "#f8f8fa",
+                                                          // height: "303px",
+                                                        }}
+                                                      >
+                                                        <CardBody className="">
+                                                          <div className="media ">
+                                                            <i className="ion ion-ios-airplane h1 align-self-center"></i>
+                                                            <div className="media-body">
+                                                              <div className="d-flex justify-content-between align-items-center">
+                                                                <h5 className="card-title mb-1">
+                                                                  Package Details
+                                                                </h5>
+                                                                <button className="btn create-item-btn btn-primary">
+                                                                  <i
+                                                                    className="ri-pencil-fill"
+                                                                    style={{
+                                                                      cursor:
+                                                                        "pointer",
+                                                                    }}
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#OrganisationSubscriptionPackageDetails"
+                                                                    onClick={(
+                                                                      e,
+                                                                    ) => {
+                                                                      e.stopPropagation(); // only prevent parent click
+                                                                      GetSubscriptionPackageModelData(
+                                                                        subScriptionActiveList.ospKeyID,
+                                                                      );
+                                                                      GetOrganisationPlanListData(
+                                                                        1,
+                                                                      );
+                                                                    }}
+                                                                  />
+                                                                </button>
+                                                              </div>
+
+                                                              <p className="mt-2 text-center">
+                                                                {formatValue(
+                                                                  subScriptionActiveList?.yearlyValuePlan /
+                                                                    12,
+                                                                )}
+                                                                / Month
+                                                              </p>
+                                                            </div>
+                                                          </div>
+                                                          <div className="pricing-features">
+                                                            <p className="mt-0 mb-1 text-dark">
+                                                              {subScriptionActiveList?.apiIntegration ==
+                                                              true ? (
+                                                                <span
+                                                                  style={{
+                                                                    color:
+                                                                      "green",
+                                                                  }}
+                                                                  className="fa fa-check"
+                                                                ></span>
+                                                              ) : (
+                                                                <span
+                                                                  style={{
+                                                                    color:
+                                                                      "red",
+                                                                    marginRight:
+                                                                      "2px",
+                                                                  }}
+                                                                  className="fa fa-times"
+                                                                ></span>
+                                                              )}
+                                                              <span
+                                                                style={{
+                                                                  marginLeft:
+                                                                    "10px",
+                                                                }}
+                                                              >
+                                                                {" "}
+                                                                API Integration
+                                                              </span>
+                                                            </p>
+                                                            <p className="mt-0 mb-1 text-dark">
+                                                              {subScriptionActiveList?.prepareQuote ==
+                                                              true ? (
+                                                                <span
+                                                                  style={{
+                                                                    color:
+                                                                      "green",
+                                                                  }}
+                                                                  className="fa fa-check"
+                                                                ></span>
+                                                              ) : (
+                                                                <span
+                                                                  style={{
+                                                                    color:
+                                                                      "red",
+                                                                    marginRight:
+                                                                      "2px",
+                                                                  }}
+                                                                  className="fa fa-times"
+                                                                ></span>
+                                                              )}
+                                                              <span
+                                                                style={{
+                                                                  marginLeft:
+                                                                    "10px",
+                                                                }}
+                                                              >
+                                                                {" "}
+                                                                Prepare{" "}
+                                                                {proposalName}
+                                                              </span>
+                                                            </p>
+                                                            <p className="mt-0 mb-1 text-dark">
+                                                              {subScriptionActiveList?.prepareContract ===
+                                                              true ? (
+                                                                <span
+                                                                  style={{
+                                                                    color:
+                                                                      "green",
+                                                                  }}
+                                                                  className="fa fa-check"
+                                                                ></span>
+                                                              ) : (
+                                                                <span
+                                                                  style={{
+                                                                    color:
+                                                                      "red",
+                                                                    marginRight:
+                                                                      "2px",
+                                                                  }}
+                                                                  className="fa fa-times"
+                                                                ></span>
+                                                              )}
+                                                              <span
+                                                                style={{
+                                                                  marginLeft:
+                                                                    "10px",
+                                                                }}
+                                                              >
+                                                                {" "}
+                                                                Prepare{" "}
+                                                                {EngagementName}
+                                                              </span>
+                                                            </p>
+                                                            <p className="mt-0 mb-1 text-dark">
+                                                              {subScriptionActiveList?.sendQuote ===
+                                                              true ? (
+                                                                <span
+                                                                  style={{
+                                                                    color:
+                                                                      "green",
+                                                                  }}
+                                                                  className="fa fa-check"
+                                                                ></span>
+                                                              ) : (
+                                                                <span
+                                                                  style={{
+                                                                    color:
+                                                                      "red",
+                                                                    marginRight:
+                                                                      "2px",
+                                                                  }}
+                                                                  className="fa fa-times"
+                                                                ></span>
+                                                              )}
+                                                              <span
+                                                                style={{
+                                                                  marginLeft:
+                                                                    "10px",
+                                                                }}
+                                                              >
+                                                                {" "}
+                                                                Send{" "}
+                                                                {proposalName}
+                                                              </span>
+                                                            </p>
+                                                            <p className="mt-0 mb-1 text-dark">
+                                                              {subScriptionActiveList?.sendQuote ===
+                                                                true &&
+                                                                subScriptionActiveList?.quotesPerMonth >
+                                                                  0 && (
+                                                                  <>
+                                                                    <span
+                                                                      style={{
+                                                                        color:
+                                                                          "green",
+                                                                      }}
+                                                                      className="fa fa-check"
+                                                                    ></span>
+                                                                    <span
+                                                                      style={{
+                                                                        marginLeft:
+                                                                          "10px",
+                                                                      }}
+                                                                    >
+                                                                      {" "}
+                                                                      Prepare and Send{" "}
+                                                                      {
+                                                                        proposalName
+                                                                      }{" "}
+                                                                      :{" "}
+                                                                      {formatValueWithoutCurrencySymbol(
+                                                                        subScriptionActiveList?.quotesPerMonth,
+                                                                      )}
+                                                                      /Month
+                                                                    </span>
+                                                                  </>
+                                                                )}
+                                                            </p>
+                                                            <p className="mt-0 mb-1 text-dark">
+                                                              {subScriptionActiveList?.signContract ===
+                                                              true ? (
+                                                                <span
+                                                                  style={{
+                                                                    color:
+                                                                      "green",
+                                                                  }}
+                                                                  className="fa fa-check"
+                                                                ></span>
+                                                              ) : (
+                                                                <span
+                                                                  style={{
+                                                                    color:
+                                                                      "red",
+                                                                    marginRight:
+                                                                      "2px",
+                                                                  }}
+                                                                  className="fa fa-times"
+                                                                ></span>
+                                                              )}
+                                                              <span
+                                                                style={{
+                                                                  marginLeft:
+                                                                    "10px",
+                                                                }}
+                                                              >
+                                                                {" "}
+                                                                Send And
+                                                                Digitally Sign
+                                                                The{" "}
+                                                                {EngagementName}
+                                                                :{" "}
+                                                                {formatValueWithoutCurrencySymbol(
+                                                                  subScriptionActiveList?.eSignaturePerMonth,
+                                                                )}
+                                                                /Month
+                                                              </span>
+                                                            </p>
+
+                                                            <p className="mt-0 mb-1 text-dark">
+                                                              {subScriptionActiveList?.isMailBox ===
+                                                                null ||
+                                                              !subScriptionActiveList?.isMailBox ? (
+                                                                <span
+                                                                  style={{
+                                                                    color:
+                                                                      "red",
+                                                                    marginRight:
+                                                                      "2px",
+                                                                  }}
+                                                                  className="fa fa-times"
+                                                                ></span>
+                                                              ) : (
+                                                                <span
+                                                                  style={{
+                                                                    color:
+                                                                      "green",
+                                                                  }}
+                                                                  className="fa fa-check"
+                                                                ></span>
+                                                              )}
+                                                              {"  "}
+                                                              <span
+                                                                style={{
+                                                                  marginLeft:
+                                                                    "10px",
+                                                                }}
+                                                              >
+                                                                {" "}
+                                                                Personalized
+                                                                Outgoing Mailbox
+                                                              </span>
+                                                            </p>
+                                                          </div>
+                                                        </CardBody>
+                                                      </div>
                                                     </div>
                                                   </div>
-                                                  <div className="pricing-features">
-                                                    <p className="mt-0 mb-1 text-dark">
-                                                      {subScriptionActiveList?.apiIntegration ==
-                                                        true ? (
-                                                        <span
-                                                          style={{ color: "green" }}
-                                                          className="fa fa-check"
-                                                        ></span>
-                                                      ) : (
-                                                        <span
-                                                          style={{ color: "red", marginRight: "2px" }}
-                                                          className="fa fa-times"
-                                                        ></span>
-                                                      )}
-                                                      <span
-                                                        style={{ marginLeft: "10px" }}
-                                                      >
-                                                        {" "}
-                                                        API Integration
-                                                      </span>
-                                                    </p>
-                                                    <p className="mt-0 mb-1 text-dark">
-                                                      {subScriptionActiveList?.prepareQuote ==
-                                                        true ? (
-                                                        <span
-                                                          style={{
-                                                            color: "green",
-                                                          }}
-                                                          className="fa fa-check"
-                                                        ></span>
-                                                      ) : (
-                                                        <span
-                                                          style={{ color: "red", marginRight: "2px" }}
-                                                          className="fa fa-times"
-                                                        ></span>
-                                                      )}
-                                                      <span
-                                                        style={{
-                                                          marginLeft: "10px",
-                                                        }}
-                                                      >
-                                                        {" "}
-                                                        Prepare {proposalName}
-                                                      </span>
-                                                    </p>
-                                                    <p className="mt-0 mb-1 text-dark">
-                                                      {subScriptionActiveList?.prepareContract ===
-                                                        true ? (
-                                                        <span
-                                                          style={{
-                                                            color: "green",
-                                                          }}
-                                                          className="fa fa-check"
-                                                        ></span>
-                                                      ) : (
-                                                        <span
-                                                          style={{ color: "red", marginRight: "2px" }}
-                                                          className="fa fa-times"
-                                                        ></span>
-                                                      )}
-                                                      <span
-                                                        style={{
-                                                          marginLeft: "10px",
-                                                        }}
-                                                      >
-                                                        {" "}
-                                                        Prepare {EngagementName}
-                                                      </span>
-                                                    </p>
-                                                    <p className="mt-0 mb-1 text-dark">
-                                                      {subScriptionActiveList?.sendQuote ===
-                                                        true ? (
-                                                        <span
-                                                          style={{
-                                                            color: "green",
-                                                          }}
-                                                          className="fa fa-check"
-                                                        ></span>
-                                                      ) : (
-                                                        <span
-                                                          style={{ color: "red", marginRight: "2px" }}
-                                                          className="fa fa-times"
-                                                        ></span>
-                                                      )}
-                                                      <span
-                                                        style={{
-                                                          marginLeft: "10px",
-                                                        }}
-                                                      >
-                                                        {" "}
-                                                        Send {proposalName}
-                                                      </span>
-                                                    </p>
-
-                                                    <p className="mt-0 mb-1 text-dark">
-                                                      {subScriptionActiveList?.signContract ===
-                                                        true ? (
-                                                        <span
-                                                          style={{
-                                                            color: "green",
-                                                          }}
-                                                          className="fa fa-check"
-                                                        ></span>
-                                                      ) : (
-                                                        <span
-                                                          style={{ color: "red", marginRight: "2px" }}
-                                                          className="fa fa-times"
-                                                        ></span>
-                                                      )}
-                                                      <span
-                                                        style={{
-                                                          marginLeft: "10px",
-                                                        }}
-                                                      >
-                                                        {" "}
-                                                        Send And Digitally Sign The{" "}
-                                                        {EngagementName}:{" "}
-                                                        {formatValueWithoutCurrencySymbol(subScriptionActiveList?.eSignaturePerMonth)}
-                                                        /Month
-                                                      </span>
-                                                    </p>
-
-                                                    <p className="mt-0 mb-1 text-dark">
-                                                      {(subScriptionActiveList?.isMailBox ===
-                                                        null || !subScriptionActiveList?.isMailBox) ? (
-                                                        <span
-                                                          style={{ color: "red", marginRight: "2px" }}
-                                                          className="fa fa-times"
-                                                        ></span>
-                                                      ) : (
-                                                        <span
-                                                          style={{
-                                                            color: "green",
-                                                          }}
-                                                          className="fa fa-check"
-                                                        ></span>
-                                                      )}
-                                                      {"  "}
-                                                      <span
-                                                        style={{
-                                                          marginLeft: "10px",
-                                                        }}
-                                                      >
-                                                        {" "}
-                                                        Personalized Outgoing
-                                                        Mailbox
-                                                      </span>
-                                                    </p>
-                                                  </div>
-                                                </CardBody>
+                                                </div>
                                               </div>
                                             </div>
                                           </div>
                                         </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
 
-                                <div className="mb-0">
-                                  <table className="table table-striped">
-                                    <thead>
-                                      <tr>
-                                        <th
-                                          scope="col"
-                                          className="tr-table-class text-white"
-                                        >
-                                          Email
-                                        </th>
-                                        <th
-                                          scope="col"
-                                          className="tr-table-class text-white"
-                                        >
-                                          Contact No
-                                        </th>
-                                        <th
-                                          scope="col"
-                                          className="tr-table-class text-white"
-                                        >
-                                          Package Name
-                                        </th>
-                                        <th
-                                          scope="col"
-                                          className="tr-table-class text-white"
-                                        >
-                                          Package Price
-                                        </th>
-                                        <th
-                                          scope="col"
-                                          className="tr-table-class text-white"
-                                        >
-                                          Subscription Start Date
-                                        </th>
-                                        <th
-                                          scope="col"
-                                          className="tr-table-class text-white text-nowrap"
-                                        >
-                                          Next Renewal <br /> Date
-                                        </th>
-                                        <th
-                                          scope="col"
-                                          className="tr-table-class text-white"
-                                        >
-                                          Payable Amount
-                                        </th>
-                                        <th
-                                          scope="col"
-                                          className="tr-table-class text-white"
-                                        >
-                                          Payment Status
-                                        </th>
-                                        <th
-                                          scope="col"
-                                          className="tr-table-class text-white"
-                                        >
-                                          Subscription Status
-                                        </th>
-                                        <th
-                                          scope="col"
-                                          className="tr-table-class text-white"
-                                        >
-                                          Action
-                                        </th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {subScriptionPlaneList.map(
-                                        (subscription, index) => (
-                                          <tr key={index}>
-                                            <td className="table-content-font">
-                                              {subscription.email}
-                                            </td>
-                                            <td className="table-content-font">
-                                              {subscription.mobileNumber}
-                                            </td>
-                                            <td className="table-content-font">
-                                              {subscription.packageName}
-                                            </td>
-                                            <td className="table-content-font">
-                                              {formatValue(subscription.packagePrice)}
-                                              {/* {Number(subscription.packagePrice)
+                                        <div className="mb-0">
+                                          <table className="table table-striped">
+                                            <thead>
+                                              <tr>
+                                                <th
+                                                  scope="col"
+                                                  className="tr-table-class text-white"
+                                                >
+                                                  Email
+                                                </th>
+                                                <th
+                                                  scope="col"
+                                                  className="tr-table-class text-white"
+                                                >
+                                                  Contact No
+                                                </th>
+                                                <th
+                                                  scope="col"
+                                                  className="tr-table-class text-white"
+                                                >
+                                                  Package Name
+                                                </th>
+                                                <th
+                                                  scope="col"
+                                                  className="tr-table-class text-white"
+                                                >
+                                                  Package Price
+                                                </th>
+                                                <th
+                                                  scope="col"
+                                                  className="tr-table-class text-white"
+                                                >
+                                                  Subscription Start Date
+                                                </th>
+                                                <th
+                                                  scope="col"
+                                                  className="tr-table-class text-white text-nowrap"
+                                                >
+                                                  Next Renewal <br /> Date
+                                                </th>
+                                                <th
+                                                  scope="col"
+                                                  className="tr-table-class text-white"
+                                                >
+                                                  Payable Amount
+                                                </th>
+                                                <th
+                                                  scope="col"
+                                                  className="tr-table-class text-white"
+                                                >
+                                                  Payment Status
+                                                </th>
+                                                <th
+                                                  scope="col"
+                                                  className="tr-table-class text-white"
+                                                >
+                                                  Subscription Status
+                                                </th>
+                                                <th
+                                                  scope="col"
+                                                  className="tr-table-class text-white"
+                                                >
+                                                  Action
+                                                </th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              {subScriptionPlaneList.map(
+                                                (subscription, index) => (
+                                                  <tr key={index}>
+                                                    <td className="table-content-font">
+                                                      {subscription.email}
+                                                    </td>
+                                                    <td className="table-content-font">
+                                                      {
+                                                        subscription.mobileNumber
+                                                      }
+                                                    </td>
+                                                    <td className="table-content-font">
+                                                      {subscription.packageName}
+                                                    </td>
+                                                    <td className="table-content-font">
+                                                      {formatValue(
+                                                        subscription.packagePrice,
+                                                      )}
+                                                      {/* {Number(subscription.packagePrice)
                                                 .toFixed(2)
                                                 .replace(
                                                   /\B(?=(\d{3})+(?!\d))/g,
                                                   ","
                                                 )} */}
-                                            </td>
-                                            <td className="table-content-font">
-                                              {subscription.subscriptionStartDate
-                                                ? subscription.subscriptionStartDate
-                                                : "_"}
-                                            </td>
-                                            <td className="table-content-font">
-                                              {subscription.nextRenewalDate
-                                                ? subscription.nextRenewalDate
-                                                : " _"}
-                                            </td>
-                                            <td className="table-content-font">
-                                              {formatValue(subscription.finalBillingAmount)}
-                                              {/* {Number(
+                                                    </td>
+                                                    <td className="table-content-font">
+                                                      {subscription.subscriptionStartDate
+                                                        ? subscription.subscriptionStartDate
+                                                        : "_"}
+                                                    </td>
+                                                    <td className="table-content-font">
+                                                      {subscription.nextRenewalDate
+                                                        ? subscription.nextRenewalDate
+                                                        : " _"}
+                                                    </td>
+                                                    <td className="table-content-font">
+                                                      {formatValue(
+                                                        subscription.finalBillingAmount,
+                                                      )}
+                                                      {/* {Number(
                                                 subscription.finalBillingAmount
                                               )
                                                 .toFixed(2)
@@ -1939,190 +2446,214 @@ const OrganisationViewDetails = () => {
                                                   /\B(?=(\d{3})+(?!\d))/g,
                                                   ","
                                                 )} */}
-                                            </td>
-                                            <td className=" table-content-font text-center">
-                                              {subscription.paymentStatus ===
-                                                "Unpaid" && (
-                                                  <Tooltip title={`Pay Now`}>
-                                                    <div class="view">
-                                                      <button style={{ width: '100%' }}
-                                                        class="btn btn-md btn-success create-item-btn view"
-                                                        onClick={() =>
-                                                          RedirectStripeCheckout(
-                                                            subscription
-                                                          )
-                                                        }
-                                                      >
-
-                                                        <span  >
-                                                          Pay Now
-                                                        </span>
-                                                      </button></div>
-                                                  </Tooltip>
-                                                )}
-                                              {subscription.paymentStatus ===
-                                                "Paid" && (
-                                                  <Tooltip title={`Download`}>
-                                                    <a
-                                                      href={
-                                                        subscription.hostedInvoiceUrl
-                                                      }
-                                                      className="btn btn-secondary btn-xs"
-                                                    >
-                                                      <i className="fa fa-download"></i>
-                                                    </a>
-                                                  </Tooltip>
-                                                )}
-                                              {/* {subscription.paymentStatus ===
+                                                    </td>
+                                                    <td className=" table-content-font text-center">
+                                                      {subscription.paymentStatus ===
+                                                        "Unpaid" && (
+                                                        <Tooltip
+                                                          title={`Pay Now`}
+                                                        >
+                                                          <div class="view">
+                                                            <button
+                                                              style={{
+                                                                width: "100%",
+                                                              }}
+                                                              class="btn btn-md btn-success create-item-btn view"
+                                                              onClick={() =>
+                                                                RedirectStripeCheckout(
+                                                                  subscription,
+                                                                )
+                                                              }
+                                                            >
+                                                              <span>
+                                                                Pay Now
+                                                              </span>
+                                                            </button>
+                                                          </div>
+                                                        </Tooltip>
+                                                      )}
+                                                      {subscription.paymentStatus ===
+                                                        "Paid" && (
+                                                        <Tooltip
+                                                          title={`Download`}
+                                                        >
+                                                          <a
+                                                            href={
+                                                              subscription.hostedInvoiceUrl
+                                                            }
+                                                            className="btn btn-secondary btn-xs"
+                                                          >
+                                                            <i className="fa fa-download"></i>
+                                                          </a>
+                                                        </Tooltip>
+                                                      )}
+                                                      {/* {subscription.paymentStatus ===
                                                 "Free" && <p>Free</p>} */}
-                                              {subscription.paymentStatus === "Free" && (
-                                                <p
-                                                  className="p text-center table-content-font text-white  "
-                                                  style={{
-                                                    background: "#DAA520",
-                                                    width: "100px",
-                                                    padding: "4px 5px",
-                                                    display: "inline-block",
-                                                    borderRadius: "0.5rem",
-                                                  }}
-                                                >
-                                                  Free
-                                                </p>
+                                                      {subscription.paymentStatus ===
+                                                        "Free" && (
+                                                        <p
+                                                          className="p text-center table-content-font text-white  "
+                                                          style={{
+                                                            background:
+                                                              "#DAA520",
+                                                            width: "100px",
+                                                            padding: "4px 5px",
+                                                            display:
+                                                              "inline-block",
+                                                            borderRadius:
+                                                              "0.5rem",
+                                                          }}
+                                                        >
+                                                          Free
+                                                        </p>
+                                                      )}
+                                                    </td>
+                                                    <td className="table-content-font">
+                                                      <div
+                                                        className=" text-center  text-white rounded text-nowrap"
+                                                        style={{
+                                                          background:
+                                                            subscription.subscriptionStatus ===
+                                                            "Active"
+                                                              ? "#008000"
+                                                              : subscription.subscriptionStatus ===
+                                                                  "Expired"
+                                                                ? "#FF0000"
+                                                                : subscription.subscriptionStatus ===
+                                                                    "Pending"
+                                                                  ? "#DAA520"
+                                                                  : subscription.subscriptionStatus ===
+                                                                      "InActive"
+                                                                    ? "#772424"
+                                                                    : "gray",
+                                                          width: "100px",
+
+                                                          padding: "5px 8px", // Add padding to the button
+                                                          display:
+                                                            "inline-block", // Ensure button stays in line
+                                                          borderRadius:
+                                                            "0.5rem", // Adjust border radius
+                                                        }}
+                                                      >
+                                                        {
+                                                          subscription.subscriptionStatus
+                                                        }
+                                                      </div>
+                                                    </td>
+                                                    <td>
+                                                      <div class="view text-nowrap ">
+                                                        <Tooltip
+                                                          title={`View Subscription`}
+                                                        >
+                                                          <div class="view">
+                                                            <button
+                                                              class="btn btn-md btn-success create-item-btn view "
+                                                              onClick={() =>
+                                                                handleOpenSubscriptionModel(
+                                                                  subscription,
+                                                                )
+                                                              }
+                                                              data-bs-toggle="modal"
+                                                              data-bs-target="#addSubscriptionViewModalUser"
+                                                            >
+                                                              {/* <i class="ri-pencil-fill"></i> */}
+                                                              <span>View</span>{" "}
+                                                              <span className="mt-4">
+                                                                {" "}
+                                                                <i class="bi bi-eye "></i>
+                                                              </span>
+                                                            </button>
+                                                          </div>
+                                                        </Tooltip>
+                                                      </div>
+                                                    </td>
+                                                  </tr>
+                                                ),
                                               )}
-                                            </td>
-                                            <td className="table-content-font">
-                                              <div
-                                                className=" text-center  text-white rounded text-nowrap"
-                                                style={{
-                                                  background:
-                                                    subscription.subscriptionStatus ===
-                                                      "Active"
-                                                      ? "#008000"
-                                                      : subscription.subscriptionStatus ===
-                                                        "Expired"
-                                                        ? "#FF0000"
-                                                        : subscription.subscriptionStatus ===
-                                                          "Pending"
-                                                          ? "#DAA520"
-                                                          : subscription.subscriptionStatus ===
-                                                            "InActive"
-                                                            ? "#772424"
-                                                            : "gray",
-                                                  width: "100px",
-
-                                                  padding: "5px 8px", // Add padding to the button
-                                                  display: "inline-block", // Ensure button stays in line
-                                                  borderRadius: "0.5rem", // Adjust border radius
-                                                }}
-                                              >
-                                                {
-                                                  subscription.subscriptionStatus
-                                                }
-                                              </div>
-                                            </td>
-                                            <td>
-                                              <div class="view text-nowrap ">
-                                                <Tooltip
-                                                  title={`View Subscription`}
-                                                >
-                                                  <div class="view">
-                                                    <button
-                                                      class="btn btn-md btn-success create-item-btn view "
-
-                                                      onClick={() =>
-                                                        handleOpenSubscriptionModel(
-                                                          subscription
-                                                        )
-                                                      }
-                                                      data-bs-toggle="modal"
-                                                      data-bs-target="#addSubscriptionViewModalUser"
-                                                    >
-                                                      {/* <i class="ri-pencil-fill"></i> */}
-                                                      <span  >View</span>{" "}
-                                                      <span className="mt-4">
-                                                        {" "}
-                                                        <i class="bi bi-eye "></i>
-                                                      </span>
-                                                    </button>
-                                                  </div>
-                                                </Tooltip>
-                                              </div>
-                                            </td>
-                                          </tr>
-                                        )
-                                      )}
-                                    </tbody>
-                                  </table>
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </div>
+                            {/* end card  */}
                           </div>
+                          {/* end col */}
                         </div>
                       </div>
+                      {/* end col  */}
                     </div>
-                    {/* end card  */}
+                    {/* end row */}
+
+                    {/* end modal  */}
                   </div>
-                  {/* end col */}
+                  <ErrorModel
+                    ErrorModel={openErrorModal}
+                    handleClose={handleClose}
+                    ErrorMessage={errorMessage}
+                  />
+                  {/* Confirm Modal  */}
+                  <ConfirmModel
+                    openErrorModal={openErrorModal}
+                    openSuccessModal={openSuccessModal}
+                    modelRequestData={modelRequestData}
+                    UpdatedStatus={InviteUserChangeStatusData}
+                  />
+                  <SubscriptionView
+                    class="modal fade"
+                    id="addSubscriptionViewModalUser"
+                    tabIndex="-1"
+                    aria_labelledby="exampleModalLabel"
+                    aria_hidden="true"
+                    // setIsAddUpdateActionDone={setIsAddUpdateActionDone}
+                    subscriptionPackageObj={subscriptionPackageObj}
+
+                    //   handleClose={handleCloseSubscriptionModel}
+                    //   setSubscriptionModal={setSubscriptionModal}
+                    //   openSubscriptionModal={openSubscriptionModal}
+                    // title={"Update Plan"}
+                    // organizationKeyId={activeOrganizationKeyId}
+                  />
+                  <OrganisationSubscriptionPackageDetails
+                    // id="OrganisationSubscriptionPackageDetails"
+                    // tabIndex="-1"
+                    // aria_labelledby="exampleModalLabel"
+                    // aria_hidden="true"
+                    // setIsAddUpdateActionDone={setIsAddUpdateActionDone}
+                    subscriptionPackageObj={subScriptionActiveList}
+                    setSubscriptionPackageObj={setSubScriptionActiveList}
+                  />
+                  {/* Success Modal  */}
+                  <SuccessModal
+                    handleClose={handleClose}
+                    setOpenSuccessModal={setOpenSuccessModal}
+                    openSuccessModal={openSuccessModal}
+                    modelAction={modelRequestData.Action}
+                    message={successMessage}
+                  />
+                  {/* Modal  */}
+                  <UsersModel
+                    class="modal fade"
+                    id="addUpdateModal"
+                    tabIndex="-1"
+                    aria_labelledby="exampleModalLabel"
+                    aria_hidden="true"
+                    setIsAddUpdateActionDone={setIsAddUpdateActionDone}
+                    modelRequestData={modelRequestData}
+                  />
+
+                  {/* container-fluid  */}
                 </div>
               </div>
-              {/* end col  */}
             </div>
-            {/* end row */}
-
-            {/* end modal  */}
           </div>
-          <ErrorModel
-            ErrorModel={openErrorModal}
-            handleClose={handleClose}
-            ErrorMessage={errorMessage}
-          />
-          {/* Confirm Modal  */}
-          <ConfirmModel
-            openErrorModal={openErrorModal}
-            openSuccessModal={openSuccessModal}
-            modelRequestData={modelRequestData}
-            UpdatedStatus={InviteUserChangeStatusData}
-          />
-          <SubscriptionView
-            class="modal fade"
-            id="addSubscriptionViewModalUser"
-            tabIndex="-1"
-            aria_labelledby="exampleModalLabel"
-            aria_hidden="true"
-            // setIsAddUpdateActionDone={setIsAddUpdateActionDone}
-            subscriptionPackageObj={subscriptionPackageObj}
-
-          //   handleClose={handleCloseSubscriptionModel}
-          //   setSubscriptionModal={setSubscriptionModal}
-          //   openSubscriptionModal={openSubscriptionModal}
-          // title={"Update Plan"}
-          // organizationKeyId={activeOrganizationKeyId}
-          />
-
-          {/* Success Modal  */}
-          <SuccessModal
-            handleClose={handleClose}
-            setOpenSuccessModal={setOpenSuccessModal}
-            openSuccessModal={openSuccessModal}
-            modelAction={modelRequestData.Action}
-            message={successMessage}
-          />
-          {/* Modal  */}
-          <UsersModel
-            class="modal fade"
-            id="addUpdateModal"
-            tabIndex="-1"
-            aria_labelledby="exampleModalLabel"
-            aria_hidden="true"
-            setIsAddUpdateActionDone={setIsAddUpdateActionDone}
-            modelRequestData={modelRequestData}
-          />
-
-          {/* container-fluid  */}
         </div>
         {/* End Page-content */}
 
-        <Footer />
+
       </div>
 
       {/* start back-to-top */}
@@ -2134,6 +2665,7 @@ const OrganisationViewDetails = () => {
         <i class="ri-arrow-up-line"></i>
       </button>
       {/* end back-to-top */}
+      <Footer />
     </div>
   );
 };

@@ -314,6 +314,7 @@ const UsersList = () => {
 
   //Design part :
   return (
+    <>
     <div className="container-fluid">
       {/* <div class="main-content"> */}
         <div class="services page-background">
@@ -722,7 +723,6 @@ const UsersList = () => {
             />
           </div>
         </div>
-        <Footer />
         </div>
         </div>
               </div>
@@ -740,6 +740,8 @@ const UsersList = () => {
       </button>
       {/* end back-to-top */}
     </div>
+        <Footer />
+        </>
   );
 };
 

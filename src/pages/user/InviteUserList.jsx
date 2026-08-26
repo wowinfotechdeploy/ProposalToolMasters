@@ -619,7 +619,25 @@ const InviteUser = () => {
         sortValue,
         UserSort,
       );
-    }
+    } else if (UserSort == "CountryName") {
+      setPrimarySortDirectionUsers(sortValue);
+      setPrimaryUserSortDirectionObj({
+        ...primaryUserSortDirectionObj,
+        RoleTypeSort: sortValue,
+      });
+      setCurrentPage(1);
+      // GetUsersListData(1, searchKeyword, sortValue, UserSort);
+      GetUsersListData(
+        1,
+        searchKeywordUsers,
+        countryId,
+        roleType,
+        fromDate,
+        toDate,
+        sortValue,
+        UserSort,
+      );
+    } 
   };
 
   const HandleSearchInviteUser = (e) => {
@@ -911,48 +929,6 @@ const InviteUser = () => {
                                           <tr className="head-row">
                                             <td
                                               className="tr-table-class text-white"
-                                              style={{ width: "10%" }}
-                                            >
-                                              Role{" "}
-                                              {primaryUserSortDirectionObj.RoleTypeSort ===
-                                                "desc" && (
-                                                <i
-                                                  onClick={() => {
-                                                    setUserSortType("RoleName");
-                                                    setPrimaryInviteUserSortDirectionObj(
-                                                      "asc",
-                                                    );
-                                                    handleUserSort(
-                                                      "asc",
-                                                      "RoleName",
-                                                    );
-                                                  }}
-                                                  style={{ cursor: "pointer" }}
-                                                  class="fas fa-sort-alpha-up ml-1"
-                                                ></i>
-                                              )}
-                                              {(primaryUserSortDirectionObj.RoleTypeSort ===
-                                                null ||
-                                                primaryUserSortDirectionObj.RoleTypeSort ===
-                                                  "asc") && (
-                                                <i
-                                                  onClick={() => {
-                                                    setUserSortType("RoleName");
-                                                    handleUserSort(
-                                                      primaryUserSortDirectionObj.RoleTypeSort ===
-                                                        null
-                                                        ? "asc"
-                                                        : "desc",
-                                                      "RoleName",
-                                                    );
-                                                  }}
-                                                  style={{ cursor: "pointer" }}
-                                                  class="fas fa-sort-alpha-down ml-1"
-                                                ></i>
-                                              )}
-                                            </td>
-                                            <td
-                                              className="tr-table-class text-white"
                                               style={{ width: "11%" }}
                                             >
                                               First Name{" "}
@@ -1085,10 +1061,88 @@ const InviteUser = () => {
                                               Organisations
                                             </td>
                                             <td
+                                              className="tr-table-class text-white"
+                                              style={{ width: "10%" }}
+                                            >
+                                              Role{" "}
+                                              {primaryUserSortDirectionObj.RoleTypeSort ===
+                                                "desc" && (
+                                                <i
+                                                  onClick={() => {
+                                                    setUserSortType("RoleName");
+                                                    setPrimaryInviteUserSortDirectionObj(
+                                                      "asc",
+                                                    );
+                                                    handleUserSort(
+                                                      "asc",
+                                                      "RoleName",
+                                                    );
+                                                  }}
+                                                  style={{ cursor: "pointer" }}
+                                                  class="fas fa-sort-alpha-up ml-1"
+                                                ></i>
+                                              )}
+                                              {(primaryUserSortDirectionObj.RoleTypeSort ===
+                                                null ||
+                                                primaryUserSortDirectionObj.RoleTypeSort ===
+                                                  "asc") && (
+                                                <i
+                                                  onClick={() => {
+                                                    setUserSortType("RoleName");
+                                                    handleUserSort(
+                                                      primaryUserSortDirectionObj.RoleTypeSort ===
+                                                        null
+                                                        ? "asc"
+                                                        : "desc",
+                                                      "RoleName",
+                                                    );
+                                                  }}
+                                                  style={{ cursor: "pointer" }}
+                                                  class="fas fa-sort-alpha-down ml-1"
+                                                ></i>
+                                              )}
+                                            </td>
+                                            <td
                                               style={{ width: "11%" }}
                                               className="tr-table-class text-white"
                                             >
                                               Country Name
+                                            {primaryUserSortDirectionObj.RoleTypeSort ===
+                                                "desc" && (
+                                                <i
+                                                  onClick={() => {
+                                                    setUserSortType("CountryName");
+                                                    setPrimaryInviteUserSortDirectionObj(
+                                                      "asc",
+                                                    );
+                                                    handleUserSort(
+                                                      "asc",
+                                                      "CountryName",
+                                                    );
+                                                  }}
+                                                  style={{ cursor: "pointer" }}
+                                                  class="fas fa-sort-alpha-up ml-1"
+                                                ></i>
+                                              )}
+                                              {(primaryUserSortDirectionObj.RoleTypeSort ===
+                                                null ||
+                                                primaryUserSortDirectionObj.RoleTypeSort ===
+                                                  "asc") && (
+                                                <i
+                                                  onClick={() => {
+                                                    setUserSortType("CountryName");
+                                                    handleUserSort(
+                                                      primaryUserSortDirectionObj.RoleTypeSort ===
+                                                        null
+                                                        ? "asc"
+                                                        : "desc",
+                                                      "CountryName",
+                                                    );
+                                                  }}
+                                                  style={{ cursor: "pointer" }}
+                                                  class="fas fa-sort-alpha-down ml-1"
+                                                ></i>
+                                              )}
                                             </td>
                                             <td
                                               style={{ width: "10%" }}
@@ -1118,33 +1172,6 @@ const InviteUser = () => {
                                             .map((users) => {
                                               return (
                                                 <tr class="table_new table-content-font">
-                                                  <td
-                                                    style={{ width: "10%" }}
-                                                    className="table-content-font"
-                                                  >
-                                                    {users.roleName &&
-                                                    users.roleName.length >
-                                                      15 ? (
-                                                      <Tooltip
-                                                        title={users.roleName}
-                                                      >
-                                                        {users.roleName
-                                                          .substring(0, 15)
-                                                          .toLowerCase()
-                                                          .replace(
-                                                            /\b\w/g,
-                                                            (l) =>
-                                                              l.toUpperCase(),
-                                                          ) + "..."}
-                                                      </Tooltip>
-                                                    ) : (
-                                                      users.roleName
-                                                        .toLowerCase()
-                                                        .replace(/\b\w/g, (l) =>
-                                                          l.toUpperCase(),
-                                                        )
-                                                    )}
-                                                  </td>
                                                   <td
                                                     style={{ width: "10%" }}
                                                     className="table-content-font"
@@ -1257,6 +1284,33 @@ const InviteUser = () => {
                                                       </Tooltip>
                                                     ) : (
                                                       users.organisationNames
+                                                    )}
+                                                  </td>
+                                                  <td
+                                                    style={{ width: "10%" }}
+                                                    className="table-content-font"
+                                                  >
+                                                    {users.roleName &&
+                                                    users.roleName.length >
+                                                      15 ? (
+                                                      <Tooltip
+                                                        title={users.roleName}
+                                                      >
+                                                        {users.roleName
+                                                          .substring(0, 15)
+                                                          .toLowerCase()
+                                                          .replace(
+                                                            /\b\w/g,
+                                                            (l) =>
+                                                              l.toUpperCase(),
+                                                          ) + "..."}
+                                                      </Tooltip>
+                                                    ) : (
+                                                      users.roleName
+                                                        .toLowerCase()
+                                                        .replace(/\b\w/g, (l) =>
+                                                          l.toUpperCase(),
+                                                        )
                                                     )}
                                                   </td>
                                                   <td
@@ -1862,7 +1916,7 @@ const InviteUser = () => {
                       />
                     </div>
                   </div>
-                  <Footer />
+                  
                 </div>
               </div>
             </div>
@@ -1879,6 +1933,7 @@ const InviteUser = () => {
         <i class="ri-arrow-up-line"></i>
       </button>
       {/* end back-to-top */}
+      <Footer />
     </div>
   );
 };

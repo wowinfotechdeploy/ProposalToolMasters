@@ -1,4 +1,9 @@
-const ClientIndividualVariables = [
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { GetGlobalProspectVariables } from "../../redux/Services/Setting/GlobalVariablesApi";
+
+
+ const ClientIndividualVariables = [
   "$Client.FirstName$",
   "$Client.LastName$",
   "$Client.Email$",
@@ -7,7 +12,7 @@ const ClientIndividualVariables = [
   "$Client.AddressWithLineBreak$",
 ];
 
-const ClientSoleTraderVariables = [
+ const ClientSoleTraderVariables = [
   "$Client.SoleTrader.FirstName$",
   "$Client.SoleTrader.LastName$",
   "$Client.SoleTrader.Email$",
@@ -20,7 +25,7 @@ const ClientSoleTraderVariables = [
   // "$Client.TradingAddressWithLineBreak$",
 ];
 
-const ClientPartnerShipVariables = [
+ const ClientPartnerShipVariables = [
   "$Client.Partner.Name$",
   "$Client.Partner.FirstName$",
   "$Client.Partner.LastName$",
@@ -34,7 +39,7 @@ const ClientPartnerShipVariables = [
   // "$Client.TradingAddressWithLineBreak$",
 ];
 
-const ClientLLpVariables = [
+ const ClientLLpVariables = [
   "$Client.Officer.Name$",
   "$Client.Officer.FirstName$",
   "$Client.Officer.LastName$",
@@ -51,7 +56,7 @@ const ClientLLpVariables = [
   "$Client.Company.RegisteredAddressWithLineBreak$",
 ];
 
-const ClientCompanyVariables = [
+ const ClientCompanyVariables = [
   "$Client.Officer.Name$",
   "$Client.Officer.FirstName$",
   "$Client.Officer.LastName$",
@@ -90,4 +95,30 @@ export default {
   ClientLLpVariables,
   ClientCompanyVariables,
   CommonClientVariables,
+};
+
+export const useProspectTypeVariables = () => {
+  const common = useSelector((state) => state.Storage);
+  const [globalVarNames, setGlobalVarNames] = useState([]);
+
+  useEffect(() => {
+    if(!common.organisationKeyID) return;
+    const fetchGlobalVariables = async () => {
+      try {
+        const data = await GetGlobalProspectVariables(common.organisationKeyID);
+        const responseData = data?.data?.responseData?.data;
+        console.log(responseData);
+        setGlobalVarNames(
+          responseData?.map(item => item.globalVariableName) || []
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchGlobalVariables();
+  }, [common.organisationKeyID]);
+
+  const GlobalClientVariables = globalVarNames;
+  console.log("Common", GlobalClientVariables);
+  return { GlobalClientVariables };
 };

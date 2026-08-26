@@ -1,6 +1,6 @@
 .active>.page-link, .page-link.active {
-    background-color:#5a2eca !important;
-    border-color:#5a2eca !important;
+    background-color:#00afef !important;
+    border-color:#00afef !important;
 }
 .active>.page-link, .page-link.active {
     color:white !important;
@@ -9,5 +9,5 @@
     color: green !important;
 } */
 .page-link{
-    color: #5a2eca !important;
+    color: #00afef  !important;
 }

@@ -1,5 +1,5 @@
 /* global $ */
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import CommonButtonComponent from "../../components/CommonButtonComponent";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./Proposals.css";
@@ -21,6 +21,7 @@ import {
   GetOldProposalList,
   GetProposalList,
   ResendProposal,
+  ArchiveQuotation
 } from "../../redux/Services/Proposal/ProposalApi";
 import DropDown from "../../components/DropDown";
 import { useSelector } from "react-redux";
@@ -64,6 +65,7 @@ const Proposals = () => {
     SearchKeyword: "",
     quoteKeyID: null,
     RefId: null,
+    contracts: []
   });
 
   const [openEmailFailurePopUp, setOpenEmailFailurePopUp] = useState(false);
@@ -79,6 +81,7 @@ const Proposals = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isAddUpdateActionDone, setIsAddUpdateActionDone] = useState(false);
   const [ProposalList, setProposalList] = useState([]);
+  const [remainingProposalsPerMonth, setRemainingProposalsPerMonth] = useState(null);
   const [SingleProposalList, setSingleProposalList] = useState([]);
   const [oldProposalList, setOldProposalList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -97,6 +100,7 @@ const Proposals = () => {
   const [selectedOption, setSelectedOption] = useState("");
   const [isHovered, setIsHovered] = useState(false);
   const [ProposalSearchKeyword, setSearchOldProposalKeyword] = useState("");
+  const [SingleProposalSearchKeyword, setSearchSingleProposalKeyword] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [totalRecords, setTotalRecords] = useState(-1);
   const [OldtotalRecords, setOldTotalRecords] = useState(-1);
@@ -111,6 +115,8 @@ const Proposals = () => {
   const [oldProposalListCount, setOldProposalListCount] = useState(0);
   const [SingleProposalListCount, setSingleProposalListCount] = useState(0);
   const [openErrorModal, setOpenErrorModal] = useState(false);
+  const [hasWebPLData, setHasWebPLData] = useState(false);
+  const hasCheckedWebPL = useRef(false);
   const navigate = useNavigate();
   const {
     setTopbar,
@@ -240,6 +246,18 @@ const Proposals = () => {
       prospectType,
     );
   };
+  const handleSearchSinglePL = (e) => {
+    const searchKeywordValue = e.target.value;
+    setSearchSingleProposalKeyword(searchKeywordValue);
+    setSingleProposalCurrentPage(1);
+    GetProposalListSingleApiData(
+      1,
+      searchKeywordValue,
+      null,
+      null,
+      null,
+    );
+  };
 
   // Handle Close the  Model
   const handleCloseModel = () => {
@@ -312,52 +330,65 @@ const Proposals = () => {
         toDate: toDate === "" ? null : toDate,
         businessTypeID: prospectType,
         businessNatureID: businessNatureID,
+        quoteFor: "Outbooks",
       });
+
+      // NEW: fetch the SingleApi proposal data too
+      const singleApiData = await GetProposalList({
+        organisationKeyID: common.organisationKeyID,
+        pageSize: 30,
+        pageNo: 0,
+        SearchKeyword: searchKeyword,
+        StatusID: status,
+        userKeyID: common.userKeyID || null,
+        fromDate: fromDate === "" ? null : fromDate,
+        toDate: toDate === "" ? null : toDate,
+        businessTypeID: prospectType,
+        businessNatureID: businessNatureID,
+        quoteFor: "SingleApi",
+      });
+
       if (data && data.data.statusCode === 200) {
         if (data.data.responseData.data.length > 0) {
           const ProposalListData = data.data.responseData.data;
           const statusName =
-            Utils.ProposalStatus.find((option) => option.value === status)
-              ?.label || "";
+            Utils.ProposalStatus.find((option) => option.value === status)?.label || "";
           const reportingPeriod =
-            Utils.CalenderFilter.find(
-              (option) => option.value === selectedOption.value,
-            )?.label || "";
+            Utils.CalenderFilter.find((option) => option.value === selectedOption.value)?.label || "";
           const businessTypeName =
-            BusinessTypeListData.find((item) => item.value == prospectType)
-              ?.label || "";
+            BusinessTypeListData.find((item) => item.value == prospectType)?.label || "";
           const businessNatureName =
-            NoBTypeListData.find((item) => item.value == businessNatureID)
-              ?.label || "";
+            NoBTypeListData.find((item) => item.value == businessNatureID)?.label || "";
+
           const headers = {
             "Practice Name": orgName.organisationName,
             "Filter Status": statusName,
             "Reporting Period Filter": reportingPeriod,
             "Business Nature Filter": businessNatureName,
             "Business Type Filter": businessTypeName,
+            "Total Proposals (Proposal Data)": ProposalListData.length,
+            "Total Proposals (API Proposal Data)":
+              singleApiData?.data?.statusCode === 200
+                ? singleApiData?.data?.responseData?.data?.length || 0
+                : 0,
           };
+
           const proposal = `${prospectName} Name`;
           const proposalPdf = `${proposalName} PDF`;
-          const modifiedProposalListData = ProposalListData.map((item) => ({
-            "Ref Id": item.prefix,
-            [proposal]: item.clientName,
-            "One Off Price": `£ ${
-              item.oneOffPrice !== null ? item.oneOffPrice : "0.00"
-            }`,
-            "Recurring Price": `£ ${
-              item.recurringPrice !== null ? item.recurringPrice : "0.00"
-            }`,
-            "Status Name": item.statusName,
-            [proposalPdf]: item.quotePDFUrl,
-            "Last Updated On": item.lastUpdatedOn,
-          }));
-          // Convert headers to a 2D array format
-          const headersArray = Object.entries(headers).map(([key, value]) => [
-            key,
-            value,
-          ]);
-          headersArray.push([]); // Add an empty row before the data rows
-          headersArray.push([
+
+          // shared row-mapper so both sheets stay consistent
+          const mapProposalRows = (list) =>
+            list.map((item) => ({
+              "Ref Id": item.prefix,
+              [proposal]: item.clientName,
+              "One Off Price": `£ ${item.oneOffPrice !== null ? item.oneOffPrice : "0.00"}`,
+              "Recurring Price": `£ ${item.recurringPrice !== null ? item.recurringPrice : "0.00"}`,
+              "Status Name": item.statusName,
+              [proposalPdf]: item.quotePDFUrl,
+              "Last Updated On": item.lastUpdatedOn,
+            }));
+
+          const proposalHeaderRow = [
             "Ref Id",
             proposal,
             "One Off Price",
@@ -365,45 +396,59 @@ const Proposals = () => {
             "Status Name",
             proposalPdf,
             "Last Updated On",
-          ]);
-          // Convert modifiedProposalListData to a 2D array format
-          const dataRows = modifiedProposalListData.map((item) => [
-            item["Ref Id"],
-            item[proposal],
-            item["One Off Price"],
-            item["Recurring Price"],
-            item["Status Name"],
-            item[proposalPdf],
-            item["Last Updated On"],
-          ]);
-          // Combine headers and data
-          const worksheetData = [...headersArray, ...dataRows];
-          // Convert to Excel workbook
-          const workbook = XLSX.utils.book_new();
-          const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-          const maxWidths = worksheetData.reduce((widths, row) => {
-            row.forEach((cell, i) => {
-              const cellValue =
-                cell !== null && cell !== undefined ? String(cell) : "";
-              widths[i] = Math.max(widths[i] || 0, cellValue.length);
-            });
-            return widths;
-          }, []);
+          ];
 
-          // Set column widths
-          worksheet["!cols"] = maxWidths.map((w) => ({ wch: w + 2 }));
-          XLSX.utils.book_append_sheet(workbook, worksheet, "Summary");
+          const toRows = (mappedList) =>
+            mappedList.map((item) => [
+              item["Ref Id"],
+              item[proposal],
+              item["One Off Price"],
+              item["Recurring Price"],
+              item["Status Name"],
+              item[proposalPdf],
+              item["Last Updated On"],
+            ]);
+
+          const setColWidths = (sheet, sheetData) => {
+            const widths = sheetData.reduce((w, row) => {
+              row.forEach((cell, i) => {
+                const val = cell !== null && cell !== undefined ? String(cell) : "";
+                w[i] = Math.max(w[i] || 0, val.length);
+              });
+              return w;
+            }, []);
+            sheet["!cols"] = widths.map((w) => ({ wch: w + 2 }));
+          };
+
+          const workbook = XLSX.utils.book_new();
+
+          // Sheet 1: Summary/filters
+          const headersArray = Object.entries(headers).map(([key, value]) => [key, value]);
+          const summarySheet = XLSX.utils.aoa_to_sheet(headersArray);
+          setColWidths(summarySheet, headersArray);
+          XLSX.utils.book_append_sheet(workbook, summarySheet, "Summary");
+
+          // Sheet 2: Proposal data
+          const proposalRows = toRows(mapProposalRows(ProposalListData));
+          const proposalSheetData = [proposalHeaderRow, ...proposalRows];
+          const proposalSheet = XLSX.utils.aoa_to_sheet(proposalSheetData);
+          setColWidths(proposalSheet, proposalSheetData);
+          XLSX.utils.book_append_sheet(workbook, proposalSheet, "Proposal Data");
+
+          // Sheet 3: API (SingleApi) proposal data
+          if (singleApiData?.data?.statusCode === 200 && singleApiData?.data?.responseData?.data?.length > 0) {
+            const singleApiRows = toRows(mapProposalRows(singleApiData.data.responseData.data));
+            const singleApiSheetData = [proposalHeaderRow, ...singleApiRows];
+            const singleApiSheet = XLSX.utils.aoa_to_sheet(singleApiSheetData);
+            setColWidths(singleApiSheet, singleApiSheetData);
+            XLSX.utils.book_append_sheet(workbook, singleApiSheet, "API Proposal Data");
+          }
+
           const fileName = `${proposalName}_Data_${orgName.organisationName}_${reportingPeriod}.xlsx`;
           XLSX.writeFile(workbook, fileName);
+
           await GetProposalListData(
-            1,
-            searchKeyword,
-            status,
-            fromDate,
-            toDate,
-            businessNatureID,
-            prospectType,
-            false,
+            1, searchKeyword, status, fromDate, toDate, businessNatureID, prospectType, false,
           );
         } else {
           console.error("No data available for export");
@@ -500,6 +545,7 @@ const Proposals = () => {
           if (data?.data?.responseData?.data) {
             const totalCount = data.data.totalCount;
             const ProposalListData = data.data.responseData.data;
+            const remainingProposals = data.data.responseData.remainingQuotesPerMonth;
             if (pageNoList > 0 && ProposalListData.length === 0) {
               let newPaneNo = Number(pageNoList);
               if (newPaneNo > 1) {
@@ -511,6 +557,8 @@ const Proposals = () => {
             }
             setListCount(totalCount);
             setProposalList(ProposalListData);
+            setRemainingProposalsPerMonth(remainingProposals);
+            console.log(remainingProposals);
             setTotalRecords(ProposalListData.length);
           }
         } else {
@@ -585,6 +633,11 @@ const Proposals = () => {
             setSingleProposalListCount(totalCount);
             setSingleProposalList(ProposalListData);
             setSingleTotalRecords(ProposalListData.length);
+
+            if (!hasCheckedWebPL.current) {
+              hasCheckedWebPL.current = true;
+              setHasWebPLData(ProposalListData.length > 0);
+            }
           }
         } else {
           if (getTemplateListApiCallCount < maxCountToRecallApi) {
@@ -677,7 +730,7 @@ const Proposals = () => {
 
   //Click Add Proposal
   const ProposalAddBtnClicked = () => {
-    if (activeOrganizationSubscriptionPlan?.prepareQuote !== true) {
+    if (activeOrganizationSubscriptionPlan?.prepareQuote !== true || (remainingProposalsPerMonth === undefined || remainingProposalsPerMonth === 0)) {
       setShowModal(true);
       return;
     }
@@ -697,10 +750,12 @@ const Proposals = () => {
     } else if (tab === "Proposal") {
       setActiveTab(tab);
       GetProposalListData(1);
+      setSearchSingleProposalKeyword("");
     } else {
       setActiveTab(tab);
       // GetProposalListData(1)
       GetProposalListSingleApiData(1);
+      setSearchKeyword("");
     }
   };
 
@@ -1230,6 +1285,7 @@ const Proposals = () => {
           setOpenErrorModal(true);
         }
       } else {
+        debugger
         const data = await DeleteQuotation(
           modelRequestData.quoteKeyID,
           common.userKeyID,
@@ -1239,15 +1295,58 @@ const Proposals = () => {
           setOpenSuccessModal(true);
           // GetProposalListData(currentPage);
         } else {
+          $("#" + "ConfirmModel").modal("hide");
           setLoader(false);
-          setErrorMessage(data?.data?.errorMessage);
           setOpenErrorModal(true);
+          setErrorMessage(data?.response?.data?.errorMessage);
         }
       }
     } catch (error) {
       console.error(error);
     }
   };
+  
+  const ArchiveQuotationData = async() => {
+    try {
+      // show popup saying all linked ELs will be archived too.
+      // if(modelRequestData.Action === "ArchiveLinkedELs") {
+      //   console.log("Pan")
+      //   console.log(modelRequestData.Action)
+      //   const contractList = modelRequestData.contracts
+      //   .map(contract => `<li>${contract.RefID}</li>`).join('');
+
+      //   setModelRequestData({
+      //     ...modelRequestData,
+      //     message: `Archiving this record would archive all the linked ${EngagementName} too:
+      //     <ul>${contractList}</ul>`
+      //   });
+      //   $("#ConfirmModel").modal("show");
+      //   return;
+      // }
+      setLoader(true);
+      const data = await ArchiveQuotation(
+        modelRequestData.quoteKeyID,
+        common.userKeyID,
+        modelRequestData.Action === "Archive" || modelRequestData.Action === "ArchiveLinkedELs" ? true
+        : modelRequestData.Action === "Unarchive" ? false : null
+      );
+      if(data?.data?.statusCode === 200) {
+        setLoader(false);
+        setOpenSuccessModal(true);
+      } else {
+          setLoader(false);
+          setErrorMessage(data?.data?.errorMessage);
+          setOpenErrorModal(true);
+      }
+      GetProposalListData(
+        currentPage,null,status,fromDate,toDate,businessNatureID,prospectType,
+      );
+    }
+    catch(error) {
+      console.error(error);
+    }
+  }
+
   const ApplyFilter = () => {
     if (
       (businessNatureID !== null && businessNatureID !== "") ||
@@ -1369,7 +1468,7 @@ const Proposals = () => {
                                   </a>
                                 </li>
                               )}
-                              {SingleProposalList?.length > 0 && (
+                              {(hasWebPLData || SingleProposalList?.length > 0) && (
                                 <li className="nav-item">
                                   <a
                                     className={`nav-link tab_nav ${
@@ -1542,9 +1641,9 @@ const Proposals = () => {
                                                 <input
                                                   type="text"
                                                   class="form-control search"
-                                                  value={searchKeyword}
+                                                  value={SingleProposalSearchKeyword}
                                                   onChange={(e) => {
-                                                    handleSearch(e);
+                                                    handleSearchSinglePL(e);
                                                   }}
                                                   placeholder={
                                                     isMobile
@@ -2052,12 +2151,12 @@ const Proposals = () => {
                                             </tr>
                                           </thead>
                                           <tbody class="list form-check-all">
-                                            {ProposalList.slice(
+                                            {ProposalList?.slice(
                                               0,
                                               isMobile
                                                 ? isMobileRecords
                                                 : desktopRecords,
-                                            ).map((item, index) => {
+                                            )?.map((item, index) => {
                                               return (
                                                 <tr class="table_new">
                                                   <td className="table-content-font">
@@ -2492,44 +2591,6 @@ const Proposals = () => {
                                                                   </a>
                                                                   {/* </Tooltip> */}
                                                                 </li>
-                                                                <li>
-                                                                  {/* <Tooltip title={`Delete ${proposalName}`} placement="right"> */}
-                                                                  <a
-                                                                    class="dropdown-item"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#ConfirmModel"
-                                                                    onClick={() => {
-                                                                      setModelRequestData(
-                                                                        {
-                                                                          ...modelRequestData,
-                                                                          Action:
-                                                                            "Delete",
-                                                                          RefId:
-                                                                            item.prefix,
-                                                                          quoteKeyID:
-                                                                            item.quoteKeyID,
-                                                                          userKeyID:
-                                                                            common.userKeyID,
-                                                                          message:
-                                                                            "Are you sure you want to delete this quote?",
-                                                                        },
-                                                                      );
-                                                                    }}
-                                                                  >
-                                                                    <i
-                                                                      className="ri-delete-bin-5-fill"
-                                                                      style={{
-                                                                        marginRight:
-                                                                          "2px",
-                                                                      }}
-                                                                    ></i>{" "}
-                                                                    Delete{" "}
-                                                                    {
-                                                                      proposalName
-                                                                    }
-                                                                  </a>
-                                                                  {/* </Tooltip> */}
-                                                                </li>
                                                               </>
                                                             )}
 
@@ -2647,6 +2708,129 @@ const Proposals = () => {
                                                                   Re-send{" "}
                                                                   {proposalName}
                                                                 </a>
+                                                              </li>
+                                                            )}
+                                                            {/*Archive*/}
+                                                          {!item.isArchived && (
+                                                            <li>
+                                                              {/* <Tooltip title={`Delete ${proposalName}`} placement="right"> */}
+                                                              <a
+                                                                class="dropdown-item"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#ConfirmModel"
+                                                                onClick={() => {
+                                                                  setModelRequestData(
+                                                                    {
+                                                                      ...modelRequestData,
+                                                                      Action: item.contracts?.length === 0
+                                                                      ? "Archive" : "ArchiveLinkedELs",
+                                                                      RefId:
+                                                                        item.prefix,
+                                                                      quoteKeyID:
+                                                                        item.quoteKeyID,
+                                                                      userKeyID:
+                                                                        common.userKeyID,
+                                                                      contracts:
+                                                                        item.contracts,
+                                                                      message: item?.contracts?.length === 0
+                                                                       ? "Are you sure you want to archive this quote?"
+                                                                        : `Archiving this record would archive all the linked ${EngagementName} too:`,
+                                                                    },
+                                                                  );
+                                                                }}
+                                                              >
+                                                                <i
+                                                                  className="ri-archive-fill"
+                                                                  style={{
+                                                                    marginRight:
+                                                                      "2px",
+                                                                  }}
+                                                                ></i>{" "}
+                                                                Archive{" "}
+                                                                {proposalName}
+                                                              </a>
+                                                              {/* </Tooltip> */}
+                                                            </li>
+                                                          )}
+                                                          {item?.isArchived && (
+                                                            <li>
+                                                              <a
+                                                                class="dropdown-item"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#ConfirmModel"
+                                                                onClick={() => {
+                                                                  setModelRequestData(
+                                                                    {
+                                                                      ...modelRequestData,
+                                                                      Action: "Unarchive",
+                                                                      RefId:
+                                                                        item.prefix,
+                                                                      quoteKeyID:
+                                                                        item.quoteKeyID,
+                                                                      userKeyID:
+                                                                        common.userKeyID,
+                                                                      contracts:
+                                                                        item.contracts,
+                                                                      message: "Are you sure you want to Unarchive this quote?",
+                                                                    },
+                                                                  );
+                                                                }}
+                                                              >
+                                                                <i
+                                                                  className="ri-archive-fill"
+                                                                  style={{
+                                                                    marginRight:
+                                                                      "2px",
+                                                                  }}
+                                                                ></i>
+                                                                Unarchive{" "}
+                                                                {proposalName}
+                                                              </a>
+                                                            </li>
+                                                          )}
+
+                                                          {(
+                                                              item.statusID === statusID.Draft ||
+                                                              (item.statusID === statusID.Sent && (
+                                                                item.contracts?.length === 0 ||
+                                                                !item.contracts?.some(c => c.StatusID === statusID.Signed || c.StatusID === statusID.Declined)
+                                                              ))
+                                                              ) && (
+                                                              <li>
+                                                                {/* <Tooltip title={`Delete ${proposalName}`} placement="right"> */}
+                                                                <a
+                                                                  class="dropdown-item"
+                                                                  data-bs-toggle="modal"
+                                                                  data-bs-target="#ConfirmModel"
+                                                                  onClick={() => {
+                                                                    setModelRequestData(
+                                                                      {
+                                                                        ...modelRequestData,
+                                                                        Action:
+                                                                          "Delete",
+                                                                        RefId:
+                                                                          item.prefix,
+                                                                        quoteKeyID:
+                                                                          item.quoteKeyID,
+                                                                        userKeyID:
+                                                                          common.userKeyID,
+                                                                        message:
+                                                                          "Are you sure you want to delete this quote?",
+                                                                      },
+                                                                    );
+                                                                  }}
+                                                                >
+                                                                  <i
+                                                                    className="ri-delete-bin-5-fill"
+                                                                    style={{
+                                                                      marginRight:
+                                                                        "2px",
+                                                                    }}
+                                                                  ></i>{" "}
+                                                                  Delete{" "}
+                                                                  {proposalName}
+                                                                </a>
+                                                                {/* </Tooltip> */}
                                                               </li>
                                                             )}
                                                         </ul>
@@ -3175,6 +3359,8 @@ const Proposals = () => {
                                       },
                                       true,
                                     )
+                                  : modelRequestData.Action === "Archive" || modelRequestData.Action === "Unarchive"
+                                  || modelRequestData.Action === "ArchiveLinkedELs" ? ArchiveQuotationData
                                 : DeleteQuotationData
                     }
                   />
@@ -3194,6 +3380,11 @@ const Proposals = () => {
                             ? "Status has been changed successfully!"
                             : modelRequestData.Action === "Resend"
                               ? proposalName
+                              : modelRequestData.Action === "Archive"
+                              || modelRequestData.Action === "Unarchive"
+                                ? proposalName
+                                : modelRequestData.Action === "ArchiveLinkedELs"
+                                  ? `${proposalName} and all the linked ${EngagementName} have been archived successfully`
                               : ""
                     }
                     refIdStore={modelRequestData.RefId}

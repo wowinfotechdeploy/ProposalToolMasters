@@ -100,13 +100,12 @@ function AddDeleteGlobalPricingDriverModal(props) {
         slab: GetGlobalPricingDriverData?.slab
           ? GetGlobalPricingDriverData.slab.map((item, index) => ({
               slabKeyID: null,
-              decimalPlaces: item.decimalPlaces,
               parentSlabKeyID: item.slabKeyID,
               slabTypeID: item.slabTypeID,
               slabTypeName: item.slabTypeName,
               slabValue: item.slabValue,
-              slabFrom: item.slabFrom.toFixed(item.decimalPlaces ?? 2),
-              slabTo: item.slabTo.toFixed(item.decimalPlaces ?? 2),
+              slabFrom: item.slabFrom,
+              slabTo: item.slabTo,
               isDefault: item.isDefault,
             }))
           : null,

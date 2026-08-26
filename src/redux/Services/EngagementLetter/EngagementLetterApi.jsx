@@ -98,3 +98,9 @@ export const DeleteContract = async (params) => {
   );
   return res;
 };
+export const ArchiveContract = async (ContractKeyID, UserKeyID, IsArchived) => {
+  const res = await postApiWithAuthenticated(
+    `${Engagement_Letters}/ArchiveContract?ContractKeyID=${ContractKeyID}&UserKeyID=${UserKeyID}&IsArchived=${IsArchived}`,
+  );
+  return res;
+};

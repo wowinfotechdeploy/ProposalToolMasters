@@ -6,6 +6,7 @@
 
 //Master Api
 export const Base_Url = "https://api.master.proposal.ust.outbooks.com/api";
+export const Frontend_Url = "master.proposal.outbooks.com";
 
 // //temporyBAseURl;
 // export const Base_Url = "https://angry-blackburn.101-53-133-129.plesk.page/api"
@@ -66,3 +67,8 @@ export const OldOutbooksBaseUrl = "https://proposal.outbooks.com/api";
 
 export const AccessKeyBaseUrl =
   "https://api.api.master.proposal.ust.outbooks.com";
+
+export const XeroBaseUrl = `https://outbooks-api.proposal.outbooks.com/api/v1/xero/`;
+export const QuickBookUrl = `https://outbooks-api.proposal.outbooks.com/api/v1/quickbooks/`;
+export const DeviationBaseUrl = `https://outbooks-api.proposal.outbooks.com/api/v1/service-review/`;
+export const DeviationBaseUrlv2 = `https://outbooks-api.proposal.outbooks.com/api/v2/service-review/`;

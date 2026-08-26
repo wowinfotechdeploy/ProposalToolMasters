@@ -233,11 +233,11 @@ const Notification = () => {
         </div>
         </div>
         </div>
-        <Footer />
       </div>
       <button class="btn btn-danger btn-icon" id="back-to-top">
         <i class="ri-arrow-up-line"></i>
       </button>
+      <Footer />
     </div>
   );
 };

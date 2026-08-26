@@ -692,7 +692,7 @@ const UserRoleList = () => {
         </div>
         </div>
         </div>
-        <Footer />
+        
       </div>
 
       {/* start back-to-top */}
@@ -704,6 +704,7 @@ const UserRoleList = () => {
         <i class="ri-arrow-up-line"></i>
       </button>
       {/* end back-to-top */}
+      <Footer />
     </div>
   );
 };

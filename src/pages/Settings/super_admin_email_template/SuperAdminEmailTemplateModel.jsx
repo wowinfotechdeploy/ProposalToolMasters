@@ -246,8 +246,7 @@ function SuperAdminEmailTemplateModel(props) {
       templateName: TemplateObj.templateName,
       subject: TemplateObj.subject,
       isDefault: TemplateObj.isDefault,
-      // templateElementList: updatedTemplateList, // Use the result of updateTemplateList
-      templateElementList: templateElementList,
+      templateElementList: templateElementList, // Use the result of updateTemplateList
     };
 
     // Call the API

@@ -336,28 +336,21 @@ const SecurityList = () => {
 
   //Design part :
   return (
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
+    <div>
+      <div class="main-content">
         <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{marginTop: "3rem"}}>
-                      <div class="bg-light border-bottom px-2">
-                        <div class="">
-                          <div className="row">
+          <div class="page-info-header page-info-strip">
+            <div class="container ">
+              <div className="row">
                 <div className="col-md-4 col-4">
                   <div class="page-title-cls">Security</div>
                 </div>
-                <div class="col-md-8 ms-auto">
-                  <div className="d-flex justify-content-sm-end">
+                <div class="col-md-8 col-8">
+                  <div className="d-flex gap-2 justify-content-sm-end">
                     <Tooltip title={`Enable/Disable 2 step verification`}>
                       <div
                         className="d-flex gap-2 justify-content-sm-end add-new-btn"
-                        // style={{ marginRight: "10px" }}
+                        style={{ marginRight: "10px" }}
                       >
                         <span style={{ marginBottom: "5px" }}>
                           {common.enableMFA == 1 ? "Disable" : "Enable"} 2 step
@@ -402,14 +395,14 @@ const SecurityList = () => {
               </div>
             </div>
           </div>
-          <div class="">
+          <div class="container">
             <div class="row">
               <div class="col-lg-12">
                 <div class="card ">
                   <div class="card-body">
                     <div id="customerList">
                       <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
+                      <div class="table-responsive table-card mb-3 table-padding">
                         {/* <div className="row">
                         
                         </div> */}
@@ -754,11 +747,6 @@ const SecurityList = () => {
               }
             />
           </div>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
         </div>
         <Footer />
       </div>

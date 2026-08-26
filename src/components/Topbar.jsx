@@ -55,6 +55,8 @@ const Topbar = () => {
   });
   const [showUserModal, setShowUserModal] = useState(false);
   const settingsRef = useRef(null);
+  const workflowRef = useRef(null);
+  const saWorkflowRef = useRef(null);
   const [isHoveredDashboard, setIsHoveredDashboard] = useState(false);
   const [isHoveredProspect, setIsHoveredProspect] = useState(false);
   const [isHoveredProposal, setIsHoveredProposal] = useState(false);
@@ -62,6 +64,8 @@ const Topbar = () => {
   const [isHoveredPdfToCsv, setIsHoveredPdfToCsv] = useState(false);
   const [isHoveredConfigure, setIsHoveredConfigure] = useState(false);
   const [isHoveredSetting, setIsHoveredSetting] = useState(false);
+  const [isHoveredWorkflow, setIsHoveredWorkflow] = useState(false);
+  const [isHoveredSAWorkflow, setIsHoveredSAWorkflow] = useState(false);
   const [isHoveredDashboards, setIsHoveredDashboards] = useState(false);
   const [isHoveredOrganization, setIsHoveredOrganization] = useState(false);
   const [isHoveredUser, setIsHoveredUser] = useState(false);
@@ -118,6 +122,10 @@ const Topbar = () => {
   const [isUserRoleDropdownOpen, setIsUserRoleDropdownOpen] = useState(false);
   const [isSettingDropdownOpen, setIsSettingDropdownOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isWorkflowDropdownOpen, setIsWorkflowDropdownOpen] = useState(false);
+  const [isSAWorkflowDropdownOpen, setIsSAWorkflowDropdownOpen] =
+    useState(false);
+  const [activeSAWorkflowSubList, setActiveSAWorkflowSubList] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [timeoutId, setTimeoutId] = useState(null);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -179,7 +187,7 @@ const Topbar = () => {
     try {
       const Data = await NotificationCount(
         common.userKeyID,
-        common.organisationKeyID
+        common.organisationKeyID,
       );
       if (Data) {
         setLoader(false);
@@ -197,7 +205,7 @@ const Topbar = () => {
     try {
       const Data = await VanishCount(
         common.userKeyID,
-        common.organisationKeyID
+        common.organisationKeyID,
       );
       if (Data) {
         setLoader(false);
@@ -220,7 +228,7 @@ const Topbar = () => {
         // Remove event listeners
         document.body.removeEventListener("click", handleClickOutside);
         const dropdownButton = document.getElementById(
-          "page-header-user-dropdown"
+          "page-header-user-dropdown",
         );
         dropdownButton.removeEventListener("click", handleCloseDropdown);
       }
@@ -240,7 +248,7 @@ const Topbar = () => {
       document.body.addEventListener("click", handleClickOutside);
       // Add event listener to close dropdown when clicking on the button inside the dropdown
       const dropdownButton = document.getElementById(
-        "page-header-user-dropdown"
+        "page-header-user-dropdown",
       );
       dropdownButton.addEventListener("click", handleCloseDropdown);
 
@@ -396,12 +404,12 @@ const Topbar = () => {
       //alert("OnOrganisationsChange : "+JSON.stringify(selectedOrg))
       localStorage.setItem(
         "userAccess",
-        JSON.stringify(organisationData.accessList)
+        JSON.stringify(organisationData.accessList),
       );
       setActiveOrganization(organisationData.accessList);
       localStorage.setItem(
         "subscriptionPlan",
-        JSON.stringify(organisationData.subscriptionPlan)
+        JSON.stringify(organisationData.subscriptionPlan),
       );
       setActiveOrganizationSubscriptionPlan(organisationData.subscriptionPlan);
       setActiveOrganizationKeyId(organisationData.organisationKeyID);
@@ -421,7 +429,8 @@ const Topbar = () => {
               ? []
               : organisationData?.professionTypeLists,
           enableEL: organisationData?.enableEL,
-        })
+          currencyID: organisationData?.currencyID,
+        }),
       );
 
       navigate("/");
@@ -490,6 +499,16 @@ const Topbar = () => {
         list.classList.remove("d-none");
       }
     }
+  };
+
+  const showSAWorkflowSubList = (id) => {
+    const list = document.getElementById(id);
+    if (list) list.style.display = "block";
+  };
+
+  const hideSAWorkflowSubList = (id) => {
+    const list = document.getElementById(id);
+    if (list) list.style.display = "none";
   };
 
   const showUserSettingList = () => {
@@ -570,6 +589,43 @@ const Topbar = () => {
   const hideUserRoleList = () => {
     setIsUserRoleDropdownOpen(false);
   };
+
+  const showWorkflowList = () => {
+    setIsWorkflowDropdownOpen(true);
+    workflowRef.current?.setAttribute("aria-expanded", "true");
+  };
+
+  const hideWorkflowList = () => {
+    setIsWorkflowDropdownOpen(false);
+    workflowRef.current?.setAttribute("aria-expanded", "false");
+  };
+
+  const toggleWorkflowList = () => {
+    const nextState = !isWorkflowDropdownOpen;
+    setIsWorkflowDropdownOpen(nextState);
+    workflowRef.current?.setAttribute("aria-expanded", String(nextState));
+  };
+
+  const showSAWorkflowList = () => {
+    setIsSAWorkflowDropdownOpen(true);
+    saWorkflowRef.current?.setAttribute("aria-expanded", "true");
+  };
+
+  const hideSAWorkflowList = () => {
+    setIsSAWorkflowDropdownOpen(false);
+    saWorkflowRef.current?.setAttribute("aria-expanded", "false");
+    setActiveSAWorkflowSubList("");
+  };
+
+  const toggleSAWorkflowList = () => {
+    const nextState = !isSAWorkflowDropdownOpen;
+    setIsSAWorkflowDropdownOpen(nextState);
+    saWorkflowRef.current?.setAttribute("aria-expanded", String(nextState));
+  };
+
+  const toggleSAWorkflowSubList = (id) => {
+    setActiveSAWorkflowSubList((prev) => (prev === id ? "" : id));
+  };
   // logout function
   const Logout = () => {
     localStorage.removeItem("userAccess");
@@ -619,7 +675,7 @@ const Topbar = () => {
       }
       localStorage.setItem(
         "userAccess",
-        JSON.stringify(organisationData.accessList)
+        JSON.stringify(organisationData.accessList),
       );
       setActiveOrganization(organisationData.accessList);
 
@@ -658,7 +714,8 @@ const Topbar = () => {
               professionTypeLists: organisationData.professionTypeLists,
               organisationCount: OrganisationListData.length,
               enableEL: organisationData.enableEL,
-            })
+              currencyID: organisationData.currencyID,
+            }),
           );
         }
       }
@@ -682,7 +739,7 @@ const Topbar = () => {
           localStorage.removeItem("OrganisationLocalList");
           localStorage.setItem(
             "OrganisationLocalList",
-            JSON.stringify(OrganisationsListData)
+            JSON.stringify(OrganisationsListData),
           );
           setOrganisationsList(OrganisationsListData);
 
@@ -709,15 +766,15 @@ const Topbar = () => {
           }
           localStorage.setItem(
             "userAccess",
-            JSON.stringify(organisationData.accessList)
+            JSON.stringify(organisationData.accessList),
           );
           setActiveOrganization(organisationData.accessList);
           localStorage.setItem(
             "subscriptionPlan",
-            JSON.stringify(organisationData.subscriptionPlan)
+            JSON.stringify(organisationData.subscriptionPlan),
           );
           setActiveOrganizationSubscriptionPlan(
-            organisationData.subscriptionPlan
+            organisationData.subscriptionPlan,
           );
 
           if (organisationData) {
@@ -751,7 +808,7 @@ const Topbar = () => {
           if (organisationData.organisationKeyID !== null) {
             await OrganisationLoginUpdate(
               common.userKeyID,
-              organisationData.organisationKeyID
+              organisationData.organisationKeyID,
             );
           }
           if (organisationData) {
@@ -765,7 +822,8 @@ const Topbar = () => {
                     ? []
                     : organisationData.professionTypeLists,
                 enableEL: organisationData.enableEL,
-              })
+                currencyID: organisationData.currencyID,
+              }),
             );
           } else if (
             getOrganisationLookupListApiCallCount < maxCountToRecallApi
@@ -932,7 +990,11 @@ const Topbar = () => {
               <div class="d-flex">
                 <div
                   class="navbar-menu topdropdowm"
-                  style={{ position: "fixed", top: "10px", backgroundColor: TopbarStyle.backgroundColor }}
+                  style={{
+                    position: "fixed",
+                    top: "10px",
+                    backgroundColor: TopbarStyle.backgroundColor,
+                  }}
                 >
                   <div class="container">
                     <div class="row">
@@ -1013,7 +1075,7 @@ const Topbar = () => {
                                     onClick={() =>
                                       navigate(
                                         "/update-practice-details",
-                                        closeNav()
+                                        closeNav(),
                                       )
                                     }
                                     title="Update Practice"
@@ -1107,7 +1169,8 @@ const Topbar = () => {
                       <div className="edit-topbar">
                         <div
                           onClick={() => (
-                            navigate("/create-new-practice"), togglenav()
+                            navigate("/create-new-practice"),
+                            togglenav()
                           )}
                           title="Create New Practice "
                         >
@@ -1144,7 +1207,10 @@ const Topbar = () => {
               </ul>
               {common.organisationKeyID !== null && (
                 <div class="d-flex">
-                  <div class="navbar-menu" style={{backgroundColor: TopbarStyle.backgroundColor}}>
+                  <div
+                    class="navbar-menu"
+                    style={{ backgroundColor: TopbarStyle.backgroundColor }}
+                  >
                     <div class="container">
                       <div class="row" style={{ marginTop: "5px" }}>
                         <ul
@@ -1356,7 +1422,7 @@ const Topbar = () => {
                                         aria-controls="sidebarProfile"
                                         onClick={() =>
                                           toggleConfigSubList(
-                                            "servicesAndPackage"
+                                            "servicesAndPackage",
                                           )
                                         }
                                       >
@@ -1586,82 +1652,98 @@ const Topbar = () => {
                                       </div>
                                     </li>
                                   )}
-                                  {/* this is reminder  */}
-                                  {userAccessData.Admin_Config_Email_Template_CanView && (
-                                    <li
-                                      class="nav-item"
-                                      onMouseLeave={() =>
-                                        hideConfigSubList("Reminder")
-                                      }
-                                      onMouseEnter={() =>
-                                        showConfigSubList("Reminder")
-                                      }
-                                    >
-                                      <a
-                                        href="#sidebarProfile"
-                                        class="nav-link collapsed"
-                                        data-bs-toggle="collapse"
-                                        role="button"
-                                        aria-expanded="false"
-                                        aria-controls="sidebarProfile"
-                                        data-key="t-profile"
-                                        onClick={() =>
-                                          toggleConfigSubList("Reminder")
-                                        }
-                                      >
-                                        Workflows
-                                      </a>
-                                      <div
-                                        id="Reminder"
-                                        style={style}
-                                        class="subList collapse menu-dropdown Responsive-Config-Variables"
-                                      >
-                                        <ul class="nav nav-sm flex-column">
-                                          <li class="nav-item ">
-                                            <NavLink
-                                              to="/reminder-email-template"
-                                              // onClick={togglenav}
-                                            >
-                                              <a
-                                                onClick={() => {
-                                                  closeDropdown("config");
-                                                  NotificationCountData();
-                                                }}
-                                                style={{ whiteSpace: "nowrap" }}
-                                                class="nav-link"
-                                                data-key="t-simple-page"
-                                              >
-                                                Email Templates
-                                              </a>
-                                            </NavLink>
-                                          </li>
-                                          <li class="nav-item ">
-                                            <NavLink
-                                              to="/reminder"
-                                              // onClick={togglenav}
-                                            >
-                                              <a
-                                                style={{ whiteSpace: "nowrap" }}
-                                                onClick={() => {
-                                                  closeDropdown("config");
-                                                  NotificationCountData();
-                                                }}
-                                                class="nav-link"
-                                                data-key="t-simple-page"
-                                              >
-                                                Reminders
-                                              </a>
-                                            </NavLink>
-                                          </li>
-                                        </ul>
-                                      </div>
-                                    </li>
-                                  )}
                                 </ul>
                               </div>
                             </li>
                           )}
                           {/* Admin Config Modal End */}
+
+                          {userAccessData.Admin_Config_Email_Template_CanView && (
+                            <li
+                              class="nav-item"
+                              onMouseLeave={hideWorkflowList}
+                              onMouseEnter={showWorkflowList}
+                            >
+                              <a
+                                class="nav-link menu-link collapsed"
+                                data-bs-toggle="collapse"
+                                role="button"
+                                aria-expanded={isWorkflowDropdownOpen}
+                                aria-controls="workflow"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  toggleWorkflowList();
+                                }}
+                                onMouseOver={() => setIsHoveredWorkflow(true)}
+                                onMouseOut={() => setIsHoveredWorkflow(false)}
+                                ref={workflowRef}
+                                style={{
+                                  color: isHoveredWorkflow
+                                    ? "#438eff"
+                                    : TopTextColor.color,
+                                }}
+                              >
+                                <img
+                                  src={SettingSvg}
+                                  alt="WorkflowSvg"
+                                  style={{ width: "16px", marginRight: "5px" }}
+                                />
+                                <span data-key="t-pages">
+                                  Workflows
+                                  <span className="menu-arrow" />
+                                </span>
+                              </a>
+                              <div
+                                id="workflow"
+                                style={{
+                                  ...style,
+                                  display: isWorkflowDropdownOpen
+                                    ? "block"
+                                    : "none",
+                                }}
+                                class="collapse menu-dropdown Responsive-Config-service-package"
+                              >
+                                <ul class="nav nav-sm flex-column">
+                                  <li
+                                    class="nav-item"
+                                    onMouseLeave={() =>
+                                      hideSAWorkflowSubList("workflow")
+                                    }
+                                    onMouseEnter={() =>
+                                      showSAWorkflowSubList("workflow")
+                                    }
+                                  >
+                                    <NavLink to="/reminder-email-template">
+                                      <a
+                                        onClick={() => {
+                                          closeDropdown("workflow");
+                                          NotificationCountData();
+                                        }}
+                                        class="nav-link"
+                                        data-key="t-simple-page"
+                                      >
+                                        Email Templates
+                                      </a>
+                                    </NavLink>
+                                  </li>
+                                  <li class="nav-item">
+                                    <NavLink to="/reminder">
+                                      <a
+                                        onClick={() => {
+                                          closeDropdown("workflow");
+                                          NotificationCountData();
+                                        }}
+                                        class="nav-link"
+                                        data-key="t-simple-page"
+                                      >
+                                        Reminders
+                                      </a>
+                                    </NavLink>
+                                  </li>
+                                </ul>
+                              </div>
+                            </li>
+                          )}
 
                           {/* Setting Admin Modal */}
                           {userAccessData.Admin_Setting_CanView && (
@@ -1677,7 +1759,7 @@ const Topbar = () => {
                               <a
                                 href="#sidebarSignUp1"
                                 data-bs-toggle="collapse"
-                                class="nav-link menu-link"
+                                class="nav-link menu-link collapsed"
                                 role="button"
                                 aria-expanded="false"
                                 aria-controls="sidebarSignUp1"
@@ -1697,7 +1779,9 @@ const Topbar = () => {
                                   alt="SettingSvg"
                                   style={{ width: "16px", marginRight: "5px" }}
                                 />
-                                <span data-key="t-dashboard">Settings</span>{" "}
+                                <span data-key="t-dashboard">
+                                  Settings
+                                </span>{" "}
                               </a>
                               <div
                                 class="subList collapse menu-dropdown menu_dropdown"
@@ -1784,7 +1868,7 @@ const Topbar = () => {
                                                 <a
                                                   onClick={() => {
                                                     toggleSettingList(
-                                                      "Setting"
+                                                      "Setting",
                                                     );
                                                     NotificationCountData();
                                                   }}
@@ -1806,7 +1890,7 @@ const Topbar = () => {
                                                 <a
                                                   onClick={() => {
                                                     toggleSettingList(
-                                                      "Setting"
+                                                      "Setting",
                                                     );
                                                     NotificationCountData();
                                                   }}
@@ -1825,7 +1909,7 @@ const Topbar = () => {
                                                 <a
                                                   onClick={() => {
                                                     toggleSettingList(
-                                                      "Setting"
+                                                      "Setting",
                                                     );
                                                     NotificationCountData();
                                                   }}
@@ -2019,7 +2103,10 @@ const Topbar = () => {
                                   marginRight: "5px",
                                 }}
                               />
-                              <span data-key="t-dashboard"> PDF To CSV</span>{" "}
+                              <span data-key="t-dashboard">
+                                {" "}
+                                PDF To CSV
+                              </span>{" "}
                             </NavLink>
                           </li>
 
@@ -2033,7 +2120,10 @@ const Topbar = () => {
               {common.roleTypeId == USER_ROLE_TYPE.SuperAdmin &&
                 common.organisationKeyID === null && (
                   <div class="d-flex">
-                    <div class="navbar-menu pb-3" style={{backgroundColor: TopbarStyle.backgroundColor}}>
+                    <div
+                      class="navbar-menu pb-3"
+                      style={{ backgroundColor: TopbarStyle.backgroundColor }}
+                    >
                       <div class="container">
                         <div class="row" style={{ marginTop: "5px" }}>
                           <ul class="navbar-nav changed-nav" id="navbar-UL-nav">
@@ -2194,12 +2284,12 @@ const Topbar = () => {
                                         class="nav-item"
                                         onMouseLeave={() =>
                                           hideConfigSubList(
-                                            "PredefinedServicesAndPackage"
+                                            "PredefinedServicesAndPackage",
                                           )
                                         }
                                         onMouseEnter={() =>
                                           showConfigSubList(
-                                            "PredefinedServicesAndPackage"
+                                            "PredefinedServicesAndPackage",
                                           )
                                         }
                                       >
@@ -2213,11 +2303,11 @@ const Topbar = () => {
                                           data-key="t-profile"
                                           onClick={() =>
                                             toggleConfigSubList(
-                                              "PredefinedServicesAndPackage"
+                                              "PredefinedServicesAndPackage",
                                             )
                                           }
                                         >
-                                          Predefined Services/Packages
+                                          Organisations Services/Packages
                                         </a>
                                         <div
                                           class="subList collapse menu-dropdown"
@@ -2240,7 +2330,7 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined Service Categories
+                                                  Organisations Service Categories
                                                 </a>
                                               </NavLink>
                                             </li>
@@ -2254,7 +2344,7 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined Services
+                                                  Organisations Services
                                                 </a>
                                               </NavLink>
                                             </li>
@@ -2268,7 +2358,7 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined Packages
+                                                  Organisations Packages
                                                 </a>
                                               </NavLink>
                                             </li>
@@ -2283,12 +2373,12 @@ const Topbar = () => {
                                         class="nav-item"
                                         onMouseLeave={() =>
                                           hideConfigSubList(
-                                            "PredefinedVariable"
+                                            "PredefinedVariable",
                                           )
                                         }
                                         onMouseEnter={() =>
                                           showConfigSubList(
-                                            "PredefinedVariable"
+                                            "PredefinedVariable",
                                           )
                                         }
                                       >
@@ -2302,11 +2392,11 @@ const Topbar = () => {
                                           data-key="t-profile"
                                           onClick={() =>
                                             toggleConfigSubList(
-                                              "PredefinedVariable"
+                                              "PredefinedVariable",
                                             )
                                           }
                                         >
-                                          Predefined Variables
+                                          Organisations Variables
                                         </a>
                                         <div
                                           style={style}
@@ -2326,7 +2416,7 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined Global Constants
+                                                  Organisations Global Constants
                                                 </a>
                                               </NavLink>
                                             </li>
@@ -2340,7 +2430,7 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined Global Pricing
+                                                  Organisations Global Pricing
                                                   Drivers
                                                 </a>
                                               </NavLink>
@@ -2356,12 +2446,12 @@ const Topbar = () => {
                                         class="nav-item"
                                         onMouseLeave={() =>
                                           hideConfigSubList(
-                                            "PredefinedTemplate"
+                                            "PredefinedTemplate",
                                           )
                                         }
                                         onMouseEnter={() =>
                                           showConfigSubList(
-                                            "PredefinedTemplate"
+                                            "PredefinedTemplate",
                                           )
                                         }
                                       >
@@ -2375,11 +2465,11 @@ const Topbar = () => {
                                           data-key="t-profile"
                                           onClick={() =>
                                             toggleConfigSubList(
-                                              "PredefinedTemplate"
+                                              "PredefinedTemplate",
                                             )
                                           }
                                         >
-                                          Predefined Templates
+                                          Organisations Templates
                                         </a>
                                         <div
                                           style={style}
@@ -2398,7 +2488,7 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined {proposalName}/
+                                                  Organisations {proposalName}/
                                                   {EngagementName}
                                                 </a>
                                               </NavLink>
@@ -2413,7 +2503,7 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined Terms & Conditions
+                                                  Organisations Terms & Conditions
                                                 </a>
                                               </NavLink>
                                             </li>
@@ -2427,77 +2517,7 @@ const Topbar = () => {
                                                   class="nav-link"
                                                   data-key="t-simple-page"
                                                 >
-                                                  Predefined Email Templates
-                                                </a>
-                                              </NavLink>
-                                            </li>
-                                          </ul>
-                                        </div>
-                                      </li>
-                                    )}
-
-                                    {userAccessData.SuperAdmin_Config_Template_CanView && (
-                                      <li
-                                        class="nav-item"
-                                        onMouseLeave={() =>
-                                          hideConfigSubList(
-                                            "PredefinedReminder"
-                                          )
-                                        }
-                                        onMouseEnter={() =>
-                                          showConfigSubList(
-                                            "PredefinedReminder"
-                                          )
-                                        }
-                                      >
-                                        <a
-                                          href="#sidebarProfile"
-                                          class="nav-link collapsed"
-                                          data-bs-toggle="collapse"
-                                          role="button"
-                                          aria-expanded="false"
-                                          aria-controls="sidebarProfile"
-                                          data-key="t-profile"
-                                          onClick={() =>
-                                            toggleConfigSubList(
-                                              "PredefinedReminder"
-                                            )
-                                          }
-                                        >
-                                          Predefined Workflows
-                                        </a>
-                                        <div
-                                          style={style}
-                                          class="collapse menu-dropdown"
-                                          id="PredefinedReminder"
-                                        >
-                                          <ul class="nav nav-sm flex-column">
-                                            <li class="nav-item">
-                                              <NavLink to="/reminder-email-template">
-                                                <a
-                                                  onClick={() => {
-                                                    closeDropdown("config");
-                                                    NotificationCountData();
-                                                  }}
-                                                  class="nav-link"
-                                                  data-key="t-simple-page"
-                                                >
-                                                  Predefined Workflows Email
-                                                  Templates
-                                                </a>
-                                              </NavLink>
-                                            </li>
-                                            <li class="nav-item">
-                                              <NavLink to="/reminder">
-                                                <a
-                                                  onClick={() => {
-                                                    closeDropdown("config");
-                                                    NotificationCountData();
-                                                  }}
-                                                  class="nav-link"
-                                                  data-key="t-simple-page"
-                                                >
-                                                  Predefined Reminder
+                                                  Organisations Email Templates
                                                 </a>
                                               </NavLink>
                                             </li>
@@ -2668,7 +2688,9 @@ const Topbar = () => {
                                       marginRight: "5px",
                                     }}
                                   />
-                                  <span data-key="t-dashboard">Settings</span>{" "}
+                                  <span data-key="t-dashboard">
+                                    Settings
+                                  </span>{" "}
                                 </a>
                                 <div
                                   style={{
@@ -2727,7 +2749,25 @@ const Topbar = () => {
                                       </NavLink>
                                     </li>
                                     {/* )} */}
-
+                                    {common.organisationKeyID == null && (
+                                      <li class="nav-item">
+                                        <Link
+                                          to="/fee-inflation"
+                                          onClick={togglenav}
+                                        >
+                                          <a
+                                            onClick={() => {
+                                              toggleSettingList("Setting");
+                                              NotificationCountData();
+                                            }}
+                                            class="nav-link"
+                                            data-key="t-basic-6"
+                                          >
+                                            Fee Inflation
+                                          </a>
+                                        </Link>
+                                      </li>
+                                    )}
                                     <li
                                       class="nav-item"
                                       onMouseLeave={() =>
@@ -2800,34 +2840,186 @@ const Topbar = () => {
                                         </a>
                                       </li>
                                     )}
+                                  </ul>
+                                </div>
+                              </li>
+                            )}
+                            {(userAccessData.SuperAdmin_Config_Template_CanView ||
+                              userAccessData.SuperAdmin_Setting_Email_Template_CanView) && (
+                              <li
+                                class="nav-item"
+                                onMouseLeave={hideSAWorkflowList}
+                                onMouseEnter={showSAWorkflowList}
+                              >
+                                <a
+                                  class="nav-link menu-link collapsed"
+                                  role="button"
+                                  data-bs-toggle="collapse"
+                                  aria-expanded={isSAWorkflowDropdownOpen}
+                                  aria-controls="superAdminWorkflows"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    toggleSAWorkflowList();
+                                  }}
+                                  onMouseOver={() =>
+                                    setIsHoveredSAWorkflow(true)
+                                  }
+                                  onMouseOut={() =>
+                                    setIsHoveredSAWorkflow(false)
+                                  }
+                                  ref={saWorkflowRef}
+                                  style={{
+                                    color: isHoveredSAWorkflow
+                                      ? "#438eff"
+                                      : TopTextColor.color,
+                                  }}
+                                >
+                                  <img
+                                    src={SettingSvg}
+                                    alt="WorkflowSvg"
+                                    style={{
+                                      width: "16px",
+                                      marginRight: "5px",
+                                    }}
+                                  />
+                                  <span data-key="t-pages">
+                                    Workflows
+                                    <span className="menu-arrow" />
+                                  </span>
+                                </a>
+                                <div
+                                  id="superAdminWorkflows"
+                                  style={{
+                                    ...style,
+                                    display: isSAWorkflowDropdownOpen
+                                      ? "block"
+                                      : "none",
+                                  }}
+                                  class="collapse menu-dropdown Responsive-Config-service-package"
+                                >
+                                  <ul class="nav nav-sm flex-column">
+                                    {userAccessData.SuperAdmin_Config_Template_CanView && (
+                                      <li
+                                        class="nav-item"
+                                        onMouseLeave={() =>
+                                          hideSAWorkflowSubList(
+                                            "PredefinedReminder",
+                                          )
+                                        }
+                                        onMouseEnter={() =>
+                                          showSAWorkflowSubList(
+                                            "PredefinedReminder",
+                                          )
+                                        }
+                                      >
+                                        <a
+                                          href="#PredefinedReminder"
+                                          class="nav-link collapsed"
+                                          aria-expanded={
+                                            activeSAWorkflowSubList ===
+                                            "PredefinedReminder"
+                                          }
+                                          data-key="t-profile"
+                                          style={{ cursor: "pointer" }}
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            toggleSAWorkflowSubList(
+                                              "PredefinedReminder",
+                                            );
+                                          }}
+                                        >
+                                          Organisations Workflows
+                                        </a>
+                                        <div
+                                          id="PredefinedReminder"
+                                          class="subList"
+                                          style={{
+                                            display:
+                                              activeSAWorkflowSubList ===
+                                              "PredefinedReminder"
+                                                ? "block"
+                                                : "none",
+                                            paddingLeft: "12px",
+                                          }}
+                                        >
+                                          <ul class="nav nav-sm flex-column">
+                                            <li class="nav-item">
+                                              <NavLink to="/reminder-email-template">
+                                                <a
+                                                  onClick={() => {
+                                                    closeDropdown(
+                                                      "superAdminWorkflows",
+                                                    );
+                                                    NotificationCountData();
+                                                  }}
+                                                  class="nav-link"
+                                                  data-key="t-simple-page"
+                                                >
+                                                  Organisations Workflows Email
+                                                  Templates
+                                                </a>
+                                              </NavLink>
+                                            </li>
+                                            <li class="nav-item">
+                                              <NavLink to="/reminder">
+                                                <a
+                                                  onClick={() => {
+                                                    closeDropdown(
+                                                      "superAdminWorkflows",
+                                                    );
+                                                    NotificationCountData();
+                                                  }}
+                                                  class="nav-link"
+                                                  data-key="t-simple-page"
+                                                >
+                                                  Organisations Reminder
+                                                </a>
+                                              </NavLink>
+                                            </li>
+                                          </ul>
+                                        </div>
+                                      </li>
+                                    )}
+
                                     {userAccessData.SuperAdmin_Setting_Email_Template_CanView && (
                                       <li
                                         class="nav-item"
                                         onMouseLeave={() =>
-                                          hideSettingSubList("Setting")
+                                          hideSAWorkflowSubList("SASetting")
                                         }
                                         onMouseEnter={() =>
-                                          showSettingSubList("Setting")
-                                        }
-                                        onClick={() =>
-                                          toggleSettingSubList("Setting")
+                                          showSAWorkflowSubList("SASetting")
                                         }
                                       >
                                         <a
-                                          href="#sidebarProfile"
+                                          href="#SASetting"
                                           class="nav-link collapsed"
-                                          data-bs-toggle="collapse"
-                                          role="button"
-                                          aria-expanded="false"
-                                          aria-controls="sidebarProfile"
+                                          aria-expanded={
+                                            activeSAWorkflowSubList ===
+                                            "SASetting"
+                                          }
                                           data-key="t-profile"
+                                          style={{ cursor: "pointer" }}
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            toggleSAWorkflowSubList(
+                                              "SASetting",
+                                            );
+                                          }}
                                         >
                                           Super Admin Workflows
                                         </a>
                                         <div
-                                          class="subList collapse menu-dropdown"
-                                          id="Setting"
-                                          style={style}
+                                          id="SASetting"
+                                          class="subList"
+                                          style={{
+                                            display:
+                                              activeSAWorkflowSubList ===
+                                              "SASetting"
+                                                ? "block"
+                                                : "none",
+                                            paddingLeft: "12px",
+                                          }}
                                         >
                                           <ul class="nav nav-sm flex-column">
                                             <li class="nav-item">
@@ -2837,13 +3029,10 @@ const Topbar = () => {
                                               >
                                                 <a
                                                   onClick={() => {
-                                                    toggleSettingList(
-                                                      "Setting"
+                                                    closeDropdown(
+                                                      "superAdminWorkflows",
                                                     );
                                                     NotificationCountData();
-                                                  }}
-                                                  style={{
-                                                    whiteSpace: "nowrap",
                                                   }}
                                                   class="nav-link"
                                                   data-key="t-basic-3"
@@ -2860,8 +3049,8 @@ const Topbar = () => {
                                               >
                                                 <a
                                                   onClick={() => {
-                                                    toggleSettingList(
-                                                      "Setting"
+                                                    closeDropdown(
+                                                      "superAdminWorkflows",
                                                     );
                                                     NotificationCountData();
                                                   }}
@@ -2872,6 +3061,25 @@ const Topbar = () => {
                                                 </a>
                                               </Link>
                                             </li>
+                                            <li className="nav-item">
+                                              <Link
+                                                to="/subscription-reminder-list"
+                                                onClick={togglenav}
+                                              >
+                                                <a
+                                                  onClick={() => {
+                                                    closeDropdown(
+                                                      "superAdminWorkflows",
+                                                    );
+                                                    NotificationCountData();
+                                                  }}
+                                                  className="nav-link"
+                                                  data-key="t-basic-3"
+                                                >
+                                                  Subscription Package Upgrade
+                                                </a>
+                                              </Link>
+                                            </li>
                                             <li class="nav-item">
                                               <Link
                                                 to="/marketing-reminder"
@@ -2879,8 +3087,8 @@ const Topbar = () => {
                                               >
                                                 <a
                                                   onClick={() => {
-                                                    toggleSettingList(
-                                                      "Setting"
+                                                    closeDropdown(
+                                                      "superAdminWorkflows",
                                                     );
                                                     NotificationCountData();
                                                   }}

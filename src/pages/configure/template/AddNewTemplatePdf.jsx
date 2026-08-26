@@ -83,7 +83,7 @@ function Add_New_Templates_Pdf(props) {
   // A]  useEffect : Will call when Add/Update button click from list page
   useEffect(() => {
     setModelAction(
-      location.state?.templatePdfKeyID === null ? "Add" : "Update",
+      location.state?.templatePdfKeyID === null ? "Add" : "Update"
     ); //Do not change this naming convention
     GetBusinessTypeLookupListData();
     setTopbar("none");
@@ -91,7 +91,7 @@ function Add_New_Templates_Pdf(props) {
     if (location.state?.templatePdfKeyID !== null) {
       GetTemplatePdfModalData(
         location.state?.templatePdfKeyID,
-        location.state?.Type,
+        location.state?.Type
       );
       setModelRequestData({
         ...modelRequestData,
@@ -197,7 +197,7 @@ function Add_New_Templates_Pdf(props) {
       setLoader(true);
       const data = await GetTemplatePdfModel(TemplatePdfKeyID, GetSAChanges);
       if (data?.data?.statusCode === 200) {
-        // debugger;
+        debugger;
         if (data?.data?.responseData?.data) {
           const ModelData = data?.data?.responseData?.data;
           setTemplateObj({
@@ -217,7 +217,7 @@ function Add_New_Templates_Pdf(props) {
           });
           setTemplateElementList(
             ...templateElementList,
-            ModelData.templateElementList,
+            ModelData.templateElementList
           );
           setSelectedFile({
             fileName: ModelData.templatePdfTitle,
@@ -313,7 +313,7 @@ function Add_New_Templates_Pdf(props) {
             const uploadResponse = await AddUpdateTemplatePDF(
               selectedFile.size,
               TemplatePdfKeyID,
-              formData,
+              formData
             );
 
             if (uploadResponse) {
@@ -380,7 +380,7 @@ function Add_New_Templates_Pdf(props) {
 
       if (!allowedExtensions.includes(fileExtension)) {
         setErrorMessage(
-          "Invalid file type. Only PDF, CSV, and Excel files are allowed.",
+          "Invalid file type. Only PDF, CSV, and Excel files are allowed."
         );
         return;
       }
@@ -461,7 +461,7 @@ function Add_New_Templates_Pdf(props) {
                               const inputValue = e.target.value;
                               const trimmedValue = inputValue.replace(
                                 /^\s+/g,
-                                "",
+                                ""
                               );
                               const capitalizedValue =
                                 trimmedValue.charAt(0).toUpperCase() +
@@ -547,14 +547,13 @@ function Add_New_Templates_Pdf(props) {
                                         src={URL.createObjectURL(file)}
                                         width="100%"
                                         height="600px"
-                                        loading="lazy"
                                       ></iframe>
                                     );
                                   }
 
                                   if (
                                     ["csv", "xls", "xlsx"].includes(
-                                      fileExtension,
+                                      fileExtension
                                     )
                                   ) {
                                     return (
@@ -610,11 +609,11 @@ function Add_New_Templates_Pdf(props) {
 
                                       if (
                                         !allowedExtensions.includes(
-                                          fileExtension,
+                                          fileExtension
                                         )
                                       ) {
                                         console.error(
-                                          "Please select a PDF, CSV, or Excel file (.xls, .xlsx).",
+                                          "Please select a PDF, CSV, or Excel file (.xls, .xlsx)."
                                         );
                                         return;
                                       }
@@ -647,7 +646,6 @@ function Add_New_Templates_Pdf(props) {
                               src={TemplateObj.pdf}
                               width="100%"
                               height="500px" // You can adjust the height as needed
-                              loading="lazy"
                             ></iframe>
                           </div>
                         </>
@@ -664,7 +662,7 @@ function Add_New_Templates_Pdf(props) {
                 {/* {errorMessage} */}
                 {common.professionTypeLists?.length <= 1 &&
                 errorMessage?.includes(
-                  `Please don't choose this profession type`,
+                  `Please don't choose this profession type`
                 )
                   ? errorMessage.split(".")[0]
                   : errorMessage}

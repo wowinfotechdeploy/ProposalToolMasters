@@ -1,4 +1,4 @@
-import { Base_Url } from "../../../Base-Url/Base_Url";
+import { Base_Url, XeroBaseUrl } from "../../../Base-Url/Base_Url";
 import { SelectServiceData } from "../../../Database/ProposalToolDatabase";
 import {
   getList,
@@ -202,6 +202,13 @@ export const DeleteSingleApiQuote = async (params) => {
     // `${TemplateBaseUrl}/GetMasterTemplateDetailsWithVariableValues?TemplateKeyID=${params.TemplateKeyID}&ClientKeyID=${params.clientID}`
     `${ProposalBaseUrlQuote}/DeleteSingleApiQuote`,
     params,
+  );
+  return res;
+};
+
+export const ArchiveQuotation = async (QuoteKeyID, UserKeyID, IsArchived) => {
+  const res = await postApiWithAuthenticated(
+    `${ProposalBaseUrlQuote}/ArchiveQuotation?QuoteKeyID=${QuoteKeyID}&UserKeyID=${UserKeyID}&IsArchived=${IsArchived}`,
   );
   return res;
 };

@@ -1051,10 +1051,10 @@ function ReminderTemplateList() {
           setTemplateType={setTemplateType}
 
         />
-        <Footer />
       </div>
       </div>
       </div>
+      <Footer />
       {/* end back-to-top */}
     </div>
   );

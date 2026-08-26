@@ -928,7 +928,7 @@ const Payment_Gateway = () => {
             </div>
           </div>
         </div>
-        <Footer />
+
       </div>
       <button class="btn btn-danger btn-icon" id="back-to-top">
         <i class="ri-arrow-up-line"></i>
@@ -952,6 +952,7 @@ const Payment_Gateway = () => {
         UpdatedStatus={modelRequestData.Action === "PaymentStatus" ? ChangePaymentStatusData : HandleResetModalFunction}
         handleClose={handleClose}
       />
+      <Footer />
     </div >
   );
 };

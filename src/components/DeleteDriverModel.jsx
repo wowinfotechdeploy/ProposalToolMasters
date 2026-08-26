@@ -99,7 +99,7 @@ const DeleteDriverModal = (props) => {
                   )}
                   {props.modelRequestData.Action == "PricingDriverDelete" && (
                     <>
-                      <div>{props.modelRequestData.message}</div>
+                      <div style={{ whiteSpace: "pre-line" }}>{props.modelRequestData.message}</div>
                       {props.modelRequestData.ServiceName.map((module) => (
                         <div key={module.moduleName}>
                           <div>
@@ -163,6 +163,13 @@ const DeleteDriverModal = (props) => {
 
                     </>
                   )}
+                  {props.modelRequestData.Action === "ServiceFeeInflation" && (
+                    <>
+                      <p className="text-muted mb-0">
+                        {props.modelRequestData.message}
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -171,7 +178,9 @@ const DeleteDriverModal = (props) => {
               style={{ background: "rgb(237 237 237)" }}
             >
               <div class="hstack gap-2 justify-content-end">
-                {(props.modelRequestData.Action == "PricingDriverDelete" || props.modelRequestData.Action === "ClientDelete") && (
+                {(props.modelRequestData.Action == "PricingDriverDelete" || 
+                  props.modelRequestData.Action === "ClientDelete" || 
+                  props.modelRequestData.Action === "ServiceFeeInflation") && (
                   <button
                     type="button"
                     onClick={props.handleClose}

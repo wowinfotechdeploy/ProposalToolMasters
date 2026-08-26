@@ -644,8 +644,8 @@ const User = () => {
         </div>
         </div>
         </div>
-        <Footer />
       </div>
+      <Footer />
 
       {/* start back-to-top */}
     </div>

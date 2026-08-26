@@ -90,7 +90,6 @@ h6 {
   margin-bottom: 70px !important;
 }
 
-
 .table > :not(caption) > * > * {
   padding: 0.5rem 0.5rem;
   border-bottom-width: var(--bs-border-width);
@@ -170,7 +169,6 @@ h6 {
 .margin-bottom {
   margin-bottom: 70px !important;
 }
-
 
 .table > :not(caption) > * > * {
   padding: 0.5rem 0.5rem;
@@ -451,7 +449,6 @@ tbody {
   line-height: 1.5;
   border-radius: 0.2rem;
 }
-
 
 .page-info-header {
   margin-bottom: 20px;
@@ -765,7 +762,6 @@ tbody {
   border-collapse: collapse;
 }
 
-
 /* Responsive Styles */
 @media (max-width: 767px) {
   /* Adjust column widths for small screens */
@@ -780,9 +776,74 @@ tbody {
   .tr-table-class.text-white {
     width: 100%;
   }
-
 }
 
 .service-table-td td {
   padding: 0px 0px 0px 12px !important;
+}
+
+.custom-auth-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.5;
+
+  padding: 10px 22px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+
+  background-color: #5a2eca;
+  color: #fff;
+
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+
+  user-select: none;
+}
+
+/* Hover */
+.custom-auth-btn:hover {
+  background-color: #4a25a8;
+  border-color: #4a25a8;
+  color: #fff;
+}
+
+/* Active (click effect) */
+.custom-auth-btn:active {
+  background-color: #3d1f91;
+  border-color: #3d1f91;
+  transform: scale(0.98);
+}
+
+/* Focus (like Bootstrap ring) */
+.custom-auth-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(90, 46, 202, 0.35);
+}
+
+/* Disabled */
+.custom-auth-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Spinner alignment fix */
+.custom-auth-btn .spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+/* Spinner animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

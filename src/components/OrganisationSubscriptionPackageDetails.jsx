@@ -42,6 +42,9 @@ function OrganisationSubscriptionPackageDetails(props) {
     signContract: true,
     eSignaturePerMonth: "",
     enablePdfToCsv: true,
+    enableXERO: false,
+    enableQBO: false,
+    enableAIAgent: false,
     pages: null,
     yearlyValuePlan: "",
     // discountPercentageYear: "",
@@ -123,7 +126,7 @@ function OrganisationSubscriptionPackageDetails(props) {
       // inPriceOfMonthYear: "",
       // inPriceOfMonthMonth: "",
       isMailBox: false,
-      apiIntegration: true
+      apiIntegration: true,
     });
     setErrorMessage("");
     setRequireErrorMessage(false);
@@ -295,10 +298,17 @@ function OrganisationSubscriptionPackageDetails(props) {
     } else {
       setRequireErrorMessage(""); // Clear the error message if there are no errors.
     }
-    // if (subscriptionPackageObj.sendContract === true) {
-    //   if (Number(subscriptionPackageObj.eSignaturePerMonth) < 1) {
-    //     scrollUpDownByElementID("ESignature");
-    //     setRequireErrorMessageForESignature(true);
+    if (props.subscriptionPackageObj.sendContract === true) {
+      if (Number(props.subscriptionPackageObj.eSignaturePerMonth) < 1) {
+        scrollUpDownByElementID("ESignature");
+        setRequireErrorMessageForESignature(true);
+        return false;
+      }
+    }
+    // if (subscriptionPackageObj.sendQuote === true) {
+    //   if (Number(subscriptionPackageObj.quotesPerMonth) < 1) {
+    //     scrollUpDownByElementID("QuotesPerMonth");
+    //     setRequireErrorMessageForQuotesPerMonth(true);
     //     return false;
     //   }
     // }
@@ -352,12 +362,15 @@ function OrganisationSubscriptionPackageDetails(props) {
       // packageName: props.subscriptionPackageObj.packageName,
       prepareQuote: props.subscriptionPackageObj.prepareQuote,
       sendQuote: props.subscriptionPackageObj.sendQuote,
-      quotesPerMonth: 
+      quotesPerMonth:
         props.subscriptionPackageObj.quotesPerMonth === ""
           ? null
           : props.subscriptionPackageObj.quotesPerMonth,
       prepareContract: props.subscriptionPackageObj.prepareContract,
       enablePdfToCsv: props.subscriptionPackageObj.enablePdfToCsv,
+      enableQBO: props.subscriptionPackageObj.enableQBO,
+      enableXERO: props.subscriptionPackageObj.enableXERO,
+      enableAIAgent: props.subscriptionPackageObj?.enableAIAgent,
       noOfPages: props.subscriptionPackageObj.noOfPages
         ? props.subscriptionPackageObj.noOfPages
         : 0,
@@ -371,7 +384,7 @@ function OrganisationSubscriptionPackageDetails(props) {
       yearlyValuePlan:
         props.subscriptionPackageObj.yearlyValuePlan === ""
           ? null
-          : Number(props.subscriptionPackageObj.yearlyValuePlan)
+          : Number(props.subscriptionPackageObj.yearlyValuePlan),
 
       // subscriptionOffers: subscriptionPackageObj.isFreePackage
       //   ? null
@@ -436,7 +449,7 @@ function OrganisationSubscriptionPackageDetails(props) {
     };
     AddUpdateSubscriptionPackageData(ApiRequest_ParamsObj);
     const modalEl = document.getElementById(
-    "OrganisationSubscriptionPackageDetails"
+      "OrganisationSubscriptionPackageDetails",
     );
     window.bootstrap.Modal.getInstance(modalEl)?.hide();
     // console.log("ApiRequest_ParamsObj", ApiRequest_ParamsObj);
@@ -446,10 +459,13 @@ function OrganisationSubscriptionPackageDetails(props) {
   const AddUpdateSubscriptionPackageData = async (ApiRequest_ParamsObj) => {
     setLoader(true);
     try {
-      const response = await UpdateOrganisationSubscriptionPackageFromSuperAdmin(ApiRequest_ParamsObj);
+      const response =
+        await UpdateOrganisationSubscriptionPackageFromSuperAdmin(
+          ApiRequest_ParamsObj,
+        );
       if (response) {
         if (response?.data?.statusCode === 200) {
-          $('#' + props.id).modal('hide')
+          $("#" + props.id).modal("hide");
           // uncomment upper code for hide
           setLoader(false);
         } else {
@@ -458,7 +474,7 @@ function OrganisationSubscriptionPackageDetails(props) {
         }
       }
     } catch (error) {
-      setLoader(false)
+      setLoader(false);
       console.log(error);
     }
   };
@@ -474,8 +490,12 @@ function OrganisationSubscriptionPackageDetails(props) {
     props.setSubscriptionPackageObj({
       ...props.subscriptionPackageObj,
       prepareQuote: prepareQuoteValue,
-      sendQuote: prepareQuoteValue ? props.subscriptionPackageObj.sendQuote : false,
-      quotesPerMonth: prepareQuoteValue ? props.subscriptionPackageObj?.quotesPerMonth : 0
+      sendQuote: prepareQuoteValue
+        ? props.subscriptionPackageObj.sendQuote
+        : false,
+      quotesPerMonth: prepareQuoteValue
+        ? props.subscriptionPackageObj?.quotesPerMonth
+        : 0,
     });
   };
   const handleApiIntegrationChange = (e) => {
@@ -513,6 +533,15 @@ function OrganisationSubscriptionPackageDetails(props) {
     props.setSubscriptionPackageObj((prev) => ({
       ...prev,
       enablePdfToCsv: EnablePDFToCSVValue,
+    }));
+  };
+
+  const handleAiAgentChange = (e) => {
+    const EnableAIAgent = !subscriptionPackageObj.enableAIAgent;
+
+    setSubscriptionPackageObj((prev) => ({
+      ...prev,
+      enableAIAgent: EnableAIAgent,
     }));
   };
 
@@ -644,7 +673,7 @@ function OrganisationSubscriptionPackageDetails(props) {
                   </div>
                 </div>
                 <div className="row p-2">
-                  <div className="fieldset-group ">
+                  <div className="fieldset-group " id="QuotesPerMonth">
                     <label className="fieldset-group-label required">
                       {proposalName}
                     </label>
@@ -704,59 +733,64 @@ function OrganisationSubscriptionPackageDetails(props) {
                         </FormGroup>
                       </div>
                       {subscriptionPackageObj.prepareQuote === true && (
-                        <div className=" col-6 p-2">
-                          <TextField
-                            InputLabelProps={{
-                              sx: {
-                                fontWeight: "bold",
-                              },
-                            }}
-                            label="Proposals per month"
-                            id="outlined-basic"
-                            variant="outlined"
-                            type="text"
-                            size="small"
-                            value={
-                              props.subscriptionPackageObj?.quotesPerMonth ===
-                                "" ||
-                              props.subscriptionPackageObj?.quotesPerMonth ===
-                                null
-                                ? ""
-                                : props.subscriptionPackageObj?.quotesPerMonth
-                                    ?.toString()
-                                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                            }
-                            onChange={(e) => {
-                              let inputValue = e.target.value;
-                              // Remove leading zeros
-                              inputValue = inputValue.replace(/^0+/, "");
-                              // Remove non-numeric characters except decimal point
-                              inputValue = inputValue.replace(/[^\d]/g, "");
-                              // Limit to 12 digits before the decimal point
-                              if (inputValue.includes(".")) {
-                                const [integerPart, decimalPart] =
-                                  inputValue.split(".");
-                                inputValue = `${integerPart.slice(
-                                  0,
-                                  7,
-                                )}.${decimalPart.slice(0, 2)}`;
-                              } else {
-                                inputValue = inputValue.slice(0, 7);
+                        <>
+                          <div className=" col-6 p-2">
+                            <TextField
+                              InputLabelProps={{
+                                sx: {
+                                  fontWeight: "bold",
+                                },
+                              }}
+                              label="Proposals per month"
+                              id="outlined-basic"
+                              variant="outlined"
+                              type="text"
+                              size="small"
+                              value={
+                                props.subscriptionPackageObj?.quotesPerMonth ===
+                                  "" ||
+                                props.subscriptionPackageObj?.quotesPerMonth ===
+                                  null
+                                  ? ""
+                                  : props.subscriptionPackageObj?.quotesPerMonth
+                                      ?.toString()
+                                      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                               }
+                              onChange={(e) => {
+                                let inputValue = e.target.value;
+                                // Remove leading zeros
+                                inputValue = inputValue.replace(
+                                  /^0+(?=\d)/,
+                                  "",
+                                );
+                                // Remove non-numeric characters except decimal point
+                                inputValue = inputValue.replace(/[^\d]/g, "");
+                                // Limit to 12 digits before the decimal point
+                                if (inputValue.includes(".")) {
+                                  const [integerPart, decimalPart] =
+                                    inputValue.split(".");
+                                  inputValue = `${integerPart.slice(
+                                    0,
+                                    7,
+                                  )}.${decimalPart.slice(0, 2)}`;
+                                } else {
+                                  inputValue = inputValue.slice(0, 7);
+                                }
 
-                              props.setSubscriptionPackageObj({
-                                ...props.subscriptionPackageObj,
-                                quotesPerMonth: inputValue,
-                              });
-                            }}
-                            disabled={
-                              !(
-                                props.subscriptionPackageObj.sendQuote &&
-                                props.subscriptionPackageObj.prepareQuote
-                              )
-                            }
-                          />
-                        </div>
+                                props.setSubscriptionPackageObj({
+                                  ...props.subscriptionPackageObj,
+                                  quotesPerMonth: inputValue,
+                                });
+                              }}
+                              disabled={
+                                !(
+                                  props.subscriptionPackageObj.sendQuote &&
+                                  props.subscriptionPackageObj.prepareQuote
+                                )
+                              }
+                            />
+                          </div>
+                        </>
                       )}
                     </div>
                   </div>
@@ -880,7 +914,8 @@ function OrganisationSubscriptionPackageDetails(props) {
                     </div>
                     {requireErrorMessageForESignature &&
                     props.subscriptionPackageObj.sendContract &&
-                    Number(subscriptionPackageObj.eSignaturePerMonth) < 1 ? (
+                    Number(props.subscriptionPackageObj.eSignaturePerMonth) <
+                      1 ? (
                       <label className="validation mb-1">
                         The E-Signature per month must be at least 1.
                       </label>
@@ -1027,6 +1062,113 @@ function OrganisationSubscriptionPackageDetails(props) {
                   </div>
                 </div>
                 {/* PDF TO CSV Ends */}
+
+                {/* Bookkeeping subscription start  */}
+
+                <div className="row p-2">
+                  <div className="fieldset-group ">
+                    <label className="fieldset-group-label required">
+                      Bookkeeping Subscriptions
+                    </label>
+                    <div class="row">
+                      <div class="col-lg-3 col-md-3 col-sm-6 text-start text-md-end mt-2">
+                        <label class="form-label">Xero</label>
+                      </div>
+                      <div
+                        class="col-lg-3 col-md-3 col-sm-6"
+                        style={{ display: "flex", alignItems: "center" }}
+                      >
+                        <div style={{ width: "40px", marginBottom: "5px" }}>
+                          {props.subscriptionPackageObj.enableXERO ? "Yes" : "No"}
+                        </div>
+                        <FormGroup>
+                          <FormControlLabel
+                            control={
+                              <Android12Switch
+                                checked={props.subscriptionPackageObj.enableXERO}
+                                onClick={(e) =>
+                                  props.setSubscriptionPackageObj({
+                                    ...props.subscriptionPackageObj,
+                                    enableXERO:
+                                      !props.subscriptionPackageObj.enableXERO,
+                                  })
+                                }
+                              />
+                            }
+                          />
+                        </FormGroup>
+                      </div>
+                      {/* </div>
+                
+                                      <div class="row"> */}
+                      <div class="col-lg-3 col-md-3 col-sm-6 text-start text-md-end mt-2">
+                        <label class="form-label">Quickbooks</label>
+                      </div>
+                      <div
+                        class="col-lg-3 col-md-3 col-sm-6"
+                        style={{ display: "flex", alignItems: "center" }}
+                      >
+                        <div style={{ width: "40px", marginBottom: "5px" }}>
+                          {props.subscriptionPackageObj.enableQBO ? "Yes" : "No"}
+                        </div>
+                        <FormGroup>
+                          <FormControlLabel
+                            control={
+                              <Android12Switch
+                                checked={props.subscriptionPackageObj.enableQBO}
+                                onClick={(e) => {
+                                  props.setSubscriptionPackageObj({
+                                    ...props.subscriptionPackageObj,
+                                    enableQBO:
+                                      !props.subscriptionPackageObj.enableQBO,
+                                  });
+                                }}
+                              />
+                            }
+                          />
+                        </FormGroup>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Bookkeeping subscription end  */}
+
+                {/* ai agent subscription start  */}
+
+                <div className="row p-2">
+                  <div className="fieldset-group ">
+                    <label className="fieldset-group-label required">
+                      Ai Agent Subscription
+                    </label>
+                    <div class="row">
+                      <div class="col-lg-3 col-md-3 col-sm-6 text-start text-md-end mt-2">
+                        <label class="form-label">Enable Ai Agent</label>
+                      </div>
+                      <div
+                        class="col-lg-3 col-md-3 col-sm-6"
+                        style={{ display: "flex", alignItems: "center" }}
+                      >
+                        <div style={{ width: "40px", marginBottom: "5px" }}>
+                          {props.subscriptionPackageObj.enableAIAgent
+                            ? "Yes"
+                            : "No"}
+                        </div>
+                        <FormGroup>
+                          <FormControlLabel
+                            control={
+                              <Android12Switch
+                                checked={props.subscriptionPackageObj.enableAIAgent}
+                                onClick={handleAiAgentChange}
+                              />
+                            }
+                          />
+                        </FormGroup>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ai agent subscription end  */}
                 <div className="fieldset-group">
                   <label htmlFor="" className="fieldset-group-label required">
                     Other

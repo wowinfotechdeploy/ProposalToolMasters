@@ -12,7 +12,8 @@ import { parse, isValid, format, isAfter, isBefore, isEqual } from "date-fns";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-calendar/dist/Calendar.css";
 import dayjs from "dayjs";
-export const AdditionalInformation = (props) => {
+
+const AdditionalInformation = (props) => {
   useEffect(() => {
     if (
       !props.additionalInformationList ||
@@ -40,7 +41,8 @@ export const AdditionalInformation = (props) => {
   }, []);
 
   const moduleNameForSaveAsDraft = "AdditionalInformation";
-  const { isValidEmail, isMobile } = useContext(AuthContextProvider);
+  const { isValidEmail, isMobile, formatName } =
+    useContext(AuthContextProvider);
   const [SignaturePositionValue, setSignaturePositionValue] = useState(
     (props.moduleName == "Contract" &&
       props?.contractSignatoriesList[0]?.signaturePositionID) ||
@@ -147,19 +149,6 @@ export const AdditionalInformation = (props) => {
       },
     );
     props.setAdditionalInformationList(updateAdditionalInformationList);
-  };
-
-  const formatNumber = (num, decimalPlaces) => {
-    if (num == null || num === "") return ""; // empty safety
-    const n = parseFloat(num); // ensure it's a number
-    if (isNaN(n)) return "";
-    const str = n.toFixed(decimalPlaces); // fix decimals
-    const [intPart, fracPart] = str.split(".");
-    // add commas only to integer part
-    return (
-      intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
-      (decimalPlaces > 0 ? "." + fracPart : "")
-    );
   };
 
   const OnIncrementalValueChange = (slabObject, slabValue) => {
@@ -312,7 +301,7 @@ export const AdditionalInformation = (props) => {
         enteredDate:
           block.dateID === matchedBlock.dateID ? formattedDate : null,
       }));
-      // console.log(matchedBlock);
+      console.log(matchedBlock);
       const info1 = {
         ...info,
         date: updatedDateBlocks,
@@ -322,7 +311,7 @@ export const AdditionalInformation = (props) => {
         enteredDate: formattedDate,
         enteredDateFormat: matchedBlock.dateFormat || dateFormat,
       };
-      // console.log(info1);
+      console.log(info1);
       return {
         ...info,
         date: updatedDateBlocks,
@@ -864,17 +853,37 @@ export const AdditionalInformation = (props) => {
                                   label:
                                     item.slabTypeID === 2
                                       ? "Other"
-                                      : `${formatNumber(item.slabFrom, item.decimalPlaces ?? 2)} - ${formatNumber(item.slabTo, item.decimalPlaces ?? 2)}`,
+                                      : `${item.slabFrom
+                                          .toString()
+                                          .replace(
+                                            /\B(?=(\d{3})+(?!\d))/g,
+                                            ",",
+                                          )} - ${item.slabTo
+                                          .toString()
+                                          .replace(
+                                            /\B(?=(\d{3})+(?!\d))/g,
+                                            ",",
+                                          )}`,
                                   variationValue: item.slabValue,
                                 }))}
                                 value={i?.slab
-                                  ?.filter((slab) => slab.isDefault)
-                                  ?.map((item) => ({
-                                    value: item.slabID,
+                                  ?.filter((slab) => slab.isDefault === true)
+                                  .map((i) => ({
+                                    value: i.slabID,
                                     label:
-                                      item.slabTypeID === 2
+                                      i.slabTypeID === 2
                                         ? "Other"
-                                        : `${formatNumber(item.slabFrom, item.decimalPlaces ?? 2)} - ${formatNumber(item.slabTo, item.decimalPlaces ?? 2)}`,
+                                        : `${i.slabFrom
+                                            .toString()
+                                            .replace(
+                                              /\B(?=(\d{3})+(?!\d))/g,
+                                              ",",
+                                            )} - ${i.slabTo
+                                            .toString()
+                                            .replace(
+                                              /\B(?=(\d{3})+(?!\d))/g,
+                                              ",",
+                                            )}`,
                                   }))}
                                 onChange={(value) =>
                                   HandleAdditionalInformation(
@@ -1096,7 +1105,7 @@ export const AdditionalInformation = (props) => {
                               type="text"
                               className="input-text"
                               placeholder="Last Name"
-                              value={signatory?.lastName}
+                              value={formatName(signatory?.lastName)}
                               onChange={(e) => {
                                 const inputValue = e.target.value.trim();
                                 const cleanedValue = inputValue.replace(
@@ -1106,7 +1115,7 @@ export const AdditionalInformation = (props) => {
                                 if (/\d/.test(cleanedValue)) return;
                                 const capitalizedValue =
                                   cleanedValue.charAt(0).toUpperCase() +
-                                  cleanedValue.slice(1);
+                                  cleanedValue.slice(1).toLowerCase();
                                 handleSignatoryBlock(
                                   index,
                                   "lastName",
@@ -1213,7 +1222,6 @@ export const AdditionalInformation = (props) => {
                       src={props?.engagementObj?.pdf}
                       width="100%"
                       height="600px"
-                      loading="lazy"
                     ></iframe>
                   </div>
                 ) : props?.engagementObj?.tnCTemplateContent !== null ? (
@@ -1350,3 +1358,5 @@ export const AdditionalInformation = (props) => {
     </div>
   );
 };
+
+export default AdditionalInformation;

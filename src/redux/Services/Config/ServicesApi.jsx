@@ -34,6 +34,65 @@ export const GetServiceDependencyList = async (params) => {
     );
     return res;
 }
+export const GetServiceFeeInflationList = async (params) => {
+    const res = await postApiWithAuthenticated(
+        `${services}/GetServiceFeeInflationList`,
+        params
+    );
+    return res;
+}
+
+// Add or update service fee inflation rules
+export const AddUpdateServiceFeeInflation = async (params) => {
+    const res = await postApiWithAuthenticated(`${services}/AddUpdateServiceFeeInflation`, params);
+    return res;
+}
+export const GetDraftsAffectedByFeeInflationBatch = async (params) => {
+    const query = new URLSearchParams({
+        userKeyID: params.userKeyID ?? "",
+        batchID: params.batchID,
+        ...(params.organisationKeyID ? { organisationKeyID: params.organisationKeyID } : {}),
+    }).toString();
+    const res = await getListWithAuthenticated(`${services}/GetDraftsAffectedByFeeInflationBatch?${query}`);
+    return res;
+}
+export const DeleteServiceFeeInflation = async (ServiceID, InflationIndex) => {
+    const res = await postApiWithAuthenticated(
+        `${services}/DeleteServiceFeeInflation?ServiceID=${ServiceID}&InflationIndex=${InflationIndex}`
+    );
+    return res;
+}
+
+export const DeleteAllServiceFeeInflationConfiguration = async (OrganisationKeyID, UserKeyID, BatchID) => {
+    const res = await postApiWithAuthenticated(
+        `${services}/DeleteAllServiceFeeInflationConfiguration?OrganisationKeyID=${OrganisationKeyID}&UserKeyID=${UserKeyID}&BatchID=${BatchID}`
+    );
+    return res;
+}
+export const AcceptServiceFeeInflationSAChanges = async (params) => {
+  // params: { organisationKeyID, userKeyID, batchID }
+  const res = await postApiWithAuthenticated(
+    `${services}/AcceptServiceFeeInflationSAChanges`,
+    params
+  );
+  return res;
+};
+
+export const DeclineServiceFeeInflation = async (params) => {
+  // params: { organisationKeyID, userKeyID, batchID }
+  const res = await postApiWithAuthenticated(
+    `${services}/DeclineServiceFeeInflation`,
+    params
+  );
+  return res;
+};
+
+export const GetServiceFeeInflationActiveForService = async (serviceKeyID) => {
+  const res = await getListWithAuthenticated(
+    `${services}/GetServiceFeeInflationActiveForService?ServiceKeyID=${encodeURIComponent(serviceKeyID)}`
+  );
+  return res;
+};
 
 export const GetServicesList = async (params) => {
     const res = await postApiWithAuthenticated(

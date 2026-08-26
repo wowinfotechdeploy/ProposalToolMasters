@@ -1,6 +1,8 @@
 /* global $ */
 import React from "react";
+import { useContext } from "react";
 import editGif from "../assets/images/gif/edit.gif";
+import { AuthContextProvider } from "../AuthContext/AuthContext";
 
 function ConfirmModel({
   UpdatedStatus,
@@ -10,10 +12,11 @@ function ConfirmModel({
   openSuccessModal,
   modelAction,
 }) {
+  const { EngagementName } = useContext(AuthContextProvider);
   return (
     <div
-      style={{ display: (openSuccessModal || openErrorModal) && "none" }}
-      class="modal fade zoomIn designed-popup"
+      style={{ display: openSuccessModal || openErrorModal ? "block" : "none" }}
+      className="modal fade zoomIn designed-popup"
       id="ConfirmModel"
       tabIndex="-1"
       aria-hidden="true"
@@ -67,12 +70,72 @@ function ConfirmModel({
                   style={{ width: "75px", height: "60px" }}
                 ></lord-icon>
               )}
+              {modelRequestData.Action === "Redirect" && (
+                <lord-icon
+                  src="https://cdn.lordicon.com/uecgmesg.json"
+                  trigger="loop"
+                  colors="primary:#f7b84b,secondary:#f06548"
+                  style={{ width: "75px", height: "60px" }}
+                ></lord-icon>
+              )}
+
+              {modelRequestData.Action === "Disconnected" && (
+                <lord-icon
+                  src="https://cdn.lordicon.com/gsqxdxog.json"
+                  trigger="loop"
+                  colors="primary:#f7b84b,secondary:#f06548"
+                  style={{ width: "75px", height: "60px" }}
+                ></lord-icon>
+              )}
+
+              {modelRequestData.Action === "Add Contact" && (
+                <lord-icon
+                  src="https://cdn.lordicon.com/mecwbjnp.json"
+                  trigger="loop"
+                  colors="primary:#22c55e,secondary:#16a34a"
+                  style={{ width: "75px", height: "60px" }}
+                ></lord-icon>
+              )}
+              {modelRequestData.Action === "Add Contact Mapping" && (
+                <lord-icon
+                  src="https://cdn.lordicon.com/mecwbjnp.json"
+                  trigger="loop"
+                  colors="primary:#22c55e,secondary:#16a34a"
+                  style={{ width: "75px", height: "60px" }}
+                ></lord-icon>
+              )}
+              {(modelRequestData.Action === "Archive" ||
+                modelRequestData.Action === "Unarchive" ||
+                modelRequestData.Action === "ArchiveLinkedELs") && (
+                <lord-icon
+                  src="https://cdn.lordicon.com/xhdhjyqy.json"
+                  trigger="loop"
+                  colors="primary:#6c757d"
+                  style={{ width: "60px", height: "60px" }}
+                ></lord-icon>
+              )}
               {modelRequestData.Action === "DeleteContract" && (
                 <lord-icon
                   src="https://cdn.lordicon.com/gsqxdxog.json"
                   trigger="loop"
                   colors="primary:#f7b84b,secondary:#f06548"
                   style={{ width: "75px", height: "60px" }}
+                ></lord-icon>
+              )}
+              {modelRequestData.Action === "ArchiveContract" && (
+                <lord-icon
+                  src="https://cdn.lordicon.com/xhdhjyqy.json"
+                  trigger="loop"
+                  colors="primary:#6c757d"
+                  style={{ width: "60px", height: "60px" }}
+                ></lord-icon>
+              )}
+              {modelRequestData.Action === "UnarchiveContract" && (
+                <lord-icon
+                  src="https://cdn.lordicon.com/xhdhjyqy.json"
+                  trigger="loop"
+                  colors="primary:#6c757d"
+                  style={{ width: "60px", height: "60px" }}
                 ></lord-icon>
               )}
               {modelRequestData.Action === "ResetEmailConfigurationChange" && (
@@ -160,9 +223,64 @@ function ConfirmModel({
                     Are you sure you want to delete this record?
                   </span>
                 )}
+
+                {modelRequestData.Action === "Redirect" && (
+                  <span class="text-muted mb-0">
+                    You are about to connect your account securely.
+                  </span>
+                )}
+                {modelRequestData.Action === "Disconnect" && (
+                  <span class="text-muted mb-0">
+                    Are you sure want to unauthorised organisation.
+                  </span>
+                )}
+                {modelRequestData.Action === "Add Contact" && (
+                  <span class="text-muted mb-0">
+                    Are you sure you want to add this record into Xero?
+                  </span>
+                )}
+                {modelRequestData.Action === "Add Contact Mapping" && (
+                  <span class="text-muted mb-0">
+                    Are you sure you want to add this record into Xero?
+                  </span>
+                )}
+                {modelRequestData.Action === "Archive" && (
+                  <span class="text-muted mb-0">
+                    Are you sure you want to Archive this record?
+                  </span>
+                )}
+                {modelRequestData.Action === "ArchiveLinkedELs" &&
+                  modelRequestData.contracts?.length > 0 && (
+                    <>
+                      <p className="text-muted mb-1">
+                        Archiving this record would also Archive all linked{" "}
+                        {EngagementName}:
+                      </p>
+                      <ul>
+                        {modelRequestData.contracts.map((contract) => (
+                          <li key={contract.RefID}>{contract.RefID}</li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                {modelRequestData.Action === "Unarchive" && (
+                  <span class="text-muted mb-0">
+                    Are you sure you want to Unarchive this record?
+                  </span>
+                )}
                 {modelRequestData.Action === "DeleteContract" && (
                   <span class="text-muted mb-0">
                     Are you sure you want to delete this record?
+                  </span>
+                )}
+                {modelRequestData.Action === "ArchiveContract" && (
+                  <span class="text-muted mb-0">
+                    Are you sure you want to Archive this record?
+                  </span>
+                )}
+                {modelRequestData.Action === "UnarchiveContract" && (
+                  <span class="text-muted mb-0">
+                    Are you sure you want to Unarchive this record?
                   </span>
                 )}
                 {modelRequestData.Action === "Void" && (
@@ -190,6 +308,39 @@ function ConfirmModel({
                   <span class="text-muted mb-0">
                     Are you sure you want to copy this record?
                   </span>
+                )}
+                {modelRequestData.Action === "FeeInflationWarning" && (
+                  <span class="text-muted mb-0">
+                    {modelRequestData.message}
+                  </span>
+                )}
+                {modelRequestData.Action ===
+                  "DeleteServiceFeeInflationConfig" && (
+                  <span class="text-muted mb-0">
+                    {modelRequestData.message}
+                  </span>
+                )}
+                {modelRequestData.Action ===
+                  "DeleteServiceFeeInflationRule" && (
+                  <>
+                    <span class="text-muted mb-0">
+                      {modelRequestData.message}
+                    </span>
+                    {modelRequestData.ServiceName?.length > 0 && (
+                      <ul
+                        className="designed-list"
+                        style={{
+                          textAlign: "left",
+                          maxHeight: "180px",
+                          overflowY: "auto",
+                        }}
+                      >
+                        {modelRequestData.ServiceName.map((item, idx) => (
+                          <li key={`draft-${idx}`}>{item}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </>
                 )}
                 {modelRequestData.Action === "ServiceWarning" && (
                   <div
@@ -330,7 +481,7 @@ function ConfirmModel({
                             {modelRequestData.dependingList?.map(
                               (item, idx) => (
                                 <li key={`dep-${idx}`}>{item}</li>
-                              )
+                              ),
                             )}
                           </ul>
                         </div>
@@ -350,7 +501,7 @@ function ConfirmModel({
                             {modelRequestData.prerequisiteList?.map(
                               (item, idx) => (
                                 <li key={`pre-${idx}`}>{item}</li>
-                              )
+                              ),
                             )}
                           </ul>
                         </div>
@@ -414,6 +565,9 @@ function ConfirmModel({
                 // onClick={() => modelRequestData.Action === "PaymentStatus" ? handleClose() : null}
               >
                 {modelRequestData.Action === "Warning" ||
+                modelRequestData.Action === "FeeInflationWarning" ||
+                modelRequestData.Action === "DeleteServiceFeeInflationConfig" ||
+                modelRequestData.Action === "DeleteServiceFeeInflationRule" ||
                 modelRequestData.Action === "PracticeWarning" ||
                 modelRequestData.Action === "Upload" ||
                 modelRequestData.Action === "PaymentStatus" ? (
@@ -425,6 +579,9 @@ function ConfirmModel({
               {(modelRequestData.Action === "UnpaidUser" ||
                 modelRequestData.Action === "ServiceWarning" ||
                 modelRequestData.Action === "ServiceWarningEL" ||
+                modelRequestData.Action === "FeeInflationWarning" ||
+                modelRequestData.Action === "DeleteServiceFeeInflationConfig" ||
+                modelRequestData.Action === "DeleteServiceFeeInflationRule" ||
                 modelRequestData.Action === "Resend" ||
                 modelRequestData.Action === "PaidUser" ||
                 modelRequestData.Action === "Warning" ||
@@ -435,6 +592,11 @@ function ConfirmModel({
                 modelRequestData.Action === "PaymentStatus" ||
                 modelRequestData.Action === "Delete" ||
                 modelRequestData.Action === "DeleteContract" ||
+                modelRequestData.Action === "Archive" ||
+                modelRequestData.Action === "ArchiveLinkedELs" ||
+                modelRequestData.Action === "Unarchive" ||
+                modelRequestData.Action === "ArchiveContract" ||
+                modelRequestData.Action === "UnarchiveContract" ||
                 modelRequestData.Action === "Void" ||
                 modelRequestData.Action == "PracticeWarning" ||
                 modelRequestData.Action === "2FaStatusChange" ||
@@ -444,6 +606,10 @@ function ConfirmModel({
                 modelRequestData.Action === "ClearCcBcc" ||
                 modelRequestData.Action === "Copy" ||
                 modelRequestData.Action === "emailStatusChange" ||
+                modelRequestData.Action === "Redirect" ||
+                modelRequestData.Action === "Disconnect" ||
+                modelRequestData.Action === "Add Contact" ||
+                modelRequestData.Action === "Add Contact Mapping" ||
                 modelRequestData.Action === "ResetPaymentGatewayChange") && (
                 <button
                   onClick={() => {
@@ -460,6 +626,9 @@ function ConfirmModel({
                     modelRequestData.Action === "PaidUser" ||
                     modelRequestData.Action === "2FaStatusChange" ||
                     modelRequestData.Action === "ELStatusChange" ||
+                    modelRequestData.Action === "Redirect" ||
+                    modelRequestData.Action === "Add Contact" ||
+                    modelRequestData.Action === "Add Contact Mapping" ||
                     modelRequestData.Action === "emailStatusChange") && (
                     <span>Yes, Change It!</span>
                   )}
@@ -469,6 +638,21 @@ function ConfirmModel({
                   )}
                   {modelRequestData.Action === "DeleteContract" && (
                     <span>Yes, Delete It!</span>
+                  )}
+                  {modelRequestData.Action === "ArchiveContract" && (
+                    <span>Yes, Archive It!</span>
+                  )}
+                  {modelRequestData.Action === "Archive" && (
+                    <span>Yes, Archive It!</span>
+                  )}
+                  {modelRequestData.Action === "Unarchive" && (
+                    <span>Yes, Unarchive It!</span>
+                  )}
+                  {modelRequestData.Action === "ArchiveLinkedELs" && (
+                    <span>Yes, Archive It!</span>
+                  )}
+                  {modelRequestData.Action === "UnarchiveContract" && (
+                    <span>Yes, Unarchive It!</span>
                   )}
                   {modelRequestData.Action === "Void" && (
                     <span>Yes, Void It!</span>
@@ -492,7 +676,17 @@ function ConfirmModel({
                   {modelRequestData.Action === "ServiceWarningEL" && (
                     <span>Yes</span>
                   )}
+                  {modelRequestData.Action === "FeeInflationWarning" && (
+                    <span>Yes</span>
+                  )}
+                  {modelRequestData.Action ===
+                    "DeleteServiceFeeInflationConfig" && <span>Yes</span>}
+                  {modelRequestData.Action ===
+                    "DeleteServiceFeeInflationRule" && <span>Yes</span>}
                   {modelRequestData.Action === "Copy" && <span>Yes! Copy</span>}
+                  {modelRequestData.Action === "Disconnect" && (
+                    <span>Yes, Disconnect It!</span>
+                  )}
                   {(modelRequestData.Action == "PracticeWarning" ||
                     modelRequestData.Action === "Upload" ||
                     modelRequestData.Action === "PaymentStatus") && (

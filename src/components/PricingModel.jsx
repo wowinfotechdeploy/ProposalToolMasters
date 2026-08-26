@@ -19,6 +19,9 @@ function PricingModel(props) {
     userKeyID: null,
     minOneOffPriceForQC: "",
     minMonthlyPriceForQC: "",
+    minQuarterlyPriceForQC: "",
+    minHalfYearlyPriceForQC: "",
+    minYearlyPriceForQC: "",
     maxDiscountForQC: null,
   });
 
@@ -62,6 +65,9 @@ function PricingModel(props) {
             userKeyID: common.userKeyID,
             minOneOffPriceForQC: ModelData.minOneOffPriceForQC,
             minMonthlyPriceForQC: ModelData.minMonthlyPriceForQC,
+            minQuarterlyPriceForQC: ModelData.minQuarterlyPriceForQC,
+            minHalfYearlyPriceForQC: ModelData.minHalfYearlyPriceForQC,
+            minYearlyPriceForQC: ModelData.minYearlyPriceForQC,
             maxDiscountForQC: ModelData.maxDiscountForQC,
             organisationKeyID: ModelData.organisationKeyID,
           });
@@ -70,6 +76,9 @@ function PricingModel(props) {
             userKeyID: common.userKeyID,
             minOneOffPriceForQC: ModelData.minOneOffPriceForQC,
             minMonthlyPriceForQC: ModelData.minMonthlyPriceForQC,
+            minQuarterlyPriceForQC: ModelData.minQuarterlyPriceForQC,
+            minHalfYearlyPriceForQC: ModelData.minHalfYearlyPriceForQC,
+            minYearlyPriceForQC: ModelData.minYearlyPriceForQC,
             maxDiscountForQC: ModelData.maxDiscountForQC,
             organisationKeyID: ModelData.organisationKeyID,
           });
@@ -89,6 +98,12 @@ function PricingModel(props) {
       PrevPricingSettingObj.maxDiscountForQC &&
       pricingSettingObj.minMonthlyPriceForQC ==
       PrevPricingSettingObj.minMonthlyPriceForQC &&
+      pricingSettingObj.minQuarterlyPriceForQC ==
+      PrevPricingSettingObj.minQuarterlyPriceForQC &&
+      pricingSettingObj.minHalfYearlyPriceForQC ==
+      PrevPricingSettingObj.minHalfYearlyPriceForQC &&
+      pricingSettingObj.minYearlyPriceForQC ==
+      PrevPricingSettingObj.minYearlyPriceForQC &&
       pricingSettingObj.minOneOffPriceForQC ==
       PrevPricingSettingObj.minOneOffPriceForQC
       // !pricingSettingObj.maxDiscountForQC &&
@@ -98,6 +113,30 @@ function PricingModel(props) {
       SetPrevError(true);
       return false;
     }
+    
+    // Validation checks For Min. Recurring Prices
+    const priceLadder = [
+      { label: "Monthly", value: pricingSettingObj.minMonthlyPriceForQC },
+      { label: "Quarterly", value: pricingSettingObj.minQuarterlyPriceForQC },
+      { label: "Half-Yearly", value: pricingSettingObj.minHalfYearlyPriceForQC },
+      { label: "Yearly", value: pricingSettingObj.minYearlyPriceForQC },
+    ].filter(
+      (x) =>
+        x.value !== "" &&
+        x.value !== null &&
+        x.value !== undefined &&
+        !isNaN(Number(x.value))
+    );
+
+    for (let i = 1; i < priceLadder.length; i++) {
+      if (Number(priceLadder[i].value) <= Number(priceLadder[i - 1].value)) {
+        SetPrevError(false);
+        setErrorMessage(
+          `Min. ${priceLadder[i].label} price must be higher than Min. ${priceLadder[i - 1].label} price.`
+        );
+        return false;
+      }
+    }
     const ApiRequest_ParamsObj = {
       // global level params: fixed
       organisationKeyID: common.organisationKeyID,
@@ -106,6 +145,9 @@ function PricingModel(props) {
       paymentFrequencyID: props.paymentFrequencyID,
       minOneOffPriceForQC: pricingSettingObj.minOneOffPriceForQC || null,
       minMonthlyPriceForQC: pricingSettingObj.minMonthlyPriceForQC || null,
+      minQuarterlyPriceForQC: pricingSettingObj.minQuarterlyPriceForQC || null,
+      minHalfYearlyPriceForQC: pricingSettingObj.minHalfYearlyPriceForQC || null,
+      minYearlyPriceForQC: pricingSettingObj.minYearlyPriceForQC || null,
       maxDiscountForQC: pricingSettingObj.maxDiscountForQC || null,
     };
 
@@ -278,6 +320,136 @@ function PricingModel(props) {
                       }}
                     />
                   </div>
+                  
+                  <div class="fieldset col-12 col-md-12 col-sm-12">
+                    <label class="fieldset-label table-content-font PricingSetting-Proposal">
+                      Min. Quarterly Price for {proposalName}/{EngagementName} (£)
+                    </label>
+                  </div>
+
+                  <div class="col-lg-12 col-md-12 col-sm-12 fieldset">
+                    <input
+                      class="input-text table-content-font"
+                      type="text"
+                      placeholder="Enter Min. Quarterly Price"
+                      value={pricingSettingObj.minQuarterlyPriceForQC
+                        ?.toString()
+                        ?.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                      onChange={(e) => {
+                        SetPrevError(false);
+                        // Ensure that the input only contains numeric and dot characters
+                        const sanitizedInput = e.target.value
+                          .replace(/[^0-9.]/g, "") // Allow only numeric and dot characters
+                          .slice(0, 16); // Limit to 7 characters (5 digits + 1 dot + 1 decimal)
+
+                        // Split the input into integer and decimal parts
+                        const [integerPart, decimalPart] =
+                          sanitizedInput.split(".");
+
+                        // Combine integer and decimal parts with appropriate precision
+                        const formattedInput =
+                          decimalPart !== undefined
+                            ? `${integerPart.slice(0, 12)}.${decimalPart.slice(
+                              0,
+                              2
+                            )}`
+                            : integerPart.slice(0, 12);
+
+                        setRequireErrorMessage(false);
+                        setPricingSettingObj({
+                          ...pricingSettingObj,
+                          minQuarterlyPriceForQC: formattedInput,
+                        });
+                      }}
+                    />
+                  </div>
+
+                  <div class="fieldset col-12 col-md-12 col-sm-12">
+                    <label class="fieldset-label table-content-font PricingSetting-Proposal">
+                      Min. Half-Yearly Price for {proposalName}/{EngagementName} (£)
+                    </label>
+                  </div>
+
+                  <div class="col-lg-12 col-md-12 col-sm-12 fieldset">
+                    <input
+                      class="input-text table-content-font"
+                      type="text"
+                      placeholder="Enter Min. Half-Yearly Price"
+                      value={pricingSettingObj.minHalfYearlyPriceForQC
+                        ?.toString()
+                        ?.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                      onChange={(e) => {
+                        SetPrevError(false);
+                        // Ensure that the input only contains numeric and dot characters
+                        const sanitizedInput = e.target.value
+                          .replace(/[^0-9.]/g, "") // Allow only numeric and dot characters
+                          .slice(0, 16); // Limit to 7 characters (5 digits + 1 dot + 1 decimal)
+
+                        // Split the input into integer and decimal parts
+                        const [integerPart, decimalPart] =
+                          sanitizedInput.split(".");
+
+                        // Combine integer and decimal parts with appropriate precision
+                        const formattedInput =
+                          decimalPart !== undefined
+                            ? `${integerPart.slice(0, 12)}.${decimalPart.slice(
+                              0,
+                              2
+                            )}`
+                            : integerPart.slice(0, 12);
+
+                        setRequireErrorMessage(false);
+                        setPricingSettingObj({
+                          ...pricingSettingObj,
+                          minHalfYearlyPriceForQC: formattedInput,
+                        });
+                      }}
+                    />
+                  </div>
+
+                  <div class="fieldset col-12 col-md-12 col-sm-12">
+                    <label class="fieldset-label table-content-font PricingSetting-Proposal">
+                      Min. Yearly Price for {proposalName}/{EngagementName} (£)
+                    </label>
+                  </div>
+
+                  <div class="col-lg-12 col-md-12 col-sm-12 fieldset">
+                    <input
+                      class="input-text table-content-font"
+                      type="text"
+                      placeholder="Enter Min. Yearly Price"
+                      value={pricingSettingObj.minYearlyPriceForQC
+                        ?.toString()
+                        ?.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                      onChange={(e) => {
+                        SetPrevError(false);
+                        // Ensure that the input only contains numeric and dot characters
+                        const sanitizedInput = e.target.value
+                          .replace(/[^0-9.]/g, "") // Allow only numeric and dot characters
+                          .slice(0, 16); // Limit to 7 characters (5 digits + 1 dot + 1 decimal)
+
+                        // Split the input into integer and decimal parts
+                        const [integerPart, decimalPart] =
+                          sanitizedInput.split(".");
+
+                        // Combine integer and decimal parts with appropriate precision
+                        const formattedInput =
+                          decimalPart !== undefined
+                            ? `${integerPart.slice(0, 12)}.${decimalPart.slice(
+                              0,
+                              2
+                            )}`
+                            : integerPart.slice(0, 12);
+
+                        setRequireErrorMessage(false);
+                        setPricingSettingObj({
+                          ...pricingSettingObj,
+                          minYearlyPriceForQC: formattedInput,
+                        });
+                      }}
+                    />
+                  </div>
+
 
                   {/* Right side */}
                   <div class="fieldset col-12 col-md-12 col-sm-12">

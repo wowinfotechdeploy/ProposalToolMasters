@@ -873,11 +873,11 @@ function Global_Constants() {
           {/* container-fluid  */}
         </div>
         {/* End Page-content */}
-        <Footer />
         </div>
       </div>
       </div>
       </div>
+      <Footer />
     </div>
   );
 }

@@ -87,6 +87,7 @@ const NewDashboard = () => {
     setDashboardCountListLoader,
     setDashboardActivityLogLoader,
     loader,
+    GetOnlyDate
   } = useContext(AuthContextProvider);
   let getActivityLogListApiCallCount = 0;
   let getOrganisationLookupListApiCallCount = 0;
@@ -363,7 +364,8 @@ const NewDashboard = () => {
           const defaultColumns = {
             quotationDraft: `${proposalName} Draft`,
             quotationSent: `${proposalName} Sent`,
-            quotationAwaitingSignature: `${proposalName} Awaiting Response`,
+            // quotationSkipped: `${proposalName} Skipped`,
+            // quotationAwaitingSignature: `${proposalName} Awaiting Response`,
             quotationAccepted: `${proposalName} Accepted`,
             quotationDeclined: `${proposalName} Declined`,
           };
@@ -386,7 +388,7 @@ const NewDashboard = () => {
           const baseRows = [];
           for (const [key, value] of Object.entries(DashboardCountsListData)) {
             for (const [subKey, val] of Object.entries(value)) {
-              if (subKey in columnsToShow) {
+              if (subKey in columnsToShow && val > 0) {
                 baseRows.push([columnsToShow[subKey], val]);
               }
             }
@@ -406,7 +408,10 @@ const NewDashboard = () => {
             "One Off Price",
             "Status",
             "Last Updated On",
+            "Drafted On Date",
             "Sent On Date",
+            "Accepted On Date",
+            "Declined On Date"
           ];
           baseRowsProposal.push(proposalHeader);
           baseRowsProposal.push([]);
@@ -428,6 +433,8 @@ const NewDashboard = () => {
             const statusMappings = [
               { id: 1, label: "Draft" },
               { id: 2, label: "Sent" },
+              { id: 6, label: "Accepted" },
+              { id: 7, label: "Declined" },
             ];
 
             // Filter and process data for each status
@@ -445,8 +452,11 @@ const NewDashboard = () => {
                 // new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(item.oneOffPrice || 0),
                 formatValue(item.oneOffPrice, 1),
                 label,
-                item.lastUpdatedOn || "-",
-                item.sentOn || "-",
+                item.lastUpdatedOn || item.acceptDeclineDate || item.sentOn || item.createdOn || "-",
+                item.createdOn || "-",
+                item.statusID !== 1 && item.statusID !== 3 ? item.sentOn : "-",
+                item.statusID === 6 ? item.acceptDeclineDate : "-",
+                item.statusID === 7 ? item.acceptDeclineDate : "-",
               ]);
               baseRowsProposal.push(...dataRows);
             });
@@ -465,10 +475,12 @@ const NewDashboard = () => {
               "One Off Price",
               "Status",
               "Last Updated On",
+              "Drafted On Date",
               "Sent On Date",
               "Viewed On Date",
               "Signed On Date",
               "Declined On Date",
+              "Void On Date"
             ];
             baseRowsContract.push(contractHeader);
             baseRowsContract.push([]);
@@ -488,7 +500,7 @@ const NewDashboard = () => {
               const statusMappings = [
                 { id: 1, label: "Draft" },
                 { id: 2, label: "Sent" },
-                { id: 4, label: "Awaiting Response" },
+                { id: 4, label: "Viewed" },
                 { id: 5, label: "Signed" },
                 { id: 7, label: "Declined" },
                 { id: 8, label: "Void" },
@@ -505,11 +517,16 @@ const NewDashboard = () => {
                   formatValue(item.recurringPrice, 1),
                   formatValue(item.oneOffPrice, 1),
                   label,
-                  item.lastUpdatedOn || "-",
+                  item.lastUpdatedOn ? item.lastUpdatedOn
+                    : item.statusID === 5
+                      ? GetOnlyDate(item.signedOn)
+                        : item.declinedOn ?? item.viewedOn ?? item.sentOn ?? item.createdOn ?? "-",
+                  item.createdOn || "-",
                   item.sentOn || "-",
                   item.viewedOn || "-",
-                  item.signedOn || "-",
-                  item.declinedOn || "-",
+                  item.statusID === 5 ? GetOnlyDate(item.signedOn) : "-",
+                  item.statusID === 7 ? item.declinedOn : "-",
+                  item.statusID === 8 ? item.lastUpdatedOn : "-"
                 ]);
                 baseRowsContract.push(...dataRows);
               });
@@ -642,6 +659,7 @@ const NewDashboard = () => {
             setLoader(false);
           }
           if (response?.data?.responseData?.currencyID) {
+            dispatch(updateState({ currency: getCurrencySymbol(response?.data?.responseData?.currencyID) }));
             const currency = response?.data?.responseData?.currencyID;
             setCurrencyID(currency);
           } else {
@@ -992,6 +1010,8 @@ const NewDashboard = () => {
               professionTypeLists: organisationData.professionTypeLists,
               organisationCount: OrganisationListData.length,
               enableEL: organisationData.enableEL,
+              currencyID: organisationData.currencyID,
+              currency: getCurrencySymbol(organisationData.currencyID),
             }),
           );
         }
@@ -1134,6 +1154,7 @@ const NewDashboard = () => {
       Sent: type === "Sent" ? proposalValue : null,
       Sent: type === "Accepted" ? proposalValue : null,
       Sent: type === "Decline" ? proposalValue : null,
+      // Skipped: type === "Skipped" ? proposalValue : null
     }));
     const fromDateStr = fromDateForFilter
       ? fromDateForFilter.toISOString()
@@ -1388,7 +1409,7 @@ const NewDashboard = () => {
                         common.organisationKeyID == null) && (
                         <>
                           <div
-                            className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                            className={`col-xl-3 col-lg-3 col-md-3 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
                             onClick={() =>
                               handleAddData("Draft", statusID.Draft)
@@ -1421,7 +1442,7 @@ const NewDashboard = () => {
                           </div>
 
                           <div
-                            className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                            className={`col-xl-3 col-lg-3 col-md-3 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
                             onClick={() => handleAddData("Sent", statusID.Sent)}
                           >
@@ -1451,10 +1472,9 @@ const NewDashboard = () => {
                             </div>
                           </div>
 
-                          {/* Proposal Accepted */}
-
+                          {/* Proposal Accepted */} 
                           <div
-                            className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                            className={`col-xl-3 col-lg-3 col-md-3 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
                             onClick={() =>
                               handleAddData("Accepted", statusID.Accepted)
@@ -1488,13 +1508,45 @@ const NewDashboard = () => {
                               </div>
                             </div>
                           </div>
+                          {/* <div
+                            className={`col-xl-3 col-lg-3 col-md-3 col-sm-12 dashboard-box 
+                                    ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
+                            onClick={() =>
+                              handleAddData("Skipped", statusID.Skipped)
+                            }
+                          >
+                            <div
+                              className="stat-card"
+                              style={{ "--hover-bg-color": cardBgColor }}
+                            >
+                              <div className="stat-card-header">
+                                <div className="stat-icon">
+                                  <img src={DraftProposalPng} alt="icon" />
+                                </div>
+                                <div className="stat-amount">
+                                  {calculateGBPAmount(
+                                    dashboardCount.quotationSkipped_AmountRecc,
+                                    dashboardCount.quotationSkipped_AmountOneOff
+                                  )}
+                                </div>
+                              </div>
+                              <div className="stat-card-body">
+                                <h6 className="stat-title">
+                                  {proposalName} Skipped
+                                </h6>
+                                <p className="stat-subtitle fw-bold">
+                                  Total: {dashboardCount?.quotationSkipped}
+                                </p>
+                              </div>
+                            </div>
+                          </div> */}
 
                           {/* proposal start */}
                           {(common.enableEL == 0 ||
                             common.enableEL == null) && (
                             <>
                               <div
-                                className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                                className={`col-xl-3 col-lg-3 col-md-3 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
                                 onClick={() =>
                                   handleAddData(
@@ -1540,7 +1592,7 @@ const NewDashboard = () => {
                             common.enableEL == null) && (
                             <>
                               <div
-                                className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                                className={`col-xl-3 col-lg-3 col-md-3 col-sm-12 dashboard-box 
                                       ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
                                 onClick={() =>
                                   handleAddData("Decline", statusID.Declined)
@@ -1578,17 +1630,17 @@ const NewDashboard = () => {
                           )}
                         </>
                       )}
-                    </div>
+                    {/* </div> */}
                     {/* proposal end  */}
 
                     {/* engagement start */}
-                    <div className="row">
+                    {/* <div className="row"> */}
                       {(common.enableEL == 1 || common.enableEL == null) &&
                         (userAccessData.Admin_Engagement_Latter_CanView ||
                           common.organisationKeyID == null) && (
                           <>
                             <div
-                              className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                              className={`col-xl-3 col-lg-3 col-md-3 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
                               onClick={() =>
                                 GetHandleChangeFilter("Draft", statusID.Draft)
@@ -1627,7 +1679,7 @@ const NewDashboard = () => {
 
                             {dashboardCount?.contractVoid > 0 && (
                               <div
-                                className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                                className={`col-xl-3 col-lg-3 col-md-3 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
                                 onClick={() =>
                                   GetHandleChangeFilter("Void", statusID.Void)
@@ -1664,7 +1716,7 @@ const NewDashboard = () => {
                             )}
 
                             <div
-                              className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                              className={`col-xl-3 col-lg-3 col-md-3 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
                               onClick={() =>
                                 GetHandleChangeFilter("Sent", statusID.Sent)
@@ -1702,7 +1754,7 @@ const NewDashboard = () => {
                             {/* EL viewed hidden */}
 
                             {/* <div
-                                  className={`col-xl-4 col-lg-4 col-md-4 dashboard-box col-sm-12  ${common.organisationKeyID !== null
+                                  className={`col-xl-3 col-lg-3 col-md-3 dashboard-box col-sm-12  ${common.organisationKeyID !== null
                                     ? "cursor-pointer"
                                     : ""
                                     } `}
@@ -1713,7 +1765,7 @@ const NewDashboard = () => {
                                       onClick={() =>
                                         GetHandleChangeFilter(
                                           "Signed",
-                                          statusID.Signed
+                                          statusID.Awaiting_Signature
                                         )
                                       }
                                     >
@@ -1749,13 +1801,13 @@ const NewDashboard = () => {
                                       >
                                         <p class="mb-0 font-weight-bolder">
                                           <span class="text-success text-sm font-weight-bolder" />
-                                          {EngagementName} Signed
+                                          {EngagementName} Viewed
                                         </p>
 
                                         <div class="text-end pt-1">
                                           <h5 class="mb-0 text-white ">
                                             {" "}
-                                            {dashboardCount?.contractSigned}
+                                            {dashboardCount?.contractAwaitingSignature}
                                           </h5>
                                         </div>
                                       </div>
@@ -1763,7 +1815,43 @@ const NewDashboard = () => {
                                   </div>
                                 </div> */}
                             <div
-                              className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                              className={`col-xl-3 col-lg-3 col-md-3 col-sm-12 dashboard-box 
+                                    ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
+                              onClick={() =>
+                                GetHandleChangeFilter("Viewed", statusID.Awaiting_Signature)
+                              }
+                            >
+                              <div
+                                className="stat-card"
+                                style={{ "--hover-bg-color": cardBgColor }}
+                              >
+                                <div className="stat-card-header">
+                                  <div className="stat-icon">
+                                    <img
+                                      src={EngagementLatterAwaitingSignatureSvg}
+                                      alt="icon"
+                                    />
+                                  </div>
+                                  <div className="stat-amount">
+                                    {calculateGBPAmount(
+                                      dashboardCount.contractViewed_AmountRecc,
+                                      dashboardCount.contractViewed_AmountOneOff,
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="stat-card-body">
+                                  <h6 className="stat-title">
+                                    {EngagementName} Viewed
+                                  </h6>
+                                  <p className="stat-subtitle fw-bold">
+                                    Total: {dashboardCount?.contractAwaitingSignature}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div
+                              className={`col-xl-3 col-lg-3 col-md-3 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
                               onClick={() =>
                                 GetHandleChangeFilter("Signed", statusID.Signed)
@@ -1799,7 +1887,7 @@ const NewDashboard = () => {
                             </div>
 
                             <div
-                              className={`col-xl-4 col-lg-4 col-md-4 col-sm-12 dashboard-box 
+                              className={`col-xl-3 col-lg-3 col-md-3 col-sm-12 dashboard-box 
                                     ${common.organisationKeyID !== null ? "cursor-pointer" : ""}`}
                               onClick={() =>
                                 GetHandleChangeFilter(
@@ -1838,7 +1926,8 @@ const NewDashboard = () => {
                             </div>
                           </>
                         )}
-                    </div>
+                    {/* </div> */}
+                  </div>
                   </div>
                   {(userAccessData.Admin_Activity_Log_CanView ||
                     common.organisationKeyID == null) && (

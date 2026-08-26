@@ -350,7 +350,6 @@ function AddUpdateEmailTemplate(props) {
       subject: TemplateObj.subject,
       templateName: TemplateObj.templateName,
       isDefault: TemplateObj.isDefault,
-      // templateElementList: updatedTemplateList,
       templateElementList: templateElementList,
       professionTypeList:
         common.professionTypeLists?.length > 1 ||

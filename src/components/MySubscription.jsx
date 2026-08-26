@@ -25,11 +25,13 @@ const MySubscription = () => {
   const [subscriptionPackageObj, setSubscriptionPackageObj] = useState({
     ospKeyID: null,
     remainingESignatures: null,
+    remainingQuotesPerMonth: null,
     apiIntegration: null,
     subscriptionPackageKeyID: null,
     packageName: "",
     prepareQuote: false,
     sendQuote: false,
+    quotesPerMonth: null,
     prepareContract: false,
     sendContract: false,
     signContract: false,
@@ -181,6 +183,7 @@ const MySubscription = () => {
             // Extract planList and store in subscriptionList state
             setSubScriptionPlanList(PlanList);
             setSubScriptionActiveList(ActivePlanList);
+
             setTotalRecords(SubScriptionListData.length);
           }
         } else {
@@ -246,11 +249,13 @@ const MySubscription = () => {
             ...subscriptionPackageObj,
             ospKeyID: ModelData.ospKeyID,
             remainingESignatures: ModelData.remainingESignatures,
+            remainingQuotesPerMonth: ModelData.remainingQuotesPerMonth,
             apiIntegration: ModelData.apiIntegration,
             subscriptionPackageKeyID: ModelData.subscriptionPackageKeyID,
             packageName: ModelData.packageName,
             prepareQuote: ModelData.prepareQuote,
             sendQuote: ModelData.sendQuote,
+            quotesPerMonth: ModelData.quotesPerMonth,
             prepareContract: ModelData.prepareContract,
             sendContract: ModelData.sendContract,
             signContract: ModelData.signContract,
@@ -382,7 +387,8 @@ const MySubscription = () => {
                                               <CardBody
                                                 style={{
                                                   padding: "10px",
-                                                  height: "55vh",
+                                                  maxHeight: "65vh",
+                                                  height: "auto",
                                                 }}
                                               >
                                                 <div className="media ">
@@ -529,6 +535,13 @@ const MySubscription = () => {
                                                     </div>
                                                   </p>
                                                   <p className="mt-0 mb-1 text-dark">
+                                                    <b>Remaining Proposals</b>:{" "}
+                                                    {subScriptionActiveList.remainingQuotesPerMonth <
+                                                    0
+                                                      ? 0
+                                                      : subScriptionActiveList.remainingQuotesPerMonth}
+                                                  </p>
+                                                  <p className="mt-0 mb-1 text-dark">
                                                     <b>
                                                       Remaining E-Signatures
                                                     </b>
@@ -556,7 +569,8 @@ const MySubscription = () => {
                                               <CardBody
                                                 style={{
                                                   padding: "10px",
-                                                  height: "55vh",
+                                                  maxHeight: "65vh",
+                                                  height: "auto",
                                                 }}
                                               >
                                                 <div className="media ">
@@ -694,7 +708,35 @@ const MySubscription = () => {
                                                       Send {proposalName}
                                                     </span>
                                                   </p>
-
+                                                  <p className="mt-0 mb-1 text-dark">
+                                                    {subScriptionActiveList?.sendQuote ===
+                                                      true &&
+                                                      subScriptionActiveList?.quotesPerMonth >
+                                                        0 && (
+                                                        <>
+                                                          <span
+                                                            style={{
+                                                              color: "green",
+                                                            }}
+                                                            className="fa fa-check"
+                                                          ></span>
+                                                          <span
+                                                            style={{
+                                                              marginLeft:
+                                                                "10px",
+                                                            }}
+                                                          >
+                                                            {" "}
+                                                            Prepare and Send{" "}
+                                                            {proposalName}:{" "}
+                                                            {formatValueWithoutCurrencySymbol(
+                                                              subScriptionActiveList?.quotesPerMonth,
+                                                            )}
+                                                            /Month
+                                                          </span>
+                                                        </>
+                                                      )}
+                                                  </p>
                                                   <p className="mt-0 mb-1 text-dark">
                                                     {subScriptionActiveList?.signContract ===
                                                     true ? (
@@ -722,9 +764,9 @@ const MySubscription = () => {
                                                       {"  "}
                                                       Send And Digitally Sign
                                                       The {EngagementName}:{" "}
-                                                      {formatValueWithoutCurrencySymbol(
-                                                        subScriptionActiveList?.eSignaturePerMonth,
-                                                      )}
+                                                      {
+                                                        subScriptionActiveList?.eSignaturePerMonth
+                                                      }
                                                       /Month
                                                     </span>
                                                   </p>
@@ -785,9 +827,128 @@ const MySubscription = () => {
                                                       }}
                                                     >
                                                       {" "}
-                                                      PDF To CSV
+                                                      {subScriptionActiveList?.noOfPages ===
+                                                      null
+                                                        ? "PDF To CSV"
+                                                        : "PDF To CSV: "}
+                                                      {subScriptionActiveList?.noOfPages ===
+                                                      1
+                                                        ? `${subScriptionActiveList?.noOfPages} Page`
+                                                        : subScriptionActiveList?.noOfPages >
+                                                            1
+                                                          ? `${subScriptionActiveList?.noOfPages} Pages`
+                                                          : ""}
                                                     </span>
                                                   </p>
+
+                                                  {/* xero  */}
+                                                  {subScriptionActiveList &&
+                                                    subScriptionActiveList?.enableXERO !==
+                                                      null && (
+                                                      <p className="mt-0 mb-1 text-dark">
+                                                        {subScriptionActiveList?.enableXERO ===
+                                                          null ||
+                                                        !subScriptionActiveList?.enableXERO ? (
+                                                          <span
+                                                            style={{
+                                                              color: "red",
+                                                              marginRight:
+                                                                "2px",
+                                                            }}
+                                                            className="fa fa-times"
+                                                          ></span>
+                                                        ) : (
+                                                          <span
+                                                            style={{
+                                                              color: "green",
+                                                            }}
+                                                            className="fa fa-check"
+                                                          ></span>
+                                                        )}
+                                                        {"  "}
+                                                        <span
+                                                          style={{
+                                                            marginLeft: "10px",
+                                                          }}
+                                                        >
+                                                          {" "}
+                                                          Xero Subscription
+                                                        </span>
+                                                      </p>
+                                                    )}
+
+                                                  {/* Quickbook  */}
+                                                  {subScriptionActiveList &&
+                                                    subScriptionActiveList?.enableQBO !==
+                                                      null && (
+                                                      <p className="mt-0 mb-1 text-dark">
+                                                        {subScriptionActiveList?.enableQBO ===
+                                                          null ||
+                                                        !subScriptionActiveList?.enableQBO ? (
+                                                          <span
+                                                            style={{
+                                                              color: "red",
+                                                              marginRight:
+                                                                "2px",
+                                                            }}
+                                                            className="fa fa-times"
+                                                          ></span>
+                                                        ) : (
+                                                          <span
+                                                            style={{
+                                                              color: "green",
+                                                            }}
+                                                            className="fa fa-check"
+                                                          ></span>
+                                                        )}
+                                                        {"  "}
+                                                        <span
+                                                          style={{
+                                                            marginLeft: "10px",
+                                                          }}
+                                                        >
+                                                          {" "}
+                                                          Quickbooks
+                                                          Subscription
+                                                        </span>
+                                                      </p>
+                                                    )}
+
+                                                  {/* AI Agent  */}
+                                                  {subScriptionActiveList &&
+                                                    subScriptionActiveList?.enableAIAgent !==
+                                                      null && (
+                                                      <p className="mt-0 mb-1 text-dark">
+                                                        {subScriptionActiveList?.enableAIAgent ===
+                                                          null ||
+                                                        !subScriptionActiveList?.enableAIAgent ? (
+                                                          <span
+                                                            style={{
+                                                              color: "red",
+                                                              marginRight:
+                                                                "2px",
+                                                            }}
+                                                            className="fa fa-times"
+                                                          ></span>
+                                                        ) : (
+                                                          <span
+                                                            style={{
+                                                              color: "green",
+                                                            }}
+                                                            className="fa fa-check"
+                                                          ></span>
+                                                        )}
+                                                        {"  "}
+                                                        <span
+                                                          style={{
+                                                            marginLeft: "10px",
+                                                          }}
+                                                        >
+                                                          {" "}
+                                                          AI Agent Subscription
+                                                        </span>
+                                                      </p>
+                                                    )}
                                                 </div>
                                               </CardBody>
                                             </div>
@@ -797,255 +958,265 @@ const MySubscription = () => {
                                       </div>
                                     </div>
                                   </div>
-
-                                  <div
-                                    className="table-container"
-                                    style={{
-                                      maxHeight: "500px",
-                                      overflowY: "auto",
-                                    }}
-                                  >
-                                    <table className="table table-striped">
-                                      <thead>
-                                        <tr>
-                                          <th
-                                            scope="col"
-                                            className="tr-table-class text-white"
-                                          >
-                                            Email
-                                          </th>
-                                          <th
-                                            scope="col"
-                                            className="tr-table-class text-white"
-                                          >
-                                            Contact No
-                                          </th>
-                                          <th
-                                            scope="col"
-                                            className="tr-table-class text-white"
-                                          >
-                                            Package Name
-                                          </th>
-                                          <th
-                                            scope="col"
-                                            className="tr-table-class text-white"
-                                          >
-                                            Package Price
-                                          </th>
-                                          <th
-                                            scope="col"
-                                            className="tr-table-class text-white"
-                                          >
-                                            Subscription Start Date
-                                          </th>
-                                          <th
-                                            scope="col"
-                                            className="tr-table-class text-white"
-                                          >
-                                            Next Renewal Date
-                                          </th>
-                                          <th
-                                            scope="col"
-                                            className="tr-table-class text-white"
-                                          >
-                                            Payable Amount
-                                          </th>
-                                          <th
-                                            scope="col"
-                                            className="tr-table-class text-white"
-                                          >
-                                            Payment Status
-                                          </th>
-                                          <th
-                                            scope="col"
-                                            className="tr-table-class text-white"
-                                          >
-                                            Subscription Status
-                                          </th>
-                                          <th
-                                            scope="col"
-                                            className="tr-table-class text-white"
-                                          >
-                                            Action
-                                          </th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        {subScriptionPlanList.map(
-                                          (subscription, index) => (
-                                            <tr key={index}>
-                                              <td className="table-content-font align-items-center text-center">
-                                                {subscription.email}
-                                              </td>
-                                              <td className="table-content-font">
-                                                {subscription.mobileNumber}
-                                              </td>
-                                              <td className="table-content-font align-items-center text-center">
-                                                {subscription.packageName}
-                                              </td>
-                                              <td className="table-content-font align-items-center text-center">
-                                                {formatValue(
-                                                  subscription.packagePrice,
-                                                )}
-                                              </td>
-                                              <td className="table-content-font align-items-center text-center">
-                                                {subscription.subscriptionStartDate ===
-                                                null
-                                                  ? "_"
-                                                  : subscription.subscriptionStartDate}
-                                              </td>
-                                              <td className="table-content-font align-items-center text-center">
-                                                {subscription.nextRenewalDate ===
-                                                null
-                                                  ? "_"
-                                                  : subscription.nextRenewalDate}
-                                              </td>
-                                              <td className="table-content-font ">
-                                                {formatValue(
-                                                  subscription.finalBillingAmount,
-                                                )}
-                                              </td>
-                                              {/* <td className="table-content-font">
+                                  <div class="table-card mt-2 table-padding">
+                                    <div
+                                      className="table-container mt-2"
+                                      style={{
+                                        maxHeight: "500px",
+                                        overflowY: "auto",
+                                      }}
+                                    >
+                                      <table className="table table-striped">
+                                        <thead>
+                                          <tr>
+                                            <th
+                                              scope="col"
+                                              className="tr-table-class text-white"
+                                            >
+                                              Email
+                                            </th>
+                                            <th
+                                              scope="col"
+                                              className="tr-table-class text-white"
+                                            >
+                                              Contact No
+                                            </th>
+                                            <th
+                                              scope="col"
+                                              className="tr-table-class text-white"
+                                            >
+                                              Package Name
+                                            </th>
+                                            <th
+                                              scope="col"
+                                              className="tr-table-class text-white"
+                                            >
+                                              Package Price
+                                            </th>
+                                            <th
+                                              scope="col"
+                                              className="tr-table-class text-white"
+                                            >
+                                              Subscription Start Date
+                                            </th>
+                                            <th
+                                              scope="col"
+                                              className="tr-table-class text-white"
+                                            >
+                                              Next Renewal Date
+                                            </th>
+                                            <th
+                                              scope="col"
+                                              className="tr-table-class text-white"
+                                            >
+                                              Payable Amount
+                                            </th>
+                                            <th
+                                              scope="col"
+                                              className="tr-table-class text-white"
+                                            >
+                                              Payment Status
+                                            </th>
+                                            <th
+                                              scope="col"
+                                              className="tr-table-class text-white"
+                                            >
+                                              Subscription Status
+                                            </th>
+                                            <th
+                                              scope="col"
+                                              className="tr-table-class text-white"
+                                            >
+                                              Action
+                                            </th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          {subScriptionPlanList.map(
+                                            (subscription, index) => (
+                                              <tr key={index}>
+                                                <td className="table-content-font align-items-center text-center">
+                                                  {subscription.email}
+                                                </td>
+                                                <td className="table-content-font">
+                                                  {subscription.mobileNumber}
+                                                </td>
+                                                <td className="table-content-font align-items-center text-center">
+                                                  {subscription.packageName}
+                                                </td>
+                                                <td className="table-content-font align-items-center text-center">
+                                                  {formatValue(
+                                                    subscription.packagePrice,
+                                                  )}
+                                                </td>
+                                                <td className="table-content-font align-items-center text-center">
+                                                  {subscription.subscriptionStartDate ===
+                                                  null
+                                                    ? "_"
+                                                    : subscription.subscriptionStartDate}
+                                                </td>
+                                                <td className="table-content-font align-items-center text-center">
+                                                  {subscription.nextRenewalDate ===
+                                                  null
+                                                    ? "_"
+                                                    : subscription.nextRenewalDate}
+                                                </td>
+                                                <td className="table-content-font ">
+                                                  {formatValue(
+                                                    subscription.finalBillingAmount,
+                                                  )}
+                                                </td>
+                                                {/* <td className="table-content-font">
                                       {subscription.paymentStatus}
                                     </td> */}
-                                              <td className="table-content-font align-items-center text-center">
-                                                {/* <div className="mb-1 text-center  text-white rounded text-nowrap"> */}
-                                                {subscription.paymentStatus ===
-                                                  "Unpaid" && (
-                                                  <Tooltip title={`Pay Now`}>
-                                                    <button
-                                                      style={{
-                                                        width: "80px",
-                                                        marginTop: "5px",
-                                                        // padding: "5px 8px 6px 5px",
-                                                        // margin:'1px', // Add padding to the button
-                                                        display: "inline-block", // Ensure button stays in line
-                                                        // borderRadius: "0.5rem",
-                                                      }}
-                                                      className="btn btn-md btn-success create-item-btn view"
-                                                      onClick={() =>
-                                                        RedirectStripeCheckout(
-                                                          subscription,
-                                                        )
-                                                      }
-                                                    >
-                                                      <span>Pay Now</span>
-                                                    </button>
-                                                  </Tooltip>
-                                                )}
-                                                {subscription.paymentStatus ===
-                                                  "Paid" && (
-                                                  <Tooltip title={`Download`}>
-                                                    <a
-                                                      style={{
-                                                        width: "60px",
-                                                        padding:
-                                                          "2px 2px 2px 2px", // Add padding to the button
-                                                        display: "inline-block", // Ensure button stays in line
-                                                        borderRadius: "0.5rem",
-                                                      }}
-                                                      href={
-                                                        subscription.hostedInvoiceUrl
-                                                      }
-                                                      className="btn btn-secondary btn-xs"
-                                                    >
-                                                      <i className="fa fa-download"></i>
-                                                    </a>
-                                                  </Tooltip>
-                                                )}
-                                                {subscription.paymentStatus ===
-                                                  "Free" && (
-                                                  <p
-                                                    style={{
-                                                      background: "#DAA520",
-                                                      width: "100px",
-                                                      padding: "4px 5px",
-                                                      display: "inline-block",
-                                                      borderRadius: "0.5rem",
-                                                    }}
-                                                  >
-                                                    Free
-                                                  </p>
-                                                )}
-                                                {/* </div> */}
-                                              </td>
-                                              <td className="Switch">
-                                                <div
-                                                  style={{ alignItems: "none" }}
-                                                  className="d-flex gap-2"
-                                                >
-                                                  <div
-                                                    style={{ marginTop: "9px" }}
-                                                  >
-                                                    <div
-                                                      className="mb-1 text-center  text-white rounded text-nowrap"
-                                                      style={{
-                                                        background:
-                                                          subscription.subscriptionStatus ===
-                                                          "Active"
-                                                            ? "#008000"
-                                                            : subscription.subscriptionStatus ===
-                                                                "Expired"
-                                                              ? "#FF0000"
-                                                              : subscription.subscriptionStatus ===
-                                                                  "Pending"
-                                                                ? "#DAA520"
-                                                                : subscription.subscriptionStatus ===
-                                                                    "InActive"
-                                                                  ? "#772424"
-                                                                  : "gray",
-                                                        width: "100px",
-                                                        padding:
-                                                          "5px 8px 6px 5px", // Add padding to the button
-                                                        display: "inline-block", // Ensure button stays in line
-                                                        borderRadius: "0.5rem", // Adjust border radius
-                                                      }}
-                                                    >
-                                                      {
-                                                        subscription.subscriptionStatus
-                                                      }
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                              </td>
-
-                                              <td>
-                                                <div class="view text-nowrap mt-1">
-                                                  <Tooltip
-                                                    title={`View Subscription`}
-                                                  >
-                                                    <div class="view">
+                                                <td className="table-content-font align-items-center text-center">
+                                                  {/* <div className="mb-1 text-center  text-white rounded text-nowrap"> */}
+                                                  {subscription.paymentStatus ===
+                                                    "Unpaid" && (
+                                                    <Tooltip title={`Pay Now`}>
                                                       <button
-                                                        class="btn btn-md btn-success create-item-btn view"
+                                                        style={{
+                                                          width: "80px",
+                                                          marginTop: "5px",
+                                                          // padding: "5px 8px 6px 5px",
+                                                          // margin:'1px', // Add padding to the button
+                                                          display:
+                                                            "inline-block", // Ensure button stays in line
+                                                          // borderRadius: "0.5rem",
+                                                        }}
+                                                        className="btn btn-md btn-success create-item-btn view"
                                                         onClick={() =>
-                                                          handleOpenSubscriptionModel(
+                                                          RedirectStripeCheckout(
                                                             subscription,
                                                           )
                                                         }
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#addSubscriptionViewModalUser"
                                                       >
-                                                        <span>View</span>{" "}
-                                                        <span className="mt-4">
-                                                          {" "}
-                                                          <i class="bi bi-eye "></i>
-                                                        </span>
+                                                        <span>Pay Now</span>
                                                       </button>
+                                                    </Tooltip>
+                                                  )}
+                                                  {subscription.paymentStatus ===
+                                                    "Paid" && (
+                                                    <Tooltip title={`Download`}>
+                                                      <a
+                                                        style={{
+                                                          width: "60px",
+                                                          padding:
+                                                            "2px 2px 2px 2px", // Add padding to the button
+                                                          display:
+                                                            "inline-block", // Ensure button stays in line
+                                                          borderRadius:
+                                                            "0.5rem",
+                                                        }}
+                                                        href={
+                                                          subscription.hostedInvoiceUrl
+                                                        }
+                                                        className="btn btn-secondary btn-xs"
+                                                      >
+                                                        <i className="fa fa-download"></i>
+                                                      </a>
+                                                    </Tooltip>
+                                                  )}
+                                                  {subscription.paymentStatus ===
+                                                    "Free" && (
+                                                    <p
+                                                      style={{
+                                                        background: "#DAA520",
+                                                        width: "100px",
+                                                        padding: "4px 5px",
+                                                        display: "inline-block",
+                                                        borderRadius: "0.5rem",
+                                                      }}
+                                                    >
+                                                      Free
+                                                    </p>
+                                                  )}
+                                                  {/* </div> */}
+                                                </td>
+                                                <td className="Switch">
+                                                  <div
+                                                    style={{
+                                                      alignItems: "none",
+                                                    }}
+                                                    className="d-flex gap-2"
+                                                  >
+                                                    <div
+                                                      style={{
+                                                        marginTop: "9px",
+                                                      }}
+                                                    >
+                                                      <div
+                                                        className="mb-1 text-center  text-white rounded text-nowrap"
+                                                        style={{
+                                                          background:
+                                                            subscription.subscriptionStatus ===
+                                                            "Active"
+                                                              ? "#008000"
+                                                              : subscription.subscriptionStatus ===
+                                                                  "Expired"
+                                                                ? "#FF0000"
+                                                                : subscription.subscriptionStatus ===
+                                                                    "Pending"
+                                                                  ? "#DAA520"
+                                                                  : subscription.subscriptionStatus ===
+                                                                      "InActive"
+                                                                    ? "#772424"
+                                                                    : "gray",
+                                                          width: "100px",
+                                                          padding:
+                                                            "5px 8px 6px 5px", // Add padding to the button
+                                                          display:
+                                                            "inline-block", // Ensure button stays in line
+                                                          borderRadius:
+                                                            "0.5rem", // Adjust border radius
+                                                        }}
+                                                      >
+                                                        {
+                                                          subscription.subscriptionStatus
+                                                        }
+                                                      </div>
                                                     </div>
-                                                  </Tooltip>
-                                                </div>
-                                              </td>
-                                            </tr>
-                                          ),
-                                        )}
-                                      </tbody>
-                                    </table>
-                                    {totalRecords <= 0 && (
-                                      <NoResultFoundModel
-                                        name={"Subscription"}
-                                        totalRecords={totalRecords}
-                                      />
-                                    )}
+                                                  </div>
+                                                </td>
+
+                                                <td>
+                                                  <div class="view text-nowrap mt-1">
+                                                    <Tooltip
+                                                      title={`View Subscription`}
+                                                    >
+                                                      <div class="view">
+                                                        <button
+                                                          class="btn btn-md btn-success create-item-btn view"
+                                                          onClick={() =>
+                                                            handleOpenSubscriptionModel(
+                                                              subscription,
+                                                            )
+                                                          }
+                                                          data-bs-toggle="modal"
+                                                          data-bs-target="#addSubscriptionViewModalUser"
+                                                        >
+                                                          <span>View</span>{" "}
+                                                          <span className="mt-4">
+                                                            {" "}
+                                                            <i class="bi bi-eye "></i>
+                                                          </span>
+                                                        </button>
+                                                      </div>
+                                                    </Tooltip>
+                                                  </div>
+                                                </td>
+                                              </tr>
+                                            ),
+                                          )}
+                                        </tbody>
+                                      </table>
+                                      {totalRecords <= 0 && (
+                                        <NoResultFoundModel
+                                          name={"Subscription"}
+                                          totalRecords={totalRecords}
+                                        />
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                               </div>

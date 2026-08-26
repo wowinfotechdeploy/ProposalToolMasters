@@ -12,11 +12,18 @@ export const CLIENT_TYPES = {
   Company: 5,
 };
 
+export const PDFToCSVToggle = {
+  Convertor: 1,
+  Upgrade: 2,
+  MySubscription: 3,
+};
+
 export const ServiceHeader = {
   BasicInformation: 1,
   Description: 2,
   PricingDrivers: 3,
-  PricingFormula: 4,
+  FeeInflation: 4,
+  PricingFormula: 5,
 };
 export const CREATE_PRACTICE_DETAILS = {
   BasicInformation: 1,
@@ -39,6 +46,7 @@ export const EMAIL_TEMPLATE = {
   Quote_AcceptedDeclined_Email_Send_To_Sender: 20,
   Contract_Accepted_Email_Send_To_Sender: 21,
   Contract_Declined_Email_Send_To_Receiver: 22,
+  Web_Based_Proposal: 47,
 };
 export const SUPER_EMAIL_TEMPLATE = {
   SuperAllVariable: null,
@@ -60,12 +68,6 @@ export const Template_Type = {
 export const VAT_Reg = {
   Yes: 1,
   No: 0,
-};
-
-export const PDFToCSVToggle = {
-  Convertor: 1,
-  Upgrade: 2,
-  MySubscription: 3,
 };
 
 export const PackageHeader = {
@@ -190,6 +192,9 @@ export const EmailTemplates = {
   PaidUser_SecondMail: 36,
   PaidUser_ThirdMail: 37,
   Reminder: 38,
+  FreePackageOrg_FirstMail: 44,
+  FreePackageOrg_SecondMail: 45,
+  FreePackageOrg_ThirdMail: 46,
 };
 export const EmailProviderEnum = {
   BT_Internet: 1,
@@ -222,13 +227,6 @@ export const AppSettingType = {
   paidUser: "Paid_Users_Login_To_Outbooks_Warning_Mail",
 };
 
-export const servicePackageTypeID = {
-  RecurringServiceTypeID: 1,
-  OneOffServiceTypeID: 2,
-  RecurringPackageTypeID: 3,
-  OneOffPackageTypeID: 4,
-};
-
 export const fieldToIdMap = {
   serviceCategory: 1,
   serviceName: 2,
@@ -237,4 +235,16 @@ export const fieldToIdMap = {
   fees: 5,
   serviceScope: 6,
   feesIncVat: 7,
+};
+
+export const servicePackageTypeID = {
+  RecurringServiceTypeID: 1,
+  OneOffServiceTypeID: 2,
+  RecurringPackageTypeID: 3,
+  OneOffPackageTypeID: 4,
+};
+
+export const VATUpdateTypeID = {
+  UpdateAllVAT: 1,
+  UpdateDefaultVATOnly: 2,
 };

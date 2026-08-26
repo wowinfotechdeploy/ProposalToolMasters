@@ -240,9 +240,9 @@ function UserRoleModel(props) {
                   className="validation"
                 >
                   {common.professionTypeLists?.length <= 1 &&
-                  errorMessage?.includes(
-                    `Please don't choose this profession type`,
-                  )
+                    errorMessage?.includes(
+                      `Please don't choose this profession type`
+                    )
                     ? errorMessage.split(".")[0]
                     : errorMessage}
                 </label>

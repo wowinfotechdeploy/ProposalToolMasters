@@ -845,9 +845,9 @@ function SuperAdminReminderTemplateList() {
         </div>
         </div>
         </div>
-        <Footer />
       </div>
       {/* end back-to-top */}
+      <Footer />
     </div>
   );
 }
