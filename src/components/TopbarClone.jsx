@@ -26,6 +26,7 @@ import ResetPasswordModal from "../Auth/ResetPassword/ResetPasswordModal";
 import profile from "../../src/assets/images/profile.jpg";
 import LogoutModal from "./LogoutModal";
 import "../components/UpdateImageModel/UploadImageStyle.css";
+import "./DisplayCss/TopbarClone.css";
 import SuccessModal from "./SuccessModal";
 import SetTimeoutComponent from "./SetTimeoutComponent";
 import UserModelNew from "./UserModelNew";
@@ -1235,6 +1236,21 @@ const TopbarClone = () => {
   //Design part :
   return (
     <>
+      {!isSidebarOpen && windowWidth > 1040 && (
+        <Tooltip title="Open menu" disableInteractive>
+          <button
+            type="button"
+            className="figma-sidebar-reopen-button"
+            onClick={() => setIsSidebarOpen(true)}
+            aria-label="Open sidebar"
+          >
+            <span className="figma-sidebar-toggle-line"></span>
+            <span className="figma-sidebar-toggle-line"></span>
+            <span className="figma-sidebar-toggle-line"></span>
+          </button>
+        </Tooltip>
+      )}
+
       <div className={`topbar-clone ${isSidebarOpen ? "" : "collapsed"}`}>
         {/* Hamburger Icon - Position changes based on sidebar state */}
 
@@ -1311,81 +1327,16 @@ const TopbarClone = () => {
                         }}
                       >
                         <button
-                          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                          style={{
-                            position: isSidebarOpen ? "relative" : "fixed",
-                            left: isSidebarOpen ? "calc(17% - 15px)" : "16px", // centers within sidebar accounting for button width
-                            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                            background: "rgba(255, 255, 255, 0.2)",
-                            backdropFilter: "blur(10px)",
-                            border: "1px solid rgba(0, 0, 0, 0.05)",
-                            borderRadius: "8px",
-                            cursor: "pointer",
-                            padding: "6.5px",
-                            zIndex: 2001,
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "4px",
-                            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = "scale(1.05)";
-                            e.currentTarget.style.boxShadow =
-                              "0 4px 12px rgba(0, 0, 0, 0.15)";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = "scale(1)";
-                            e.currentTarget.style.boxShadow =
-                              "0 2px 8px rgba(0, 0, 0, 0.1)";
-                          }}
+                          type="button"
+                          onClick={() => setIsSidebarOpen((prev) => !prev)}
+                          className="figma-sidebar-toggle-button"
                           aria-label="Toggle sidebar"
                         >
-                          {isSidebarOpen ? (
-                            <i class="fa-solid fa-arrow-left"></i>
-                          ) : (
-                            <>
-                              <span
-                                style={{
-                                  width: isSidebarOpen ? "16px" : "22px",
-                                  height: "2.5px",
-                                  backgroundColor: "#1a1a1a",
-                                  display: "block",
-                                  transition:
-                                    "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                                  borderRadius: "2px",
-                                  transform: isSidebarOpen
-                                    ? "translateY(6.5px) rotate(-45deg)"
-                                    : "none",
-                                }}
-                              ></span>
-                              <span
-                                style={{
-                                  width: isSidebarOpen ? "16px" : "22px",
-                                  height: "2.5px",
-                                  backgroundColor: "#1a1a1a",
-                                  display: "block",
-                                  transition:
-                                    "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                                  borderRadius: "2px",
-                                  opacity: isSidebarOpen ? "0" : "1",
-                                }}
-                              ></span>
-                              <span
-                                style={{
-                                  width: isSidebarOpen ? "16px" : "22px",
-                                  height: "2.5px",
-                                  backgroundColor: "#1a1a1a",
-                                  display: "block",
-                                  transition:
-                                    "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                                  borderRadius: "2px",
-                                  transform: isSidebarOpen
-                                    ? "translateY(-6.5px) rotate(45deg)"
-                                    : "none",
-                                }}
-                              ></span>
-                            </>
-                          )}
+                          <>
+                            <span className="figma-sidebar-toggle-line"></span>
+                            <span className="figma-sidebar-toggle-line"></span>
+                            <span className="figma-sidebar-toggle-line"></span>
+                          </>
                         </button>
                       </div>
                     </Tooltip>
@@ -1447,19 +1398,20 @@ const TopbarClone = () => {
                             <i
                               className={
                                 isOpens
-                                  ? "  ri-arrow-up-s-line"
-                                  : " ri-arrow-down-s-line "
+                                  ? "ri-arrow-up-s-line"
+                                  : "ri-arrow-down-s-line"
                               }
                               style={{
                                 position: "absolute",
                                 top: "50%",
-                                right: "5px",
+                                right: "12px",
                                 transform: "translateY(-50%)",
                                 cursor: "pointer",
                                 pointerEvents: "none",
-                                zIndex: "1000",
-                                backgroundColor: "#1b1c25",
-                                color: "white",
+                                zIndex: 2,
+                                backgroundColor: "transparent",
+                                color: "#94a3b8",
+                                fontSize: "18px",
                                 ...(isOpens ? { fontWeight: "bold" } : {}),
                               }}
                             ></i>
@@ -1639,7 +1591,7 @@ const TopbarClone = () => {
                   </ul>
                   {common.organisationKeyID !== null && (
                     <ul
-                      className={`changed-nav navbar-nav ${
+                      className={`changed-nav navbar-nav org-sidebar-nav ${
                         isDropdownOpen ? " open" : ""
                       } mt-1`}
                       // style={{paddingRight: "1rem"}}
@@ -2579,7 +2531,7 @@ const TopbarClone = () => {
                     common.organisationKeyID === null && (
                       <>
                         <ul
-                          className={`changed-nav navbar-nav ${
+                          className={`changed-nav navbar-nav superadmin-sidebar-nav ${
                             isDropdownOpen ? " open" : ""
                           }`}
                           // style={{ paddingRight: "2rem" }}
@@ -3637,141 +3589,112 @@ const TopbarClone = () => {
 
           {/* <  AuthButton /> */}
 
-          <div
-            className="d-flex sidebar-bottom align-items-center justify-content-start"
-            style={{
-              // zIndex: 9999,
-              padding: "15px 5px 5px 5px",
-            }}
-          >
-            <Tooltip title={"Notifications"}>
-              <div
-                // class="dropdown topbar-head-dropdown ms-1 header-item"
-                // id="notificationDropdown"
-                class="dropdown ms-sm-3 header-item justify-content-center d-block me-1"
+          <div className="figma-sidebar-footer">
+            {/* Notification */}
+            {/* <Tooltip title="Notifications">
+              <button
+                type="button"
+                className="figma-footer-notification"
+                id="page-header-notifications-dropdown"
+                onClick={() => {
+                  Notifications();
+                  closeNav();
+                }}
+                aria-label="Notifications"
               >
-                <button
-                  type="button"
-                  class="btn btn-icon btn-topbar  d-flex justify-content-center align-items-center"
-                  id="page-header-notifications-dropdown"
-                  onClick={() => {
-                    Notifications();
-                    closeNav();
-                  }}
-                >
-                  <span>
-                    <i
-                      style={{
-                        cursor: "pointer",
-                        color: TopTextColor.color,
-                      }}
-                      class="fa fa-regular fa-bell" // Change to fa-bell for a notification icon
-                    ></i>
-                  </span>
-                  <span
-                    style={{
-                      cursor: "pointer",
-                      backgroundColor: TopTextColor.color,
-                    }}
-                    class="position-absolute topbar-badge translate-middle badge rounded-pill fs-10"
-                  >
-                    <span class="notification-badge">{notificationCount}</span>
-                    <span class="visually-hidden">unread messages</span>
-                  </span>
-                </button>
-              </div>
-            </Tooltip>
-            <div className="dropdown header-item justify-content-center d-block ps-2">
+                <i className="fa-regular fa-bell"></i>
+
+                {notificationCount > 0 && (
+                  <span className="figma-notification-dot"></span>
+                )}
+              </button>
+            </Tooltip> */}
+
+            {/* User Profile */}
+            <div className="dropdown figma-footer-profile">
               <Tooltip
                 title={
-                  common.name.length > 15
+                  common.name?.length > 15
                     ? `${common.name.slice(0, 15)}....`
                     : common.name
                 }
               >
                 <button
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    marginTop: "17px",
-                  }}
                   type="button"
-                  class="btn"
+                  className="figma-profile-button"
                   id="page-header-user-dropdown"
                   data-bs-toggle="dropdown"
                   aria-haspopup="true"
                   aria-expanded="false"
                 >
-                  <span class="d-flex align-items-center justify-content-center">
-                    <img
-                      class="rounded-circle header-profile-user"
-                      src={profile}
-                      style={{
-                        width: "2rem", // scales with root font size
-                        height: "2rem",
-                        objectFit: "cover",
-                      }}
-                    />
-                    <span
-                      className="d-flex justify-content-center ps-2 fw-bold"
-                      style={{ fontSize: "16px", color: TopTextColor.color }}
-                    >
-                      Profile
+                  <img
+                    className="figma-profile-image"
+                    src={profile}
+                    alt={common.name || "Profile"}
+                  />
+
+                  <span className="figma-profile-copy">
+                    <span className="figma-profile-name">
+                      {common.name?.length > 18
+                        ? `${common.name.slice(0, 18)}...`
+                        : common.name}
+                    </span>
+
+                    <span className="figma-profile-role">
+                      {common.roleName ||
+                        (common.roleTypeId === USER_ROLE_TYPE.SuperAdmin
+                          ? "Super Administrator"
+                          : "Administrator")}
                     </span>
                   </span>
                 </button>
               </Tooltip>
-              <div
-                class="dropdown-menu"
-                style={{ inset: "auto 10px 0px auto" }}
-              >
+
+              {/* Profile Dropdown */}
+              <div className="dropdown-menu figma-profile-dropdown">
                 <a
-                  class="dropdown-item"
+                  className="dropdown-item"
                   onClick={() => setShowUserModal(true)}
                   data-bs-toggle="modal"
                   data-bs-target="#TopbarUserProfileEdit"
                   style={{ cursor: "pointer" }}
-                  // onClick={ResetPasswordClicked}
                 >
-                  <span class="align-middle" data-key="t-logout">
+                  <span className="align-middle">
                     Hello{" "}
-                    <strong class="FontW">
-                      {common.name.length > 15
+                    <strong className="FontW">
+                      {common.name?.length > 15
                         ? ` ${common.name.slice(0, 15)}....`
                         : ` ${common.name}`}
                     </strong>
                     <hr />
                   </span>
-                  {/* <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>{" "} */}
-                  <i
-                    style={{
-                      marginRight: "5px",
-                    }}
-                    class="bi bi-person"
-                  ></i>{" "}
-                  <span class="align-middle" data-key="t-logout">
-                    My Profile
-                  </span>
+
+                  <i className="bi bi-person me-2"></i>
+
+                  <span className="align-middle">My Profile</span>
                 </a>
+
                 <a
-                  class="dropdown-item appearance-btn"
+                  className="dropdown-item appearance-btn"
                   style={{ cursor: "pointer" }}
                 >
-                  {/* <i class="mdi mdi-settings-outline text-muted fs-16 align-middle me-1"></i>{" "} */}
-                  <i
-                    style={{ marginRight: "9px" }}
-                    class="bi bi-gear-fill text-muted fs-16 align-middle"
-                  ></i>
-                  {""}
-                  <span class="align-middle" data-key="t-logout">
+                  <i className="bi bi-gear-fill text-muted fs-16 align-middle me-2"></i>
+
+                  <span className="align-middle">
                     {["right"].map((anchor) => (
                       <React.Fragment key={anchor}>
                         <Button
-                          style={{ textTransform: "capitalize" }}
+                          style={{
+                            textTransform: "capitalize",
+                            padding: 0,
+                            minWidth: "auto",
+                            color: "inherit",
+                          }}
                           onClick={ToggleDrawer(anchor, true)}
                         >
                           Appearance
                         </Button>
+
                         <Drawer anchor={anchor} open={state[anchor]}>
                           {List(anchor)}
                         </Drawer>
@@ -3779,50 +3702,67 @@ const TopbarClone = () => {
                     ))}
                   </span>
                 </a>
+
                 <a
-                  class="dropdown-item"
+                  className="dropdown-item"
                   data-bs-toggle="modal"
                   data-bs-target="#ResetPasswordModal"
                   style={{ cursor: "pointer" }}
-                  // onClick={ResetPasswordClicked}
                 >
-                  {/* <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>{" "} */}
-                  <i class=" mdi mdi-key-star text-muted fs-16 align-middle me-1"></i>{" "}
-                  <span class="align-middle" data-key="t-logout">
+                  <i className="mdi mdi-key-star text-muted fs-16 align-middle me-2"></i>
+
+                  <span className="align-middle">
                     {common.isPasswordSet ? "Reset Password" : "Set Password"}
                   </span>
                 </a>
+
                 <a
-                  class="dropdown-item"
-                  // data-bs-toggle="modal"
-                  // data-bs-target="#SetLogoutTimeModal"
+                  className="dropdown-item"
                   onClick={handleOpenSessionModel}
                   style={{ cursor: "pointer" }}
                 >
-                  <i class="mdi mdi-clock-outline text-muted fs-16 align-middle me-1"></i>{" "}
-                  <span class="align-middle" data-key="t-logout">
-                    Set Session Timeout
-                  </span>
+                  <i className="mdi mdi-clock-outline text-muted fs-16 align-middle me-2"></i>
+
+                  <span className="align-middle">Set Session Timeout</span>
                 </a>
+
                 <Link to="/security" className="dropdown-item">
-                  <i className="  fas fa-lock text-muted fs-14 align-middle me-1"></i>{" "}
-                  <span className="align-middle" data-key="t-logout">
-                    Security
-                  </span>
+                  <i className="fas fa-lock text-muted fs-14 align-middle me-2"></i>
+
+                  <span className="align-middle">Security</span>
                 </Link>
+
                 <a
-                  class="dropdown-item"
+                  className="dropdown-item"
                   data-bs-toggle="modal"
                   data-bs-target="#logoutModal"
                   style={{ cursor: "pointer" }}
                 >
-                  <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>{" "}
-                  <span class="align-middle " data-key="t-logout">
-                    Logout
-                  </span>
+                  <i className="mdi mdi-logout text-muted fs-16 align-middle me-2"></i>
+
+                  <span className="align-middle">Logout</span>
                 </a>
               </div>
             </div>
+
+            <Tooltip title="Notifications">
+              <button
+                type="button"
+                className="figma-footer-notification"
+                id="page-header-notifications-dropdown"
+                onClick={() => {
+                  Notifications();
+                  closeNav();
+                }}
+                aria-label="Notifications"
+              >
+                <i className="fa-regular fa-bell"></i>
+
+                {notificationCount > 0 && (
+                  <span className="figma-notification-dot"></span>
+                )}
+              </button>
+            </Tooltip>
           </div>
           {/* <div class="sidebar-background"></div> */}
         </div>
