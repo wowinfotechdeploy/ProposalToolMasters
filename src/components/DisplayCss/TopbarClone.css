@@ -531,7 +531,7 @@
   min-height: 31px;
   padding: 7px 9px !important;
   border-radius: 6px;
-  color: #8292aa !important;
+  color: #090909 !important;
   font-size: 12px !important;
   font-weight: 500 !important;
   line-height: 1.35;
@@ -543,7 +543,7 @@
 
 .topbar-clone .changed-nav .menu-dropdown .nav-link:hover,
 .topbar-clone .changed-nav .subList .nav-link:hover {
-  color: #d6e0ee !important;
+  color: #080808 !important;
   background: rgba(255, 255, 255, 0.045) !important;
 }
 
