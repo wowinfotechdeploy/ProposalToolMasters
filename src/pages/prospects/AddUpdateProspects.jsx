@@ -7,6 +7,7 @@ import {
 } from "../../redux/Services/Master/BusinessTypeLookupListApi";
 import { ERROR_MESSAGES } from "../../components/GlobalMessage";
 import "../configure/packages/Package.css";
+import "./ProspectFormRedesign.css";
 import "../../pages/Settings/Organisations/Update-practice-details.css";
 import Upload_image_modal from "../../components/UpdateImageModel/Upload_image_modal";
 import AddressModal from "../../components/AddressModal/AddressModal";
@@ -210,7 +211,7 @@ const Basic_information = (props) => {
   };
 
   const IncorporatedValue = props.incorporatedInList.filter(
-    (item) => props.companyForm?.incInID == item.value
+    (item) => props.companyForm?.incInID == item.value,
   );
 
   // Individual details functions
@@ -269,7 +270,7 @@ const Basic_information = (props) => {
   };
 
   const VATRegFilter = Utils.VAT_Registered.find(
-    (item) => props.basicInfo.VATReg == item.value
+    (item) => props.basicInfo.VATReg == item.value,
   );
   function formatDate(dateString) {
     const dateObject = new Date(dateString);
@@ -427,7 +428,7 @@ const Basic_information = (props) => {
                               // Remove all spaces and dots
                               const cleanedValue = inputValue.replace(
                                 /[.\s]/g,
-                                ""
+                                "",
                               );
                               // Reject input if it starts with a digit
                               if (/\d/.test(cleanedValue)) {
@@ -439,7 +440,7 @@ const Basic_information = (props) => {
                               props.OnOfficerChange(
                                 index,
                                 "firstName",
-                                capitalizedValue
+                                capitalizedValue,
                               );
                             }}
                             maxLength={20}
@@ -475,7 +476,7 @@ const Basic_information = (props) => {
                               // Remove all spaces and dots
                               const cleanedValue = inputValue.replace(
                                 /[.\s]/g,
-                                ""
+                                "",
                               );
 
                               // Reject input if it starts with a digit
@@ -489,7 +490,7 @@ const Basic_information = (props) => {
                               props.OnOfficerChange(
                                 index,
                                 "lastName",
-                                capitalizedValue
+                                capitalizedValue,
                               );
                             }}
                             maxLength={20}
@@ -521,12 +522,12 @@ const Basic_information = (props) => {
                                 props.OnOfficerChange(
                                   index,
                                   "phoneCountryCodeID",
-                                  e
+                                  e,
                                 );
                                 props.OnOfficerChange(
                                   index,
                                   "countryCodeID",
-                                  e.value
+                                  e.value,
                                 );
                               }}
                             />
@@ -545,7 +546,7 @@ const Basic_information = (props) => {
                                   props.OnOfficerChange(
                                     index,
                                     "phoneNo",
-                                    sanitizedInput
+                                    sanitizedInput,
                                   );
                                 }}
                               />
@@ -556,7 +557,7 @@ const Basic_information = (props) => {
                             props.officersForm[index].phoneNo !== "" &&
                             props.officersForm[index].phoneNo !== undefined &&
                             !isValidPhoneNumber(
-                              props.officersForm[index].phoneNo
+                              props.officersForm[index].phoneNo,
                             ) && (
                               <span className="validation">
                                 {" "}
@@ -579,7 +580,7 @@ const Basic_information = (props) => {
                             placeholder="Email"
                             value={props.officersForm[index]?.emailID?.replace(
                               /\s/g,
-                              ""
+                              "",
                             )}
                             maxLength={50}
                             onChange={(e) => {
@@ -591,7 +592,7 @@ const Basic_information = (props) => {
                               // Remove whitespace from the entered value
                               const trimmedValue = enteredValue.replace(
                                 /\s/g,
-                                ""
+                                "",
                               );
 
                               // Check for consecutive dots
@@ -599,13 +600,13 @@ const Basic_information = (props) => {
                                 // If consecutive dots found, remove the last dot
                                 const correctedValue = trimmedValue.replace(
                                   /\.+/g,
-                                  "."
+                                  ".",
                                 );
                                 // Update the email address in the parent component
                                 props.OnOfficerChange(
                                   index,
                                   "emailID",
-                                  correctedValue
+                                  correctedValue,
                                 );
                                 return;
                               }
@@ -614,7 +615,7 @@ const Basic_information = (props) => {
                               props.OnOfficerChange(
                                 index,
                                 "emailID",
-                                trimmedValue
+                                trimmedValue,
                               );
                             }}
                           />
@@ -626,7 +627,7 @@ const Basic_information = (props) => {
                               </span>
                             ) : (
                               !isValidEmail(
-                                props.officersForm[index].emailID
+                                props.officersForm[index].emailID,
                               ) && (
                                 <span className="validation">
                                   Invalid email pattern
@@ -733,13 +734,13 @@ const Basic_information = (props) => {
                             const inputValue = e.target.value;
                             const trimmedValue = inputValue.replace(
                               /^\s+/g,
-                              ""
+                              "",
                             );
 
                             // Validation: Check if the trimmed value is either alphanumeric or only alphabet but not only numeric
                             const isValidName =
                               /^[a-zA-Z0-9\s,.!?"':;()-_`]+(?:[a-zA-Z0-9\s,.!?"':;()-_`]+)*$/.test(
-                                trimmedValue
+                                trimmedValue,
                               ) && !/^\d+$/.test(trimmedValue);
 
                             if (isValidName || trimmedValue === "") {
@@ -1103,7 +1104,7 @@ const Basic_information = (props) => {
                           onMouseDown={(e) => {
                             e.preventDefault();
                             props.setAddressPopUpTitle(
-                              "Registered Office Address"
+                              "Registered Office Address",
                             );
                             handleOpenRegisterAddressPopupCompany(e);
                           }}
@@ -1369,13 +1370,13 @@ const Basic_information = (props) => {
                               const inputValue = e.target.value;
                               const trimmedValue = inputValue.replace(
                                 /^\s+/g,
-                                ""
+                                "",
                               );
 
                               // Validation: Check if the trimmed value is either alphanumeric or only alphabet but not only numeric
                               const isValidName =
                                 /^[a-zA-Z0-9\s,.!?"':;()-_`]+(?:[a-zA-Z0-9\s,.!?"':;()-_`]+)*$/.test(
-                                  trimmedValue
+                                  trimmedValue,
                                 ) && !/^\d+$/.test(trimmedValue);
 
                               if (isValidName || trimmedValue === "") {
@@ -1645,7 +1646,7 @@ const OfficerDetails = (props) => {
                               // Remove all spaces and dots
                               const cleanedValue = inputValue.replace(
                                 /[.\s]/g,
-                                ""
+                                "",
                               );
                               // Reject input if it starts with a digit
                               if (/^\d/.test(cleanedValue)) {
@@ -1657,7 +1658,7 @@ const OfficerDetails = (props) => {
                               props.OnOfficerChange(
                                 index,
                                 "firstName",
-                                capitalizedValue
+                                capitalizedValue,
                               );
                             }}
                             maxLength={20}
@@ -1693,7 +1694,7 @@ const OfficerDetails = (props) => {
                               // Remove all spaces and dots
                               const cleanedValue = inputValue.replace(
                                 /[.\s]/g,
-                                ""
+                                "",
                               );
 
                               // Reject input if it starts with a digit
@@ -1707,7 +1708,7 @@ const OfficerDetails = (props) => {
                               props.OnOfficerChange(
                                 index,
                                 "lastName",
-                                capitalizedValue
+                                capitalizedValue,
                               );
                             }}
                             maxLength={20}
@@ -1739,12 +1740,12 @@ const OfficerDetails = (props) => {
                                 props.OnOfficerChange(
                                   index,
                                   "phoneCountryCodeID",
-                                  e
+                                  e,
                                 );
                                 props.OnOfficerChange(
                                   index,
                                   "countryCodeID",
-                                  e.value
+                                  e.value,
                                 );
                               }}
                             />
@@ -1763,7 +1764,7 @@ const OfficerDetails = (props) => {
                                   props.OnOfficerChange(
                                     index,
                                     "phoneNo",
-                                    sanitizedInput
+                                    sanitizedInput,
                                   );
                                 }}
                               />
@@ -1774,7 +1775,7 @@ const OfficerDetails = (props) => {
                             props.officersForm[index].phoneNo !== "" &&
                             props.officersForm[index].phoneNo !== undefined &&
                             !isValidPhoneNumber(
-                              props.officersForm[index].phoneNo
+                              props.officersForm[index].phoneNo,
                             ) && (
                               <span className="validation">
                                 {" "}
@@ -1798,13 +1799,13 @@ const OfficerDetails = (props) => {
                             placeholder="Email"
                             value={props.officersForm[index]?.emailID?.replace(
                               /\s/g,
-                              ""
+                              "",
                             )}
                             onChange={(e) =>
                               props.OnOfficerChange(
                                 index,
                                 "emailID",
-                                e.target.value
+                                e.target.value,
                               )
                             }
                           />
@@ -1816,7 +1817,7 @@ const OfficerDetails = (props) => {
                               </span>
                             ) : (
                               !isValidEmail(
-                                props.officersForm[index].emailID
+                                props.officersForm[index].emailID,
                               ) && (
                                 <span className="validation">
                                   Invalid email pattern
@@ -1945,8 +1946,12 @@ const OfficerDetails = (props) => {
                               placeholder="First Name"
                               value={
                                 props.officersForm[index].firstName
-                                  ? props.officersForm[index].firstName.charAt(0).toUpperCase() +
-                                  props.officersForm[index].firstName.slice(1).toLowerCase()
+                                  ? props.officersForm[index].firstName
+                                      .charAt(0)
+                                      .toUpperCase() +
+                                    props.officersForm[index].firstName
+                                      .slice(1)
+                                      .toLowerCase()
                                   : ""
                               }
                               onChange={(e) => {
@@ -1955,7 +1960,7 @@ const OfficerDetails = (props) => {
                                 // Remove all spaces and dots
                                 const cleanedValue = inputValue.replace(
                                   /[.\s]/g,
-                                  ""
+                                  "",
                                 );
 
                                 // Reject input if it starts with a digit
@@ -1969,7 +1974,7 @@ const OfficerDetails = (props) => {
                                 props.OnOfficerChange(
                                   index,
                                   "firstName",
-                                  capitalizedValue
+                                  capitalizedValue,
                                 );
                               }}
                               maxLength={20}
@@ -2002,8 +2007,12 @@ const OfficerDetails = (props) => {
                               placeholder="Last Name"
                               value={
                                 props.officersForm[index].lastName
-                                  ? props.officersForm[index].lastName.charAt(0).toUpperCase() +
-                                  props.officersForm[index].lastName.slice(1).toLowerCase()
+                                  ? props.officersForm[index].lastName
+                                      .charAt(0)
+                                      .toUpperCase() +
+                                    props.officersForm[index].lastName
+                                      .slice(1)
+                                      .toLowerCase()
                                   : ""
                               }
                               onChange={(e) => {
@@ -2012,7 +2021,7 @@ const OfficerDetails = (props) => {
                                 // Remove all spaces and dots
                                 const cleanedValue = inputValue.replace(
                                   /[.\s]/g,
-                                  ""
+                                  "",
                                 );
 
                                 // Reject input if it starts with a digit
@@ -2027,7 +2036,7 @@ const OfficerDetails = (props) => {
                                 props.OnOfficerChange(
                                   index,
                                   "lastName",
-                                  capitalizedValue
+                                  capitalizedValue,
                                 );
                               }}
                               maxLength={20}
@@ -2061,12 +2070,12 @@ const OfficerDetails = (props) => {
                                   props.OnOfficerChange(
                                     index,
                                     "phoneCountryCodeID",
-                                    e
+                                    e,
                                   );
                                   props.OnOfficerChange(
                                     index,
                                     "countryCodeID",
-                                    e.value
+                                    e.value,
                                   );
                                 }}
                               />
@@ -2084,7 +2093,7 @@ const OfficerDetails = (props) => {
                                     props.OnOfficerChange(
                                       index,
                                       "phoneNo",
-                                      sanitizedInput
+                                      sanitizedInput,
                                     );
                                   }}
                                 />
@@ -2095,7 +2104,7 @@ const OfficerDetails = (props) => {
                               props.officersForm[index].phoneNo !== "" &&
                               props.officersForm[index].phoneNo !== undefined &&
                               !isValidPhoneNumber(
-                                props.officersForm[index].phoneNo
+                                props.officersForm[index].phoneNo,
                               ) && (
                                 <span className="validation">
                                   {" "}
@@ -2108,9 +2117,10 @@ const OfficerDetails = (props) => {
                           <div class="col-md-3 col-sm-12 text-start text-md-end">
                             <label class="fieldset-label required">
                               Email
-                              {props.officersForm[index].isAuthorisedSignatory && 
+                              {props.officersForm[index]
+                                .isAuthorisedSignatory && (
                                 <span className="text-danger">*</span>
-                              } 
+                              )}
                             </label>
                           </div>
                           <div class="col-lg-9 col-md-8 col-sm-12">
@@ -2124,12 +2134,13 @@ const OfficerDetails = (props) => {
                                 props.OnOfficerChange(
                                   index,
                                   "emailID",
-                                  e.target.value.trim() // Remove spaces using regex
+                                  e.target.value.trim(), // Remove spaces using regex
                                 )
                               }
                             />
 
-                            {props.officerError && props.officersForm[index].isAuthorisedSignatory &&
+                            {props.officerError &&
+                              props.officersForm[index].isAuthorisedSignatory &&
                               (props.officersForm[index].emailID === null ||
                               props.officersForm[index].emailID === "" ? (
                                 <span className="validation">
@@ -2137,7 +2148,7 @@ const OfficerDetails = (props) => {
                                 </span>
                               ) : (
                                 !isValidEmail(
-                                  props.officersForm[index].emailID
+                                  props.officersForm[index].emailID,
                                 ) && (
                                   <span className="validation">
                                     Invalid email pattern
@@ -2166,7 +2177,7 @@ const OfficerDetails = (props) => {
                               onMouseDown={(e) => {
                                 e.preventDefault();
                                 props.setAddressPopUpTitle(
-                                  "Residential Address"
+                                  "Residential Address",
                                 );
                                 handleOpenRegisterOfficeAddressPopup(e, index);
                               }}
@@ -2250,7 +2261,8 @@ const OfficerDetails = (props) => {
                               <div className="col-lg-12 text-end">
                                 <span className="validation">
                                   {" "}
-                                  At least 1 authorised officer is required.{" "}
+                                  At least 1 authorised officer is
+                                  required.{" "}
                                 </span>
                               </div>
                             </div>
@@ -2269,8 +2281,12 @@ const OfficerDetails = (props) => {
                               placeholder="First Name"
                               value={
                                 props.officersForm[index].firstName
-                                  ? props.officersForm[index].firstName.charAt(0).toUpperCase() +
-                                  props.officersForm[index].firstName.slice(1).toLowerCase()
+                                  ? props.officersForm[index].firstName
+                                      .charAt(0)
+                                      .toUpperCase() +
+                                    props.officersForm[index].firstName
+                                      .slice(1)
+                                      .toLowerCase()
                                   : ""
                               }
                               onChange={(e) => {
@@ -2279,7 +2295,7 @@ const OfficerDetails = (props) => {
                                 // Remove all spaces and dots
                                 const cleanedValue = inputValue.replace(
                                   /[.\s]/g,
-                                  ""
+                                  "",
                                 );
 
                                 // Reject input if it starts with a digit
@@ -2293,7 +2309,7 @@ const OfficerDetails = (props) => {
                                 props.OnOfficerChange(
                                   index,
                                   "firstName",
-                                  capitalizedValue
+                                  capitalizedValue,
                                 );
                               }}
                               maxLength={20}
@@ -2322,8 +2338,12 @@ const OfficerDetails = (props) => {
                               placeholder="Last Name"
                               value={
                                 props.officersForm[index].lastName
-                                  ? props.officersForm[index].lastName.charAt(0).toUpperCase() +
-                                  props.officersForm[index].lastName.slice(1).toLowerCase()
+                                  ? props.officersForm[index].lastName
+                                      .charAt(0)
+                                      .toUpperCase() +
+                                    props.officersForm[index].lastName
+                                      .slice(1)
+                                      .toLowerCase()
                                   : ""
                               }
                               onChange={(e) => {
@@ -2332,7 +2352,7 @@ const OfficerDetails = (props) => {
                                 // Remove all spaces and dots
                                 const cleanedValue = inputValue.replace(
                                   /[.\s]/g,
-                                  ""
+                                  "",
                                 );
 
                                 // Reject input if it starts with a digit
@@ -2347,7 +2367,7 @@ const OfficerDetails = (props) => {
                                 props.OnOfficerChange(
                                   index,
                                   "lastName",
-                                  capitalizedValue
+                                  capitalizedValue,
                                 );
                               }}
                               maxLength={20}
@@ -2384,7 +2404,7 @@ const OfficerDetails = (props) => {
                                     index,
                                     "officerRole",
                                     value.charAt(0).toUpperCase() +
-                                      value.slice(1).toLowerCase()
+                                      value.slice(1).toLowerCase(),
                                   );
                                 }
                               }}
@@ -2422,7 +2442,7 @@ const OfficerDetails = (props) => {
                             />
                             {props.InvalidAppointedOnDate &&
                             !isValidDate(
-                              props.officersForm[index]?.appointedOn
+                              props.officersForm[index]?.appointedOn,
                             ) ? (
                               <span className="validation">Invalid Date</span>
                             ) : null}
@@ -2458,12 +2478,12 @@ const OfficerDetails = (props) => {
                                   props.OnOfficerChange(
                                     index,
                                     "phoneCountryCodeID",
-                                    e
+                                    e,
                                   );
                                   props.OnOfficerChange(
                                     index,
                                     "countryCodeID",
-                                    e.value
+                                    e.value,
                                   );
                                 }}
                               />
@@ -2482,7 +2502,7 @@ const OfficerDetails = (props) => {
                                     props.OnOfficerChange(
                                       index,
                                       "phoneNo",
-                                      sanitizedInput
+                                      sanitizedInput,
                                     );
                                   }}
                                 />
@@ -2493,7 +2513,7 @@ const OfficerDetails = (props) => {
                               props.officersForm[index].phoneNo !== "" &&
                               props.officersForm[index].phoneNo !== undefined &&
                               !isValidPhoneNumber(
-                                props.officersForm[index].phoneNo
+                                props.officersForm[index].phoneNo,
                               ) && (
                                 <span className="validation">
                                   {" "}
@@ -2505,9 +2525,10 @@ const OfficerDetails = (props) => {
                           <div class="col-md-3 col-sm-12 text-start text-md-end">
                             <label class="fieldset-label required">
                               Email
-                              {props.officersForm[index].isAuthorisedSignatory && 
+                              {props.officersForm[index]
+                                .isAuthorisedSignatory && (
                                 <span className="text-danger">*</span>
-                              } 
+                              )}
                             </label>
                           </div>
                           <div class="col-lg-9 col-md-8 col-sm-12">
@@ -2523,11 +2544,12 @@ const OfficerDetails = (props) => {
                                 props.OnOfficerChange(
                                   index,
                                   "emailID",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                             />
-                            {props.officerError && props.officersForm[index].isAuthorisedSignatory &&
+                            {props.officerError &&
+                              props.officersForm[index].isAuthorisedSignatory &&
                               (props.officersForm[index].emailID === null ||
                               props.officersForm[index].emailID === "" ? (
                                 <span className="validation">
@@ -2535,7 +2557,7 @@ const OfficerDetails = (props) => {
                                 </span>
                               ) : (
                                 !isValidEmail(
-                                  props.officersForm[index].emailID
+                                  props.officersForm[index].emailID,
                                 ) && (
                                   <span className="validation">
                                     Invalid email pattern
@@ -2564,7 +2586,7 @@ const OfficerDetails = (props) => {
                               onMouseDown={(e) => {
                                 e.preventDefault();
                                 props.setAddressPopUpTitle(
-                                  "Correspondence Address"
+                                  "Correspondence Address",
                                 );
                                 handleOpenRegisterOfficeAddressPopup(e, index);
                               }}
@@ -2712,7 +2734,7 @@ const Add_Update_prospect = () => {
     useState(false);
   const [fullAddress, setFullAddress] = useState("");
   const [addressUpdatedDatetime, setAddressUpdatedDatetime] = useState(
-    Date.now()
+    Date.now(),
   );
   const [SearchCompany, setSearchCompany] = useState("");
   const {
@@ -2833,7 +2855,7 @@ const Add_Update_prospect = () => {
       saveLocationState?.Action === null ||
         saveLocationState?.Action === undefined
         ? "Add"
-        : "Update"
+        : "Update",
     ); //Do not change this naming convention
     if (
       saveLocationState?.Action !== undefined &&
@@ -2946,7 +2968,7 @@ const Add_Update_prospect = () => {
     try {
       const data = await GetProspectTypeVariationLookupList(
         common.organisationKeyID,
-        common.userKeyID
+        common.userKeyID,
       );
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
@@ -3005,7 +3027,7 @@ const Add_Update_prospect = () => {
     try {
       const data = await GetNOBTypeLookupList(
         common.organisationKeyID,
-        common.userKeyID
+        common.userKeyID,
       );
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
@@ -3098,7 +3120,7 @@ const Add_Update_prospect = () => {
           let officerArray = [];
           ModelData.officersList.forEach((item) => {
             const PhoneSelectedValue = CountryList.find(
-              (countryCode) => item.countryCodeID == countryCode.value
+              (countryCode) => item.countryCodeID == countryCode.value,
             );
 
             let officerObj = {
@@ -3160,7 +3182,7 @@ const Add_Update_prospect = () => {
           };
           setCompanyForm(companyObj);
           const fullAddress = concatenateFullAddress(
-            ModelData.companyDetails?.companyAddress
+            ModelData.companyDetails?.companyAddress,
           );
           setConcatenatedRegisterAddress(fullAddress);
 
@@ -3175,7 +3197,7 @@ const Add_Update_prospect = () => {
               };
 
               CorrespondenceOrResidentialAddress.push(
-                CorrespondenceOrResidentialAddressObj
+                CorrespondenceOrResidentialAddressObj,
               );
             } else {
               CorrespondenceOrResidentialAddress.push({
@@ -3209,7 +3231,7 @@ const Add_Update_prospect = () => {
 
   const NOBTypeValue = basicInfo?.businessNatureID
     ? NatureOfBusinessTypeLookupList.find(
-        (nature) => nature.value === basicInfo.businessNatureID[0]
+        (nature) => nature.value === basicInfo.businessNatureID[0],
       ) || null
     : null;
   // tab value change
@@ -3325,7 +3347,7 @@ const Add_Update_prospect = () => {
         const CompanyDetails = data?.data?.responseData;
         const address = CompanyDetails.registered_office_address;
         const selected_Country = countryLookupList.filter(
-          (c) => c.countryName == address.country
+          (c) => c.countryName == address.country,
         )[0];
 
         const company_Address = {
@@ -3408,7 +3430,7 @@ const Add_Update_prospect = () => {
             officersFullAddress: null,
           };
           CorrespondenceOrResidentialAddress.push(
-            CorrespondenceOrResidentialAddressObj
+            CorrespondenceOrResidentialAddressObj,
           );
         } else {
           CompanyOfficer.forEach((officer) => {
@@ -3423,7 +3445,7 @@ const Add_Update_prospect = () => {
               officerLastName = officerLastName?.substring(0, 29);
             }
             const selected_Country = countryLookupList.filter(
-              (c) => c.countryName == officer?.address.country
+              (c) => c.countryName == officer?.address.country,
             )[0];
 
             let officerAddress = {
@@ -3468,7 +3490,7 @@ const Add_Update_prospect = () => {
               officersFullAddress: fullAddressConcatenation,
             };
             CorrespondenceOrResidentialAddress.push(
-              CorrespondenceOrResidentialAddressObj
+              CorrespondenceOrResidentialAddressObj,
             );
           });
         }
@@ -3484,9 +3506,9 @@ const Add_Update_prospect = () => {
   const concatenateFullAddress = (address) => {
     const addPart = (part) => (part ? `${part}, ` : "");
     let concatenatedAddress = `${addPart(
-      address?.addressLine1?.replace(",", " ")
+      address?.addressLine1?.replace(",", " "),
     )}${addPart(address?.addressLine2)}${addPart(address?.locality)}${addPart(
-      address?.region
+      address?.region,
     )}${addPart(address?.country || address?.countryName)}${
       address?.postcode || ""
     }`;
@@ -3500,7 +3522,8 @@ const Add_Update_prospect = () => {
   const isDuplicateEmail = (email, index) => {
     return officersForm.some(
       (officer, idx) =>
-        officer.emailID?.toLowerCase() === email?.toLowerCase() && idx !== index
+        officer.emailID?.toLowerCase() === email?.toLowerCase() &&
+        idx !== index,
     );
   };
   const OnOfficerChange = (index, field, value) => {
@@ -3574,7 +3597,7 @@ const Add_Update_prospect = () => {
 
   const handleCompanyInputChange = (e) => {
     const inputValue = e.target.value;
-    if(companyDebounceRef.current) { 
+    if (companyDebounceRef.current) {
       clearTimeout(companyDebounceRef.current);
     }
     setEmailError("");
@@ -3585,7 +3608,7 @@ const Add_Update_prospect = () => {
     } else {
       companyDebounceRef.current = setTimeout(() => {
         getCompanies(inputValue);
-      },700);
+      }, 700);
     }
   };
 
@@ -3630,7 +3653,7 @@ const Add_Update_prospect = () => {
       basicInfo.originalBusinessTypeID === CLIENT_TYPES.Company
     ) {
       authorizedRecords = officersForm.filter(
-        (item) => item.isAuthorisedSignatory === true
+        (item) => item.isAuthorisedSignatory === true,
       );
       setAuthorityCount(authorizedRecords.length);
     }
@@ -3864,9 +3887,9 @@ const Add_Update_prospect = () => {
             officersForm[i].lastName === undefined ||
             authorizedRecords.length === 0 ||
             (officersForm[i].isAuthorisedSignatory &&
-            (officersForm[i].emailID === "" ||
-            officersForm[i].emailID === null ||
-            !emailPattern.test(officersForm[i].emailID))) ||
+              (officersForm[i].emailID === "" ||
+                officersForm[i].emailID === null ||
+                !emailPattern.test(officersForm[i].emailID))) ||
             concatenatedResidentialAddress[i]?.officersFullAddress === null ||
             concatenatedResidentialAddress[i]?.officersFullAddress === ""
           ) {
@@ -3968,9 +3991,9 @@ const Add_Update_prospect = () => {
             officersForm[i].lastName === null ||
             officersForm[i].lastName === undefined ||
             (officersForm[i].isAuthorisedSignatory &&
-            (officersForm[i].emailID === "" ||
-            officersForm[i].emailID === null ||
-            !emailPattern.test(officersForm[i]?.emailID))) ||
+              (officersForm[i].emailID === "" ||
+                officersForm[i].emailID === null ||
+                !emailPattern.test(officersForm[i]?.emailID))) ||
             officersForm[i].officerRole === "" ||
             officersForm[i].officerRole === null ||
             officersForm[i]?.appointedOn === "" ||
@@ -4075,8 +4098,8 @@ const Add_Update_prospect = () => {
                       activeTab === CREATE_PRACTICE_DETAILS.BasicInformation
                         ? "step tab-field-center"
                         : isValidForm === true
-                        ? "step tab-field-center"
-                        : "step disabled cursor-not-allowed tab-field-center"
+                          ? "step tab-field-center"
+                          : "step disabled cursor-not-allowed tab-field-center"
                     } w-90`}
                   >
                     <span className="stepCount">1</span>
@@ -4102,8 +4125,8 @@ const Add_Update_prospect = () => {
                           activeTab === CREATE_PRACTICE_DETAILS.OfficerDetails
                             ? "step tab-field-center"
                             : isValidForm === true
-                            ? "step tab-field-center"
-                            : "step disabled cursor-not-allowed tab-field-center"
+                              ? "step tab-field-center"
+                              : "step disabled cursor-not-allowed tab-field-center"
                         } w-90`}
                       >
                         <span className="stepCount">2</span>

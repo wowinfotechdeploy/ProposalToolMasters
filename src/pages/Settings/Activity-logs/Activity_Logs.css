@@ -1,43 +1,514 @@
-.btn-primary {
-    color: #fff;
-    background-color: #02A499;
-    border-color: #02A499;
+/* =========================================================
+   ACTIVITY LOGS - FIGMA REDESIGN
+   ========================================================= */
+
+.activity-redesign {
+  --activity-bg: #f7f9fc;
+  --activity-white: #ffffff;
+
+  --activity-heading: #14243b;
+  --activity-text: #26364b;
+  --activity-muted: #687386;
+
+  --activity-border: #dde5ee;
+  --activity-border-light: #e8edf3;
+
+  --activity-cyan: #14b5d1;
+
+  width: 100%;
+
+  min-height: 100%;
+
+  background: var(--activity-bg);
+
+  color: var(--activity-text);
 }
 
-.btn-primary:hover {
-    color: #fff;
-    background-color: #02A499;
-    border-color: #02A499;
+.activity-redesign,
+.activity-redesign * {
+  box-sizing: border-box;
 }
 
-.activity_logs {
-    margin-top: 60px;
-}
-.activity-logs-content{
-    margin-top: calc(25px + 21px);
-  padding: 68PX 0;
-}
+.activity-redesign__inner {
+  width: 100%;
 
-/* .............tab responsive css................ */
-@media (min-width: 768px) and (max-width: 991px){
-    .activity-logs-content{
-        margin-top: calc(25px + 21px);
-      padding: 38PX 0;
-    }
+  max-width: 1450px;
 
-}
-/* ...............mobile responsive css........... */
-@media (min-width: 320px) and (max-width: 767px) {
-    .activity-logs-content{
-        margin-top: calc(25px + 21px);
-      padding: 38PX 0;
-    }
+  margin: 0 auto;
+
+  padding: 36px 34px 44px;
 }
 
-@media only screen and (max-width:1024px) {
-    .activity-logs-content{
-        margin-top: calc(25px + 21px);
-      padding: 38PX 0;
-    }
+/* =========================================================
+   HEADER
+   ========================================================= */
 
+.activity-redesign-header {
+  margin-bottom: 26px;
+}
+
+.activity-redesign-header__title {
+  margin: 0;
+
+  color: var(--activity-heading);
+
+  font-size: 30px;
+
+  font-weight: 700;
+
+  line-height: 1.2;
+}
+
+.activity-redesign-header__subtitle {
+  margin: 5px 0 0;
+
+  color: var(--activity-muted);
+
+  font-size: 14px;
+
+  line-height: 1.4;
+}
+
+/* =========================================================
+   FILTER CARD
+   ========================================================= */
+
+.activity-redesign-filter {
+  width: 100%;
+
+  margin-bottom: 28px;
+
+  padding: 15px 16px;
+
+  border: 1px solid var(--activity-border);
+
+  border-radius: 10px;
+
+  background: var(--activity-white);
+}
+
+.activity-redesign-filter__content {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  flex-wrap: wrap;
+}
+
+.activity-redesign-filter__select {
+  width: 235px;
+}
+
+/* =========================================================
+   REACT SELECT
+   ========================================================= */
+
+.activity-redesign .activity-date-select__control {
+  min-height: 40px !important;
+
+  height: 40px !important;
+
+  border: 1px solid #d8e1eb !important;
+
+  border-radius: 8px !important;
+
+  background: #ffffff !important;
+
+  box-shadow: none !important;
+}
+
+.activity-redesign .activity-date-select__control:hover {
+  border-color: #c6d1dd !important;
+}
+
+.activity-redesign .activity-date-select__control--is-focused {
+  border-color: #88d2e1 !important;
+
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08) !important;
+}
+
+.activity-redesign .activity-date-select__value-container {
+  padding: 0 11px !important;
+}
+
+.activity-redesign .activity-date-select__single-value,
+.activity-redesign .activity-date-select__placeholder {
+  color: #566273 !important;
+
+  font-size: 12px !important;
+}
+
+.activity-redesign .activity-date-select__indicator-separator {
+  display: none;
+}
+
+.activity-redesign .activity-date-select__menu {
+  z-index: 50 !important;
+}
+
+/* =========================================================
+   CUSTOM DATE RANGE
+   ========================================================= */
+
+.activity-custom-dates {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  flex-wrap: wrap;
+}
+
+.activity-custom-date {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+}
+
+.activity-custom-date__label {
+  color: #687386;
+
+  font-size: 11px;
+
+  font-weight: 600;
+}
+
+.activity-redesign .react-date-picker {
+  width: 175px;
+}
+
+.activity-redesign .react-date-picker__wrapper {
+  min-height: 40px;
+
+  padding: 0 8px;
+
+  border: 1px solid #d8e1eb !important;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+}
+
+.activity-redesign .react-date-picker__inputGroup {
+  color: #445166;
+
+  font-size: 12px;
+}
+
+/* =========================================================
+   TIMELINE OUTER CARD
+   ========================================================= */
+
+.activity-timeline-card {
+  width: 100%;
+
+  padding: 28px 28px 30px;
+
+  border: 1px solid var(--activity-border);
+
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.02),
+    0 4px 12px rgba(15, 23, 42, 0.025);
+}
+
+/* =========================================================
+   TIMELINE
+   ========================================================= */
+
+.activity-timeline {
+  width: 100%;
+}
+
+.activity-timeline__row {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns: 34px minmax(0, 1fr);
+
+  gap: 18px;
+
+  min-height: 116px;
+}
+
+.activity-timeline__row:last-child {
+  min-height: auto;
+}
+
+/* =========================================================
+   RAIL
+   ========================================================= */
+
+.activity-timeline__rail {
+  position: relative;
+
+  display: flex;
+
+  justify-content: center;
+}
+
+.activity-timeline__rail::after {
+  content: "";
+
+  position: absolute;
+
+  top: 24px;
+
+  bottom: -1px;
+
+  width: 1px;
+
+  background: #dfe7ef;
+}
+
+.activity-timeline__row:last-child .activity-timeline__rail::after {
+  display: none;
+}
+
+/* =========================================================
+   DOT
+   ========================================================= */
+
+.activity-timeline__dot {
+  position: relative;
+
+  z-index: 2;
+
+  width: 10px;
+
+  height: 10px;
+
+  margin-top: 18px;
+
+  border: 2px solid #ffffff;
+
+  border-radius: 50%;
+
+  background: currentColor;
+
+  box-shadow: 0 0 0 1px currentColor;
+}
+
+/* purely visual alternating colours */
+
+.activity-timeline__dot--0 {
+  color: #09899f;
+}
+
+.activity-timeline__dot--1 {
+  color: #20bd6c;
+}
+
+.activity-timeline__dot--2 {
+  color: #6265ed;
+}
+
+.activity-timeline__dot--3 {
+  color: #7d838c;
+}
+
+.activity-timeline__dot--4 {
+  color: #d2262e;
+}
+
+/* =========================================================
+   LOG CARD
+   ========================================================= */
+
+.activity-entry-card {
+  width: 100%;
+
+  min-height: 88px;
+
+  margin-bottom: 24px;
+
+  padding: 17px 20px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  border: 1px solid #d7dfe8;
+
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.activity-entry-card:hover {
+  border-color: #c5d3df;
+
+  box-shadow: 0 5px 14px rgba(15, 23, 42, 0.045);
+
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   DATE
+   ========================================================= */
+
+.activity-entry-card__date {
+  margin-bottom: 7px;
+
+  color: #657184;
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  line-height: 1.2;
+}
+
+/* =========================================================
+   DESCRIPTION
+   ========================================================= */
+
+.activity-entry-card__description {
+  width: fit-content;
+
+  max-width: 100%;
+
+  margin: 0;
+
+  padding: 0;
+
+  border: none;
+
+  outline: none;
+
+  background: transparent;
+
+  color: #17273e;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  line-height: 1.45;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition: color 0.15s ease;
+}
+
+.activity-entry-card__description:hover {
+  color: #05859e;
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.activity-redesign-empty {
+  min-height: 240px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+}
+
+/* =========================================================
+   PAGINATION
+   ========================================================= */
+
+.activity-redesign-pagination {
+  width: 100%;
+
+  margin-top: 18px;
+
+  display: flex;
+
+  justify-content: center;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.activity-redesign footer {
+  background: var(--activity-bg);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 991px) {
+  .activity-redesign__inner {
+    padding: 28px 20px 38px;
+  }
+}
+
+@media (max-width: 767px) {
+  .activity-redesign__inner {
+    padding: 22px 12px 30px;
+  }
+
+  .activity-redesign-header__title {
+    font-size: 24px;
+  }
+
+  .activity-redesign-header__subtitle {
+    font-size: 12px;
+  }
+
+  .activity-redesign-filter {
+    padding: 12px;
+  }
+
+  .activity-redesign-filter__select {
+    width: 100%;
+  }
+
+  .activity-custom-dates {
+    width: 100%;
+  }
+
+  .activity-custom-date {
+    width: 100%;
+  }
+
+  .activity-redesign .react-date-picker {
+    width: 100%;
+  }
+
+  .activity-timeline-card {
+    padding: 20px 12px;
+  }
+
+  .activity-timeline__row {
+    grid-template-columns: 24px minmax(0, 1fr);
+
+    gap: 10px;
+  }
+
+  .activity-entry-card {
+    min-height: 80px;
+
+    padding: 14px 15px;
+  }
+
+  .activity-entry-card__description {
+    font-size: 13px;
+  }
 }
