@@ -1,0 +1,783 @@
+/* =========================================================
+   PROSPECT LIST — FIGMA REDESIGN
+   Visual-only stylesheet. The component logic and API flow
+   remain in Prospects.jsx.
+   ========================================================= */
+
+.prospects-figma {
+  --prospects-bg: #f7f9fc;
+  --prospects-white: #ffffff;
+  --prospects-navy: #0e1930;
+  --prospects-heading: #14243b;
+  --prospects-text: #27364b;
+  --prospects-muted: #687386;
+  --prospects-border: #dfe6ef;
+  --prospects-border-soft: #e8edf3;
+  --prospects-cyan: #14b5d1;
+  --prospects-cyan-hover: #0da5c1;
+  --prospects-green: #14b98b;
+  --prospects-inactive: #dce3ec;
+
+  width: 100%;
+  min-height: 100%;
+  background: var(--prospects-bg);
+}
+
+.prospects-figma,
+.prospects-figma * {
+  box-sizing: border-box;
+}
+
+.prospects-figma__inner {
+  width: 100%;
+  margin: 0 auto;
+  padding: 22px 30px 36px;
+}
+
+/* =========================================================
+   TABS
+   ========================================================= */
+
+.prospects-tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  min-height: 62px;
+  padding: 0 24px;
+  border-bottom: 1px solid #e4e9f0;
+  background: #f8faff;
+}
+
+.prospects-tabs__item {
+  position: relative;
+  min-height: 62px;
+  padding: 0 4px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #4d5562;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.prospects-tabs__item::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  border-radius: 2px 2px 0 0;
+  background: transparent;
+}
+
+.prospects-tabs__item.is-active {
+  color: var(--prospects-heading);
+}
+
+.prospects-tabs__item.is-active::after {
+  background: var(--prospects-cyan);
+}
+
+/* =========================================================
+   MAIN PANEL
+   ========================================================= */
+
+.prospects-panel {
+  margin-top: 12px;
+  overflow: visible;
+  border: 1px solid var(--prospects-border);
+  border-radius: 14px;
+  background: var(--prospects-white);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.02),
+    0 4px 12px rgba(15, 23, 42, 0.035);
+}
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.prospects-toolbar {
+  min-height: 70px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid var(--prospects-border-soft);
+}
+
+.prospects-toolbar__left,
+.prospects-toolbar__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.prospects-search {
+  position: relative;
+  width: 295px;
+  max-width: 100%;
+}
+
+.prospects-search__icon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  z-index: 2;
+  transform: translateY(-50%);
+  color: #4c596b;
+  pointer-events: none;
+}
+
+.prospects-search input {
+  width: 100%;
+  height: 40px;
+  padding: 0 13px 0 38px;
+  border: 1px solid #dbe3ec;
+  border-radius: 8px;
+  outline: 0;
+  background: #ffffff;
+  color: #27364b;
+  font-size: 13px;
+  font-weight: 400;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.prospects-search input::placeholder {
+  color: #7d8795;
+}
+
+.prospects-search input:focus {
+  border-color: #9fdbea;
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08);
+}
+
+.prospects-filter-btn,
+.prospects-clear-filter,
+.prospects-delete-selected,
+.prospects-add-btn {
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.prospects-filter-btn {
+  padding: 0 15px;
+  border: 1px solid #dbe3ec;
+  background: #ffffff;
+  color: #3d4858;
+}
+
+.prospects-filter-btn:hover,
+.prospects-filter-btn.is-active {
+  border-color: #b7dfe8;
+  background: #f0fbfd;
+  color: #087f98;
+}
+
+.prospects-clear-filter {
+  padding: 0 14px;
+  border: 1px solid #dbe3ec;
+  background: #f8fafc;
+  color: #566273;
+}
+
+.prospects-clear-filter:hover {
+  background: #f1f5f9;
+}
+
+.prospects-delete-selected {
+  padding: 0 14px;
+  border: 1px solid #f2cbd0;
+  background: #fff5f6;
+  color: #c93d4b;
+}
+
+.prospects-delete-selected:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.prospects-add-btn {
+  min-width: 142px;
+  padding: 0 17px;
+  border: 1px solid var(--prospects-cyan);
+  background: var(--prospects-cyan);
+  color: #ffffff;
+}
+
+.prospects-add-btn:hover {
+  border-color: var(--prospects-cyan-hover);
+  background: var(--prospects-cyan-hover);
+  color: #ffffff;
+}
+
+/* Contact select: functionality retained from original screen */
+.prospects-contact-select {
+  width: 210px;
+}
+
+.prospects-figma .prospect-contact__control {
+  min-height: 40px !important;
+  height: 40px !important;
+  border: 1px solid #dbe3ec !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.prospects-figma .prospect-contact__value-container {
+  padding: 0 10px !important;
+}
+
+.prospects-figma .prospect-contact__single-value,
+.prospects-figma .prospect-contact__placeholder {
+  color: #566273 !important;
+  font-size: 12px !important;
+}
+
+.prospects-figma .prospect-contact__indicator-separator {
+  display: none !important;
+}
+
+.prospects-figma .prospect-contact__indicators {
+  height: 40px !important;
+}
+
+.prospects-figma .prospect-contact__menu {
+  z-index: 30 !important;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.prospects-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.prospects-table {
+  width: 100%;
+  min-width: 920px;
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #ffffff;
+  color: var(--prospects-text);
+  table-layout: fixed;
+}
+
+.prospects-table thead th {
+  height: 44px;
+  padding: 0 22px;
+  border: 0;
+  background: var(--prospects-navy);
+  color: #f8fafc;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.035em;
+  vertical-align: middle;
+}
+
+.prospects-table thead th:first-child {
+  width: 32%;
+}
+
+.prospects-table thead th:nth-child(2) {
+  width: 23%;
+}
+
+.prospects-table thead th:nth-child(3) {
+  width: 16%;
+}
+
+.prospects-table thead th:nth-child(4) {
+  width: 16%;
+}
+
+.prospects-table thead th:nth-child(5) {
+  width: 13%;
+}
+
+.prospects-table__header-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.prospects-table__header-label input,
+.prospect-name-cell > input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--prospects-cyan);
+  cursor: pointer;
+}
+
+.prospects-sort {
+  width: 21px;
+  height: 21px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #edf2f7;
+  cursor: pointer;
+}
+
+.prospects-sort svg {
+  transition: transform 0.15s ease;
+}
+
+.prospects-sort.is-desc svg {
+  transform: rotate(180deg);
+}
+
+.prospects-table tbody td {
+  height: 64px;
+  padding: 8px 22px;
+  border: 0;
+  border-bottom: 1px solid #e5ebf2;
+  background: #ffffff;
+  color: #27364b;
+  font-size: 12px;
+  vertical-align: middle;
+}
+
+.prospects-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.prospects-table tbody tr {
+  transition: background-color 0.12s ease;
+}
+
+.prospects-table tbody tr:hover td {
+  background: #fbfdff;
+}
+
+.prospects-table__actions-heading,
+.prospects-table__actions-cell {
+  text-align: center;
+}
+
+/* =========================================================
+   PROSPECT CELL
+   ========================================================= */
+
+.prospect-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.prospect-person {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.prospect-avatar {
+  width: 37px;
+  height: 37px;
+  flex: 0 0 37px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #102132;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.prospect-avatar.avatar-teal {
+  background: #0e8195;
+  color: #ffffff;
+}
+
+.prospect-avatar.avatar-green {
+  background: #13bf88;
+  color: #072b21;
+}
+
+.prospect-avatar.avatar-red {
+  background: #f33e49;
+  color: #ffffff;
+}
+
+.prospect-avatar.avatar-orange {
+  background: #f7a10c;
+  color: #302100;
+}
+
+.prospect-avatar.avatar-cyan {
+  background: #4bc9eb;
+}
+
+.prospect-avatar.avatar-purple {
+  background: #c60bbd;
+  color: #ffffff;
+}
+
+.prospect-avatar.avatar-slate {
+  background: #e5eaf1;
+  color: #334155;
+}
+
+.prospect-person__copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.prospect-name-button {
+  max-width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #17263c;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.prospect-name-button:hover {
+  color: #087f98;
+}
+
+.prospect-added-date {
+  margin-top: 2px;
+  color: #687386;
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.prospect-email {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  color: #27364b;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prospect-email strong {
+  margin-left: 3px;
+}
+
+/* =========================================================
+   TYPE
+   ========================================================= */
+
+.prospect-type-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 62px;
+  min-height: 19px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #e7effd;
+  color: #4a5668;
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.prospect-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.prospect-status__switch {
+  margin: 0 !important;
+}
+
+.prospect-status__switch-label {
+  margin: 0 !important;
+}
+
+.prospect-status__switch-label .MuiFormControlLabel-label {
+  display: none;
+}
+
+.prospect-status__text {
+  color: #596474;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.prospect-status__text.is-active {
+  color: #4f5b69;
+}
+
+.prospect-status__text.is-inactive {
+  color: #6b7280;
+}
+
+/* Make the existing MUI switch fit the compact Figma table */
+.prospect-status .MuiSwitch-root {
+  margin: 0 !important;
+}
+
+.prospect-status .MuiFormGroup-root {
+  margin: 0 !important;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.prospect-actions {
+  display: inline-flex;
+  justify-content: center;
+}
+
+.prospect-actions__trigger {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 7px;
+  outline: 0;
+  background: transparent;
+  color: #4b5563;
+  cursor: pointer;
+}
+
+.prospect-actions__trigger:hover,
+.prospect-actions__trigger:focus {
+  background: #f2f5f8;
+}
+
+.prospect-actions__menu {
+  min-width: 195px !important;
+  padding: 6px !important;
+  border: 1px solid #e1e7ee !important;
+  border-radius: 9px !important;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.13) !important;
+}
+
+.prospect-actions__menu .dropdown-item {
+  width: 100%;
+  min-height: 34px;
+  padding: 7px 9px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #344154;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.prospect-actions__menu .dropdown-item:hover {
+  background: #f4f7fa;
+}
+
+.prospect-actions__menu .dropdown-item.text-danger {
+  color: #d64553 !important;
+}
+
+/* =========================================================
+   PAGINATION
+   Existing PaginationComponent remains functional.
+   ========================================================= */
+
+.prospects-pagination {
+  min-height: 64px;
+  padding: 13px 16px;
+  border-top: 1px solid #e5ebf2;
+  background: #ffffff;
+}
+
+.prospects-pagination .pagination {
+  margin: 0 !important;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.prospects-pagination .page-link {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 9px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent !important;
+  border-radius: 7px !important;
+  background: #ffffff !important;
+  color: #4d5969 !important;
+  box-shadow: none !important;
+  font-size: 11px !important;
+}
+
+.prospects-pagination .page-item.active .page-link {
+  border-color: var(--prospects-cyan) !important;
+  background: var(--prospects-cyan) !important;
+  color: #ffffff !important;
+}
+
+.prospects-pagination .page-item:first-child .page-link,
+.prospects-pagination .page-item:last-child .page-link {
+  border-color: #e0e6ee !important;
+}
+
+/* =========================================================
+   NO RESULTS
+   ========================================================= */
+
+.prospects-no-results {
+  padding: 30px 16px;
+}
+
+/* =========================================================
+   PROSPECT VARIABLE MODAL
+   Keeps the existing functional modal but tidies presentation.
+   ========================================================= */
+
+.prospect-variable-modal {
+  border: 0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2) !important;
+}
+
+.prospect-variable-modal .modal-header,
+.prospect-variable-modal .modal-footer {
+  border-color: #e7ebf1;
+}
+
+.prospect-variable-modal .modal-title {
+  color: #16253b !important;
+  font-size: 17px !important;
+}
+
+.prospect-variable-modal .input-text {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 11px;
+  border: 1px solid #dbe3ec;
+  border-radius: 8px;
+  outline: none;
+}
+
+.prospect-variable-modal .input-text:focus {
+  border-color: #9fdbea;
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08);
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.prospects-figma footer {
+  background: var(--prospects-bg);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  .prospects-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .prospects-toolbar__left,
+  .prospects-toolbar__right {
+    width: 100%;
+  }
+
+  .prospects-toolbar__right {
+    justify-content: flex-end;
+  }
+
+  .prospects-search {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .prospects-figma__inner {
+    padding: 16px 12px 28px;
+  }
+
+  .prospects-tabs {
+    gap: 14px;
+    min-height: 54px;
+    padding: 0 12px;
+    overflow-x: auto;
+  }
+
+  .prospects-tabs__item {
+    min-height: 54px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .prospects-toolbar__left,
+  .prospects-toolbar__right {
+    flex-wrap: wrap;
+  }
+
+  .prospects-search,
+  .prospects-contact-select {
+    width: 100%;
+  }
+
+  .prospects-add-btn {
+    width: 100%;
+  }
+
+  .prospects-filter-btn,
+  .prospects-clear-filter,
+  .prospects-delete-selected {
+    flex: 1 1 auto;
+  }
+}

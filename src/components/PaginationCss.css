@@ -1,13 +1,238 @@
-.active>.page-link, .page-link.active {
-    background-color:#00afef !important;
-    border-color:#00afef !important;
+/* =========================================================
+   FIGMA PAGINATION
+   ========================================================= */
+
+.figma-pagination {
+  position: relative;
+
+  width: 100%;
+  min-height: 64px;
+
+  padding: 14px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+
+  box-sizing: border-box;
 }
-.active>.page-link, .page-link.active {
-    color:white !important;
+
+/* =========================================================
+   LEFT
+   ========================================================= */
+
+.figma-pagination__left {
+  position: absolute;
+
+  left: 16px;
+  top: 50%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  transform: translateY(-50%);
 }
-/* .pagination{
-    color: green !important;
-} */
-.page-link{
-    color: #00afef  !important;
+
+/* =========================================================
+   RIGHT
+   ========================================================= */
+
+.figma-pagination__right {
+  position: absolute;
+
+  right: 16px;
+  top: 50%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  transform: translateY(-50%);
+}
+
+/* =========================================================
+   PREVIOUS / NEXT / FIRST / LAST
+   ========================================================= */
+
+.figma-pagination__nav {
+  min-width: 88px;
+  height: 34px;
+
+  padding: 0 11px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  border: 1px solid #dce4ed;
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  color: #4f5b6b;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+
+  cursor: pointer;
+
+  box-shadow: none;
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.figma-pagination__nav:hover:not(:disabled) {
+  border-color: #c9d3df;
+
+  background: #f7f9fb;
+
+  color: #1f2d41;
+}
+
+.figma-pagination__nav:disabled {
+  border-color: #e7ecf2;
+
+  background: #ffffff;
+
+  color: #aeb6c1;
+
+  cursor: not-allowed;
+}
+
+/* First / Last icon-only buttons */
+
+.figma-pagination__first,
+.figma-pagination__last {
+  min-width: 34px;
+  width: 34px;
+
+  padding: 0;
+}
+
+/* =========================================================
+   PAGE NUMBERS
+   ========================================================= */
+
+.figma-pagination__pages {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+}
+
+.figma-pagination__page {
+  width: 32px;
+  height: 32px;
+
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid transparent;
+  border-radius: 7px;
+
+  background: transparent;
+
+  color: #4f5b6b;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+
+  cursor: pointer;
+
+  box-shadow: none;
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.figma-pagination__page:hover:not(.is-active) {
+  border-color: #e0e6ed;
+
+  background: #f5f8fa;
+
+  color: #1f2d41;
+}
+
+/* Active page */
+
+.figma-pagination__page.is-active {
+  border-color: #14b5d1;
+
+  background: #14b5d1;
+
+  color: #ffffff;
+
+  font-weight: 600;
+}
+
+/* =========================================================
+   REMOVE GLOBAL BUTTON EFFECTS
+   ========================================================= */
+
+.figma-pagination button {
+  outline: none !important;
+}
+
+.figma-pagination button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 767px) {
+  .figma-pagination {
+    min-height: 108px;
+
+    padding: 14px 10px 56px;
+  }
+
+  .figma-pagination__left {
+    left: 10px;
+
+    top: auto;
+    bottom: 12px;
+
+    transform: none;
+  }
+
+  .figma-pagination__right {
+    right: 10px;
+
+    top: auto;
+    bottom: 12px;
+
+    transform: none;
+  }
+
+  .figma-pagination__nav {
+    min-width: 78px;
+  }
+
+  .figma-pagination__first,
+  .figma-pagination__last {
+    min-width: 34px;
+  }
 }

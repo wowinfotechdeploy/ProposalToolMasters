@@ -1115,7 +1115,7 @@ const NewDashboard = () => {
                             dashboardCount.quotationAwaitingSignatureEnd_AmountRecc,
                             dashboardCount.quotationAwaitingSignatureEnd_AmountOneOff,
                           )}
-                          icon={DraftEngagementLatterPng}
+                          icon={`/assets/icons/draftEL.svg`}
                           tone="neutral"
                           onClick={() =>
                             handleAddData("Sent", statusID.Awaiting_Signature)
@@ -1129,7 +1129,7 @@ const NewDashboard = () => {
                             dashboardCount.quotationDeclined_AmountOneOff,
                             dashboardCount.quotationDeclined_AmountRecc,
                           )}
-                          icon={EngagementLatterSendSvg}
+                          icon={`/assets/icons/cross.svg`}
                           tone="red"
                           onClick={() =>
                             handleAddData("Decline", statusID.Declined)
