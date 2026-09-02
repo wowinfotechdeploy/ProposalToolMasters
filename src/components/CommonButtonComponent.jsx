@@ -19,7 +19,7 @@ const CommonButtonComponent = ({
           data-bs-target={dataBsTarget}
           data-bs-toggle={data_bs_toggle}
         >
-          <i className="bi bi-plus-circle "></i>
+          <i className="bi bi-plus-circle " style={{ marginRight: "5px" }}></i>
           <span className="d-none d-sm-inline"> {name}</span>
           <span className="d-inline d-sm-none"> Add</span>
         </button>

@@ -99,7 +99,7 @@ const UsersList = () => {
     i,
     searchKeywordValue,
     sortValue,
-    InviteUserSort
+    InviteUserSort,
   ) => {
     setLoader(true);
     const pageNoList = i - 1;
@@ -131,7 +131,7 @@ const UsersList = () => {
                 newPaneNo,
                 searchKeywordValue,
                 sortValue,
-                InviteUserSort
+                InviteUserSort,
               );
               setCurrentPage(pageNoList);
               return;
@@ -148,7 +148,7 @@ const UsersList = () => {
                 i,
                 searchKeywordValue,
                 sortValue,
-                InviteUserSort
+                InviteUserSort,
               );
             }, 2000);
           } else {
@@ -190,7 +190,7 @@ const UsersList = () => {
     try {
       const Data = await DeleteUser(
         modelRequestData.InviteUserKeyID,
-        modelRequestData.userKeyID
+        modelRequestData.userKeyID,
       );
       if (Data) {
         setLoader(false);
@@ -268,7 +268,7 @@ const UsersList = () => {
       let ExistOrganisation = OrganisationsListData?.filter(
         (item) =>
           item.organisationKeyID?.toUpperCase() ===
-          common.organisationKeyID?.toUpperCase()
+          common.organisationKeyID?.toUpperCase(),
       );
       if (OrganisationsListData.length === 0) {
         localStorage.removeItem("userThemeSettingLocalStorage");
@@ -284,7 +284,7 @@ const UsersList = () => {
             organisationKeyID: common.organisationKeyID,
             professionTypeLists: common.professionTypeLists,
             organisationCount: ExistOrganisation.length,
-          })
+          }),
         );
       } else {
         localStorage.removeItem("OrganisationLocalList");
@@ -297,7 +297,7 @@ const UsersList = () => {
             businessTypeID: "",
             organisationKeyID: "",
             professionTypeLists: "",
-          })
+          }),
         );
         window.location.reload(true);
       }
@@ -315,433 +315,414 @@ const UsersList = () => {
   //Design part :
   return (
     <>
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
-        <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                        {/* <div className="container"> */}
-                          <div className="row">
-                            <div className="col-md-6 p-0 ">
-                  <div class="page-title-cls">{moduleName}</div>
-                </div>
-                <div className="col-auto ms-auto">
-                              <div className="d-flex justify-content-sm-end add-new-btn">
-                                {userAccessData.Admin_Setting_user_CanAdd && (
-                                  <CommonButtonComponent
-                                    title={getCrudButtonToolTipName("Invite", moduleName)}
-                                    name={getCrudButtonTextName("Invite", moduleName
-                                    )}
-                                    dataBsTarget="#addUpdateModal"
-                                    data_bs_toggle="modal"
-                                    AddBtn={() => UsersAddBtnClicked()}
-                                  />
-                                )}{" "}
-                              </div>
-                            </div>
-                  </div>
-                {/* </div> */}
-                </div>
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mt-2 mb-3 table-padding"
+      <div className="users-redesign">
+        <div className="users-page">
+          {/* =========================
+              PAGE HEADER
+              ========================= */}
+          <div className="users-page-header">
+            <div>
+              <h1 className="users-page-title">{moduleName}s</h1>
+              <p className="users-page-subtitle">
+                Manage users, roles and invitation status for your practice.
+              </p>
+            </div>
+
+            {userAccessData.Admin_Setting_user_CanAdd && (
+              <div className="users-invite-action">
+                <CommonButtonComponent
+                  title={getCrudButtonToolTipName("Invite", moduleName)}
+                  name={getCrudButtonTextName("Invite", moduleName)}
+                  dataBsTarget="#addUpdateModal"
+                  data_bs_toggle="modal"
+                  AddBtn={() => UsersAddBtnClicked()}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* =========================
+              USERS LIST CARD
+              ========================= */}
+          <section className="users-list-card">
+            {/* Toolbar */}
+            <div className="users-list-toolbar">
+              <div className="users-search-wrap">
+                <i className="ri-search-line users-search-icon"></i>
+
+                <input
+                  type="text"
+                  value={searchKeyword}
+                  onChange={(e) => {
+                    HandleSearch(e);
+                  }}
+                  className="users-search-input"
+                  placeholder={
+                    isMobile
+                      ? "Search"
+                      : getPlaceholderTextName("Search", moduleName)
+                  }
+                />
+              </div>
+
+              <div className="users-list-count">
+                {listCount > 0
+                  ? `${listCount} ${listCount === 1 ? "user" : "users"}`
+                  : ""}
+              </div>
+            </div>
+
+            {/* Table */}
+            <div className="users-table-wrap">
+              <table className="users-table" id="customerTable">
+                <thead>
+                  <tr>
+                    <th>
+                      <button
+                        type="button"
+                        className="users-sort-button"
+                        onClick={() => {
+                          setUserSortType("FirstName");
+                          handleUserSort(
+                            primaryUserSortDirectionObj.UserNameTypeSort ===
+                              null
+                              ? "asc"
+                              : primaryUserSortDirectionObj.UserNameTypeSort ===
+                                  "asc"
+                                ? "desc"
+                                : "asc",
+                            "FirstName",
+                          );
+                        }}
                       >
-                        <div class="search-box ms-2 width-searchbox">
-                          <div className="row">
-                            <div className="col-lg-12 col-md-12 col-sm-12 ">
-                              <div className="row align-items-center">
-                                <div className="col-3 mb-2">
-                                  <div class="search-box w-100 width-searchbox">
-                                    <i class="ri-search-line search-icon"></i>
-                                    <input
-                                      type="text"
-                                      value={searchKeyword}
-                                      onChange={(e) => {
-                                        HandleSearch(e);
-                                      }}
-                                      className="form-control search"
-                                      placeholder={
-                                        isMobile
-                                          ? "Search"
-                                          : getPlaceholderTextName(
-                                            "Search",
-                                            moduleName
-                                          )
-                                      }
-                                    />
-                                  </div>
-                                </div>
+                        <span>First Name</span>
+
+                        <i
+                          className={
+                            primaryUserSortDirectionObj.UserNameTypeSort ===
+                            "desc"
+                              ? "ri-arrow-up-line"
+                              : "ri-arrow-down-line"
+                          }
+                        ></i>
+                      </button>
+                    </th>
+
+                    <th>Last Name</th>
+
+                    <th>Email</th>
+
+                    <th>
+                      <button
+                        type="button"
+                        className="users-sort-button"
+                        onClick={() => {
+                          setUserSortType("RoleName");
+                          handleUserSort(
+                            primaryUserSortDirectionObj.RoleTypeSort === null
+                              ? "asc"
+                              : primaryUserSortDirectionObj.RoleTypeSort ===
+                                  "asc"
+                                ? "desc"
+                                : "asc",
+                            "RoleName",
+                          );
+                        }}
+                      >
+                        <span>Role</span>
+
+                        <i
+                          className={
+                            primaryUserSortDirectionObj.RoleTypeSort === "desc"
+                              ? "ri-arrow-up-line"
+                              : "ri-arrow-down-line"
+                          }
+                        ></i>
+                      </button>
+                    </th>
+
+                    <th>
+                      <button
+                        type="button"
+                        className="users-sort-button"
+                        onClick={() => {
+                          setUserSortType("AcceptanceStatus");
+                          handleUserSort(
+                            primaryUserSortDirectionObj.AcceptanceStatusTypeSort ===
+                              null
+                              ? "asc"
+                              : primaryUserSortDirectionObj.AcceptanceStatusTypeSort ===
+                                  "asc"
+                                ? "desc"
+                                : "asc",
+                            "AcceptanceStatus",
+                          );
+                        }}
+                      >
+                        <span>Acceptance Status</span>
+
+                        <i
+                          className={
+                            primaryUserSortDirectionObj.AcceptanceStatusTypeSort ===
+                            "desc"
+                              ? "ri-arrow-up-line"
+                              : "ri-arrow-down-line"
+                          }
+                        ></i>
+                      </button>
+                    </th>
+
+                    {(userAccessData.Admin_Setting_user_CanEdit ||
+                      userAccessData.Admin_Setting_user_CanDelete) && (
+                      <th className="users-action-heading">Actions</th>
+                    )}
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {usersList
+                    .slice(0, isMobile ? isMobileRecords : desktopRecords)
+                    .map((users) => {
+                      const firstName = users.firstName || "";
+                      const lastName = users.lastName || "";
+
+                      const displayFirstName =
+                        firstName.length > 40
+                          ? `${firstName
+                              .substring(0, 40)
+                              .toLowerCase()
+                              .replace(/\b\w/g, (l) => l.toUpperCase())}...`
+                          : firstName
+                              .toLowerCase()
+                              .replace(/\b\w/g, (l) => l.toUpperCase());
+
+                      const displayLastName =
+                        lastName.length > 40
+                          ? `${lastName
+                              .substring(0, 40)
+                              .toLowerCase()
+                              .replace(/\b\w/g, (l) => l.toUpperCase())}...`
+                          : lastName
+                              .toLowerCase()
+                              .replace(/\b\w/g, (l) => l.toUpperCase());
+
+                      const initials = `${firstName.charAt(0)}${lastName.charAt(
+                        0,
+                      )}`.toUpperCase();
+
+                      const acceptanceStatus = users.acceptanceStatus || "-";
+
+                      const statusClass = acceptanceStatus
+                        .toLowerCase()
+                        .replace(/\s+/g, "-");
+
+                      return (
+                        <tr
+                          className="users-table-row"
+                          key={
+                            users.inviteUserKeyID ||
+                            users.userKeyID ||
+                            users.email
+                          }
+                        >
+                          <td>
+                            <div className="users-name-cell">
+                              {/* <span className="users-avatar">
+                                {initials || "U"}
+                              </span> */}
+
+                              <div className="users-name-copy">
+                                {firstName.length > 40 ? (
+                                  <Tooltip title={firstName}>
+                                    <span className="users-primary-text">
+                                      {displayFirstName}
+                                    </span>
+                                  </Tooltip>
+                                ) : (
+                                  <span className="users-primary-text">
+                                    {displayFirstName || "-"}
+                                  </span>
+                                )}
                               </div>
                             </div>
-                          </div>
-                        </div>
-                        <table
-                          class="table align-middle table-nowrap"
-                          id="customerTable"
-                        >
-                          <thead class="table-light table-header-font">
-                            <tr className="head-row">
-                              <td
-                                className="tr-table-class text-white"
-                                style={{
-                                  width: "30%",
-                                }}
-                              >
-                                First Name{" "}
-                                {primaryUserSortDirectionObj.UserNameTypeSort ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        setUserSortType("FirstName");
-                                        handleUserSort("asc", "FirstName");
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primaryUserSortDirectionObj.UserNameTypeSort ===
-                                  null ||
-                                  primaryUserSortDirectionObj.UserNameTypeSort ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        setUserSortType("FirstName");
-                                        handleUserSort(
-                                          primaryUserSortDirectionObj.UserNameTypeSort ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "FirstName"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td
-                                className="tr-table-class text-white"
-                                style={{
-                                  width: "30%",
-                                }}
-                              >
-                                Last Name{" "}
-                              </td>
-                              <td className="tr-table-class  text-white">
-                                Email
-                              </td>
+                          </td>
 
-                              <td className="tr-table-class  text-white">
-                                Role
-                                {primaryUserSortDirectionObj.RoleTypeSort ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        setUserSortType("RoleName");
-                                        handleUserSort("asc", "RoleName");
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primaryUserSortDirectionObj.RoleTypeSort ===
-                                  null ||
-                                  primaryUserSortDirectionObj.RoleTypeSort ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        setUserSortType("RoleName");
-                                        handleUserSort(
-                                          primaryUserSortDirectionObj.RoleTypeSort ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "RoleName"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class  text-white">
-                                Acceptance Status
-                                {primaryUserSortDirectionObj.AcceptanceStatusTypeSort ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        setUserSortType("AcceptanceStatus");
-                                        handleUserSort("asc", "AcceptanceStatus");
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primaryUserSortDirectionObj.AcceptanceStatusTypeSort ===
-                                  null ||
-                                  primaryUserSortDirectionObj.AcceptanceStatusTypeSort ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        setUserSortType("AcceptanceStatus");
-                                        handleUserSort(
-                                          primaryUserSortDirectionObj.AcceptanceStatusTypeSort ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "AcceptanceStatus"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class  text-white">
-                                {(userAccessData.Admin_Setting_user_CanEdit ||
-                                  userAccessData.Admin_Setting_user_CanDelete) && (
-                                    <>Action</>
-                                  )}
-                              </td>
-                            </tr>
-                          </thead>
-                          <tbody class="list form-check-all">
-                            {usersList
-                              .slice(
-                                0,
-                                isMobile ? isMobileRecords : desktopRecords
-                              )
-                              .map((users) => {
-                                return (
-                                  <tr class="table_new">
-                                    <td className="table-content-font">
-                                      {isMobile ? (
-                                        <>
-                                          {users.firstName && users.firstName
-                                            ?.substring(0, 20)
-                                            .toLowerCase()
-                                            .replace(/\b\w/g, (l) =>
-                                              l.toUpperCase()
-                                            ) + "..."}
-                                        </>
-                                      ) : (
-                                        <>
-                                          {users.firstName && users.firstName?.length > 40 ? (
-                                            <Tooltip title={users.firstName}>
-                                              {users.firstName
-                                                .substring(0, 40)
-                                                .toLowerCase()
-                                                .replace(/\b\w/g, (l) =>
-                                                  l.toUpperCase()
-                                                ) + "..."}
-                                            </Tooltip>
-                                          ) : (
-                                            <>
-                                              {users.firstName && users.firstName
-                                                ?.toLowerCase()
-                                                .replace(/\b\w/g, (l) =>
-                                                  l.toUpperCase()
-                                                )}
-                                            </>
-                                          )}
-                                        </>
-                                      )}
-                                      {/* {users.firstName.toLowerCase().replace(/\b\w/g, l => l.toUpperCase()) + '...'} */}
-                                    </td>
-                                    <td className="table-content-font">
-                                      {isMobile ? (
-                                        <>
-                                          {users.lastName && users.lastName?.substring(0, 20)
-                                            .toLowerCase()
-                                            .replace(/\b\w/g, (l) =>
-                                              l.toUpperCase()
-                                            ) + "..."}
-                                        </>
-                                      ) : (
-                                        <>
-                                          {users.lastName && users.lastName?.length > 40 ? (
-                                            <Tooltip title={users.lastName}>
-                                              {users.lastName && users.lastName?.substring(0, 40)
-                                                .toLowerCase()
-                                                .replace(/\b\w/g, (l) =>
-                                                  l.toUpperCase()
-                                                ) + "..."}
-                                            </Tooltip>
-                                          ) : (
-                                            <>
-                                              {users.lastName && users.lastName
-                                                .toLowerCase()
-                                                .replace(/\b\w/g, (l) =>
-                                                  l.toUpperCase()
-                                                )}
-                                            </>
-                                          )}
-                                        </>
-                                      )}
-                                    </td>
-                                    <td className="table-content-font">
-                                      {users.email}
-                                    </td>
+                          <td>
+                            {lastName.length > 40 ? (
+                              <Tooltip title={lastName}>
+                                <span className="users-cell-text">
+                                  {displayLastName}
+                                </span>
+                              </Tooltip>
+                            ) : (
+                              <span className="users-cell-text">
+                                {displayLastName || "-"}
+                              </span>
+                            )}
+                          </td>
 
-                                    <td className="table-content-font">
-                                      {users.roleName}
-                                    </td>
+                          <td>
+                            <span
+                              className="users-email-text"
+                              title={users.email}
+                            >
+                              {users.email || "-"}
+                            </span>
+                          </td>
 
-                                    <td className="table-content-font">
-                                      {users.acceptanceStatus}
-                                    </td>
-                                    <td>
-                                      {users.roleName !== "Super Admin" ? (
-                                        <div class="d-flex gap-2">
-                                          {userAccessData.Admin_Setting_user_CanEdit && (
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "Update",
-                                                moduleName
-                                              )}
-                                            >
-                                              <div class="edit">
-                                                <button
-                                                  onClick={() =>
-                                                    UsersEditBtnClicked(users)
-                                                  }
-                                                  class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
-                                                  data-bs-toggle="modal"
-                                                  data-bs-target="#addUpdateModal"
-                                                >
-                                                  <i class="ri-pencil-fill"></i>
-                                                </button>
-                                              </div>
-                                            </Tooltip>
-                                          )}
-                                          {userAccessData.Admin_Setting_user_CanDelete && (
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "Delete",
-                                                moduleName
-                                              )}
-                                            >
-                                              <div class="remove">
-                                                <button
-                                                  class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                                  data-bs-toggle="modal"
-                                                  data-bs-target="#ConfirmModel"
-                                                  onClick={() =>
-                                                    setModelRequestData({
-                                                      ...modelRequestData,
-                                                      InviteUserKeyID:
-                                                        users.inviteUserKeyID,
-                                                      userName: users.firstName,
-                                                      userKeyID:
-                                                        common.userKeyID,
-                                                      Action: "Delete",
-                                                    })
-                                                  }
-                                                >
-                                                  <i class="ri-delete-bin-5-fill"></i>
-                                                </button>
-                                              </div>
-                                            </Tooltip>
-                                          )}
-                                        </div>
-                                      ) : (
-                                        ""
+                          <td>
+                            <span className="users-role-badge">
+                              {users.roleName || "-"}
+                            </span>
+                          </td>
+
+                          <td>
+                            <span
+                              className={`users-status-badge users-status-badge--${statusClass}`}
+                            >
+                              <span className="users-status-dot"></span>
+                              {acceptanceStatus}
+                            </span>
+                          </td>
+
+                          {(userAccessData.Admin_Setting_user_CanEdit ||
+                            userAccessData.Admin_Setting_user_CanDelete) && (
+                            <td className="users-actions-cell">
+                              {users.roleName !== "Super Admin" ? (
+                                <div className="users-row-actions">
+                                  {userAccessData.Admin_Setting_user_CanEdit && (
+                                    <Tooltip
+                                      title={getCrudButtonToolTipName(
+                                        "Update",
+                                        moduleName,
                                       )}
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                          </tbody>
-                        </table>
-                        {totalRecords <= 0 && (
-                          <NoResultFoundModel
-                            name={moduleName}
-                            totalRecords={totalRecords}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  {listCount > 10 && (
-                    <PaginationComponent
-                      totalCount={listCount}
-                      totalPages={totalPage}
-                      currentPage={currentPage}
-                      onPageChange={HandlePageChange}
-                    />
-                  )}
+                                    >
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          UsersEditBtnClicked(users)
+                                        }
+                                        className="users-action-button users-action-button--edit"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#addUpdateModal"
+                                      >
+                                        <i className="ri-pencil-line"></i>
+                                      </button>
+                                    </Tooltip>
+                                  )}
+
+                                  {userAccessData.Admin_Setting_user_CanDelete && (
+                                    <Tooltip
+                                      title={getCrudButtonToolTipName(
+                                        "Delete",
+                                        moduleName,
+                                      )}
+                                    >
+                                      <button
+                                        type="button"
+                                        className="users-action-button users-action-button--delete"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#ConfirmModel"
+                                        onClick={() =>
+                                          setModelRequestData({
+                                            ...modelRequestData,
+                                            InviteUserKeyID:
+                                              users.inviteUserKeyID,
+                                            userName: users.firstName,
+                                            userKeyID: common.userKeyID,
+                                            Action: "Delete",
+                                          })
+                                        }
+                                      >
+                                        <i className="ri-delete-bin-line"></i>
+                                      </button>
+                                    </Tooltip>
+                                  )}
+                                </div>
+                              ) : (
+                                ""
+                              )}
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+
+              {totalRecords <= 0 && (
+                <div className="users-empty-state">
+                  <NoResultFoundModel
+                    name={moduleName}
+                    totalRecords={totalRecords}
+                  />
                 </div>
-              </div>
+              )}
             </div>
 
-            <ErrorModel
-              ErrorModel={openErrorModal}
-              handleClose={handleClose}
-              ErrorMessage={errorMessage}
-            />
-            {/* Confirm Modal  */}
-            <ConfirmModel
-              openErrorModal={openErrorModal}
-              openSuccessModal={openSuccessModal}
-              modelRequestData={modelRequestData}
-              UpdatedStatus={DeleteUserData}
-            />
-
-            {/* Success Modal  */}
-            <SuccessModal
-              handleClose={handleClose}
-              setOpenSuccessModal={setOpenSuccessModal}
-              openSuccessModal={openSuccessModal}
-              modelAction={modelRequestData.Action}
-              message={
-                modelRequestData.Action === "Delete"
-                  ? `${moduleName} ${modelRequestData.userName}`
-                  : "Status has been changed successfully!"
-              }
-            />
-            {/* <!-- Modal --> */}
-
-            <UsersModel
-              class="modal fade"
-              id="addUpdateModal"
-              tabIndex="-1"
-              aria_labelledby="addUpdateModal"
-              aria_hidden="true"
-              setIsAddUpdateActionDone={setIsAddUpdateActionDone}
-              modelRequestData={modelRequestData}
-            />
-          </div>
-        </div>
-        </div>
-        </div>
+            {/* Pagination */}
+            {listCount > 10 && (
+              <div className="users-pagination-wrap">
+                <PaginationComponent
+                  totalCount={listCount}
+                  totalPages={totalPage}
+                  currentPage={currentPage}
+                  onPageChange={HandlePageChange}
+                />
               </div>
-            </div>
-          </div>
+            )}
+          </section>
+        </div>
+
+        {/* =========================
+            EXISTING MODALS
+            ========================= */}
+        <ErrorModel
+          ErrorModel={openErrorModal}
+          handleClose={handleClose}
+          ErrorMessage={errorMessage}
+        />
+
+        <ConfirmModel
+          openErrorModal={openErrorModal}
+          openSuccessModal={openSuccessModal}
+          modelRequestData={modelRequestData}
+          UpdatedStatus={DeleteUserData}
+        />
+
+        <SuccessModal
+          handleClose={handleClose}
+          setOpenSuccessModal={setOpenSuccessModal}
+          openSuccessModal={openSuccessModal}
+          modelAction={modelRequestData.Action}
+          message={
+            modelRequestData.Action === "Delete"
+              ? `${moduleName} ${modelRequestData.userName}`
+              : "Status has been changed successfully!"
+          }
+        />
+
+        <UsersModel
+          class="modal fade"
+          id="addUpdateModal"
+          tabIndex="-1"
+          aria_labelledby="addUpdateModal"
+          aria_hidden="true"
+          setIsAddUpdateActionDone={setIsAddUpdateActionDone}
+          modelRequestData={modelRequestData}
+        />
+
+        <button
+          onclick="topFunction()"
+          class="btn btn-danger btn-icon"
+          id="back-to-top"
+        >
+          <i class="ri-arrow-up-line"></i>
+        </button>
       </div>
 
-      {/* start back-to-top */}
-      <button
-        onclick="topFunction()"
-        class="btn btn-danger btn-icon"
-        id="back-to-top"
-      >
-        <i class="ri-arrow-up-line"></i>
-      </button>
-      {/* end back-to-top */}
-    </div>
-        <Footer />
-        </>
+      <Footer />
+    </>
   );
 };
 

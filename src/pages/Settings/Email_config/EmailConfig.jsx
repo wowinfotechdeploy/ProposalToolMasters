@@ -13,7 +13,10 @@ import { useSelector } from "react-redux";
 import SuccessModal from "../../../components/SuccessModal";
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
 import Footer from "../../../components/Footer";
-import { ERROR_MESSAGES, OutBooksTitle } from "../../../components/GlobalMessage";
+import {
+  ERROR_MESSAGES,
+  OutBooksTitle,
+} from "../../../components/GlobalMessage";
 import ErrorModel from "../../../components/ErrorModel";
 import DropDown from "../../../components/DropDown";
 import emailProviders from "./Email-Json";
@@ -33,12 +36,19 @@ const Email_Config = () => {
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
   const [modelAction, setModelAction] = useState("");
   const [isAddUpdateActionDone, setIsAddUpdateActionDone] = useState(false);
-  const { proposalName, setLoader, setTopbar, userAccessData, EngagementName, activeOrganizationSubscriptionPlan } =
-    useContext(AuthContextProvider);
+  const {
+    proposalName,
+    setLoader,
+    setTopbar,
+    userAccessData,
+    EngagementName,
+    activeOrganizationSubscriptionPlan,
+  } = useContext(AuthContextProvider);
   const [showSMTPInput, setShowSMTPInput] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showSMTPPortInput, setShowSMTPPortInput] = useState(false);
-  const [requireOwnSMTPErrorMessage, setRequireOwnSMTPErrorMessage] = useState(false);
+  const [requireOwnSMTPErrorMessage, setRequireOwnSMTPErrorMessage] =
+    useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [configureTypeValue1, setConfigureTypeValue1] = useState("");
   const [modelRequestData, setModelRequestData] = useState({
@@ -46,7 +56,7 @@ const Email_Config = () => {
     organisationKeyID: null,
     status: "",
     Action: "",
-    moduleName: ""
+    moduleName: "",
   });
   const [modalOpen, setModalOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState(""); // State for alert message
@@ -67,7 +77,7 @@ const Email_Config = () => {
     resetEmailConfig: null,
     smtpServerTypeID: null,
     senderEmailIDForOutbooks: null,
-    isEmailVerified: null
+    isEmailVerified: null,
   });
   const [emailConfigObj, setEmailConfigObj] = useState({
     userKeyID: null,
@@ -205,10 +215,14 @@ const Email_Config = () => {
           const ModelData = data?.data?.responseData?.data;
 
           setShowSMTPInput(
-            ModelData.emailProviderID === EmailProviderEnum.Other ? true : false
+            ModelData.emailProviderID === EmailProviderEnum.Other
+              ? true
+              : false,
           );
           setShowSMTPPortInput(
-            ModelData.emailProviderID === EmailProviderEnum.Other ? true : false
+            ModelData.emailProviderID === EmailProviderEnum.Other
+              ? true
+              : false,
           );
 
           setUserEmailConfigObj({
@@ -228,7 +242,7 @@ const Email_Config = () => {
             isEnableMailBox: ModelData.isEnableMailBox,
             isEmailVerified: ModelData.isEmailVerified,
             senderEmailIDForOutbooks: ModelData.senderEmailIDForOutbooks,
-            smtpServerTypeID: ModelData.smtpServerTypeID
+            smtpServerTypeID: ModelData.smtpServerTypeID,
           });
           setPrevUserEmailConfigObj((prevState) => ({
             ...prevState,
@@ -278,13 +292,11 @@ const Email_Config = () => {
       isEnableMailBox,
       smtpServerTypeID,
       senderEmailIDForOutbooks,
-      isEmailVerified
+      isEmailVerified,
     } = userEmailConfigObj;
     if (modelRequestData.moduleName === "DefaultEmailConfig") {
       if (resetEmailConfig) {
-        if (
-          !senderEmailIDForOutbooks
-        ) {
+        if (!senderEmailIDForOutbooks) {
           // setErrorMessage("All fields are already empty. No action needed.");
           setOpenErrorModal(true);
           setErrorMessage("");
@@ -312,7 +324,6 @@ const Email_Config = () => {
           (senderEmailIDForOutbooks !== "" &&
             senderEmailIDForOutbooks !== undefined &&
             !emailPattern.test(senderEmailIDForOutbooks))
-
         ) {
           hasError = true;
           setRequireErrorMessage(true);
@@ -328,17 +339,18 @@ const Email_Config = () => {
         if (hasError) {
           return;
         }
-        setRequireOwnSMTPErrorMessage(false)
+        setRequireOwnSMTPErrorMessage(false);
         // Check for unchanged values
         if (
-          PreUserEmailConfigObj.senderEmailIDForOutbooks === senderEmailIDForOutbooks
+          PreUserEmailConfigObj.senderEmailIDForOutbooks ===
+          senderEmailIDForOutbooks
         ) {
           setUserPrevError(true);
           return false;
         }
       }
       $("#" + "ConfirmModel").modal("hide");
-      VerifyEmailID(resetEmailConfig)
+      VerifyEmailID(resetEmailConfig);
     } else {
       // Check if fields are empty for reset action
       if (resetEmailConfig) {
@@ -367,7 +379,6 @@ const Email_Config = () => {
           smtpPort: null,
           emailProviderID: null,
           isEnableMailBox: null,
-
         });
       }
 
@@ -432,7 +443,7 @@ const Email_Config = () => {
         }
       }
       $("#" + "ConfirmModel").modal("hide");
-      setRequireErrorMessage(false)
+      setRequireErrorMessage(false);
       // Perform API request
       const ApiRequest_ParamsObj = {
         organisationKeyID: common.organisationKeyID,
@@ -494,7 +505,7 @@ const Email_Config = () => {
     if (action === "ClearCcBcc") {
       // Check if all fields are already empty
       if (
-        (emailConfigObj.quoteCC === null) &&
+        emailConfigObj.quoteCC === null &&
         emailConfigObj.quoteBCC === null &&
         emailConfigObj.contractCC === null &&
         emailConfigObj.contractBCC === null
@@ -550,10 +561,10 @@ const Email_Config = () => {
     if (
       quoteCC?.length !== emailConfigObj?.quoteCC?.split(/[,]+/)?.length ||
       contractCC?.length !==
-      emailConfigObj?.contractCC?.split(/[,\s]+/)?.length ||
+        emailConfigObj?.contractCC?.split(/[,\s]+/)?.length ||
       quoteBCC?.length !== emailConfigObj?.quoteBCC?.split(/[,\s]+/)?.length ||
       contractBCC?.length !==
-      emailConfigObj?.contractBCC?.split(/[,\s]+/)?.length
+        emailConfigObj?.contractBCC?.split(/[,\s]+/)?.length
     ) {
       // setRequireErrorMessage(true);
       // setErrorMessage("Please enter valid email addresses.");
@@ -661,7 +672,7 @@ const Email_Config = () => {
       // Check if smtpPort is a string before calling trim()
       setRequireErrorMessage(
         typeof userEmailConfigObj.smtpPort !== "string" ||
-        !userEmailConfigObj.smtpPort.trim()
+          !userEmailConfigObj.smtpPort.trim(),
       );
 
       setRequireErrorMessage(false);
@@ -683,7 +694,7 @@ const Email_Config = () => {
     }
 
     const selectedProvider = emailProviders?.find(
-      (provider) => provider.epid === userEmailConfigObj.emailProviderID
+      (provider) => provider.epid === userEmailConfigObj.emailProviderID,
     );
 
     if (selectedProvider) {
@@ -719,7 +730,7 @@ const Email_Config = () => {
       }
 
       setInstructions(
-        `To create an app password for ${providerName}:\n\n${instructions}`
+        `To create an app password for ${providerName}:\n\n${instructions}`,
       );
       setModalOpen(true);
     } else {
@@ -729,7 +740,7 @@ const Email_Config = () => {
   };
 
   const handleChangeSmtp = (e) => {
-    setRequireErrorMessage(false)
+    setRequireErrorMessage(false);
     const value = e.target.value;
 
     // If the value is null or undefined, do nothing
@@ -750,36 +761,47 @@ const Email_Config = () => {
       setShowModal(true);
       return;
     }
-    setModelAction(null)
+    setModelAction(null);
     if (!isReset) {
-      if (userEmailConfigObj.senderEmailIDForOutbooks !== "" &&
+      if (
+        userEmailConfigObj.senderEmailIDForOutbooks !== "" &&
         userEmailConfigObj.senderEmailIDForOutbooks !== undefined &&
-        !emailPattern.test(userEmailConfigObj.senderEmailIDForOutbooks)) {
-        setRequireOwnSMTPErrorMessage(true)
-        return
+        !emailPattern.test(userEmailConfigObj.senderEmailIDForOutbooks)
+      ) {
+        setRequireOwnSMTPErrorMessage(true);
+        return;
       }
 
-      if (userEmailConfigObj.senderEmailIDForOutbooks === "" || userEmailConfigObj.senderEmailIDForOutbooks === null || userEmailConfigObj.senderEmailIDForOutbooks === undefined) {
-        setRequireOwnSMTPErrorMessage(true)
-        return
+      if (
+        userEmailConfigObj.senderEmailIDForOutbooks === "" ||
+        userEmailConfigObj.senderEmailIDForOutbooks === null ||
+        userEmailConfigObj.senderEmailIDForOutbooks === undefined
+      ) {
+        setRequireOwnSMTPErrorMessage(true);
+        return;
       }
       setModelRequestData({
         ...modelRequestData,
-        Action: "VerifyEmailID"
-      })
+        Action: "VerifyEmailID",
+      });
     } else {
-      setRequireOwnSMTPErrorMessage(false)
+      setRequireOwnSMTPErrorMessage(false);
     }
-    setLoader(true)
-    const Response = await SendEmailVerificationLinkForAwsSesConfiguration(userEmailConfigObj.senderEmailIDForOutbooks, common.organisationKeyID, common.userKeyID, isReset)
+    setLoader(true);
+    const Response = await SendEmailVerificationLinkForAwsSesConfiguration(
+      userEmailConfigObj.senderEmailIDForOutbooks,
+      common.organisationKeyID,
+      common.userKeyID,
+      isReset,
+    );
     if (Response.data.statusCode === 200) {
-      setLoader(false)
-      setOpenSuccessModal(true)
+      setLoader(false);
+      setOpenSuccessModal(true);
       GetUserEmailConfigModelData(common.organisationKeyID);
     } else {
-      setLoader(false)
+      setLoader(false);
     }
-  }
+  };
 
   const getStatusClass = (status) => {
     switch (status) {
@@ -799,690 +821,712 @@ const Email_Config = () => {
   };
   //Design part :
   return (
-    <div>
-        <div class="page-content mt-2 page-background">
-            <div class="container">
-              <div class="page-title-cls">Email Config</div>
+    <div className="email-config-redesign">
+      <div className="email-config-page">
+        {/* =========================
+            PAGE HEADER
+            ========================= */}
+        <div className="email-config-page-header">
+          <h1 className="email-config-page-title">Email Config</h1>
+        </div>
+
+        {/* =========================
+            EMAIL CONFIGURATION
+            ========================= */}
+        <section className="email-config-card">
+          <div className="email-config-card-header">
+            <h2>Email Configuration</h2>
+          </div>
+
+          <div className="email-config-card-body">
+            {/* SMTP TYPE */}
+            <div className="email-config-smtp-options">
+              <label
+                className={`email-config-smtp-option ${
+                  userEmailConfigObj.smtpServerTypeID == 1 ? "is-selected" : ""
+                }`}
+                htmlFor="smtpServerTypeID"
+              >
+                <input
+                  className="email-config-radio"
+                  type="radio"
+                  name="smtpOption"
+                  id="smtpServerTypeID"
+                  value={1}
+                  onChange={(e) => handleChangeSmtp(e)}
+                  defaultChecked={userEmailConfigObj.smtpServerTypeID == 1}
+                  checked={userEmailConfigObj.smtpServerTypeID == 1}
+                />
+
+                <span className="email-config-radio-ui"></span>
+
+                <span className="email-config-option-copy">
+                  <strong>{OutBooksTitle} SMTP</strong>
+                  <span>Use our cloud email infrastructure.</span>
+                </span>
+              </label>
+
+              <label
+                className={`email-config-smtp-option ${
+                  userEmailConfigObj.smtpServerTypeID == 2 ? "is-selected" : ""
+                }`}
+                htmlFor="ownSmtp"
+              >
+                <input
+                  className="email-config-radio"
+                  type="radio"
+                  name="smtpOption"
+                  id="ownSmtp"
+                  value={2}
+                  onChange={(e) => handleChangeSmtp(e)}
+                  defaultChecked={userEmailConfigObj.smtpServerTypeID == 2}
+                  checked={userEmailConfigObj.smtpServerTypeID == 2}
+                />
+
+                <span className="email-config-radio-ui"></span>
+
+                <span className="email-config-option-copy">
+                  <strong>Customise Your SMTP</strong>
+                  <span>
+                    Connect your own mail server for maximum branding.
+                  </span>
+                </span>
+              </label>
             </div>
-          {/* <div class="container "> */}
-            <div className="row">
-              <div class="col-12 pricing_settings">
-                <div class="card">
-                  <div class="card-body bg-white ">
-                    <div class=" row ">
-                      <div className="row">
-                        <div className="col-md-12">
-                          <h6>
-                            <u> Email Configuration</u>
-                          </h6>
-                        </div>
-                        <div className="d-flex justify-content-center align-items-center mb-3">
-                          <div className="d-flex gap-3">
-                            <div className="form-check">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="smtpOption"
-                                id="smtpServerTypeID"
-                                style={{ border: "1px solid black" }}
-                                value={1}
-                                onChange={(e) => handleChangeSmtp(e)}
-                                defaultChecked={userEmailConfigObj.smtpServerTypeID == 1}
-                                checked={userEmailConfigObj.smtpServerTypeID == 1}
 
-                              />
-                              <label className="form-check-label" htmlFor="smtpServerTypeID">
-                                {OutBooksTitle} SMTP
-                              </label>
-                            </div>
-                            <div className="form-check">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="smtpOption"
-                                style={{ border: "1px solid black" }}
-                                id="ownSmtp"
-                                value={2}
-                                onChange={(e) => handleChangeSmtp(e)}
-                                defaultChecked={userEmailConfigObj.smtpServerTypeID == 2}
-                                checked={userEmailConfigObj.smtpServerTypeID == 2}
-                              />
-                              <label className="form-check-label" htmlFor="ownSmtp">
-                                Customise Your SMTP
-                              </label>
-                            </div>
-                          </div>
-                        </div>
+            {/* =========================
+                CUSTOM SMTP
+                ========================= */}
+            {userEmailConfigObj.smtpServerTypeID == 2 &&
+            userEmailConfigObj.smtpServerTypeID !== null ? (
+              <>
+                <div className="email-config-form-grid">
+                  {/* Provider */}
+                  <div className="email-config-field">
+                    <label>
+                      Select Provider
+                      <span className="email-required">*</span>
+                    </label>
 
-                        {userEmailConfigObj.smtpServerTypeID == 2 && userEmailConfigObj.smtpServerTypeID !== null ? (
-                          <>
+                    <div className="email-config-dropdown-wrap">
+                      <DropDown
+                        className="phone-input-country-code selectDropDown Drop-down-width driver-type-cls"
+                        options={emailTypeValue}
+                        value={
+                          SelectEmailTypeValue == undefined
+                            ? null
+                            : SelectEmailTypeValue
+                        }
+                        onChange={OnEmailTypeChange}
+                        placeholder="Select..."
+                        autoComplete="off"
+                      />
+                    </div>
 
-                            <div className="col-md-6  mb-2">
-                              <div>
-                                <label class="fieldset-label table-content-font">
-                                  Select Provider
-                                  <span className="text-danger">*</span>
-                                </label>
-                                <div className="input-group">
-                                  <DropDown
-                                    className="phone-input-country-code selectDropDown Drop-down-width driver-type-cls"
-                                    options={emailTypeValue}
-                                    value={
-                                      SelectEmailTypeValue == undefined
-                                        ? null
-                                        : SelectEmailTypeValue
-                                    }
-                                    onChange={OnEmailTypeChange}
-                                    placeholder="Select..."
-                                    autoComplete="off"
-                                  />
-                                  {requireErrorMessage && (
-                                    <label className="validation">
-                                      {userEmailConfigObj.emailProviderID == "" ||
-                                        userEmailConfigObj.emailProviderID ==
-                                        undefined
-                                        ? ERROR_MESSAGES
-                                        : ""}
-                                    </label>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="col-md-6  mb-2">
-                              <div>
-                                <label class="fieldset-label table-content-font">
-                                  Email Address
-                                  <span className="text-danger">*</span>
-                                </label>
-                              </div>
+                    {requireErrorMessage && (
+                      <label className="validation">
+                        {userEmailConfigObj.emailProviderID == "" ||
+                        userEmailConfigObj.emailProviderID == undefined
+                          ? ERROR_MESSAGES
+                          : ""}
+                      </label>
+                    )}
+                  </div>
 
-                              <div>
-                                <input
-                                  class="input-text table-content-font"
-                                  type="text"
-                                  autoComplete="off"
-                                  placeholder="john.doe@example.com"
-                                  value={userEmailConfigObj.senderEmailID || ""}
-                                  onChange={(e) => {
-                                    setUserPrevError(false);
-                                    setUserEmailConfigObj({
-                                      ...userEmailConfigObj,
-                                      senderEmailID: e.target.value,
-                                    });
-                                  }}
-                                  maxLength={50}
-                                />
-                                {/* Display validation error message for email input */}
-                                {requireErrorMessage && (
-                                  <label className="validation">
-                                    {!userEmailConfigObj.senderEmailID ||
-                                      !userEmailConfigObj.senderEmailID.trim()
-                                      ? ERROR_MESSAGES
-                                      : !emailPattern.test(
-                                        userEmailConfigObj.senderEmailID
-                                      )
-                                        ? "Please enter a valid email address."
-                                        : ""}
-                                  </label>
-                                )}
-                              </div>
-                            </div>
-                            <div className="col-md-6 mb-2">
-                              <div>
-                                <label className="fieldset-label table-content-font">
-                                  App Password{" "}
-                                  <a href="#" onClick={handleHowToCreateClick}>
-                                    (How to create?)
-                                  </a>
-                                  <span className="text-danger">*</span>
-                                </label>
-                              </div>
-                              <div>
-                                <input
-                                  class="input-text table-content-font  pe-5"
-                                  autoComplete="off"
-                                  type={showPassword ? "text" : "password"}
-                                  placeholder="Enter Password"
-                                  value={userEmailConfigObj.password || ""}
-                                  onChange={(e) => {
-                                    setUserPrevError(false);
-                                    setUserEmailConfigObj({
-                                      ...userEmailConfigObj,
-                                      password: e.target.value,
-                                    });
-                                  }}
-                                  maxLength={50}
-                                />
-                                <button
-                                  style={{ zIndex: "0" }}
-                                  className="btn btn-link position-absolute end-0 me-2 top-5 text-decoration-none text-muted password-addon"
-                                  type="button"
-                                  id="password-addon"
-                                  onClick={togglePasswordVisibility}
-                                >
-                                  <i className="ri-eye-fill align-middle"></i>
-                                </button>
-                                {requireErrorMessage && (
-                                  <label className="validation">
-                                    {userEmailConfigObj.password == "" ||
-                                      userEmailConfigObj.password == undefined
-                                      ? ERROR_MESSAGES
-                                      : ""}
-                                  </label>
-                                )}
-                              </div>
-                            </div>
-                            <div class="col-md-6 col-sm-12 ">
-                              {/* p */}
-                              <div>
-                                <div>
-                                  <label class="fieldset-label table-content-font">
-                                    Display Name
-                                    <span className="text-danger">*</span>
-                                  </label>
-                                </div>
-                                <div>
-                                  <input
-                                    class="input-text table-content-font "
-                                    autoComplete="off"
-                                    type="text"
-                                    placeholder="Enter Display Name"
-                                    value={userEmailConfigObj.displayName || ""}
-                                    onChange={(e) => {
-                                      // setRequireErrorMessage(false);
-                                      setUserPrevError(false);
-                                      setUserEmailConfigObj({
-                                        ...userEmailConfigObj,
-                                        displayName: e.target.value,
-                                      });
-                                    }}
-                                    maxLength={50}
-                                  />
-                                  {requireErrorMessage && (
-                                    <label className="validation">
-                                      {userEmailConfigObj.displayName == "" ||
-                                        userEmailConfigObj.displayName == undefined
-                                        ? ERROR_MESSAGES
-                                        : ""}
-                                    </label>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            {showSMTPInput && (
-                              <div className="col-md-6 mb-2">
-                                <div>
-                                  <label className="fieldset-label table-content-font">
-                                    SMTP Server
-                                    <span className="text-danger">*</span>
-                                  </label>
-                                </div>
-                                <div>
-                                  <input
-                                    className="input-text table-content-font"
-                                    type="text"
-                                    placeholder="Enter SMTP Server"
-                                    value={userEmailConfigObj.smtpServer || ""}
-                                    onChange={(e) => {
-                                      setUserEmailConfigObj({
-                                        ...userEmailConfigObj,
-                                        smtpServer: e.target.value,
-                                      });
-                                    }}
-                                    maxLength={50}
-                                  />
+                  {/* Email */}
+                  <div className="email-config-field">
+                    <label>
+                      Email Address
+                      <span className="email-required">*</span>
+                    </label>
 
-                                  {requireErrorMessage && (
-                                    <label className="validation">
-                                      {userEmailConfigObj.smtpServer == "" ||
-                                        userEmailConfigObj.smtpServer == undefined
-                                        ? ERROR_MESSAGES
-                                        : "Please enter a valid SMTP Server."}
-                                    </label>
-                                  )}
-                                </div>
-                              </div>
-                            )}
+                    <div className="email-config-input-wrap">
+                      <input
+                        className="input-text table-content-font email-config-input"
+                        type="text"
+                        autoComplete="off"
+                        placeholder="admin@outbooks.com"
+                        value={userEmailConfigObj.senderEmailID || ""}
+                        onChange={(e) => {
+                          setUserPrevError(false);
+                          setUserEmailConfigObj({
+                            ...userEmailConfigObj,
+                            senderEmailID: e.target.value,
+                          });
+                        }}
+                        maxLength={50}
+                      />
+                    </div>
 
-                            {showSMTPPortInput && (
-                              <div className="col-md-6  mb-2">
-                                <div>
-                                  <label class="fieldset-label table-content-font">
-                                    SMTP Port
-                                    <span className="text-danger">*</span>
-                                  </label>
-                                </div>
-                                <div>
-                                  <input
-                                    class="input-text table-content-font"
-                                    type="number"
-                                    placeholder="Enter SMTP Port "
-                                    value={userEmailConfigObj.smtpPort || ""}
-                                    onChange={(e) => {
-                                      // Ensure only numbers are entered
-                                      const value = e.target.value.replace(
-                                        /\D/,
-                                        ""
-                                      );
-                                      // Limit input to 5 characters
-                                      const limitedValue = value.slice(0, 5);
-                                      // Update state
-                                      setRequireErrorMessage(false);
-                                      setUserPrevError(false);
-                                      setUserEmailConfigObj({
-                                        ...userEmailConfigObj,
-                                        smtpPort: limitedValue, // Assign the limited value
-                                      });
-                                    }}
-                                  />
-                                  {requireErrorMessage && (
-                                    <label className="validation">
-                                      {userEmailConfigObj.smtpPort == "" ||
-                                        userEmailConfigObj.smtpPort == undefined ||
-                                        (typeof userEmailConfigObj.smtpPort !==
-                                          "string" &&
-                                          !isNaN(userEmailConfigObj.smtpPort)) ||
-                                        !String(userEmailConfigObj.smtpPort).trim()
-                                        ? ERROR_MESSAGES
-                                        : ""}
-                                    </label>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                          </>)
-                          : <>
-                            {((userEmailConfigObj.smtpServerTypeID == 1 && userEmailConfigObj.smtpServerTypeID !== null) ?
-                              (<><div className="col-md-6  mb-2">
-                                <div>
-                                  <label class="fieldset-label table-content-font">
-                                    From Email
-                                    <span className="text-danger">*</span>
-                                  </label>
-                                  <div className="input-group">
-                                    <input
-                                      disabled={userEmailConfigObj.isEmailVerified === false}
-                                      type="text"
-                                      className="input-text"
-                                      placeholder="Enter email address"
-                                      value={userEmailConfigObj.senderEmailIDForOutbooks}
-                                      onChange={(e) => {
-                                        setErrorMessage("");
-                                        let enteredValue = e.target.value.trim().toLowerCase();
+                    {requireErrorMessage && (
+                      <label className="validation">
+                        {!userEmailConfigObj.senderEmailID ||
+                        !userEmailConfigObj.senderEmailID.trim()
+                          ? ERROR_MESSAGES
+                          : !emailPattern.test(userEmailConfigObj.senderEmailID)
+                            ? "Please enter a valid email address."
+                            : ""}
+                      </label>
+                    )}
+                  </div>
 
-                                        // Check for consecutive dots
-                                        if (enteredValue.includes('..')) {
-                                          // If consecutive dots found, remove the last dot
-                                          enteredValue = enteredValue.replace(/\.+/g, '.');
-                                        }
+                  {/* Display name */}
+                  <div className="email-config-field">
+                    <label>
+                      Display Name
+                      <span className="email-required">*</span>
+                    </label>
 
-                                        // Limit the input to 50 characters
-                                        enteredValue = enteredValue.slice(0, 50);
+                    <div className="email-config-input-wrap">
+                      <input
+                        className="input-text table-content-font email-config-input"
+                        autoComplete="off"
+                        type="text"
+                        placeholder="Enter display name"
+                        value={userEmailConfigObj.displayName || ""}
+                        onChange={(e) => {
+                          setUserPrevError(false);
+                          setUserEmailConfigObj({
+                            ...userEmailConfigObj,
+                            displayName: e.target.value,
+                          });
+                        }}
+                        maxLength={50}
+                      />
+                    </div>
 
-                                        // Update the state with the entered value
-                                        setUserEmailConfigObj({ ...userEmailConfigObj, senderEmailIDForOutbooks: enteredValue });
-                                      }}
-                                    />
-                                    {userEmailConfigObj.isEmailVerified === false &&
-                                      <div
-                                        style={{ fontSize: "12px" }}
-                                        className="text-muted helpMessage"
-                                      >
-                                        Please check your mailbox (including your spam folder) for an email from Amazon Web Services (AWS). Click the verification link in the email to grant Outbooks Proposal Tool permission to send emails from this email address.
-                                      </div>}
-                                    {requireOwnSMTPErrorMessage && (
-                                      <label className="validation">
-                                        {userEmailConfigObj.senderEmailIDForOutbooks === "" ||
-                                          userEmailConfigObj.senderEmailIDForOutbooks === null ||
-                                          userEmailConfigObj.senderEmailIDForOutbooks ===
-                                          undefined
-                                          ? ERROR_MESSAGES
-                                          : !emailPattern.test(
-                                            userEmailConfigObj.senderEmailIDForOutbooks
-                                          ) ? "Please enter a valid email address." : ""}
-                                      </label>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                                {userEmailConfigObj.isEmailVerified !== null ?
-                                  <div className="mt-4 col-md-6 mb-1">
+                    {requireErrorMessage && (
+                      <label className="validation">
+                        {userEmailConfigObj.displayName == "" ||
+                        userEmailConfigObj.displayName == undefined
+                          ? ERROR_MESSAGES
+                          : ""}
+                      </label>
+                    )}
+                  </div>
 
-                                    <label style={{ color: "black" }} class="fieldset-label table-content-font">
-                                      Verification Status :
-                                    </label>
+                  {/* Password */}
+                  <div className="email-config-field">
+                    <label>
+                      App Password{" "}
+                      <a
+                        href="#"
+                        className="email-config-help-link"
+                        onClick={handleHowToCreateClick}
+                      >
+                        (How to create?)
+                      </a>
+                      <span className="email-required">*</span>
+                    </label>
 
-                                    <span style={{ fontSize: "12px" }} className={` ${getStatusClass(userEmailConfigObj.isEmailVerified)}`}>
-                                      <b> {userEmailConfigObj.isEmailVerified === false ? "Pending" : "Verified"}</b>
-                                    </span>
+                    <div className="email-config-input-wrap email-config-password-wrap">
+                      <input
+                        className="input-text table-content-font email-config-input email-config-password-input"
+                        autoComplete="off"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter password"
+                        value={userEmailConfigObj.password || ""}
+                        onChange={(e) => {
+                          setUserPrevError(false);
+                          setUserEmailConfigObj({
+                            ...userEmailConfigObj,
+                            password: e.target.value,
+                          });
+                        }}
+                        maxLength={50}
+                      />
 
+                      <button
+                        className="email-config-password-btn"
+                        type="button"
+                        id="password-addon"
+                        onClick={togglePasswordVisibility}
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
+                      >
+                        <i
+                          className={
+                            showPassword ? "ri-eye-off-fill" : "ri-eye-fill"
+                          }
+                        ></i>
+                      </button>
+                    </div>
 
-                                  </div> : ""}
-                              </>)
-                              :
-                              ""
-                            )}
-                          </>}
+                    {requireErrorMessage && (
+                      <label className="validation">
+                        {userEmailConfigObj.password == "" ||
+                        userEmailConfigObj.password == undefined
+                          ? ERROR_MESSAGES
+                          : ""}
+                      </label>
+                    )}
+                  </div>
+
+                  {/* SMTP server */}
+                  {showSMTPInput && (
+                    <div className="email-config-field">
+                      <label>
+                        SMTP Server
+                        <span className="email-required">*</span>
+                      </label>
+
+                      <div className="email-config-input-wrap">
+                        <input
+                          className="input-text table-content-font email-config-input"
+                          type="text"
+                          placeholder="smtp.example.com"
+                          value={userEmailConfigObj.smtpServer || ""}
+                          onChange={(e) => {
+                            setUserEmailConfigObj({
+                              ...userEmailConfigObj,
+                              smtpServer: e.target.value,
+                            });
+                          }}
+                          maxLength={50}
+                        />
                       </div>
-                      {userEmailConfigObj.smtpServerTypeID == 2 && userEmailConfigObj.smtpServerTypeID !== null && (
-                        <>
-                          <div
-                            class="row justify-content-end"
-                            id="Responsive-btn-config"
+
+                      {requireErrorMessage && (
+                        <label className="validation">
+                          {userEmailConfigObj.smtpServer == "" ||
+                          userEmailConfigObj.smtpServer == undefined
+                            ? ERROR_MESSAGES
+                            : "Please enter a valid SMTP Server."}
+                        </label>
+                      )}
+                    </div>
+                  )}
+
+                  {/* SMTP port */}
+                  {showSMTPPortInput && (
+                    <div className="email-config-field">
+                      <label>
+                        SMTP Port
+                        <span className="email-required">*</span>
+                      </label>
+
+                      <div className="email-config-input-wrap">
+                        <input
+                          className="input-text table-content-font email-config-input"
+                          type="number"
+                          placeholder="Enter SMTP port"
+                          value={userEmailConfigObj.smtpPort || ""}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/, "");
+                            const limitedValue = value.slice(0, 5);
+
+                            setRequireErrorMessage(false);
+                            setUserPrevError(false);
+
+                            setUserEmailConfigObj({
+                              ...userEmailConfigObj,
+                              smtpPort: limitedValue,
+                            });
+                          }}
+                        />
+                      </div>
+
+                      {requireErrorMessage && (
+                        <label className="validation">
+                          {userEmailConfigObj.smtpPort == "" ||
+                          userEmailConfigObj.smtpPort == undefined ||
+                          (typeof userEmailConfigObj.smtpPort !== "string" &&
+                            !isNaN(userEmailConfigObj.smtpPort)) ||
+                          !String(userEmailConfigObj.smtpPort).trim()
+                            ? ERROR_MESSAGES
+                            : ""}
+                        </label>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="email-config-card-footer">
+                  <div className="email-config-feedback">
+                    {userPrevError && (
+                      <label className="validation">
+                        You haven't changed any value
+                      </label>
+                    )}
+
+                    {errorMessage && (
+                      <label className="validation">{errorMessage}</label>
+                    )}
+                  </div>
+
+                  <div className="email-config-actions">
+                    <button
+                      data-bs-toggle="modal"
+                      data-bs-target="#ConfirmModel"
+                      onClick={() => {
+                        setModelRequestData({
+                          ...modelRequestData,
+                          Action: "ResetEmailConfigurationChange",
+                          moduleName: "CustomizeEmailConfig",
+                        });
+                      }}
+                      className="btn email-config-secondary-btn"
+                    >
+                      <span>Reset</span>
+                    </button>
+
+                    {userAccessData.Admin_Setting_Practice_Config_CanEdit && (
+                      <button
+                        className="btn email-config-primary-btn"
+                        onClick={() => {
+                          if (
+                            activeOrganizationSubscriptionPlan?.isMailBox !==
+                            true
+                          ) {
+                            setShowModal(true);
+                            return;
+                          }
+
+                          setModelRequestData({
+                            ...modelRequestData,
+                            Action: "UserUpdate",
+                          });
+
+                          EmailConfigBtnClicked(null);
+                        }}
+                      >
+                        <span>Save Configuration</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* =========================
+                    OUTBOOKS SMTP
+                    ========================= */}
+                {userEmailConfigObj.smtpServerTypeID == 1 &&
+                userEmailConfigObj.smtpServerTypeID !== null ? (
+                  <>
+                    <div className="email-config-default-grid">
+                      <div className="email-config-field">
+                        <label>
+                          From Email
+                          <span className="email-required">*</span>
+                        </label>
+
+                        <div className="email-config-input-wrap">
+                          <input
+                            disabled={
+                              userEmailConfigObj.isEmailVerified === false
+                            }
+                            type="text"
+                            className="input-text email-config-input"
+                            placeholder="Enter email address"
+                            value={
+                              userEmailConfigObj.senderEmailIDForOutbooks || ""
+                            }
+                            onChange={(e) => {
+                              setErrorMessage("");
+
+                              let enteredValue = e.target.value
+                                .trim()
+                                .toLowerCase();
+
+                              if (enteredValue.includes("..")) {
+                                enteredValue = enteredValue.replace(
+                                  /\.+/g,
+                                  ".",
+                                );
+                              }
+
+                              enteredValue = enteredValue.slice(0, 50);
+
+                              setUserEmailConfigObj({
+                                ...userEmailConfigObj,
+                                senderEmailIDForOutbooks: enteredValue,
+                              });
+                            }}
+                          />
+                        </div>
+
+                        {userEmailConfigObj.isEmailVerified === false && (
+                          <div className="email-config-info-box">
+                            Please check your mailbox (including your spam
+                            folder) for an email from Amazon Web Services (AWS).
+                            Click the verification link in the email to grant
+                            Outbooks Proposal Tool permission to send emails
+                            from this email address.
+                          </div>
+                        )}
+
+                        {requireOwnSMTPErrorMessage && (
+                          <label className="validation">
+                            {userEmailConfigObj.senderEmailIDForOutbooks ===
+                              "" ||
+                            userEmailConfigObj.senderEmailIDForOutbooks ===
+                              null ||
+                            userEmailConfigObj.senderEmailIDForOutbooks ===
+                              undefined
+                              ? ERROR_MESSAGES
+                              : !emailPattern.test(
+                                    userEmailConfigObj.senderEmailIDForOutbooks,
+                                  )
+                                ? "Please enter a valid email address."
+                                : ""}
+                          </label>
+                        )}
+                      </div>
+
+                      {userEmailConfigObj.isEmailVerified !== null && (
+                        <div className="email-config-verification-box">
+                          <span className="email-config-verification-title">
+                            Verification Status
+                          </span>
+
+                          <span
+                            className={`email-config-verification-status ${
+                              userEmailConfigObj.isEmailVerified
+                                ? "is-verified"
+                                : "is-pending"
+                            }`}
                           >
-                            <div className="col-lg-6 d-flex justify-content-end align-items-center">
-                              <button
-                                data-bs-toggle="modal"
-                                data-bs-target="#ConfirmModel"
-                                // onClick={() => handleClear()}
-                                onClick={() => {
-                                  setModelRequestData({
-                                    ...modelRequestData,
-                                    Action: "ResetEmailConfigurationChange",
-                                    moduleName: "CustomizeEmailConfig"
-                                  });
-                                }}
-                                className="btn btn-light me-2"
-                                style={{ fontSize: "14px" }}
-                              >
-                                <span>Reset</span>
-                              </button>
-
-                              {userAccessData.Admin_Setting_Practice_Config_CanEdit && (
-                                <button
-                                  style={{ fontSize: "14px" }}
-                                  className="btn btn-primary create-item-btn"
-                                  onClick={() => {
-                                    if (activeOrganizationSubscriptionPlan?.isMailBox !== true) {
-                                      setShowModal(true);
-                                      return;
-                                    }
-                                    setModelRequestData({
-                                      ...modelRequestData,
-                                      Action: "UserUpdate",
-                                    });
-                                    EmailConfigBtnClicked(null);
-                                  }}
-                                >
-                                  <span>Save Configuration</span>
-                                </button>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="row mb-3">
-                            <div className="col-12 text-center">
-                              {userPrevError && (
-                                <label className="validation">
-                                  You haven't changed any value
-                                </label>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="row mb-3">
-                            <div className="col-12 text-center">
-                              <label className="validation">{errorMessage}</label>
-                            </div>
-                          </div>
-                        </>)}
-                      {((userEmailConfigObj.smtpServerTypeID == 1 && userEmailConfigObj.smtpServerTypeID !== null) &&
-                        <div
-                          class="row justify-content-end"
-                          id="Responsive-btn-config"
-                        >
-                          <div className="col-lg-6 d-flex justify-content-end align-items-center">
-                            <button
-                              data-bs-toggle="modal"
-                              data-bs-target="#ConfirmModel"
-                              onClick={() => {
-                                setModelRequestData({
-                                  ...modelRequestData,
-                                  Action: "ResetEmailConfigurationChange",
-                                  moduleName: "DefaultEmailConfig"
-                                });
-                              }}
-                              className="btn btn-light me-2"
-                              style={{ fontSize: "14px" }}
-                            >
-                              <span>Reset</span>
-                            </button>
-                            <button
-                              onClick={() => VerifyEmailID()}
-                              className="btn btn-primary create-item-btn"
-                              style={{ fontSize: "14px" }}
-                            >
-                              <span>{userEmailConfigObj.isEmailVerified === false ? "Re-Verify" : "Verify"}</span>
-                            </button>
-                          </div>
+                            <span className="email-config-status-dot"></span>
+                            {userEmailConfigObj.isEmailVerified
+                              ? "Verified"
+                              : "Pending"}
+                          </span>
                         </div>
                       )}
                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          {/* </div> */}
 
-          {/* new */}
-          <div class="container ">
-            <div className="row">
-              <div class="col-12">
-                <div class="card">
-                  <div class="card-body bg-white ">
-                    <div class=" row ">
-                      <div className="row ">
-                        <h6>
-                          <u>CC/BCC Configuration</u>{" "}
-                        </h6>
-                        <div className="col-md-6  mb-2">
-                          <div>
-                            <label class="fieldset-label table-content-font">
-                              {proposalName} CC
-                            </label>
-                          </div>
+                    <div className="email-config-card-footer">
+                      <div></div>
 
-                          <div>
-                            <input
-                              class="input-text table-content-font"
-                              type="text"
-                              placeholder="john.doe@example.com , jane.smith@example.com"
-                              value={emailConfigObj.quoteCC || ""}
-                              onChange={(e) => {
-                                const trimmedValue = e.target.value.replace(
-                                  /\s/g,
-                                  ""
-                                ); // Remove spaces
-                                setRequireErrorMessage(false);
-                                setPrevError(false);
-                                setEmailConfigObj({
-                                  ...emailConfigObj,
-                                  quoteCC: trimmedValue,
-                                });
-                              }}
-                            />
-                            {emailConfigObj.quoteCC &&
-                              emailConfigObj.quoteCC
-                                .split(/[,]+/)
-                                .some(
-                                  (email) => !validateEmail(email.trim())
-                                ) && (
-                                <label className="validation">
-                                  Please enter valid email addresses separated
-                                  by commas ("," ) .
-                                </label>
-                              )}
-                          </div>
-                        </div>
-                        <div className="col-md-6 mb-2">
-                          <div>
-                            <label class="fieldset-label table-content-font">
-                              {proposalName} BCC
-                            </label>
-                          </div>
-                          <div>
-                            <input
-                              class="input-text table-content-font "
-                              type="text"
-                              placeholder="john.doe@example.com , jane.smith@example.com"
-                              value={emailConfigObj.quoteBCC || ""}
-                              onChange={(e) => {
-                                const trimmedValue = e.target.value.replace(
-                                  /\s/g,
-                                  ""
-                                ); // Remove spaces
+                      <div className="email-config-actions">
+                        <button
+                          data-bs-toggle="modal"
+                          data-bs-target="#ConfirmModel"
+                          onClick={() => {
+                            setModelRequestData({
+                              ...modelRequestData,
+                              Action: "ResetEmailConfigurationChange",
+                              moduleName: "DefaultEmailConfig",
+                            });
+                          }}
+                          className="btn email-config-secondary-btn"
+                        >
+                          <span>Reset</span>
+                        </button>
 
-                                setRequireErrorMessage(false);
-                                setPrevError(false);
-                                setEmailConfigObj({
-                                  ...emailConfigObj,
-                                  quoteBCC: trimmedValue,
-                                });
-                              }}
-                            />
-
-                            {emailConfigObj.quoteBCC &&
-                              emailConfigObj.quoteBCC
-                                .split(/[,\s]+/)
-                                .some(
-                                  (email) => !validateEmail(email.trim())
-                                ) && (
-                                <label className="validation">
-                                  Please enter valid email addresses separated
-                                  by commas ("," ) .
-                                </label>
-                              )}
-                          </div>
-                        </div>
-                        <div className="col-md-6 mb-2">
-                          <div>
-                            <label class="fieldset-label table-content-font">
-                              {EngagementName} CC
-                            </label>
-                          </div>
-                          <div>
-                            <input
-                              class="input-text table-content-font"
-                              type="text"
-                              placeholder="john.doe@example.com , jane.smith@example.com"
-                              value={emailConfigObj.contractCC || ""}
-                              onChange={(e) => {
-                                const trimmedValue = e.target.value.replace(
-                                  /\s/g,
-                                  ""
-                                ); // Remove spaces
-
-                                setRequireErrorMessage(false);
-                                setPrevError(false);
-                                setEmailConfigObj({
-                                  ...emailConfigObj,
-                                  contractCC: trimmedValue,
-                                });
-                              }}
-                            />
-
-                            {emailConfigObj.contractCC &&
-                              emailConfigObj.contractCC
-                                .split(/[,\s]+/)
-                                .some(
-                                  (email) => !validateEmail(email.trim())
-                                ) && (
-                                <label className="validation">
-                                  Please enter valid email addresses separated
-                                  by commas ("," ) .
-                                </label>
-                              )}
-                          </div>
-                        </div>{" "}
-                        <div className="col-md-6 mb-2">
-                          <div>
-                            <label class="fieldset-label table-content-font">
-                              {EngagementName} BCC
-                            </label>
-                          </div>
-                          <div>
-                            <input
-                              class="input-text table-content-font"
-                              type="text"
-                              placeholder="john.doe@example.com , jane.smith@example.com"
-                              value={emailConfigObj.contractBCC || ""}
-                              onChange={(e) => {
-                                const trimmedValue = e.target.value.replace(
-                                  /\s/g,
-                                  ""
-                                ); // Remove spaces
-
-                                setRequireErrorMessage(false);
-                                setPrevError(false);
-                                setEmailConfigObj({
-                                  ...emailConfigObj,
-                                  contractBCC: trimmedValue,
-                                });
-                              }}
-                            />
-
-                            {emailConfigObj.contractBCC &&
-                              emailConfigObj.contractBCC
-                                .split(/[,\s]+/)
-                                .some(
-                                  (email) => !validateEmail(email.trim())
-                                ) && (
-                                <label className="validation">
-                                  Please enter valid email addresses separated
-                                  by commas ("," ) .
-                                </label>
-                              )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="row justify-content-end">
-                        <div className="col-lg-6 d-flex justify-content-end align-items-center">
-                          <button
-                            data-bs-toggle="modal"
-                            data-bs-target="#ConfirmModel"
-                            onClick={() => {
-                              setModelRequestData({
-                                ...modelRequestData,
-                                Action: "ClearCcBcc",
-                              });
-                            }}
-                            className="btn btn-light me-2"
-                            style={{ fontSize: "14px" }}
-                          >
-                            <span>Reset</span>
-                          </button>
-                          {userAccessData.Admin_Setting_Practice_Config_CanEdit && (
-                            <button
-                              style={{ fontSize: "14px" }}
-                              className="btn btn-primary create-item-btn"
-                              onClick={() => {
-                                EmailConfigAddUpdateBtnClicked();
-                              }}
-                            >
-                              <span>Submit</span>
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-12 text-center">
-                          {PrevError && (
-                            <label className="validation">
-                              You haven't changed any value
-                            </label>
-                          )}
-                        </div>
+                        <button
+                          onClick={() => VerifyEmailID()}
+                          className="btn email-config-primary-btn"
+                        >
+                          <span>
+                            {userEmailConfigObj.isEmailVerified === false
+                              ? "Re-Verify"
+                              : "Verify"}
+                          </span>
+                        </button>
                       </div>
                     </div>
-                  </div>
+                  </>
+                ) : null}
+              </>
+            )}
+          </div>
+        </section>
+
+        {/* =========================
+            CC / BCC
+            ========================= */}
+        <section className="email-config-card">
+          <div className="email-config-card-header">
+            <h2>CC/BCC Configuration</h2>
+          </div>
+
+          <div className="email-config-card-body">
+            <div className="email-config-ccbcc-grid">
+              <div className="email-config-field">
+                <label>{proposalName} CC</label>
+
+                <div className="email-config-input-wrap">
+                  <input
+                    className="input-text table-content-font email-config-input"
+                    type="text"
+                    placeholder="john.doe@example.com, jane.smith@example.com"
+                    value={emailConfigObj.quoteCC || ""}
+                    onChange={(e) => {
+                      const trimmedValue = e.target.value.replace(/\s/g, "");
+
+                      setRequireErrorMessage(false);
+                      setPrevError(false);
+
+                      setEmailConfigObj({
+                        ...emailConfigObj,
+                        quoteCC: trimmedValue,
+                      });
+                    }}
+                  />
                 </div>
+
+                {emailConfigObj.quoteCC &&
+                  emailConfigObj.quoteCC
+                    .split(/[,]+/)
+                    .some((email) => !validateEmail(email.trim())) && (
+                    <label className="validation">
+                      Please enter valid email addresses separated by commas
+                      (",").
+                    </label>
+                  )}
+              </div>
+
+              <div className="email-config-field">
+                <label>{proposalName} BCC</label>
+
+                <div className="email-config-input-wrap">
+                  <input
+                    className="input-text table-content-font email-config-input"
+                    type="text"
+                    placeholder="john.doe@example.com, jane.smith@example.com"
+                    value={emailConfigObj.quoteBCC || ""}
+                    onChange={(e) => {
+                      const trimmedValue = e.target.value.replace(/\s/g, "");
+
+                      setRequireErrorMessage(false);
+                      setPrevError(false);
+
+                      setEmailConfigObj({
+                        ...emailConfigObj,
+                        quoteBCC: trimmedValue,
+                      });
+                    }}
+                  />
+                </div>
+
+                {emailConfigObj.quoteBCC &&
+                  emailConfigObj.quoteBCC
+                    .split(/[,\s]+/)
+                    .some((email) => !validateEmail(email.trim())) && (
+                    <label className="validation">
+                      Please enter valid email addresses separated by commas
+                      (",").
+                    </label>
+                  )}
+              </div>
+
+              <div className="email-config-field">
+                <label>{EngagementName} CC</label>
+
+                <div className="email-config-input-wrap">
+                  <input
+                    className="input-text table-content-font email-config-input"
+                    type="text"
+                    placeholder="john.doe@example.com, jane.smith@example.com"
+                    value={emailConfigObj.contractCC || ""}
+                    onChange={(e) => {
+                      const trimmedValue = e.target.value.replace(/\s/g, "");
+
+                      setRequireErrorMessage(false);
+                      setPrevError(false);
+
+                      setEmailConfigObj({
+                        ...emailConfigObj,
+                        contractCC: trimmedValue,
+                      });
+                    }}
+                  />
+                </div>
+
+                {emailConfigObj.contractCC &&
+                  emailConfigObj.contractCC
+                    .split(/[,\s]+/)
+                    .some((email) => !validateEmail(email.trim())) && (
+                    <label className="validation">
+                      Please enter valid email addresses separated by commas
+                      (",").
+                    </label>
+                  )}
+              </div>
+
+              <div className="email-config-field">
+                <label>{EngagementName} BCC</label>
+
+                <div className="email-config-input-wrap">
+                  <input
+                    className="input-text table-content-font email-config-input"
+                    type="text"
+                    placeholder="john.doe@example.com, jane.smith@example.com"
+                    value={emailConfigObj.contractBCC || ""}
+                    onChange={(e) => {
+                      const trimmedValue = e.target.value.replace(/\s/g, "");
+
+                      setRequireErrorMessage(false);
+                      setPrevError(false);
+
+                      setEmailConfigObj({
+                        ...emailConfigObj,
+                        contractBCC: trimmedValue,
+                      });
+                    }}
+                  />
+                </div>
+
+                {emailConfigObj.contractBCC &&
+                  emailConfigObj.contractBCC
+                    .split(/[,\s]+/)
+                    .some((email) => !validateEmail(email.trim())) && (
+                    <label className="validation">
+                      Please enter valid email addresses separated by commas
+                      (",").
+                    </label>
+                  )}
               </div>
             </div>
           </div>
-        </div>
-        <Footer />
 
+          <div className="email-config-card-footer">
+            <div className="email-config-feedback">
+              {PrevError && (
+                <label className="validation">
+                  You haven't changed any value
+                </label>
+              )}
+            </div>
+
+            <div className="email-config-actions">
+              <button
+                data-bs-toggle="modal"
+                data-bs-target="#ConfirmModel"
+                onClick={() => {
+                  setModelRequestData({
+                    ...modelRequestData,
+                    Action: "ClearCcBcc",
+                  });
+                }}
+                className="btn email-config-secondary-btn"
+              >
+                <span>Reset</span>
+              </button>
+
+              {userAccessData.Admin_Setting_Practice_Config_CanEdit && (
+                <button
+                  className="btn email-config-primary-btn"
+                  onClick={() => {
+                    EmailConfigAddUpdateBtnClicked();
+                  }}
+                >
+                  <span>Submit Changes</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <Footer />
+
+      {/* =========================
+          EXISTING MODALS / ACTIONS
+          ========================= */}
       <ConfirmModel
         openErrorModal={openErrorModal}
         openSuccessModal={openSuccessModal}
@@ -1504,12 +1548,14 @@ const Email_Config = () => {
           }
         }}
       />
+
       <ViewPlan
         showModal={showModal}
         handleCloseModel={() => setShowModal(false)}
         setShowModal={setShowModal}
         activeOrganizationKeyId={common.organisationKeyID}
       />
+
       <SuccessModal
         handleClose={handleClose}
         setDismissModal={setDismissModal}
@@ -1521,25 +1567,23 @@ const Email_Config = () => {
             ? "Email configuration has been reset successfully!"
             : modelRequestData.Action === "ClearCcBcc"
               ? "CC and BCC fields have been reset successfully!"
-              : modelRequestData.Action === "VerifyEmailID" ? "Please check your mailbox (including your spam folder) for an email from Amazon Web Services (AWS). Click the verification link in the email to grant Outbooks Proposal Tool permission to send emails from this email address." : "Email configuration has been updated successfully!"
+              : modelRequestData.Action === "VerifyEmailID"
+                ? "Please check your mailbox (including your spam folder) for an email from Amazon Web Services (AWS). Click the verification link in the email to grant Outbooks Proposal Tool permission to send emails from this email address."
+                : "Email configuration has been updated successfully!"
         }
       />
-      {/* <ErrorModel
-        ErrorModel={openErrorModal}
-        handleClose={handleClose}
-        ErrorMessage={"Failed to send email"}
-      /> */}
+
       <ErrorModel
         ErrorModel={openErrorModal}
         handleClose={handleClose}
         ErrorMessage={
           modelRequestData.Action === "ClearCcBcc" &&
-            emailConfigObj.quoteCC === "" &&
-            emailConfigObj.quoteBCC === "" &&
-            emailConfigObj.contractCC === "" &&
-            emailConfigObj.contractBCC === ""
+          emailConfigObj.quoteCC === "" &&
+          emailConfigObj.quoteBCC === "" &&
+          emailConfigObj.contractCC === "" &&
+          emailConfigObj.contractBCC === ""
             ? ""
-            : "All fields are already empty. No action needed." // This will use the existing error message for other cases
+            : "All fields are already empty. No action needed."
         }
       />
 
@@ -1547,7 +1591,7 @@ const Email_Config = () => {
         open={modalOpen}
         handleClose={handleCloseModal}
         instructions={instructions}
-        alertMessage={alertMessage} // Pass alert message to InstructionModal
+        alertMessage={alertMessage}
       />
     </div>
   );
