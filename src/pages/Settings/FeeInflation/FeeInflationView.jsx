@@ -54,6 +54,21 @@ const FeeInflationView = () => {
     }
   }, [common.organisationKeyID, common.userKeyID, canManageFeeInflation]);
 
+  const availableServices = ServiceFeeInflationConfig.ServiceFeeInflationList.filter((s) => {
+    const isFixed = s.pricingTypeID !== 2;
+    const isAlreadyConfigured =
+      s.operator !== null && s.value !== null;
+
+    if (isFixed && isAlreadyConfigured) return false;
+
+    return true;
+  });
+
+  const allServicesSelected = availableServices.length > 0 &&
+    ServiceFeeInflationConfig.SelectedServices.length ===
+      availableServices.length;
+  
+      
   const GetServiceFeeInflationConfigData = async () => {
     if (!common.userKeyID) {
       return;
@@ -213,19 +228,24 @@ const FeeInflationView = () => {
         <div className="col-md-6">
           <Select
             isMulti
-            options={ServiceFeeInflationConfig.ServiceFeeInflationList
-              .filter((s) => {
-                const isFixed = s.pricingTypeID !== 2;
-                const isAlreadyConfigured = s.operator !== null && s.value !== null;
-                if (isFixed && isAlreadyConfigured) return false;
-                return true;
-              })
-              .map((s) => ({
+            options={[
+              ...(!allServicesSelected
+                ? [
+                    {
+                      value: "ALL",
+                      label: "All",
+                      isAll: true,
+                    },
+                  ]
+                : []),
+
+              ...availableServices.map((s) => ({
                 value: s.serviceID,
                 label: s.serviceName,
                 isConfigured: s.operator !== null && s.value !== null,
                 data: s,
-              }))}
+              })),
+            ]}
             value={ServiceFeeInflationConfig.SelectedServices.map((s) => ({
               value: s.serviceID,
               label: s.serviceName,
@@ -233,23 +253,36 @@ const FeeInflationView = () => {
               data: s,
             }))}
             onChange={(selected) => {
+              const clickedAll = selected?.some((s) => s.isAll);
+
+              const selectedServices = clickedAll
+                ? availableServices
+                : selected
+                    ? selected.map((s) => s.data)
+                    : [];
+
               setServiceFeeInflationConfig((prev) => ({
                 ...prev,
-                SelectedServices: selected ? selected.map((s) => s.data) : [],
-                InflationRule:
-                selected && selected.length > 0
-                  ? prev.InflationRule
-                  : {
-                      operator: null,
-                      value: null,
-                    },
+                SelectedServices: selectedServices,
                 SelectionError: "",
+                InflationRule:
+                  selectedServices.length > 0
+                    ? prev.InflationRule
+                    : {
+                        operator: null,
+                        value: null,
+                      },
               }));
             }}
             formatOptionLabel={(option) => (
               <div className="d-flex align-items-center justify-content-between">
                 <span>{option.label}</span>
-                {option.isConfigured && <span className="badge bg-success ms-2">Configured</span>}
+
+                {option.isConfigured && (
+                  <span className="badge bg-success ms-2">
+                    Configured
+                  </span>
+                )}
               </div>
             )}
             isClearable

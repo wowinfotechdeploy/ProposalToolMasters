@@ -124,6 +124,20 @@ const Pricing_Settings = () => {
     }
     return Utils.PreviewSelection;
   }
+
+  const availableServices = ServiceFeeInflationConfig.ServiceFeeInflationList.filter((s) => {
+    const isFixed = s.pricingTypeID !== 2;
+    const isAlreadyConfigured =
+      s.operator !== null && s.value !== null;
+
+    if (isFixed && isAlreadyConfigured) return false;
+
+    return true;
+  });
+
+  const allServicesSelected = availableServices.length > 0 &&
+    ServiceFeeInflationConfig.SelectedServices.length ===
+      availableServices.length;
   
   // const getProposalFormatValue = () => {
   //   if(common.enableEL === 1 && activeOrganizationSubscriptionPlan?.prepareContract === true) {
@@ -936,66 +950,68 @@ const TabHandle = async (tab) => {
         <div className="form-label fw-bold pt-1" style={{fontSize: "14px"}}>Select Services</div>
       </div>
       <div className="col-md-6">
-        <Select
-          isMulti
-          options={ServiceFeeInflationConfig.ServiceFeeInflationList
-            .filter((s) => {
-              // Fixed price services (pricingTypeID !== formula type) that are
-              // already configured must not appear in the dropdown again
-              const isFixed = s.pricingTypeID !== 2; // use your actual constant
-              const isAlreadyConfigured = s.operator !== null && s.value !== null;
-              if (isFixed && isAlreadyConfigured) return false;
-              return true;
-            })
-            .map((s) => ({
-              value: s.serviceID,
-              label: s.serviceName,
-              isConfigured: s.operator !== null && s.value !== null,
-              data: s,
-            }))}
-          value={ServiceFeeInflationConfig.SelectedServices.map((s) => ({
+       <Select
+        isMulti
+        options={[
+          ...(!allServicesSelected
+            ? [
+                {
+                  value: "ALL",
+                  label: "All",
+                  isAll: true,
+                },
+              ]
+            : []),
+
+          ...availableServices.map((s) => ({
             value: s.serviceID,
             label: s.serviceName,
             isConfigured: s.operator !== null && s.value !== null,
             data: s,
-          }))}
-          onChange={(selected) => {
-            // const isDeselectAll =
-            //   (!selected || selected.length === 0) &&
-            //   ServiceFeeInflationConfig.HasExistingConfig;
+          })),
+        ]}
+        value={ServiceFeeInflationConfig.SelectedServices.map((s) => ({
+          value: s.serviceID,
+          label: s.serviceName,
+          isConfigured: s.operator !== null && s.value !== null,
+          data: s,
+        }))}
+        onChange={(selected) => {
+          const clickedAll = selected?.some((s) => s.isAll);
 
-            // if (isDeselectAll) {
-            //   setServiceFeeInflationConfig((prev) => ({
-            //     ...prev,
-            //     SelectionError: "At least one service must be selected.",
-            //   }));
-            //   return;
-            // }
+          const selectedServices = clickedAll
+            ? availableServices
+            : selected
+                ? selected.map((s) => s.data)
+                : [];
 
-            setServiceFeeInflationConfig((prev) => ({
-              ...prev,
-              SelectedServices: selected ? selected.map((s) => s.data) : [],
-              SelectionError: "",
-              InflationRule:
-                selected && selected.length > 0
-                  ? prev.InflationRule
-                  : {
-                      operator: null,
-                      value: null,
-                    },
-            }));
-          }}
-          formatOptionLabel={(option) => (
-            <div className="d-flex align-items-center justify-content-between">
-              <span>{option.label}</span>
-              {option.isConfigured && (
-                <span className="badge bg-success ms-2">Configured</span>
-              )}
-            </div>
-          )}
-          isClearable
-          placeholder="Search and select services..."
-        />
+          setServiceFeeInflationConfig((prev) => ({
+            ...prev,
+            SelectedServices: selectedServices,
+            SelectionError: "",
+            InflationRule:
+              selectedServices.length > 0
+                ? prev.InflationRule
+                : {
+                    operator: null,
+                    value: null,
+                  },
+          }));
+        }}
+        formatOptionLabel={(option) => (
+          <div className="d-flex align-items-center justify-content-between">
+            <span>{option.label}</span>
+
+            {option.isConfigured && (
+              <span className="badge bg-success ms-2">
+                Configured
+              </span>
+            )}
+          </div>
+        )}
+        isClearable
+        placeholder="Search and select services..."
+      />
         {(ServiceFeeInflationConfig.SelectedServices.length === 0 &&
           ServiceFeeInflationConfig.SelectionError )&& (
           <label className="validation">
