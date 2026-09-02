@@ -1,0 +1,1509 @@
+/* =========================================================
+   PDF TO CSV - FIGMA REDESIGN
+   UI-only styling for the Convertor screen.
+   Upgrade and Subscription functionality remains untouched.
+   ========================================================= */
+
+/* .pdfcsv-page-root {
+  margin-top: 110px;
+} */
+
+.pdfcsv-redesign {
+  --pdfcsv-bg: #f7f9fc;
+  --pdfcsv-white: #ffffff;
+  --pdfcsv-heading: #14243a;
+  --pdfcsv-text: #27364b;
+  --pdfcsv-muted: #737d8c;
+  --pdfcsv-border: #dce4ed;
+  --pdfcsv-border-soft: #e8edf3;
+  --pdfcsv-cyan: #14b5d1;
+  --pdfcsv-cyan-hover: #0da5c1;
+  --pdfcsv-soft-blue: #eef5ff;
+  --pdfcsv-icon-blue: #087f99;
+
+  width: 100%;
+  padding: 30px 32px 42px;
+  background: var(--pdfcsv-bg);
+  color: var(--pdfcsv-text);
+}
+
+.pdfcsv-redesign,
+.pdfcsv-redesign * {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.pdfcsv-header {
+  width: 100%;
+  margin-bottom: 28px;
+  padding-bottom: 15px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  border-bottom: 1px solid #e3e9f0;
+}
+
+.pdfcsv-header__left {
+  min-width: 0;
+}
+
+.pdfcsv-page-title {
+  margin: 0 !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--pdfcsv-heading) !important;
+  font-size: 30px !important;
+  font-weight: 700 !important;
+  line-height: 1.2;
+}
+
+.pdfcsv-header__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.pdfcsv-primary-btn,
+.pdfcsv-secondary-btn {
+  min-height: 40px !important;
+  padding: 0 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+}
+
+.pdfcsv-primary-btn {
+  border: 1px solid var(--pdfcsv-cyan) !important;
+  background: var(--pdfcsv-cyan) !important;
+  color: #ffffff !important;
+}
+
+.pdfcsv-primary-btn:hover {
+  border-color: var(--pdfcsv-cyan-hover) !important;
+  background: var(--pdfcsv-cyan-hover) !important;
+  color: #ffffff !important;
+}
+
+.pdfcsv-secondary-btn {
+  border: 1px solid #cdd7e2 !important;
+  background: #ffffff !important;
+  color: #27364b !important;
+}
+
+.pdfcsv-secondary-btn:hover {
+  border-color: #bcc8d5 !important;
+  background: #f8fafc !important;
+}
+
+/* =========================================================
+   USAGE CARDS
+   ========================================================= */
+
+.pdfcsv-usage-grid {
+  width: 100%;
+  margin-bottom: 30px;
+
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.pdfcsv-usage-card {
+  min-height: 108px;
+  padding: 22px 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  border: 1px solid var(--pdfcsv-border);
+  border-radius: 12px;
+  background: #ffffff;
+
+  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.04);
+}
+
+.pdfcsv-usage-card__label {
+  margin-bottom: 8px;
+  color: #4f5865;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.pdfcsv-usage-card__value {
+  color: #0e1d33;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.pdfcsv-usage-card__icon {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  background: #e7f0ff;
+  color: var(--pdfcsv-icon-blue);
+  font-size: 22px;
+}
+
+/* =========================================================
+   UPLOAD CARD
+   ========================================================= */
+
+.pdfcsv-upload-card {
+  width: 100%;
+  margin-bottom: 30px;
+  padding: 32px;
+
+  border: 1px solid var(--pdfcsv-border);
+  border-radius: 12px;
+  background: #ffffff;
+
+  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.035);
+}
+
+.pdfcsv-dropzone {
+  width: 100%;
+  min-height: 195px;
+  padding: 28px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  border: 1.5px dashed #62d6f0;
+  border-radius: 10px;
+  background: #f1f6ff;
+
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.pdfcsv-dropzone:hover {
+  border-color: var(--pdfcsv-cyan);
+  background: #edf5ff;
+}
+
+.pdfcsv-file-input {
+  display: none;
+}
+
+.pdfcsv-dropzone__icon {
+  width: 58px;
+  height: 58px;
+  margin-bottom: 15px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  background: #e4efff;
+  color: #047f98;
+  font-size: 28px;
+}
+
+.pdfcsv-dropzone__title {
+  max-width: 760px;
+  color: #13243a;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.pdfcsv-dropzone__subtitle {
+  margin-top: 5px;
+  color: #697486;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.pdfcsv-upload-error {
+  margin-top: 10px;
+  color: #df4055;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.pdfcsv-upload-actions {
+  margin-top: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.pdfcsv-convert-btn {
+  min-height: 46px !important;
+  padding: 0 26px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 9px !important;
+
+  border: 1px solid var(--pdfcsv-cyan) !important;
+  border-radius: 8px !important;
+
+  background: var(--pdfcsv-cyan) !important;
+  color: #ffffff !important;
+
+  font-size: 14px !important;
+  font-weight: 600 !important;
+
+  box-shadow: 0 4px 9px rgba(20, 181, 209, 0.18) !important;
+}
+
+.pdfcsv-convert-btn:hover:not(:disabled) {
+  border-color: var(--pdfcsv-cyan-hover) !important;
+  background: var(--pdfcsv-cyan-hover) !important;
+}
+
+.pdfcsv-convert-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.pdfcsv-remove-btn {
+  min-height: 46px !important;
+  padding: 0 18px !important;
+
+  border: 1px solid #d6dee8 !important;
+  border-radius: 8px !important;
+
+  background: #ffffff !important;
+  color: #4e5969 !important;
+
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.pdfcsv-remove-btn:hover {
+  background: #f7f9fb !important;
+}
+
+/* =========================================================
+   HISTORY CARD
+   ========================================================= */
+
+.pdfcsv-history-card {
+  width: 100%;
+  overflow: hidden;
+
+  border: 1px solid var(--pdfcsv-border);
+  border-radius: 12px;
+  background: #ffffff;
+
+  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.035);
+}
+
+.pdfcsv-history-header {
+  min-height: 86px;
+  padding: 18px 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  border-bottom: 1px solid var(--pdfcsv-border);
+}
+
+.pdfcsv-history-header h5 {
+  margin: 0;
+  color: #13243a;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.pdfcsv-history-filter {
+  width: 200px;
+}
+
+.pdfcsv-redesign .pdfcsv-select__control {
+  min-height: 40px !important;
+  height: 40px !important;
+
+  border: 1px solid #ccd6e2 !important;
+  border-radius: 8px !important;
+
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.pdfcsv-redesign .pdfcsv-select__control:hover {
+  border-color: #bcc8d5 !important;
+}
+
+.pdfcsv-redesign .pdfcsv-select__control--is-focused {
+  border-color: #7fcfdf !important;
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08) !important;
+}
+
+.pdfcsv-redesign .pdfcsv-select__value-container {
+  padding: 0 12px !important;
+}
+
+.pdfcsv-redesign .pdfcsv-select__single-value,
+.pdfcsv-redesign .pdfcsv-select__placeholder {
+  color: #36445a !important;
+  font-size: 12px !important;
+}
+
+.pdfcsv-redesign .pdfcsv-select__indicator-separator {
+  display: none !important;
+}
+
+.pdfcsv-redesign .pdfcsv-select__menu {
+  z-index: 50 !important;
+}
+
+/* =========================================================
+   CUSTOM DATES
+   ========================================================= */
+
+.pdfcsv-date-range {
+  padding: 14px 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+
+  border-bottom: 1px solid var(--pdfcsv-border-soft);
+  background: #fbfcfe;
+}
+
+.pdfcsv-date-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pdfcsv-date-field > span {
+  color: #697486;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.pdfcsv-redesign .react-date-picker {
+  width: 175px;
+}
+
+.pdfcsv-redesign .react-date-picker__wrapper {
+  min-height: 38px;
+  padding: 0 8px;
+
+  border: 1px solid #ccd6e2 !important;
+  border-radius: 8px;
+
+  background: #ffffff;
+}
+
+.pdfcsv-redesign .react-date-picker__inputGroup {
+  color: #36445a;
+  font-size: 12px;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.pdfcsv-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.pdfcsv-table {
+  width: 100%;
+  min-width: 880px;
+
+  margin: 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.pdfcsv-table th {
+  padding: 15px 20px;
+
+  border-bottom: 1px solid var(--pdfcsv-border);
+
+  background: #eff4ff;
+  color: #505967;
+
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.pdfcsv-table td {
+  height: 64px;
+  padding: 13px 20px;
+
+  border-bottom: 1px solid #e6ebf1;
+
+  background: #ffffff;
+  color: #354256;
+
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.pdfcsv-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.pdfcsv-table tbody tr:hover td {
+  background: #fbfdff;
+}
+
+.pdfcsv-table th:nth-child(1),
+.pdfcsv-table td:nth-child(1) {
+  width: 28%;
+}
+
+.pdfcsv-table th:nth-child(2),
+.pdfcsv-table td:nth-child(2) {
+  width: 24%;
+}
+
+.pdfcsv-table th:nth-child(3),
+.pdfcsv-table td:nth-child(3) {
+  width: 16%;
+}
+
+.pdfcsv-table th:nth-child(4),
+.pdfcsv-table td:nth-child(4) {
+  width: 20%;
+}
+
+.pdfcsv-table th:nth-child(5),
+.pdfcsv-table td:nth-child(5) {
+  width: 12%;
+}
+
+.pdfcsv-file-link {
+  max-width: 100%;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  color: #18283e !important;
+  text-decoration: none !important;
+}
+
+.pdfcsv-file-link > span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pdfcsv-file-link:hover {
+  color: #07849d !important;
+}
+
+.pdfcsv-file-type-icon {
+  width: 20px;
+  flex: 0 0 20px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 17px;
+}
+
+.pdfcsv-file-type-icon--pdf {
+  color: #e24850;
+}
+
+.pdfcsv-file-type-icon--csv {
+  color: #138ea2;
+}
+
+.pdfcsv-table__action-heading,
+.pdfcsv-table__action {
+  text-align: center !important;
+}
+
+.pdfcsv-download-btn {
+  width: 34px;
+  height: 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 7px;
+
+  color: #334156 !important;
+  text-decoration: none !important;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.pdfcsv-download-btn:hover {
+  background: #eef5ff;
+  color: #07849d !important;
+}
+
+/* =========================================================
+   HISTORY FOOTER
+   ========================================================= */
+
+.pdfcsv-history-footer {
+  min-height: 66px;
+  padding: 13px 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  border-top: 1px solid var(--pdfcsv-border);
+  background: #fbfcff;
+}
+
+.pdfcsv-history-count {
+  color: #5f6979;
+  font-size: 12px;
+}
+
+.pdfcsv-show-more-btn {
+  min-height: 38px !important;
+  padding: 0 16px !important;
+
+  border: 1px solid var(--pdfcsv-cyan) !important;
+  border-radius: 8px !important;
+
+  background: var(--pdfcsv-cyan) !important;
+  color: #ffffff !important;
+
+  font-size: 12px !important;
+  font-weight: 600 !important;
+}
+
+.pdfcsv-show-more-btn:hover {
+  border-color: var(--pdfcsv-cyan-hover) !important;
+  background: var(--pdfcsv-cyan-hover) !important;
+}
+
+.pdfcsv-empty-state {
+  min-height: 230px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  .pdfcsv-redesign {
+    padding: 26px 20px 36px;
+  }
+
+  .pdfcsv-usage-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pdfcsv-usage-card:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  .pdfcsv-page-root {
+    margin-top: 80px;
+  }
+
+  .pdfcsv-redesign {
+    padding: 20px 12px 30px;
+  }
+
+  .pdfcsv-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pdfcsv-page-title {
+    font-size: 24px !important;
+  }
+
+  .pdfcsv-header__actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .pdfcsv-usage-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pdfcsv-usage-card:last-child {
+    grid-column: auto;
+  }
+
+  .pdfcsv-upload-card {
+    padding: 16px;
+  }
+
+  .pdfcsv-dropzone {
+    min-height: 170px;
+    padding: 22px 14px;
+  }
+
+  .pdfcsv-upload-actions {
+    flex-wrap: wrap;
+  }
+
+  .pdfcsv-history-header {
+    min-height: auto;
+    padding: 16px;
+
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pdfcsv-history-filter {
+    width: 100%;
+  }
+
+  .pdfcsv-date-range {
+    padding: 12px 16px;
+
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pdfcsv-date-field {
+    width: 100%;
+  }
+
+  .pdfcsv-redesign .react-date-picker {
+    width: 100%;
+  }
+
+  .pdfcsv-history-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.pdfpages-redesign {
+  --pdfpages-bg: #f7f9fc;
+  --pdfpages-card: #ffffff;
+  --pdfpages-heading: #14243a;
+  --pdfpages-text: #27364b;
+  --pdfpages-muted: #758092;
+  --pdfpages-border: #dce4ed;
+  --pdfpages-cyan: #14b5d1;
+  --pdfpages-cyan-hover: #0da5c1;
+  --pdfpages-green: #18b98a;
+
+  width: 100%;
+  padding: 30px 32px 42px;
+  background: var(--pdfpages-bg);
+  color: var(--pdfpages-text);
+}
+
+.pdfpages-redesign,
+.pdfpages-redesign * {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.pdfpages-header {
+  width: 100%;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  border-bottom: 1px solid #e3e9f0;
+}
+
+.pdfpages-title {
+  margin: 0 !important;
+  color: var(--pdfpages-heading) !important;
+  font-size: 30px !important;
+  font-weight: 700 !important;
+  line-height: 1.2;
+}
+
+.pdfpages-subtitle {
+  margin: 6px 0 0;
+  color: var(--pdfpages-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.pdfpages-back-btn {
+  min-height: 40px !important;
+  padding: 0 16px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+
+  border: 1px solid #cdd7e2 !important;
+  border-radius: 8px !important;
+
+  background: #ffffff !important;
+  color: #27364b !important;
+
+  font-size: 12px !important;
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+}
+
+.pdfpages-back-btn:hover {
+  border-color: #bcc8d5 !important;
+  background: #f7f9fb !important;
+}
+
+/* =========================================================
+   GRID
+   ========================================================= */
+
+.pdfpages-plans-grid {
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+
+/* =========================================================
+   PLAN CARD
+   ========================================================= */
+
+.pdfpages-plan-card {
+  min-height: 340px;
+  padding: 24px;
+
+  display: flex;
+  flex-direction: column;
+
+  border: 1px solid var(--pdfpages-border);
+  border-radius: 14px;
+
+  background: var(--pdfpages-card);
+
+  box-shadow:
+    0 2px 7px rgba(15, 23, 42, 0.04),
+    0 8px 20px rgba(15, 23, 42, 0.025);
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.pdfpages-plan-card:hover {
+  transform: translateY(-2px);
+  border-color: #cbd8e4;
+  box-shadow:
+    0 4px 10px rgba(15, 23, 42, 0.06),
+    0 12px 26px rgba(15, 23, 42, 0.04);
+}
+
+.pdfpages-plan-card__top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pdfpages-plan-icon {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: #e9f6fa;
+  color: #0d91a9;
+
+  font-size: 20px;
+}
+
+.pdfpages-plan-name {
+  min-width: 0;
+
+  color: var(--pdfpages-heading);
+
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.pdfpages-plan-price {
+  margin-top: 24px;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 3px;
+
+  color: #0e1d33;
+}
+
+.pdfpages-plan-price__currency {
+  margin-top: 5px;
+
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.pdfpages-plan-price__value {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.pdfpages-plan-divider {
+  width: 100%;
+  height: 1px;
+
+  margin: 23px 0;
+
+  background: #e7ecf2;
+}
+
+/* =========================================================
+   FEATURES
+   ========================================================= */
+
+.pdfpages-plan-features {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+
+.pdfpages-plan-feature {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.pdfpages-feature-check {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #eaf8f4;
+  color: var(--pdfpages-green);
+
+  font-size: 14px;
+}
+
+.pdfpages-plan-feature > div {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.pdfpages-feature-label {
+  margin-bottom: 2px;
+
+  color: var(--pdfpages-muted);
+
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pdfpages-plan-feature strong {
+  color: #26354a;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.pdfpages-plan-error {
+  margin-top: 16px;
+  padding: 9px 10px;
+
+  border: 1px solid #f3d5d9;
+  border-radius: 7px;
+
+  background: #fff5f6;
+  color: #d54254;
+
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+/* =========================================================
+   FOOTER / PURCHASE BUTTON
+   ========================================================= */
+
+.pdfpages-plan-card__footer {
+  margin-top: auto;
+  padding-top: 25px;
+}
+
+.pdfpages-purchase-btn {
+  width: 100% !important;
+  min-height: 43px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border: 1px solid var(--pdfpages-cyan) !important;
+  border-radius: 8px !important;
+
+  background: var(--pdfpages-cyan) !important;
+  color: #ffffff !important;
+
+  font-size: 13px !important;
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+}
+
+.pdfpages-purchase-btn:hover {
+  border-color: var(--pdfpages-cyan-hover) !important;
+  background: var(--pdfpages-cyan-hover) !important;
+}
+
+/* =========================================================
+   EMPTY
+   ========================================================= */
+
+.pdfpages-empty-state {
+  min-height: 280px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px dashed #ccd7e3;
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  color: #778192;
+  text-align: center;
+}
+
+.pdfpages-empty-state i {
+  margin-bottom: 10px;
+  font-size: 30px;
+  color: #9aa5b4;
+}
+
+.pdfpages-empty-state h5 {
+  margin: 0;
+  color: #26354a;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.pdfpages-empty-state p {
+  margin: 5px 0 0;
+  font-size: 12px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  .pdfpages-redesign {
+    padding: 26px 20px 36px;
+  }
+
+  .pdfpages-plans-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .pdfpages-redesign {
+    padding: 20px 12px 30px;
+  }
+
+  .pdfpages-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pdfpages-title {
+    font-size: 24px !important;
+  }
+
+  .pdfpages-plans-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pdfpages-plan-card {
+    min-height: auto;
+  }
+}
+
+.pdfsub-redesign {
+  --pdfsub-bg: #f7f9fc;
+  --pdfsub-white: #ffffff;
+  --pdfsub-heading: #14243a;
+  --pdfsub-text: #2c3b50;
+  --pdfsub-muted: #788395;
+  --pdfsub-border: #dce4ed;
+  --pdfsub-border-soft: #e8edf3;
+  --pdfsub-cyan: #14b5d1;
+  --pdfsub-cyan-hover: #0da5c1;
+  --pdfsub-navy: #0f1b33;
+
+  width: 100%;
+  padding: 30px 32px 40px;
+  background: var(--pdfsub-bg);
+  color: var(--pdfsub-text);
+}
+
+.pdfsub-redesign,
+.pdfsub-redesign * {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.pdfsub-header {
+  width: 100%;
+  margin-bottom: 26px;
+  padding-bottom: 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  border-bottom: 1px solid #e3e9f0;
+}
+
+.pdfsub-title {
+  margin: 0 !important;
+
+  color: var(--pdfsub-heading) !important;
+
+  font-size: 30px !important;
+  font-weight: 700 !important;
+  line-height: 1.2;
+}
+
+.pdfsub-subtitle {
+  margin: 6px 0 0;
+
+  color: var(--pdfsub-muted);
+
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.pdfsub-back-btn {
+  min-height: 40px !important;
+  padding: 0 16px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+
+  border: 1px solid #cdd7e2 !important;
+  border-radius: 8px !important;
+
+  background: #ffffff !important;
+  color: #27364b !important;
+
+  font-size: 12px !important;
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+}
+
+.pdfsub-back-btn:hover {
+  border-color: #bcc8d5 !important;
+  background: #f7f9fb !important;
+}
+
+/* =========================================================
+   TABLE CARD
+   ========================================================= */
+
+.pdfsub-table-card {
+  width: 100%;
+  overflow: hidden;
+
+  border: 1px solid var(--pdfsub-border);
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 2px 7px rgba(15, 23, 42, 0.04),
+    0 8px 22px rgba(15, 23, 42, 0.025);
+}
+
+.pdfsub-table-toolbar {
+  min-height: 76px;
+  padding: 16px 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  border-bottom: 1px solid var(--pdfsub-border);
+  background: #ffffff;
+}
+
+.pdfsub-table-toolbar h5 {
+  margin: 0;
+
+  color: var(--pdfsub-heading);
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.pdfsub-table-toolbar span {
+  display: block;
+  margin-top: 4px;
+
+  color: var(--pdfsub-muted);
+
+  font-size: 11px;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.pdfsub-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.pdfsub-table {
+  width: 100%;
+  min-width: 820px;
+
+  margin: 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.pdfsub-table thead th {
+  height: 58px;
+  padding: 0 22px;
+
+  border: 0;
+  border-bottom: 1px solid #1d2a43;
+
+  background: var(--pdfsub-navy);
+  color: #f4f7fb;
+
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.015em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pdfsub-table tbody td {
+  height: 74px;
+  padding: 13px 22px;
+
+  border-bottom: 1px solid #e3e9f0;
+
+  background: #ffffff;
+  color: #334258;
+
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.pdfsub-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.pdfsub-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.pdfsub-table tbody tr:hover td {
+  background: #fbfdff;
+}
+
+.pdfsub-table th:nth-child(1),
+.pdfsub-table td:nth-child(1) {
+  width: 28%;
+}
+
+.pdfsub-table th:nth-child(2),
+.pdfsub-table td:nth-child(2) {
+  width: 18%;
+}
+
+.pdfsub-table th:nth-child(3),
+.pdfsub-table td:nth-child(3) {
+  width: 17%;
+}
+
+.pdfsub-table th:nth-child(4),
+.pdfsub-table td:nth-child(4) {
+  width: 19%;
+}
+
+.pdfsub-table th:nth-child(5),
+.pdfsub-table td:nth-child(5) {
+  width: 18%;
+}
+
+/* =========================================================
+   PACKAGE CELL
+   ========================================================= */
+
+.pdfsub-package-cell {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pdfsub-package-icon {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #e8f7fa;
+  color: #0b91a8;
+
+  font-size: 17px;
+}
+
+.pdfsub-package-name {
+  min-width: 0;
+
+  color: #17273e;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pdfsub-cell-text {
+  color: #4a586c;
+  font-size: 13px;
+}
+
+.pdfsub-price {
+  color: #17273e;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   PAGES BADGE
+   ========================================================= */
+
+.pdfsub-pages-badge {
+  min-width: 56px;
+  min-height: 27px;
+  padding: 0 10px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  background: #eaf2ff;
+  color: #4d5d71;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   STATUS PILLS
+   ========================================================= */
+
+.pdfsub-status {
+  min-height: 28px;
+  padding: 0 11px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  border: 1px solid transparent;
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pdfsub-status__dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.pdfsub-status--active {
+  border-color: #cfeee5;
+  background: #eaf9f4;
+  color: #17845f;
+}
+
+.pdfsub-status--expired {
+  border-color: #f4d4d8;
+  background: #fff0f2;
+  color: #cf3e50;
+}
+
+.pdfsub-status--pending {
+  border-color: #f5e4b8;
+  background: #fff8e5;
+  color: #a77710;
+}
+
+.pdfsub-status--inactive {
+  border-color: #ead5d5;
+  background: #f9eeee;
+  color: #844848;
+}
+
+.pdfsub-status--default {
+  border-color: #dce3eb;
+  background: #f4f6f8;
+  color: #6f7987;
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.pdfsub-empty-wrap {
+  min-height: 240px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 991px) {
+  .pdfsub-redesign {
+    padding: 26px 20px 36px;
+  }
+}
+
+@media (max-width: 767px) {
+  .pdfsub-redesign {
+    padding: 20px 12px 30px;
+  }
+
+  .pdfsub-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pdfsub-title {
+    font-size: 24px !important;
+  }
+
+  .pdfsub-table-toolbar {
+    min-height: auto;
+    padding: 14px 16px;
+  }
+
+  .pdfsub-table thead th,
+  .pdfsub-table tbody td {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}

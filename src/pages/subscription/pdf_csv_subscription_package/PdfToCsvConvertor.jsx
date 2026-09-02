@@ -6,7 +6,6 @@ import Select from "react-select";
 import dayjs from "dayjs";
 import axios from "axios";
 
-
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
 import BackButtonSvg from "../../../components/BackButtonSvg";
 import {
@@ -32,12 +31,12 @@ import { CalenderFilterEnum, PDFToCSVToggle } from "../../../Middleware/enums";
 import Utils from "../../../Middleware/Utils";
 import DatePicker from "react-date-picker";
 import CurruptedFileFormate from "../../../components/CurruptedFileFormate";
+import "./PDFToCSVRedesign.css";
 
 import * as pdfjsLib from "pdfjs-dist";
 import workerSrc from "pdfjs-dist/build/pdf.worker.min.js";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
-
 
 function PdfToCsvConvertorModel(props) {
   const [pdfFile, setPdfFile] = useState(null);
@@ -84,6 +83,7 @@ function PdfToCsvConvertorModel(props) {
     desktopRecords,
     setTopbar,
     GetCustomDate,
+    getCurrencySymbol,
   } = useContext(AuthContextProvider);
   //   const [convertedFiles, setConvertedFiles] = useState([]);
   const [isConverting, setIsConverting] = useState(false);
@@ -97,6 +97,8 @@ function PdfToCsvConvertorModel(props) {
   const common = useSelector((state) => state.Storage);
   // const plan = JSON.parse(localStorage.getItem("subscriptionPlan"));
   // const remainingCount = plan?.remaningPDFtoCSVPages || 0;
+
+  const currencySymbol = getCurrencySymbol(common.currencyID);
 
   const navigate = useNavigate();
   // const pageSize = isMobile
@@ -816,656 +818,532 @@ function PdfToCsvConvertorModel(props) {
   };
 
   return (
-    <div style={{ marginTop: "110px" }}>
+    <div className="pdfcsv-page-root">
       <div className="container-fluid new-item-page-container mt-4">
         {toggleID === PDFToCSVToggle.Convertor ? (
-          <div className="new-item-page-content">
-            <div className="row form-row">
-              <div className="col-lg-12">
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: "10px",
-                  }}
+          <div className="pdfcsv-redesign">
+            {/* =========================
+                HEADER
+                ========================= */}
+            <div className="pdfcsv-header">
+              <div className="pdfcsv-header__left">
+                <h3 className="modal-title pdfcsv-page-title">
+                  <BackButtonSvg onClick={() => navigate("/")} />
+                  PDF To CSV
+                </h3>
+              </div>
+
+              <div className="pdfcsv-header__actions">
+                <button
+                  className="btn pdfcsv-secondary-btn"
+                  onClick={() => setToggleID(PDFToCSVToggle.MySubscription)}
                 >
-                  <h3 className="modal-title">
-                    <BackButtonSvg onClick={() => navigate("/")} />
-                    PDF To CSV
-                  </h3>
-                  <div className="d-flex gap-3">
-                    <button
-                      className="btn btn-md btn-success create-item-btn"
-                      onClick={() => setToggleID(PDFToCSVToggle.MySubscription)}
-                    // onClick={() => setHasSubcription(false)}
-                    // disabled={isConverting}
-                    >
-                      {/* <i className="bi bi-plus-circle "></i> */}
-                      PDF To CSV Subscription
-                    </button>
-                    <button
-                      className="btn btn-md btn-success create-item-btn"
-                      onClick={() => setToggleID(PDFToCSVToggle.Upgrade)}
-                    // onClick={() => setHasSubcription(false)}
-                    // disabled={isConverting}
-                    >
-                      {/* <i className="bi bi-plus-circle "></i> */}
-                      Upgrade
-                    </button>
+                  PDF To CSV Subscription
+                </button>
+
+                <button
+                  className="btn pdfcsv-primary-btn"
+                  onClick={() => setToggleID(PDFToCSVToggle.Upgrade)}
+                >
+                  Upgrade
+                </button>
+              </div>
+            </div>
+
+            {/* =========================
+                PAGE USAGE CARDS
+                ========================= */}
+            <div className="pdfcsv-usage-grid">
+              <article className="pdfcsv-usage-card">
+                <div>
+                  <div className="pdfcsv-usage-card__label">
+                    Total Pages Used
                   </div>
-                </div>
-                <div className="separator mb-3" />
-
-                {/* Compact Convertor Section */}
-                <div className="p-3 border rounded bg-light mb-4">
-                  <div className="form-group mb-2">
-                    <label htmlFor="pdfUpload" className="mb-1">
-                      Upload PDF File
-                    </label>
-                    <input
-                      type="file"
-                      id="pdfUpload"
-                      accept="application/pdf"
-                      className="form-control"
-                      onChange={handleFileChange}
-                      ref={fileInputRef}
-                    />
-                  </div>
-
-                  {/* {pdfFile && (
-                  <div className="mt-2 small text-muted">
-                    <strong>Selected File:</strong> {pdfFile.name}
-                  </div>
-                )} */}
-
-                  {error && <div className="text-danger mt-2">{error}</div>}
-
-                  {/* Buttons Row */}
-                  <div className="d-flex align-items-center gap-2 mt-3">
-                    <button
-                      className="btn btn-md btn-success create-item-btn"
-                      onClick={handleConvert}
-                      disabled={isConverting}
-                    >
-                      {isConverting ? "Converting..." : "Convert to CSV"}
-                    </button>
-
-                    {pdfFile && (
-                      <button
-                        className="btn btn-outline-danger btn-sm"
-                        onClick={handleRemoveFile}
-                      >
-                        Remove
-                      </button>
-                    )}
+                  <div className="pdfcsv-usage-card__value">
+                    {formatWithCommas(totalPagesUsed || 0)}
                   </div>
                 </div>
 
-                <hr />
+                <span className="pdfcsv-usage-card__icon">
+                  <i className="bi bi-file-earmark-text"></i>
+                </span>
+              </article>
 
-                {/* Previously Converted Files Table */}
-                <div className="mt-4">
-                  <div className="d-flex align-items-center justify-content-between">
-                    <h5 className="mb-1">Previously Converted Files</h5>
-
-                    <h6 className="mb-1">Total Pages Used: {totalPagesUsed}</h6>
+              <article className="pdfcsv-usage-card">
+                <div>
+                  <div className="pdfcsv-usage-card__label">
+                    Remaining Monthly Pages
                   </div>
-                  <div className="d-flex align-items-center justify-content-between mt-2">
-                    <Select
-                      className="user-role-select phone-input-country-code"
-                      options={Utils.CalenderFilter}
-                      value={selectedOption}
-                      onChange={(selectedOption) =>
-                        handleCalenderFilterChange(selectedOption)
-                      }
-                      styles={{
-                        container: (provided) => ({
-                          ...provided,
-                          width: "240px", // 👈 custom width
-                        }),
-                      }}
+                  <div className="pdfcsv-usage-card__value">
+                    {formatWithCommas(totalMontlyRemainingPages || 0)}
+                  </div>
+                </div>
+
+                <span className="pdfcsv-usage-card__icon">
+                  <i className="bi bi-calendar2-check"></i>
+                </span>
+              </article>
+
+              <article className="pdfcsv-usage-card">
+                <div>
+                  <div className="pdfcsv-usage-card__label">
+                    Remaining One-Off Pages
+                  </div>
+                  <div className="pdfcsv-usage-card__value">
+                    {formatWithCommas(totalOneOffRemainingPages || 0)}
+                  </div>
+                </div>
+
+                <span className="pdfcsv-usage-card__icon">
+                  <i className="bi bi-lightning-charge"></i>
+                </span>
+              </article>
+            </div>
+
+            {/* =========================
+                PDF UPLOAD / CONVERSION
+                ========================= */}
+            <section className="pdfcsv-upload-card">
+              <label htmlFor="pdfUpload" className="pdfcsv-dropzone">
+                <input
+                  type="file"
+                  id="pdfUpload"
+                  accept="application/pdf"
+                  className="pdfcsv-file-input"
+                  onChange={handleFileChange}
+                  ref={fileInputRef}
+                />
+
+                <span className="pdfcsv-dropzone__icon">
+                  <i className="bi bi-file-earmark-arrow-up"></i>
+                </span>
+
+                {pdfFile ? (
+                  <>
+                    <div className="pdfcsv-dropzone__title">{pdfFile.name}</div>
+                    <div className="pdfcsv-dropzone__subtitle">
+                      {pagesInUploadedPDF
+                        ? `${pagesInUploadedPDF} page${
+                            pagesInUploadedPDF === 1 ? "" : "s"
+                          } selected`
+                        : "PDF selected and ready to convert"}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="pdfcsv-dropzone__title">
+                      Upload a PDF file
+                    </div>
+                    <div className="pdfcsv-dropzone__subtitle">
+                      Click to browse your files
+                    </div>
+                  </>
+                )}
+              </label>
+
+              {error && <div className="pdfcsv-upload-error">{error}</div>}
+
+              <div className="pdfcsv-upload-actions">
+                <button
+                  className="btn pdfcsv-convert-btn"
+                  onClick={handleConvert}
+                  disabled={isConverting}
+                >
+                  <i className="bi bi-arrow-left-right"></i>
+                  <span>
+                    {isConverting ? "Converting..." : "Convert to CSV"}
+                  </span>
+                </button>
+
+                {pdfFile && (
+                  <button
+                    className="btn pdfcsv-remove-btn"
+                    onClick={handleRemoveFile}
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            </section>
+
+            {/* =========================
+                PREVIOUS CONVERSIONS
+                ========================= */}
+            <section className="pdfcsv-history-card">
+              <div className="pdfcsv-history-header">
+                <h5>Previously Converted Files</h5>
+
+                <div className="pdfcsv-history-filter">
+                  <Select
+                    className="pdfcsv-filter-select"
+                    classNamePrefix="pdfcsv-select"
+                    options={Utils.CalenderFilter}
+                    value={selectedOption}
+                    onChange={(selectedOption) =>
+                      handleCalenderFilterChange(selectedOption)
+                    }
+                    isSearchable={false}
+                  />
+                </div>
+              </div>
+
+              {showDatePicker && (
+                <div className="pdfcsv-date-range">
+                  <div className="pdfcsv-date-field">
+                    <span>From</span>
+                    <DatePicker
+                      label="From Date"
+                      value={fromDate.toDate()}
+                      maxDate={toDate.subtract(0, "day").toDate()}
+                      onChange={handleFromDateChange}
+                      renderInput={(params) => <input {...params.inputProps} />}
+                      popperPlacement="bottom-start"
                     />
-                    {showDatePicker && (
-                      <>
-                        <div className="col-lg-2 col-md-5 col-sm-5 mt-1">
-                          <DatePicker
-                            label="From Date"
-                            value={fromDate.toDate()} // Convert to JavaScript Date object
-                            maxDate={toDate.subtract(0, "day").toDate()} // Convert to JavaScript Date object
-                            onChange={handleFromDateChange}
-                            renderInput={(params) => (
-                              <input {...params.inputProps} />
-                            )}
-                            popperPlacement="bottom-start"
-                          />
-                        </div>
-                        <div className="col-lg-2 col-md-5 col-sm-5 mt-1">
-                          <DatePicker
-                            label="To Date"
-                            value={toDate.toDate()} // Convert to JavaScript Date object
-                            minDate={fromDate.toDate()} // Convert to JavaScript Date object
-                            maxDate={dayjs().toDate()} // Convert to JavaScript Date object
-                            onChange={handleToDateChange}
-                            renderInput={(params) => (
-                              <input {...params.inputProps} />
-                            )}
-                            popperPlacement="bottom-start"
-                          />
-                        </div>
-                      </>
-                    )}
-                    <h6 className="mb-1">
-                      Remaining Monthly Pages: {totalMontlyRemainingPages}
-                    </h6>
-                    <h6 className="mb-1">
-                      Remaining One-off Pages: {totalOneOffRemainingPages}
-                    </h6>
                   </div>
-                  {previouslyConvertedFiles.length > 0 && (
-                    <div
-                      className="table-responsive"
-                      style={{ marginTop: "30px" }}
-                    >
-                      <table className="table table-bordered table-sm">
-                        <thead className="thead-light bg-dark">
-                          <tr>
-                            <th className="text-white">Sr No.</th>
-                            <th className="text-white">PDF File</th>
-                            <th className="text-white">CSV File</th>
-                            <th className="text-white">Pages Converted</th>
-                            <th className="text-white">Converted On</th>
-                          </tr>
-                        </thead>
 
-                        <tbody>
-                          {previouslyConvertedFiles
-                            .slice(0, visibleCount)
-                            .map((file, index) => (
-                              <tr key={index}>
-                                <td>{index + 1}</td>
-                                <td>
-                                  <a
-                                    href={file.uploadDocPath}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    {file.pdfFileName}
-                                  </a>
-                                </td>
+                  <div className="pdfcsv-date-field">
+                    <span>To</span>
+                    <DatePicker
+                      label="To Date"
+                      value={toDate.toDate()}
+                      minDate={fromDate.toDate()}
+                      maxDate={dayjs().toDate()}
+                      onChange={handleToDateChange}
+                      renderInput={(params) => <input {...params.inputProps} />}
+                      popperPlacement="bottom-start"
+                    />
+                  </div>
+                </div>
+              )}
 
-                                <td>
-                                  <a
-                                    href={file.convertedDocPath}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
+              {previouslyConvertedFiles.length > 0 ? (
+                <>
+                  <div className="pdfcsv-table-wrap">
+                    <table className="pdfcsv-table">
+                      <thead>
+                        <tr>
+                          <th>PDF File</th>
+                          <th>CSV File</th>
+                          <th>Pages Converted</th>
+                          <th>Converted On</th>
+                          <th className="pdfcsv-table__action-heading">
+                            Action
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {previouslyConvertedFiles
+                          .slice(0, visibleCount)
+                          .map((file, index) => (
+                            <tr key={index}>
+                              <td>
+                                <a
+                                  className="pdfcsv-file-link"
+                                  href={file.uploadDocPath}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  title={file.pdfFileName}
+                                >
+                                  <span className="pdfcsv-file-type-icon pdfcsv-file-type-icon--pdf">
+                                    <i className="bi bi-file-earmark-pdf-fill"></i>
+                                  </span>
+                                  <span>{file.pdfFileName}</span>
+                                </a>
+                              </td>
+
+                              <td>
+                                <a
+                                  className="pdfcsv-file-link"
+                                  href={file.convertedDocPath}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  title={file?.pdfFileName?.replace(
+                                    /\.pdf$/,
+                                    ".csv",
+                                  )}
+                                >
+                                  <span className="pdfcsv-file-type-icon pdfcsv-file-type-icon--csv">
+                                    <i className="bi bi-filetype-csv"></i>
+                                  </span>
+                                  <span>
                                     {file?.pdfFileName?.replace(
                                       /\.pdf$/,
                                       ".csv",
                                     )}
+                                  </span>
+                                </a>
+                              </td>
+
+                              <td>{file.pagesProcessed} pages</td>
+
+                              <td>
+                                {formatDateToDDMMYYYY(file.createdOnDate)}
+                              </td>
+
+                              <td className="pdfcsv-table__action">
+                                <Tooltip title="Open CSV">
+                                  <a
+                                    className="pdfcsv-download-btn"
+                                    href={file.convertedDocPath}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    <i className="bi bi-download"></i>
                                   </a>
-                                </td>
-                                <td>{file.pagesProcessed}</td>
-                                <td>
-                                  {formatDateToDDMMYYYY(file.createdOnDate)}
-                                </td>
-                              </tr>
-                            ))}
-                        </tbody>
-                      </table>
-                      {visibleCount < previouslyConvertedFiles.length && (
-                        <div className="text-center mt-3">
-                          <button
-                            onClick={handleShowMore}
-                            className="btn btn-md btn-success create-item-btn"
-                          >
-                            Show More
-                          </button>
-                        </div>
-                      )}
+                                </Tooltip>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="pdfcsv-history-footer">
+                    <div className="pdfcsv-history-count">
+                      Showing 1–
+                      {Math.min(
+                        visibleCount,
+                        previouslyConvertedFiles.length,
+                      )}{" "}
+                      of {listCount || previouslyConvertedFiles.length}{" "}
+                      conversions
                     </div>
-                  )}
-                </div>
-              </div>
-              <div>
-                {totalRecords <= 0 && (
+
+                    {visibleCount < previouslyConvertedFiles.length && (
+                      <button
+                        onClick={handleShowMore}
+                        className="btn pdfcsv-show-more-btn"
+                      >
+                        Show More
+                      </button>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="pdfcsv-empty-state">
                   <NoResultFoundModel
                     name="Records"
                     totalRecords={totalRecords}
                   />
-                )}
-              </div>
-              {/* <div>
-                {listCount > Number(pageSize) && (
-                  <PaginationComponent
-                    totalCount={listCount}
-                    totalPages={listCount / desktopRecords}
-                    currentPage={currentPage}
-                    onPageChange={handlePageChange}
-                  />
-                )}
-              </div> */}
-            </div>
+                </div>
+              )}
+            </section>
           </div>
         ) : toggleID === PDFToCSVToggle.Upgrade ? (
-          <div class="container">
-            {/* Cards for subscription */}
-            <div class="row form-row">
-              <div class="col-lg-12">
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: "10px",
-                  }}
+          <div className="pdfpages-redesign">
+            {/* Header */}
+            <div className="pdfpages-header">
+              <div>
+                <h3 className="pdfpages-title">Purchase Pages</h3>
+                <p className="pdfpages-subtitle">
+                  Choose a page package that fits your PDF conversion needs.
+                </p>
+              </div>
+
+              {convertablePageCount > 0 && (
+                <button
+                  className="btn pdfpages-back-btn"
+                  onClick={() => setToggleID(PDFToCSVToggle.Convertor)}
                 >
-                  <h3 className="modal-title">
-                    {/* <BackButtonSvg
-                      onClick={() => setToggleID(PDFToCSVToggle.Convertor)}
-                    /> */}
-                    Purchase Pages
-                  </h3>
-                  {convertablePageCount > 0 && (
-                    <button
-                      className="btn btn-md btn-success create-item-btn"
-                      onClick={() => setToggleID(PDFToCSVToggle.Convertor)}
-                    // disabled={isConverting}
-                    >
-                      Back
-                    </button>
-                  )}
-                </div>
-                <div className="separator mb-3" />
-                <div class="card">
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div
-                        class="table-responsive table-card  mb-3 table-padding"
-                        style={{ marginTop: "0px" }}
-                      >
-                        <div class="modal-body">
-                          <>
-                            <div className="scrollbar" id="style-1">
-                              <div className="tab-content">
-                                <div className="container-fluid">
-                                  <Row
-                                    className="d-flex"
-                                    style={{ background: "white" }}
-                                  >
-                                    {pagesPackages.map(
-                                      (PurchasePlanList, index) => {
-                                        return (
-                                          <>
-                                            <Col xl={4} md={6}>
-                                              <Card className="pricing-box d-flex shadow-lg p-3 mb-3 bg-white rounded">
-                                                <CardBody
-                                                  style={{
-                                                    width: "200px",
-                                                    height: "max-content",
-                                                  }}
-                                                  className="p-3"
-                                                >
-                                                  <div className="media ">
-                                                    <i className="ion ion-ios-airplane h2 align-self-center"></i>
-                                                    <div className="media-body text-center ">
-                                                      <div className="text-center login-logo">
-                                                        <img
-                                                          width={130}
-                                                          height={25}
-                                                          src="data:image/png;base64,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"
-                                                          alt="login"
-                                                        />
-                                                      </div>
+                  <i className="bi bi-arrow-left"></i>
+                  <span>Back</span>
+                </button>
+              )}
+            </div>
 
-                                                      <h6 className="text-dark">
-                                                        {
-                                                          PurchasePlanList?.packageName
-                                                        }
-                                                      </h6>
+            {/* Package Cards */}
+            <div className="pdfpages-plans-grid">
+              {pagesPackages.map((PurchasePlanList, index) => (
+                <article
+                  className="pdfpages-plan-card"
+                  key={PurchasePlanList.pcspKeyID || index}
+                >
+                  <div className="pdfpages-plan-card__top">
+                    <span className="pdfpages-plan-icon">
+                      <i className="bi bi-file-earmark-text"></i>
+                    </span>
 
-                                                      <div>
-                                                        £
-                                                        {formatWithCommas(
-                                                          PurchasePlanList?.discountedPrice,
-                                                        )}
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                  <div className="pricing-features mt-1 pt-2 mb-2">
-                                                    <div className="d-flex gap-2">
-                                                      <span
-                                                        style={{
-                                                          color: "green",
-                                                        }}
-                                                        className="fa fa-check"
-                                                      ></span>
-                                                      <span
-                                                        style={{
-                                                          display: "block",
-                                                          marginTop: "4px",
-                                                        }}
-                                                      >
-                                                        Validity:{" "}
-                                                        {PurchasePlanList.months !==
-                                                          null
-                                                          ? String(
-                                                            PurchasePlanList.months,
-                                                          ) +
-                                                          " " +
-                                                          PurchasePlanList.validity
-                                                          : PurchasePlanList.validity}
-                                                      </span>
-                                                    </div>
-                                                    <div className="d-flex gap-2">
-                                                      <span
-                                                        style={{
-                                                          color: "green",
-                                                        }}
-                                                        className="fa fa-check"
-                                                      ></span>
-                                                      <span
-                                                        style={{
-                                                          display: "block",
-                                                          marginTop: "4px",
-                                                        }}
-                                                      >
-                                                        Pages:{" "}
-                                                        {PurchasePlanList.pages}
-                                                      </span>
-                                                    </div>
-                                                  </div>
+                    <div className="pdfpages-plan-name">
+                      {PurchasePlanList?.packageName}
+                    </div>
+                  </div>
 
-                                                  {errorMessage && (
-                                                    <p>{errorMessage}</p>
-                                                  )}
+                  <div className="pdfpages-plan-price">
+                    <span className="pdfpages-plan-price__currency">£</span>
+                    <span className="pdfpages-plan-price__value">
+                      {formatWithCommas(PurchasePlanList?.discountedPrice)}
+                    </span>
+                  </div>
 
-                                                  <div className=" d-flex justify-content-center ">
-                                                    <button
-                                                      onClick={() =>
-                                                        handleButtonClick(
-                                                          index,
-                                                          PurchasePlanList.pcspKeyID,
-                                                        )
-                                                      }
-                                                      className="btn btn-success create-item-btn add-new "
-                                                    >
-                                                      <span> Purchase</span>
-                                                    </button>
-                                                  </div>
-                                                </CardBody>
-                                              </Card>
-                                            </Col>
-                                          </>
-                                        );
-                                      },
-                                    )}
-                                  </Row>
-                                </div>
-                              </div>
-                            </div>
-                          </>
-                        </div>{" "}
+                  <div className="pdfpages-plan-divider"></div>
+
+                  <div className="pdfpages-plan-features">
+                    <div className="pdfpages-plan-feature">
+                      <span className="pdfpages-feature-check">
+                        <i className="bi bi-check-lg"></i>
+                      </span>
+
+                      <div>
+                        <span className="pdfpages-feature-label">Validity</span>
+
+                        <strong>
+                          {PurchasePlanList.months !== null
+                            ? `${PurchasePlanList.months} ${PurchasePlanList.validity}`
+                            : PurchasePlanList.validity}
+                        </strong>
                       </div>
                     </div>
-                    {/* end card  */}
+
+                    <div className="pdfpages-plan-feature">
+                      <span className="pdfpages-feature-check">
+                        <i className="bi bi-check-lg"></i>
+                      </span>
+
+                      <div>
+                        <span className="pdfpages-feature-label">Pages</span>
+                        <strong>{PurchasePlanList.pages}</strong>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                {/* end col */}
-              </div>
-              {/* end col  */}
+
+                  {errorMessage && (
+                    <div className="pdfpages-plan-error">{errorMessage}</div>
+                  )}
+
+                  <div className="pdfpages-plan-card__footer">
+                    <button
+                      onClick={() =>
+                        handleButtonClick(index, PurchasePlanList.pcspKeyID)
+                      }
+                      className="btn pdfpages-purchase-btn"
+                    >
+                      Purchase
+                    </button>
+                  </div>
+                </article>
+              ))}
             </div>
-            {/* end modal  */}
+
+            {pagesPackages.length === 0 && (
+              <div className="pdfpages-empty-state">
+                <i className="bi bi-file-earmark-x"></i>
+                <h5>No page packages available</h5>
+                <p>Please check again later.</p>
+              </div>
+            )}
           </div>
         ) : (
-          <div className="container">
-            <div className="row">
-              <div className="col-lg-12">
-                <div className="card">
-                  <div className="card-body">
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        marginBottom: "10px",
-                      }}
-                    >
-                      <h3 className="modal-title">
-                        {/* <BackButtonSvg
-                          onClick={() => setToggleID(PDFToCSVToggle.Convertor)}
-                        /> */}
-                        PDF To CSV Subscription
-                      </h3>
-                      {convertablePageCount > 0 && (
-                        <button
-                          className="btn btn-md btn-success create-item-btn"
-                          onClick={() => setToggleID(PDFToCSVToggle.Convertor)}
-                        // disabled={isConverting}
-                        >
-                          Back
-                        </button>
-                      )}
-                    </div>
-                    <div
-                      className="table-container"
-                      style={{ maxHeight: "500px", overflowY: "auto" }}
-                    >
-                      <table className="table table-striped">
-                        <thead>
-                          <tr>
-                            <th
-                              scope="col"
-                              className="tr-table-class text-white"
-                              style={{ whiteSpace: "nowrap" }}
-                            >
-                              Package Name
-                            </th>
-                            <th
-                              scope="col"
-                              className="tr-table-class text-white"
-                              style={{ whiteSpace: "nowrap" }}
-                            >
-                              Validity
-                            </th>
-                            <th
-                              scope="col"
-                              className="tr-table-class text-white"
-                              style={{ whiteSpace: "nowrap" }}
-                            >
-                              Price
-                            </th>
-                            <th
-                              scope="col"
-                              className="tr-table-class text-white"
-                              style={{ whiteSpace: "nowrap" }}
-                            >
-                              Pages Purchased
-                            </th>
-                            {/* <th
-                              scope="col"
-                              className="tr-table-class text-white"
-                              style={{ whiteSpace: "nowrap" }}
-                            >
-                              Next Renewal Date
-                            </th>
-                            <th
-                              scope="col"
-                              className="tr-table-class text-white"
-                              style={{ whiteSpace: "nowrap" }}
-                            >
-                              Payable Amount
-                            </th>
-                            <th
-                              scope="col"
-                              className="tr-table-class text-white"
-                              style={{ whiteSpace: "nowrap" }}
-                            >
-                              Payment Status
-                            </th> */}
-                            <th
-                              scope="col"
-                              className="tr-table-class text-white"
-                              style={{ whiteSpace: "nowrap" }}
-                            >
-                              Subscription Status
-                            </th>
-                            {/* <th
-                              scope="col"
-                              className="tr-table-class text-white"
-                              style={{ whiteSpace: "nowrap" }}
-                            >
-                              Action
-                            </th> */}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {pdfToCSVSubscriptionHistory.map(
-                            (subscription, index) => (
-                              <tr key={index}>
-                                <td className="table-content-font">
-                                  {subscription.packageName}
-                                </td>
-                                <td className="table-content-font align-items-center text-left">
-                                  {subscription.validity}
-                                </td>
-                                <td className="table-content-font align-items-center text-left">
-                                  {formatValue(subscription.price)}
-                                </td>
-                                <td className="table-content-font align-items-center text-left">
-                                  {subscription.pages}
-                                </td>
-                                {/* <td className="table-content-font align-items-center text-left">
-                                  {subscription.subscriptionStartDate === null
-                                    ? "_"
-                                    : subscription.subscriptionStartDate}
-                                </td> */}
-                                {/* <td className="table-content-font align-items-center text-center">
-                                {subscription.nextRenewalDate === null
-                                  ? "_"
-                                  : subscription.nextRenewalDate}
-                              </td>
-                              <td className="table-content-font ">
-                                {formatValue(subscription.finalBillingAmount)}
-                              </td> */}
-                                {/* <td className="table-content-font align-items-center text-center">
-                                {subscription.paymentStatus === "Unpaid" && (
-                                  <Tooltip title={`Pay Now`}>
-                                    <button
-                                      style={{
-                                        width: "80px",
-                                        marginTop: "5px",
-                                    
-                                        display: "inline-block", 
-                                      }}
-                                      className="btn btn-md btn-success create-item-btn view"
-                                    >
-                                      <span>Pay Now</span>
-                                    </button>
-                                  </Tooltip>
-                                )}
-                                {subscription.paymentStatus === "Paid" && (
-                                  <Tooltip title={`Download`}>
-                                    <a
-                                      style={{
-                                        width: "60px",
-                                        padding: "2px 2px 2px 2px", // Add padding to the button
-                                        display: "inline-block", // Ensure button stays in line
-                                        borderRadius: "0.5rem",
-                                      }}
-                                      href={subscription.hostedInvoiceUrl}
-                                      className="btn btn-secondary btn-xs"
-                                    >
-                                      <i className="fa fa-download"></i>
-                                    </a>
-                                  </Tooltip>
-                                )}
-                                {subscription.paymentStatus === "Free" && (
-                                  <p
-                                    style={{
-                                      background: "#DAA520",
-                                      width: "100px",
-                                      padding: "4px 5px",
-                                      display: "inline-block",
-                                      borderRadius: "0.5rem",
-                                    }}
-                                  >
-                                    Free
-                                  </p>
-                                )}
-                              </td> */}
-                                <td className="Switch">
-                                  <div
-                                    style={{ alignItems: "none" }}
-                                    className="d-flex gap-2"
-                                  >
-                                    <div style={{ marginTop: "9px" }}>
-                                      <div
-                                        className="mb-1 text-center  text-white rounded text-nowrap"
-                                        style={{
-                                          background:
-                                            subscription.subscriptionStatus ===
-                                              "Active"
-                                              ? "#008000"
-                                              : subscription.subscriptionStatus ===
-                                                "Expired"
-                                                ? "#FF0000"
-                                                : subscription.subscriptionStatus ===
-                                                  "Pending"
-                                                  ? "#DAA520"
-                                                  : subscription.subscriptionStatus ===
-                                                    "InActive"
-                                                    ? "#772424"
-                                                    : "gray",
-                                          width: "100px",
-                                          padding: "5px 8px 6px 5px", // Add padding to the button
-                                          display: "inline-block", // Ensure button stays in line
-                                          borderRadius: "0.5rem", // Adjust border radius
-                                        }}
-                                      >
-                                        {subscription.subscriptionStatus}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </td>
+          <div className="pdfsub-redesign">
+            {/* Header */}
+            <div className="pdfsub-header">
+              <div>
+                <h3 className="pdfsub-title">PDF To CSV Subscription</h3>
+                <p className="pdfsub-subtitle">
+                  View your purchased page packages and current subscription
+                  status.
+                </p>
+              </div>
 
-                                {/* <td>
-                                <div class="view text-nowrap mt-1">
-                                  <Tooltip title={`View Subscription`}>
-                                    <div class="view">
-                                      <button
-                                        class="btn btn-md btn-success create-item-btn view"
-                                        // onClick={() =>
-                                        //   handleOpenSubscriptionModel(subscription)
-                                        // }
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#addSubscriptionViewModalUser"
-                                      >
-                                        <span>View</span>{" "}
-                                        <span className="mt-4">
-                                          {" "}
-                                          <i class="bi bi-eye "></i>
-                                        </span>
-                                      </button>
-                                    </div>
-                                  </Tooltip>
-                                </div>
-                              </td> */}
-                              </tr>
-                            ),
-                          )}
-                        </tbody>
-                      </table>
-                      {totalRecords <= 0 && (
-                        <NoResultFoundModel
-                          name={"Subscription"}
-                          totalRecords={totalRecords}
-                        />
-                      )}
-                    </div>
-                  </div>
+              {convertablePageCount > 0 && (
+                <button
+                  className="btn pdfsub-back-btn"
+                  onClick={() => setToggleID(PDFToCSVToggle.Convertor)}
+                >
+                  <i className="bi bi-arrow-left"></i>
+                  <span>Back</span>
+                </button>
+              )}
+            </div>
+
+            {/* Subscription Table Card */}
+            <section className="pdfsub-table-card">
+              <div className="pdfsub-table-toolbar">
+                <div>
+                  <h5>Subscription History</h5>
                 </div>
               </div>
-            </div>
+
+              <div className="pdfsub-table-wrap">
+                <table className="pdfsub-table">
+                  <thead>
+                    <tr>
+                      <th>Package Name</th>
+                      <th>Validity</th>
+                      <th>Price</th>
+                      <th>Pages Purchased</th>
+                      <th>Subscription Status</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {pdfToCSVSubscriptionHistory.map((subscription, index) => (
+                      <tr key={index}>
+                        <td>
+                          <div className="pdfsub-package-cell">
+                            <span className="pdfsub-package-icon">
+                              <i className="bi bi-file-earmark-text"></i>
+                            </span>
+
+                            <span className="pdfsub-package-name">
+                              {subscription.packageName}
+                            </span>
+                          </div>
+                        </td>
+
+                        <td>
+                          <span className="pdfsub-cell-text">
+                            {subscription.validity}
+                          </span>
+                        </td>
+
+                        <td>
+                          <span className="pdfsub-price">
+                            {currencySymbol}{formatValue(subscription.price)}
+                          </span>
+                        </td>
+
+                        <td>
+                          <span className="pdfsub-pages-badge">
+                            {subscription.pages}
+                          </span>
+                        </td>
+
+                        <td>
+                          <span
+                            className={`pdfsub-status pdfsub-status--${
+                              subscription.subscriptionStatus === "Active"
+                                ? "active"
+                                : subscription.subscriptionStatus === "Expired"
+                                  ? "expired"
+                                  : subscription.subscriptionStatus ===
+                                      "Pending"
+                                    ? "pending"
+                                    : subscription.subscriptionStatus ===
+                                        "InActive"
+                                      ? "inactive"
+                                      : "default"
+                            }`}
+                          >
+                            <span className="pdfsub-status__dot"></span>
+                            {subscription.subscriptionStatus}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {totalRecords <= 0 && (
+                <div className="pdfsub-empty-wrap">
+                  <NoResultFoundModel
+                    name={"Subscription"}
+                    totalRecords={totalRecords}
+                  />
+                </div>
+              )}
+            </section>
           </div>
         )}
       </div>
