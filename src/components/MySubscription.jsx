@@ -15,6 +15,7 @@ import {
   CreateStripeCheckoutSession,
 } from "../redux/Services/Setting/PaymentGatewayApi";
 import { GetUserSubscriptionPackageModel } from "../redux/Services/Subscription/UserListApi";
+import "./MySubscriptionRedesign.css";
 const MySubscription = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [errorMessage, setErrorMessage] = useState("");
@@ -68,11 +69,13 @@ const MySubscription = () => {
     getCrudButtonToolTipName,
     formatValue,
     formatValueWithoutCurrencySymbol,
+    getCurrencySymbol,
   } = useContext(AuthContextProvider);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [totalRecords, setTotalRecords] = useState(-1);
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
   const common = useSelector((state) => state.Storage);
+  const currencySymbol = getCurrencySymbol(common.currencyID);
   const navigate = useNavigate();
   const moduleName = "Plan";
   useEffect(() => {
@@ -317,949 +320,597 @@ const MySubscription = () => {
     }
   };
   // console.log(subScriptionActiveList, "subScriptionActiveList");
+
   return (
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
-      <div class="services page-background">
-        <div class="">
-          <div class="row">
-            <div class="col-lg-12">
-              <div class="card">
-                {/* end card header  */}
-                <div class="card-body mb-2">
-                  <div id="customerList" style={{ marginTop: "3rem" }}>
-                    <div class="bg-light border-bottom px-2">
-                      {/* <div className="container"> */}
-                      <div className="row">
-                        <div className="col-md-6 p-0 ">
-                          <div class="page-title-cls"> My Subscription </div>
-                        </div>
-                        <div class="col-auto ms-auto">
-                          <div class="d-flex justify-content-sm-end add-new-btn">
-                            {
-                              <CommonButtonComponent
-                                title={getCrudButtonToolTipName(
-                                  "Upgrade",
-                                  moduleName,
-                                )}
-                                name={getCrudButtonTextName(
-                                  "Upgrade",
-                                  moduleName,
-                                )}
-                                AddBtn={() => handleRedirectSubscription()}
-                              />
-                            }{" "}
-                          </div>
-                        </div>
-                      </div>
-                      {/* </div> */}
-                    </div>
-                    <div className="">
-                      <div className="row">
-                        <div className="col-lg-12">
-                          <div className="card">
-                            <div className="card-body">
-                              <div id="customerList">
-                                <div class="row g-4 mb-3"></div>
-                                <div class="table-responsive table-card mt-2 mb-3 table-padding">
-                                  <div className="">
-                                    <div
-                                      className="row"
-                                      style={{ marginLeft: "0px" }}
-                                    >
-                                      <div className="col-lg-12">
-                                        <div
-                                          className=" mb-3"
-                                          style={{
-                                            // border: "-1px solid #CED4DA",
-                                            // borderRadius: "1px",
-                                            // boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                                            backgroundColor: "#fff",
-                                            position: "sticky",
-                                            top: "0",
-                                          }}
-                                        >
-                                          {/* <div> */}
-                                          <div className="row">
-                                            {/* Left side for subscription details */}
+    <div className="my-subscription-redesign">
+      <div className="my-subscription-page">
+        {/* =========================
+            PAGE HEADER
+            ========================= */}
+        <div className="my-subscription-header">
+          <div>
+            <h1 className="my-subscription-title">My Subscription</h1>
+            <p className="my-subscription-subtitle">
+              View your current plan, package features and subscription history.
+            </p>
+          </div>
 
-                                            <div className="col-md-6 mt-2">
-                                              <CardBody
-                                                style={{
-                                                  padding: "10px",
-                                                  maxHeight: "65vh",
-                                                  height: "auto",
-                                                }}
-                                              >
-                                                <div className="media ">
-                                                  <i className="ion ion-ios-airplane h1 align-self-center"></i>
-                                                  <div className="media-body text-center ">
-                                                    <div className="text-center login-logo">
-                                                      <div className="d-flex justify-content-between">
-                                                        <h5 className="card-title">
-                                                          Subscription Details
-                                                        </h5>
-                                                        <p className="mt-3">
-                                                          {subScriptionActiveList.paymentStatus ===
-                                                            "Unpaid" && (
-                                                            <Tooltip
-                                                              title={`Pay Now`}
-                                                            >
-                                                              <button
-                                                                className="btn btn-md btn-success create-item-btn"
-                                                                onClick={() =>
-                                                                  RedirectStripeCheckout(
-                                                                    subScriptionActiveList,
-                                                                  )
-                                                                }
-                                                              >
-                                                                <span>
-                                                                  Pay Now
-                                                                </span>
-                                                              </button>
-                                                            </Tooltip>
-                                                          )}
-                                                          {subScriptionActiveList.paymentStatus ===
-                                                            "Paid" && (
-                                                            <Tooltip
-                                                              title={`Download`}
-                                                            >
-                                                              <a
-                                                                style={{
-                                                                  width: "60px",
-                                                                  marginTop:
-                                                                    "7px",
-                                                                  padding:
-                                                                    " 2px 2px 2px 2px ", // Add padding to the button
-                                                                  display:
-                                                                    "inline-block", // Ensure button stays in line
-                                                                  borderRadius:
-                                                                    "0.5rem",
-                                                                }}
-                                                                href={
-                                                                  subScriptionActiveList.hostedInvoiceUrl
-                                                                }
-                                                                className="btn btn-secondary btn-xs"
-                                                              >
-                                                                <i className="fa fa-download"></i>
-                                                              </a>
-                                                            </Tooltip>
-                                                          )}
-                                                          {subScriptionActiveList.paymentStatus ===
-                                                            "Free" && (
-                                                            <p>Free</p>
-                                                          )}
-                                                        </p>
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                                <div className="pricing-features">
-                                                  <p className=" mb-1 text-dark">
-                                                    <b>Package Name</b>:{" "}
-                                                    {
-                                                      subScriptionActiveList.packageName
-                                                    }
-                                                  </p>
-                                                  <p className="mt-0 mb-1 text-dark">
-                                                    <b>Payment Frequency</b>:{" "}
-                                                    {subScriptionActiveList.paymentFrequencyID ===
-                                                    1
-                                                      ? "Yearly"
-                                                      : subScriptionActiveList.paymentFrequencyID ===
-                                                          4
-                                                        ? "Monthly"
-                                                        : ""}
-                                                  </p>
+          <div className="my-subscription-upgrade">
+            <CommonButtonComponent
+              title={getCrudButtonToolTipName("Upgrade", moduleName)}
+              name={getCrudButtonTextName("Upgrade", moduleName)}
+              AddBtn={() => handleRedirectSubscription()}
+            />
+          </div>
+        </div>
 
-                                                  <p className="mt-0 mb-1 text-dark">
-                                                    <b>Days</b>:{" "}
-                                                    {subScriptionActiveList.paymentFrequencyID ===
-                                                    1
-                                                      ? "365 Days"
-                                                      : subScriptionActiveList.paymentFrequencyID ===
-                                                          4
-                                                        ? "30 Days"
-                                                        : "-"}
-                                                  </p>
+        {/* =========================
+            CURRENT SUBSCRIPTION
+            ========================= */}
+        <div className="my-subscription-summary-grid">
+          {/* LEFT: SUBSCRIPTION DETAILS */}
+          <section className="my-subscription-card">
+            <div className="my-subscription-card__header">
+              <h2>Subscription Details</h2>
 
-                                                  <p className="mt-0 mb-1 text-dark">
-                                                    <b>Subscription Date</b>:{" "}
-                                                    {subScriptionActiveList.subscriptionStartDate ===
-                                                    null
-                                                      ? "-"
-                                                      : subScriptionActiveList.subscriptionStartDate}
-                                                  </p>
-                                                  <p className="mt-0 mb-1 text-dark">
-                                                    <b> Next Renewal Date</b>:{" "}
-                                                    {subScriptionActiveList.renewDate ===
-                                                    null
-                                                      ? "-"
-                                                      : subScriptionActiveList.renewDate}
-                                                  </p>
-                                                  <p className="mt-0 mb-1 text-dark">
-                                                    <b>Payment Status</b>:{" "}
-                                                    {
-                                                      subScriptionActiveList.paymentStatus
-                                                    }
-                                                  </p>
-                                                  <p className="mt-0 mb-1 text-dark">
-                                                    <b>Subscription Status</b>:{" "}
-                                                    {/* {subScriptionActiveList.subscriptionStatus} */}
-                                                    <div
-                                                      className="p-1   rounded text-nowrap"
-                                                      style={{
-                                                        color:
-                                                          subScriptionActiveList.subscriptionStatus ===
-                                                          "Active"
-                                                            ? "#008000"
-                                                            : subScriptionActiveList.subscriptionStatus ===
-                                                                "Expired"
-                                                              ? "#FF0000"
-                                                              : subScriptionActiveList.subscriptionStatus ===
-                                                                  "Pending"
-                                                                ? "#DAA520"
-                                                                : subScriptionActiveList.subscriptionStatus ===
-                                                                    "InActive"
-                                                                  ? "#772424"
-                                                                  : "gray",
-                                                        width: "100px",
-                                                        padding: "1px 8px", // Add padding to the button
-                                                        display: "inline-block", // Ensure button stays in line
-                                                        borderRadius: "0.5rem", // Adjust border radius
-                                                      }}
-                                                    >
-                                                      {
-                                                        subScriptionActiveList.subscriptionStatus
-                                                      }
-                                                    </div>
-                                                  </p>
-                                                  <p className="mt-0 mb-1 text-dark">
-                                                    <b>Remaining Proposals</b>:{" "}
-                                                    {subScriptionActiveList.remainingQuotesPerMonth <
-                                                    0
-                                                      ? 0
-                                                      : subScriptionActiveList.remainingQuotesPerMonth}
-                                                  </p>
-                                                  <p className="mt-0 mb-1 text-dark">
-                                                    <b>
-                                                      Remaining E-Signatures
-                                                    </b>
-                                                    :{" "}
-                                                    {subScriptionActiveList.remainingESignatures <
-                                                    0
-                                                      ? 0
-                                                      : subScriptionActiveList.remainingESignatures}
-                                                  </p>
-                                                  <p className="mt-0 mb-1 text-dark">
-                                                    <b>Remaining Pages</b>:{" "}
-                                                    {subScriptionActiveList.noOfPages <
-                                                      0 ||
-                                                    subScriptionActiveList.noOfPages ===
-                                                      null
-                                                      ? 0
-                                                      : subScriptionActiveList.noOfPages}
-                                                  </p>
-                                                </div>
-                                              </CardBody>
-                                            </div>
+              <div className="my-subscription-status-group">
+                {subScriptionActiveList.subscriptionStatus && (
+                  <span
+                    className={`my-subscription-status my-subscription-status--${
+                      subScriptionActiveList.subscriptionStatus === "Active"
+                        ? "active"
+                        : subScriptionActiveList.subscriptionStatus ===
+                            "Expired"
+                          ? "expired"
+                          : subScriptionActiveList.subscriptionStatus ===
+                              "Pending"
+                            ? "pending"
+                            : subScriptionActiveList.subscriptionStatus ===
+                                "InActive"
+                              ? "inactive"
+                              : "default"
+                    }`}
+                  >
+                    <span className="my-subscription-status__dot"></span>
+                    {subScriptionActiveList.subscriptionStatus}
+                  </span>
+                )}
 
-                                            {/* Right side for user name */}
-                                            <div className="col-md-6 mt-2">
-                                              <CardBody
-                                                style={{
-                                                  padding: "10px",
-                                                  maxHeight: "65vh",
-                                                  height: "auto",
-                                                }}
-                                              >
-                                                <div className="media ">
-                                                  <i className="ion ion-ios-airplane h1 align-self-center"></i>
-                                                  <div className="media-body text-center ">
-                                                    <div className="text-center login-logo">
-                                                      <h5 className="card-title">
-                                                        Package Details{" "}
-                                                      </h5>
-                                                    </div>
+                {subScriptionActiveList.paymentStatus && (
+                  <span
+                    className={`my-subscription-status my-subscription-status--${
+                      subScriptionActiveList.paymentStatus === "Paid"
+                        ? "active"
+                        : subScriptionActiveList.paymentStatus === "Unpaid"
+                          ? "pending"
+                          : "default"
+                    }`}
+                  >
+                    {subScriptionActiveList.paymentStatus}
+                  </span>
+                )}
+              </div>
+            </div>
 
-                                                    {/* <h6 className="text-dark">
-                                {subScriptionActiveList?.packageName}
-                              </h6> */}
-                                                    <p>
-                                                      {(() => {
-                                                        const MonthlyPrice =
-                                                          Number(
-                                                            subScriptionActiveList?.yearlyValuePlan,
-                                                          ) / 12;
-                                                        return formatValue(
-                                                          MonthlyPrice,
-                                                        );
-                                                      })()}
-                                                      / Month
-                                                    </p>
-                                                  </div>
-                                                </div>
-                                                <div className="pricing-features">
-                                                  <p className="mt-0 mb-1 text-dark">
-                                                    {subScriptionActiveList?.apiIntegration ==
-                                                    true ? (
-                                                      <span
-                                                        style={{
-                                                          color: "green",
-                                                        }}
-                                                        className="fa fa-check"
-                                                      ></span>
-                                                    ) : (
-                                                      <span
-                                                        style={{
-                                                          color: "red",
-                                                          marginRight: "2px",
-                                                        }}
-                                                        className="fa fa-times"
-                                                      ></span>
-                                                    )}
-                                                    <span
-                                                      style={{
-                                                        marginLeft: "10px",
-                                                      }}
-                                                    >
-                                                      {" "}
-                                                      API Integration
-                                                    </span>
-                                                  </p>
-                                                  <p className="mt-0 mb-1 text-dark">
-                                                    {subScriptionActiveList?.prepareQuote ==
-                                                    true ? (
-                                                      <span
-                                                        style={{
-                                                          color: "green",
-                                                        }}
-                                                        className="fa fa-check"
-                                                      ></span>
-                                                    ) : (
-                                                      <span
-                                                        style={{
-                                                          color: "red",
-                                                          marginRight: "2px",
-                                                        }}
-                                                        className="fa fa-times"
-                                                      ></span>
-                                                    )}
-                                                    <span
-                                                      style={{
-                                                        marginLeft: "10px",
-                                                      }}
-                                                    >
-                                                      {" "}
-                                                      Prepare {proposalName}
-                                                    </span>
-                                                  </p>
-                                                  <p className="mt-0 mb-1 text-dark">
-                                                    {subScriptionActiveList?.prepareContract ===
-                                                    true ? (
-                                                      <span
-                                                        style={{
-                                                          color: "green",
-                                                        }}
-                                                        className="fa fa-check"
-                                                      ></span>
-                                                    ) : (
-                                                      <span
-                                                        style={{
-                                                          color: "red",
-                                                          marginRight: "2px",
-                                                        }}
-                                                        className="fa fa-times"
-                                                      ></span>
-                                                    )}
-                                                    <span
-                                                      style={{
-                                                        marginLeft: "10px",
-                                                      }}
-                                                    >
-                                                      {" "}
-                                                      Prepare {EngagementName}
-                                                    </span>
-                                                  </p>
-                                                  <p className="mt-0 mb-1 text-dark">
-                                                    {subScriptionActiveList?.sendQuote ===
-                                                    true ? (
-                                                      <span
-                                                        style={{
-                                                          color: "green",
-                                                        }}
-                                                        className="fa fa-check"
-                                                      ></span>
-                                                    ) : (
-                                                      <span
-                                                        style={{
-                                                          color: "red",
-                                                          marginRight: "2px",
-                                                        }}
-                                                        className="fa fa-times"
-                                                      ></span>
-                                                    )}
-                                                    <span
-                                                      style={{
-                                                        marginLeft: "10px",
-                                                      }}
-                                                    >
-                                                      {" "}
-                                                      Send {proposalName}
-                                                    </span>
-                                                  </p>
-                                                  <p className="mt-0 mb-1 text-dark">
-                                                    {subScriptionActiveList?.sendQuote ===
-                                                      true &&
-                                                      subScriptionActiveList?.quotesPerMonth >
-                                                        0 && (
-                                                        <>
-                                                          <span
-                                                            style={{
-                                                              color: "green",
-                                                            }}
-                                                            className="fa fa-check"
-                                                          ></span>
-                                                          <span
-                                                            style={{
-                                                              marginLeft:
-                                                                "10px",
-                                                            }}
-                                                          >
-                                                            {" "}
-                                                            Prepare and Send{" "}
-                                                            {proposalName}:{" "}
-                                                            {formatValueWithoutCurrencySymbol(
-                                                              subScriptionActiveList?.quotesPerMonth,
-                                                            )}
-                                                            /Month
-                                                          </span>
-                                                        </>
-                                                      )}
-                                                  </p>
-                                                  <p className="mt-0 mb-1 text-dark">
-                                                    {subScriptionActiveList?.signContract ===
-                                                    true ? (
-                                                      <span
-                                                        style={{
-                                                          color: "green",
-                                                        }}
-                                                        className="fa fa-check"
-                                                      ></span>
-                                                    ) : (
-                                                      <span
-                                                        style={{
-                                                          color: "red",
-                                                          marginRight: "2px",
-                                                        }}
-                                                        className="fa fa-times"
-                                                      ></span>
-                                                    )}
-                                                    {"  "}
-                                                    <span
-                                                      style={{
-                                                        marginLeft: "10px",
-                                                      }}
-                                                    >
-                                                      {"  "}
-                                                      Send And Digitally Sign
-                                                      The {EngagementName}:{" "}
-                                                      {
-                                                        subScriptionActiveList?.eSignaturePerMonth
-                                                      }
-                                                      /Month
-                                                    </span>
-                                                  </p>
+            <div className="my-subscription-card__body">
+              <div className="my-subscription-details-grid">
+                <div className="my-subscription-detail">
+                  <span>Package Name</span>
+                  <strong>{subScriptionActiveList.packageName || "-"}</strong>
+                </div>
 
-                                                  <p className="mt-0 mb-1 text-dark">
-                                                    {subScriptionActiveList?.isMailBox ===
-                                                      null ||
-                                                    !subScriptionActiveList?.isMailBox ? (
-                                                      <span
-                                                        style={{
-                                                          color: "red",
-                                                          marginRight: "2px",
-                                                        }}
-                                                        className="fa fa-times"
-                                                      ></span>
-                                                    ) : (
-                                                      <span
-                                                        style={{
-                                                          color: "green",
-                                                        }}
-                                                        className="fa fa-check"
-                                                      ></span>
-                                                    )}
-                                                    {"  "}
-                                                    <span
-                                                      style={{
-                                                        marginLeft: "10px",
-                                                      }}
-                                                    >
-                                                      {" "}
-                                                      Personalized Outgoing
-                                                      Mailbox
-                                                    </span>
-                                                  </p>
-                                                  <p className="mt-0 mb-1 text-dark">
-                                                    {subScriptionActiveList?.enablePdfToCsv ===
-                                                      null ||
-                                                    !subScriptionActiveList?.enablePdfToCsv ? (
-                                                      <span
-                                                        style={{
-                                                          color: "red",
-                                                          marginRight: "2px",
-                                                        }}
-                                                        className="fa fa-times"
-                                                      ></span>
-                                                    ) : (
-                                                      <span
-                                                        style={{
-                                                          color: "green",
-                                                        }}
-                                                        className="fa fa-check"
-                                                      ></span>
-                                                    )}
-                                                    {"  "}
-                                                    <span
-                                                      style={{
-                                                        marginLeft: "10px",
-                                                      }}
-                                                    >
-                                                      {" "}
-                                                      {subScriptionActiveList?.noOfPages ===
-                                                      null
-                                                        ? "PDF To CSV"
-                                                        : "PDF To CSV: "}
-                                                      {subScriptionActiveList?.noOfPages ===
-                                                      1
-                                                        ? `${subScriptionActiveList?.noOfPages} Page`
-                                                        : subScriptionActiveList?.noOfPages >
-                                                            1
-                                                          ? `${subScriptionActiveList?.noOfPages} Pages`
-                                                          : ""}
-                                                    </span>
-                                                  </p>
+                <div className="my-subscription-detail">
+                  <span>Payment Frequency</span>
+                  <strong>
+                    {subScriptionActiveList.paymentFrequencyID === 1
+                      ? "Yearly"
+                      : subScriptionActiveList.paymentFrequencyID === 4
+                        ? "Monthly"
+                        : "-"}
+                  </strong>
+                </div>
 
-                                                  {/* xero  */}
-                                                  {subScriptionActiveList &&
-                                                    subScriptionActiveList?.enableXERO !==
-                                                      null && (
-                                                      <p className="mt-0 mb-1 text-dark">
-                                                        {subScriptionActiveList?.enableXERO ===
-                                                          null ||
-                                                        !subScriptionActiveList?.enableXERO ? (
-                                                          <span
-                                                            style={{
-                                                              color: "red",
-                                                              marginRight:
-                                                                "2px",
-                                                            }}
-                                                            className="fa fa-times"
-                                                          ></span>
-                                                        ) : (
-                                                          <span
-                                                            style={{
-                                                              color: "green",
-                                                            }}
-                                                            className="fa fa-check"
-                                                          ></span>
-                                                        )}
-                                                        {"  "}
-                                                        <span
-                                                          style={{
-                                                            marginLeft: "10px",
-                                                          }}
-                                                        >
-                                                          {" "}
-                                                          Xero Subscription
-                                                        </span>
-                                                      </p>
-                                                    )}
+                <div className="my-subscription-detail">
+                  <span>Billing Cycle</span>
+                  <strong>
+                    {subScriptionActiveList.paymentFrequencyID === 1
+                      ? "365 Days"
+                      : subScriptionActiveList.paymentFrequencyID === 4
+                        ? "30 Days"
+                        : "-"}
+                  </strong>
+                </div>
 
-                                                  {/* Quickbook  */}
-                                                  {subScriptionActiveList &&
-                                                    subScriptionActiveList?.enableQBO !==
-                                                      null && (
-                                                      <p className="mt-0 mb-1 text-dark">
-                                                        {subScriptionActiveList?.enableQBO ===
-                                                          null ||
-                                                        !subScriptionActiveList?.enableQBO ? (
-                                                          <span
-                                                            style={{
-                                                              color: "red",
-                                                              marginRight:
-                                                                "2px",
-                                                            }}
-                                                            className="fa fa-times"
-                                                          ></span>
-                                                        ) : (
-                                                          <span
-                                                            style={{
-                                                              color: "green",
-                                                            }}
-                                                            className="fa fa-check"
-                                                          ></span>
-                                                        )}
-                                                        {"  "}
-                                                        <span
-                                                          style={{
-                                                            marginLeft: "10px",
-                                                          }}
-                                                        >
-                                                          {" "}
-                                                          Quickbooks
-                                                          Subscription
-                                                        </span>
-                                                      </p>
-                                                    )}
+                <div className="my-subscription-detail">
+                  <span>Start Date</span>
+                  <strong>
+                    {subScriptionActiveList.subscriptionStartDate === null
+                      ? "-"
+                      : subScriptionActiveList.subscriptionStartDate || "-"}
+                  </strong>
+                </div>
 
-                                                  {/* AI Agent  */}
-                                                  {subScriptionActiveList &&
-                                                    subScriptionActiveList?.enableAIAgent !==
-                                                      null && (
-                                                      <p className="mt-0 mb-1 text-dark">
-                                                        {subScriptionActiveList?.enableAIAgent ===
-                                                          null ||
-                                                        !subScriptionActiveList?.enableAIAgent ? (
-                                                          <span
-                                                            style={{
-                                                              color: "red",
-                                                              marginRight:
-                                                                "2px",
-                                                            }}
-                                                            className="fa fa-times"
-                                                          ></span>
-                                                        ) : (
-                                                          <span
-                                                            style={{
-                                                              color: "green",
-                                                            }}
-                                                            className="fa fa-check"
-                                                          ></span>
-                                                        )}
-                                                        {"  "}
-                                                        <span
-                                                          style={{
-                                                            marginLeft: "10px",
-                                                          }}
-                                                        >
-                                                          {" "}
-                                                          AI Agent Subscription
-                                                        </span>
-                                                      </p>
-                                                    )}
-                                                </div>
-                                              </CardBody>
-                                            </div>
-                                          </div>
-                                        </div>
-                                        {/* </div> */}
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div class="table-card mt-2 table-padding">
-                                    <div
-                                      className="table-container mt-2"
-                                      style={{
-                                        maxHeight: "500px",
-                                        overflowY: "auto",
-                                      }}
-                                    >
-                                      <table className="table table-striped">
-                                        <thead>
-                                          <tr>
-                                            <th
-                                              scope="col"
-                                              className="tr-table-class text-white"
-                                            >
-                                              Email
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              className="tr-table-class text-white"
-                                            >
-                                              Contact No
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              className="tr-table-class text-white"
-                                            >
-                                              Package Name
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              className="tr-table-class text-white"
-                                            >
-                                              Package Price
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              className="tr-table-class text-white"
-                                            >
-                                              Subscription Start Date
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              className="tr-table-class text-white"
-                                            >
-                                              Next Renewal Date
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              className="tr-table-class text-white"
-                                            >
-                                              Payable Amount
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              className="tr-table-class text-white"
-                                            >
-                                              Payment Status
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              className="tr-table-class text-white"
-                                            >
-                                              Subscription Status
-                                            </th>
-                                            <th
-                                              scope="col"
-                                              className="tr-table-class text-white"
-                                            >
-                                              Action
-                                            </th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          {subScriptionPlanList.map(
-                                            (subscription, index) => (
-                                              <tr key={index}>
-                                                <td className="table-content-font align-items-center text-center">
-                                                  {subscription.email}
-                                                </td>
-                                                <td className="table-content-font">
-                                                  {subscription.mobileNumber}
-                                                </td>
-                                                <td className="table-content-font align-items-center text-center">
-                                                  {subscription.packageName}
-                                                </td>
-                                                <td className="table-content-font align-items-center text-center">
-                                                  {formatValue(
-                                                    subscription.packagePrice,
-                                                  )}
-                                                </td>
-                                                <td className="table-content-font align-items-center text-center">
-                                                  {subscription.subscriptionStartDate ===
-                                                  null
-                                                    ? "_"
-                                                    : subscription.subscriptionStartDate}
-                                                </td>
-                                                <td className="table-content-font align-items-center text-center">
-                                                  {subscription.nextRenewalDate ===
-                                                  null
-                                                    ? "_"
-                                                    : subscription.nextRenewalDate}
-                                                </td>
-                                                <td className="table-content-font ">
-                                                  {formatValue(
-                                                    subscription.finalBillingAmount,
-                                                  )}
-                                                </td>
-                                                {/* <td className="table-content-font">
-                                      {subscription.paymentStatus}
-                                    </td> */}
-                                                <td className="table-content-font align-items-center text-center">
-                                                  {/* <div className="mb-1 text-center  text-white rounded text-nowrap"> */}
-                                                  {subscription.paymentStatus ===
-                                                    "Unpaid" && (
-                                                    <Tooltip title={`Pay Now`}>
-                                                      <button
-                                                        style={{
-                                                          width: "80px",
-                                                          marginTop: "5px",
-                                                          // padding: "5px 8px 6px 5px",
-                                                          // margin:'1px', // Add padding to the button
-                                                          display:
-                                                            "inline-block", // Ensure button stays in line
-                                                          // borderRadius: "0.5rem",
-                                                        }}
-                                                        className="btn btn-md btn-success create-item-btn view"
-                                                        onClick={() =>
-                                                          RedirectStripeCheckout(
-                                                            subscription,
-                                                          )
-                                                        }
-                                                      >
-                                                        <span>Pay Now</span>
-                                                      </button>
-                                                    </Tooltip>
-                                                  )}
-                                                  {subscription.paymentStatus ===
-                                                    "Paid" && (
-                                                    <Tooltip title={`Download`}>
-                                                      <a
-                                                        style={{
-                                                          width: "60px",
-                                                          padding:
-                                                            "2px 2px 2px 2px", // Add padding to the button
-                                                          display:
-                                                            "inline-block", // Ensure button stays in line
-                                                          borderRadius:
-                                                            "0.5rem",
-                                                        }}
-                                                        href={
-                                                          subscription.hostedInvoiceUrl
-                                                        }
-                                                        className="btn btn-secondary btn-xs"
-                                                      >
-                                                        <i className="fa fa-download"></i>
-                                                      </a>
-                                                    </Tooltip>
-                                                  )}
-                                                  {subscription.paymentStatus ===
-                                                    "Free" && (
-                                                    <p
-                                                      style={{
-                                                        background: "#DAA520",
-                                                        width: "100px",
-                                                        padding: "4px 5px",
-                                                        display: "inline-block",
-                                                        borderRadius: "0.5rem",
-                                                      }}
-                                                    >
-                                                      Free
-                                                    </p>
-                                                  )}
-                                                  {/* </div> */}
-                                                </td>
-                                                <td className="Switch">
-                                                  <div
-                                                    style={{
-                                                      alignItems: "none",
-                                                    }}
-                                                    className="d-flex gap-2"
-                                                  >
-                                                    <div
-                                                      style={{
-                                                        marginTop: "9px",
-                                                      }}
-                                                    >
-                                                      <div
-                                                        className="mb-1 text-center  text-white rounded text-nowrap"
-                                                        style={{
-                                                          background:
-                                                            subscription.subscriptionStatus ===
-                                                            "Active"
-                                                              ? "#008000"
-                                                              : subscription.subscriptionStatus ===
-                                                                  "Expired"
-                                                                ? "#FF0000"
-                                                                : subscription.subscriptionStatus ===
-                                                                    "Pending"
-                                                                  ? "#DAA520"
-                                                                  : subscription.subscriptionStatus ===
-                                                                      "InActive"
-                                                                    ? "#772424"
-                                                                    : "gray",
-                                                          width: "100px",
-                                                          padding:
-                                                            "5px 8px 6px 5px", // Add padding to the button
-                                                          display:
-                                                            "inline-block", // Ensure button stays in line
-                                                          borderRadius:
-                                                            "0.5rem", // Adjust border radius
-                                                        }}
-                                                      >
-                                                        {
-                                                          subscription.subscriptionStatus
-                                                        }
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                </td>
+                <div className="my-subscription-detail">
+                  <span>Next Renewal</span>
+                  <strong>
+                    {subScriptionActiveList.renewDate === null
+                      ? "-"
+                      : subScriptionActiveList.renewDate || "-"}
+                  </strong>
+                </div>
 
-                                                <td>
-                                                  <div class="view text-nowrap mt-1">
-                                                    <Tooltip
-                                                      title={`View Subscription`}
-                                                    >
-                                                      <div class="view">
-                                                        <button
-                                                          class="btn btn-md btn-success create-item-btn view"
-                                                          onClick={() =>
-                                                            handleOpenSubscriptionModel(
-                                                              subscription,
-                                                            )
-                                                          }
-                                                          data-bs-toggle="modal"
-                                                          data-bs-target="#addSubscriptionViewModalUser"
-                                                        >
-                                                          <span>View</span>{" "}
-                                                          <span className="mt-4">
-                                                            {" "}
-                                                            <i class="bi bi-eye "></i>
-                                                          </span>
-                                                        </button>
-                                                      </div>
-                                                    </Tooltip>
-                                                  </div>
-                                                </td>
-                                              </tr>
-                                            ),
-                                          )}
-                                        </tbody>
-                                      </table>
-                                      {totalRecords <= 0 && (
-                                        <NoResultFoundModel
-                                          name={"Subscription"}
-                                          totalRecords={totalRecords}
-                                        />
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            {listCount > pageSize && (
-                              <PaginationComponent
-                                totalCount={listCount}
-                                totalPages={totalPage}
-                                desktopRecords={desktopRecords}
-                                currentPage={currentPage}
-                                onPageChange={handlePageChange}
-                              />
-                            )}
-                          </div>
-                        </div>
-                      </div>
+                <div className="my-subscription-detail">
+                  <span>Payment Status</span>
+                  <strong>{subScriptionActiveList.paymentStatus || "-"}</strong>
+                </div>
+              </div>
 
-                      {/* end row */}
-                    </div>
-                    {/* container-fluid  */}
-                  </div>
-                  {/* End Page-content */}
+              <div className="my-subscription-payment-action">
+                {subScriptionActiveList.paymentStatus === "Unpaid" && (
+                  <Tooltip title="Pay Now">
+                    <button
+                      className="btn my-subscription-primary-btn"
+                      onClick={() =>
+                        RedirectStripeCheckout(subScriptionActiveList)
+                      }
+                    >
+                      Pay Now
+                    </button>
+                  </Tooltip>
+                )}
 
-                  <SubscriptionView
-                    class="modal fade"
-                    id="addSubscriptionViewModalUser"
-                    tabIndex="-1"
-                    aria_labelledby="exampleModalLabel"
-                    aria_hidden="true"
-                    subscriptionPackageObj={subscriptionPackageObj}
-                  />
+                {subScriptionActiveList.paymentStatus === "Paid" && (
+                  <Tooltip title="Download">
+                    <a
+                      href={subScriptionActiveList.hostedInvoiceUrl}
+                      className="my-subscription-invoice-btn"
+                    >
+                      <i className="bi bi-download"></i>
+                      <span>Invoice</span>
+                    </a>
+                  </Tooltip>
+                )}
+
+                {subScriptionActiveList.paymentStatus === "Free" && (
+                  <span className="my-subscription-free-badge">Free</span>
+                )}
+              </div>
+
+              <div className="my-subscription-balance-grid">
+                <div className="my-subscription-balance">
+                  <span>Remaining Proposals</span>
+                  <strong>
+                    {subScriptionActiveList.remainingQuotesPerMonth < 0
+                      ? 0
+                      : (subScriptionActiveList.remainingQuotesPerMonth ?? 0)}
+                  </strong>
+                </div>
+
+                <div className="my-subscription-balance">
+                  <span>Remaining E-Signatures</span>
+                  <strong>
+                    {subScriptionActiveList.remainingESignatures < 0
+                      ? 0
+                      : (subScriptionActiveList.remainingESignatures ?? 0)}
+                  </strong>
+                </div>
+
+                <div className="my-subscription-balance">
+                  <span>Remaining Pages</span>
+                  <strong>
+                    {subScriptionActiveList.noOfPages < 0 ||
+                    subScriptionActiveList.noOfPages === null
+                      ? 0
+                      : subScriptionActiveList.noOfPages}
+                  </strong>
                 </div>
               </div>
             </div>
-          </div>
+          </section>
+
+          {/* RIGHT: PACKAGE DETAILS */}
+          <section className="my-subscription-card">
+            <div className="my-subscription-card__header my-subscription-package-header">
+              <h2>Package Details</h2>
+
+              <div className="my-subscription-package-price">
+                <strong>
+                  {(() => {
+                    const MonthlyPrice =
+                      Number(subScriptionActiveList?.yearlyValuePlan) / 12;
+                    return formatValue(MonthlyPrice);
+                  })()}
+                </strong>
+                <span>/ Month</span>
+              </div>
+            </div>
+
+            <div className="my-subscription-card__body">
+              <div className="my-subscription-feature-grid">
+                <div
+                  className={`my-subscription-feature ${
+                    subScriptionActiveList?.apiIntegration
+                      ? "is-enabled"
+                      : "is-disabled"
+                  }`}
+                >
+                  <i
+                    className={
+                      subScriptionActiveList?.apiIntegration
+                        ? "bi bi-check-circle-fill"
+                        : "bi bi-x-circle"
+                    }
+                  ></i>
+                  <span>API Integration</span>
+                </div>
+
+                <div
+                  className={`my-subscription-feature ${
+                    subScriptionActiveList?.prepareQuote
+                      ? "is-enabled"
+                      : "is-disabled"
+                  }`}
+                >
+                  <i
+                    className={
+                      subScriptionActiveList?.prepareQuote
+                        ? "bi bi-check-circle-fill"
+                        : "bi bi-x-circle"
+                    }
+                  ></i>
+                  <span>Prepare {proposalName}</span>
+                </div>
+
+                <div
+                  className={`my-subscription-feature ${
+                    subScriptionActiveList?.sendQuote
+                      ? "is-enabled"
+                      : "is-disabled"
+                  }`}
+                >
+                  <i
+                    className={
+                      subScriptionActiveList?.sendQuote
+                        ? "bi bi-check-circle-fill"
+                        : "bi bi-x-circle"
+                    }
+                  ></i>
+                  <span>Send {proposalName}</span>
+                </div>
+
+                <div
+                  className={`my-subscription-feature ${
+                    subScriptionActiveList?.prepareContract
+                      ? "is-enabled"
+                      : "is-disabled"
+                  }`}
+                >
+                  <i
+                    className={
+                      subScriptionActiveList?.prepareContract
+                        ? "bi bi-check-circle-fill"
+                        : "bi bi-x-circle"
+                    }
+                  ></i>
+                  <span>Prepare {EngagementName}</span>
+                </div>
+
+                {subScriptionActiveList?.sendQuote === true &&
+                  subScriptionActiveList?.quotesPerMonth > 0 && (
+                    <div className="my-subscription-feature is-enabled">
+                      <i className="bi bi-check-circle-fill"></i>
+                      <span>
+                        Prepare and Send {proposalName}:{" "}
+                        {formatValueWithoutCurrencySymbol(
+                          subScriptionActiveList?.quotesPerMonth,
+                        )}
+                        /Month
+                      </span>
+                    </div>
+                  )}
+
+                <div
+                  className={`my-subscription-feature ${
+                    subScriptionActiveList?.signContract
+                      ? "is-enabled"
+                      : "is-disabled"
+                  }`}
+                >
+                  <i
+                    className={
+                      subScriptionActiveList?.signContract
+                        ? "bi bi-check-circle-fill"
+                        : "bi bi-x-circle"
+                    }
+                  ></i>
+                  <span>
+                    Send And Digitally Sign The {EngagementName}:{" "}
+                    {subScriptionActiveList?.eSignaturePerMonth}/Month
+                  </span>
+                </div>
+
+                <div
+                  className={`my-subscription-feature ${
+                    subScriptionActiveList?.isMailBox
+                      ? "is-enabled"
+                      : "is-disabled"
+                  }`}
+                >
+                  <i
+                    className={
+                      subScriptionActiveList?.isMailBox
+                        ? "bi bi-check-circle-fill"
+                        : "bi bi-x-circle"
+                    }
+                  ></i>
+                  <span>Personalized Outgoing Mailbox</span>
+                </div>
+
+                <div
+                  className={`my-subscription-feature ${
+                    subScriptionActiveList?.enablePdfToCsv
+                      ? "is-enabled"
+                      : "is-disabled"
+                  }`}
+                >
+                  <i
+                    className={
+                      subScriptionActiveList?.enablePdfToCsv
+                        ? "bi bi-check-circle-fill"
+                        : "bi bi-x-circle"
+                    }
+                  ></i>
+                  <span>
+                    {subScriptionActiveList?.noOfPages === null
+                      ? "PDF To CSV"
+                      : "PDF To CSV: "}
+                    {subScriptionActiveList?.noOfPages === 1
+                      ? `${subScriptionActiveList?.noOfPages} Page`
+                      : subScriptionActiveList?.noOfPages > 1
+                        ? `${subScriptionActiveList?.noOfPages} Pages`
+                        : ""}
+                  </span>
+                </div>
+
+                {subScriptionActiveList &&
+                  subScriptionActiveList?.enableXERO !== null && (
+                    <div
+                      className={`my-subscription-feature ${
+                        subScriptionActiveList?.enableXERO
+                          ? "is-enabled"
+                          : "is-disabled"
+                      }`}
+                    >
+                      <i
+                        className={
+                          subScriptionActiveList?.enableXERO
+                            ? "bi bi-check-circle-fill"
+                            : "bi bi-x-circle"
+                        }
+                      ></i>
+                      <span>Xero Subscription</span>
+                    </div>
+                  )}
+
+                {subScriptionActiveList &&
+                  subScriptionActiveList?.enableQBO !== null && (
+                    <div
+                      className={`my-subscription-feature ${
+                        subScriptionActiveList?.enableQBO
+                          ? "is-enabled"
+                          : "is-disabled"
+                      }`}
+                    >
+                      <i
+                        className={
+                          subScriptionActiveList?.enableQBO
+                            ? "bi bi-check-circle-fill"
+                            : "bi bi-x-circle"
+                        }
+                      ></i>
+                      <span>Quickbooks Subscription</span>
+                    </div>
+                  )}
+
+                {subScriptionActiveList &&
+                  subScriptionActiveList?.enableAIAgent !== null && (
+                    <div
+                      className={`my-subscription-feature ${
+                        subScriptionActiveList?.enableAIAgent
+                          ? "is-enabled"
+                          : "is-disabled"
+                      }`}
+                    >
+                      <i
+                        className={
+                          subScriptionActiveList?.enableAIAgent
+                            ? "bi bi-check-circle-fill"
+                            : "bi bi-x-circle"
+                        }
+                      ></i>
+                      <span>AI Agent Subscription</span>
+                    </div>
+                  )}
+              </div>
+            </div>
+          </section>
         </div>
-        <Footer />
+
+        {/* =========================
+            SUBSCRIPTION HISTORY
+            No filters added.
+            ========================= */}
+        <section className="my-subscription-history-card">
+          <div className="my-subscription-history-header">
+            <div>
+              <h2>Subscription History</h2>
+              <p>Review previous and current billing records.</p>
+            </div>
+          </div>
+
+          <div className="my-subscription-table-wrap">
+            <table className="my-subscription-table">
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Contact No</th>
+                  <th>Package Name</th>
+                  <th>Package Price</th>
+                  <th>Subscription Start Date</th>
+                  <th>Next Renewal Date</th>
+                  <th>Payable Amount</th>
+                  <th>Payment Status</th>
+                  <th>Subscription Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {subScriptionPlanList.map((subscription, index) => (
+                  <tr key={index}>
+                    <td>{subscription.email}</td>
+
+                    <td>{subscription.mobileNumber}</td>
+
+                    <td>
+                      <strong className="my-subscription-package-name">
+                        {subscription.packageName}
+                      </strong>
+                    </td>
+
+                    <td>
+                      <strong>
+                        {currencySymbol}
+                        {formatValue(subscription.packagePrice)}
+                      </strong>
+                    </td>
+
+                    <td>
+                      {subscription.subscriptionStartDate === null
+                        ? "-"
+                        : subscription.subscriptionStartDate}
+                    </td>
+
+                    <td>
+                      {subscription.nextRenewalDate === null
+                        ? "-"
+                        : subscription.nextRenewalDate}
+                    </td>
+
+                    <td>
+                      <strong>
+                        {currencySymbol}{formatValue(subscription.finalBillingAmount)}
+                      </strong>
+                    </td>
+
+                    <td>
+                      {subscription.paymentStatus === "Unpaid" && (
+                        <Tooltip title="Pay Now">
+                          <button
+                            className="btn my-subscription-pay-btn"
+                            onClick={() => RedirectStripeCheckout(subscription)}
+                          >
+                            Pay Now
+                          </button>
+                        </Tooltip>
+                      )}
+
+                      {subscription.paymentStatus === "Paid" && (
+                        <Tooltip title="Download">
+                          <a
+                            href={subscription.hostedInvoiceUrl}
+                            className="my-subscription-payment-pill my-subscription-payment-pill--paid"
+                          >
+                            <i className="bi bi-download"></i>
+                            Paid
+                          </a>
+                        </Tooltip>
+                      )}
+
+                      {subscription.paymentStatus === "Free" && (
+                        <span className="my-subscription-payment-pill my-subscription-payment-pill--free">
+                          Free
+                        </span>
+                      )}
+                    </td>
+
+                    <td>
+                      <span
+                        className={`my-subscription-status my-subscription-status--${
+                          subscription.subscriptionStatus === "Active"
+                            ? "active"
+                            : subscription.subscriptionStatus === "Expired"
+                              ? "expired"
+                              : subscription.subscriptionStatus === "Pending"
+                                ? "pending"
+                                : subscription.subscriptionStatus === "InActive"
+                                  ? "inactive"
+                                  : "default"
+                        }`}
+                      >
+                        <span className="my-subscription-status__dot"></span>
+                        {subscription.subscriptionStatus}
+                      </span>
+                    </td>
+
+                    <td>
+                      <Tooltip title="View Subscription">
+                        <button
+                          className="btn my-subscription-view-btn"
+                          onClick={() =>
+                            handleOpenSubscriptionModel(subscription)
+                          }
+                          data-bs-toggle="modal"
+                          data-bs-target="#addSubscriptionViewModalUser"
+                        >
+                          <i className="bi bi-eye"></i>
+                          <span>View</span>
+                        </button>
+                      </Tooltip>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {totalRecords <= 0 && (
+            <div className="my-subscription-empty">
+              <NoResultFoundModel
+                name={"Subscription"}
+                totalRecords={totalRecords}
+              />
+            </div>
+          )}
+
+          {listCount > pageSize && (
+            <div className="my-subscription-pagination">
+              <PaginationComponent
+                totalCount={listCount}
+                totalPages={totalPage}
+                desktopRecords={desktopRecords}
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          )}
+        </section>
+
+        <SubscriptionView
+          class="modal fade"
+          id="addSubscriptionViewModalUser"
+          tabIndex="-1"
+          aria_labelledby="exampleModalLabel"
+          aria_hidden="true"
+          subscriptionPackageObj={subscriptionPackageObj}
+        />
       </div>
 
-      {/* start back-to-top */}
+      <Footer />
+
       <button
         onClick="topFunction()"
-        class="btn btn-danger btn-icon"
+        className="btn btn-danger btn-icon"
         id="back-to-top"
       >
         <i className="ri-arrow-up-line"></i>

@@ -1,0 +1,680 @@
+/* =========================================================
+   MY SUBSCRIPTION - FIGMA / PROSPECT-LIST INSPIRED REDESIGN
+   UI only. Existing API, payment, pagination and modal logic
+   remain in MySubscription.jsx.
+   ========================================================= */
+
+.my-subscription-redesign {
+  --ms-bg: #f7f9fc;
+  --ms-white: #ffffff;
+  --ms-heading: #14243a;
+  --ms-text: #334258;
+  --ms-muted: #758092;
+  --ms-border: #dce4ed;
+  --ms-border-soft: #e7ecf2;
+  --ms-cyan: #14b5d1;
+  --ms-cyan-hover: #0da5c1;
+  --ms-navy: #101b32;
+  --ms-green: #18b98a;
+
+  width: 100%;
+  min-height: 100%;
+  background: var(--ms-bg);
+  color: var(--ms-text);
+}
+
+.my-subscription-redesign,
+.my-subscription-redesign * {
+  box-sizing: border-box;
+}
+
+.my-subscription-page {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 30px 32px 42px;
+}
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.my-subscription-header {
+  width: 100%;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  border-bottom: 1px solid #e3e9f0;
+}
+
+.my-subscription-title {
+  margin: 0;
+
+  color: var(--ms-heading);
+
+  font-family: "Sarabun", sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.my-subscription-subtitle {
+  margin: 6px 0 0;
+
+  color: var(--ms-muted);
+
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Preserve CommonButtonComponent; style the button it renders. */
+.my-subscription-upgrade .btn,
+.my-subscription-upgrade button {
+  min-height: 40px !important;
+  padding: 0 17px !important;
+
+  border: 1px solid var(--ms-cyan) !important;
+  border-radius: 8px !important;
+
+  background: var(--ms-cyan) !important;
+  color: #ffffff !important;
+
+  font-size: 12px !important;
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+}
+
+.my-subscription-upgrade .btn:hover,
+.my-subscription-upgrade button:hover {
+  border-color: var(--ms-cyan-hover) !important;
+  background: var(--ms-cyan-hover) !important;
+}
+
+/* =========================================================
+   TOP SUMMARY
+   ========================================================= */
+
+.my-subscription-summary-grid {
+  width: 100%;
+  margin-bottom: 26px;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+}
+
+.my-subscription-card {
+  min-width: 0;
+  overflow: hidden;
+
+  border: 1px solid var(--ms-border);
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 2px 7px rgba(15, 23, 42, 0.04),
+    0 8px 20px rgba(15, 23, 42, 0.025);
+}
+
+.my-subscription-card__header {
+  min-height: 66px;
+  padding: 16px 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  border-bottom: 1px solid var(--ms-border);
+}
+
+.my-subscription-card__header h2 {
+  margin: 0;
+
+  color: var(--ms-heading);
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.my-subscription-card__body {
+  padding: 22px;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.my-subscription-status-group {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.my-subscription-status {
+  min-height: 25px;
+  padding: 0 9px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  border: 1px solid transparent;
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.my-subscription-status__dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.my-subscription-status--active {
+  border-color: #cfeee5;
+  background: #eaf9f4;
+  color: #15845f;
+}
+
+.my-subscription-status--expired {
+  border-color: #f2d6da;
+  background: #fff0f2;
+  color: #c94051;
+}
+
+.my-subscription-status--pending {
+  border-color: #f3e3ba;
+  background: #fff7e4;
+  color: #a77710;
+}
+
+.my-subscription-status--inactive {
+  border-color: #ead7d7;
+  background: #f9eeee;
+  color: #884949;
+}
+
+.my-subscription-status--default {
+  border-color: #dfe5ec;
+  background: #f4f6f8;
+  color: #707a88;
+}
+
+/* =========================================================
+   SUBSCRIPTION DETAILS
+   ========================================================= */
+
+.my-subscription-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 28px;
+}
+
+.my-subscription-detail {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.my-subscription-detail > span {
+  color: #6c7686;
+
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.my-subscription-detail > strong {
+  color: #1a293f;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  overflow-wrap: anywhere;
+}
+
+.my-subscription-payment-action {
+  min-height: 34px;
+  margin-top: 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.my-subscription-primary-btn,
+.my-subscription-pay-btn {
+  min-height: 36px !important;
+  padding: 0 15px !important;
+
+  border: 1px solid var(--ms-cyan) !important;
+  border-radius: 7px !important;
+
+  background: var(--ms-cyan) !important;
+  color: #ffffff !important;
+
+  font-size: 11px !important;
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+}
+
+.my-subscription-primary-btn:hover,
+.my-subscription-pay-btn:hover {
+  border-color: var(--ms-cyan-hover) !important;
+  background: var(--ms-cyan-hover) !important;
+}
+
+.my-subscription-invoice-btn {
+  min-height: 34px;
+  padding: 0 12px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  border: 1px solid #ccd6e1;
+  border-radius: 7px;
+
+  background: #ffffff;
+  color: #344258 !important;
+
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none !important;
+}
+
+.my-subscription-invoice-btn:hover {
+  background: #f7f9fb;
+}
+
+.my-subscription-free-badge {
+  min-height: 26px;
+  padding: 0 10px;
+
+  display: inline-flex;
+  align-items: center;
+
+  border-radius: 999px;
+
+  background: #fff7e4;
+  color: #a77710;
+
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.my-subscription-balance-grid {
+  margin-top: 18px;
+
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.my-subscription-balance {
+  min-width: 0;
+  min-height: 64px;
+  padding: 12px 13px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+
+  border: 1px solid #dce5ef;
+  border-radius: 8px;
+
+  background: #f8faff;
+}
+
+.my-subscription-balance span {
+  color: #697486;
+
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.my-subscription-balance strong {
+  color: #18283e;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   PACKAGE DETAILS
+   ========================================================= */
+
+.my-subscription-package-header {
+  align-items: center;
+}
+
+.my-subscription-package-price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+
+  white-space: nowrap;
+}
+
+.my-subscription-package-price strong {
+  color: #101f35;
+
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.my-subscription-package-price span {
+  color: #566172;
+
+  font-size: 12px;
+}
+
+.my-subscription-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px 20px;
+}
+
+.my-subscription-feature {
+  min-width: 0;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+
+  color: #29384d;
+
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.my-subscription-feature i {
+  margin-top: 1px;
+
+  flex: 0 0 auto;
+
+  font-size: 12px;
+}
+
+.my-subscription-feature.is-enabled i {
+  color: var(--ms-cyan);
+}
+
+.my-subscription-feature.is-disabled {
+  color: #979fab;
+}
+
+.my-subscription-feature.is-disabled i {
+  color: #aab1bb;
+}
+
+/* =========================================================
+   HISTORY
+   ========================================================= */
+
+.my-subscription-history-card {
+  width: 100%;
+  overflow: hidden;
+
+  border: 1px solid var(--ms-border);
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 2px 7px rgba(15, 23, 42, 0.04),
+    0 8px 22px rgba(15, 23, 42, 0.025);
+}
+
+.my-subscription-history-header {
+  min-height: 74px;
+  padding: 16px 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom: 1px solid var(--ms-border);
+}
+
+.my-subscription-history-header h2 {
+  margin: 0;
+
+  color: var(--ms-heading);
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.my-subscription-history-header p {
+  margin: 4px 0 0;
+
+  color: var(--ms-muted);
+
+  font-size: 11px;
+}
+
+/* =========================================================
+   TABLE - PROSPECT LIST INSPIRED
+   ========================================================= */
+
+.my-subscription-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.my-subscription-table {
+  width: 100%;
+  min-width: 1220px;
+
+  margin: 0;
+  border-collapse: collapse;
+}
+
+.my-subscription-table thead th {
+  min-height: 58px;
+  padding: 15px 18px;
+
+  border: 0;
+  border-bottom: 1px solid #1c2941;
+
+  background: var(--ms-navy);
+  color: #f3f6fa;
+
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  line-height: 1.3;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.my-subscription-table tbody td {
+  height: 68px;
+  padding: 12px 18px;
+
+  border-bottom: 1px solid #e3e9f0;
+
+  background: #ffffff;
+  color: #455267;
+
+  font-size: 12px;
+  line-height: 1.35;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.my-subscription-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.my-subscription-table tbody tr:hover td {
+  background: #fbfdff;
+}
+
+.my-subscription-table tbody td strong {
+  color: #17273e;
+  font-weight: 600;
+}
+
+.my-subscription-package-name {
+  color: #17273e;
+  font-weight: 600;
+}
+
+/* =========================================================
+   PAYMENT PILLS / ACTION
+   ========================================================= */
+
+.my-subscription-payment-pill {
+  min-height: 27px;
+  padding: 0 10px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 600;
+  text-decoration: none !important;
+}
+
+.my-subscription-payment-pill--paid {
+  background: #eaf9f4;
+  color: #15845f !important;
+}
+
+.my-subscription-payment-pill--free {
+  background: #fff7e4;
+  color: #a77710;
+}
+
+.my-subscription-view-btn {
+  min-height: 32px !important;
+  padding: 0 11px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+
+  border: 1px solid #bfcbd8 !important;
+  border-radius: 7px !important;
+
+  background: #ffffff !important;
+  color: #233149 !important;
+
+  font-size: 10px !important;
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+}
+
+.my-subscription-view-btn:hover {
+  border-color: #9fb2c5 !important;
+  background: #f7f9fb !important;
+}
+
+/* =========================================================
+   EMPTY / PAGINATION
+   ========================================================= */
+
+.my-subscription-empty {
+  min-height: 220px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.my-subscription-pagination {
+  min-height: 64px;
+  padding: 12px 18px;
+
+  border-top: 1px solid var(--ms-border);
+  background: #fbfcff;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.my-subscription-redesign footer {
+  background: var(--ms-bg);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1150px) {
+  .my-subscription-page {
+    padding: 26px 20px 36px;
+  }
+
+  .my-subscription-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .my-subscription-page {
+    padding: 20px 12px 30px;
+  }
+
+  .my-subscription-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .my-subscription-title {
+    font-size: 24px;
+  }
+
+  .my-subscription-card__header,
+  .my-subscription-card__body {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .my-subscription-details-grid,
+  .my-subscription-feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .my-subscription-balance-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .my-subscription-package-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .my-subscription-history-header {
+    padding: 14px 16px;
+  }
+}
