@@ -1,61 +1,622 @@
-.payment-gateway-logo {
-  height: 27px;
-  max-width: 100%;
-}
-.payment-gateway-logoGoCardLess {
-  height: 27px;
-  padding:5px;
-  max-width: 80%;
-}
-.card-header {
-  padding: 0.75rem 1.25rem;
-  margin-bottom: 0;
-  background-color: #e9ecef;
-  border-bottom: 0 solid #dee2e6;
-  margin-left: 0px !important;
+/* =========================================================
+   PAYMENT GATEWAY - FIGMA REDESIGN
+   ========================================================= */
+
+.payment-gateway-redesign {
+  --gateway-bg: #f7f9fc;
+  --gateway-white: #ffffff;
+
+  --gateway-heading: #122138;
+  --gateway-text: #28364a;
+  --gateway-muted: #798393;
+
+  --gateway-border: #dce4ed;
+  --gateway-border-soft: #e8edf3;
+
+  --gateway-cyan: #14b5d1;
+  --gateway-cyan-hover: #0da5c1;
+
+  --gateway-green: #17b78c;
+
+  width: 100%;
+
+  min-height: 100%;
+
+  background: var(--gateway-bg);
 }
 
-.Bank-Transfer-header {
-  margin-bottom: 0;
-  background-color: #e9ecef;
-  border-bottom: 0 solid #dee2e6;
-  margin-left: 0px !important;
-  font-size: 28px;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  color: #00afef !important;
-  font-family: sans-serif;
-}
-.payment-field .card-body {
-  padding: 1.25rem 1.25rem 8px 1.25rem;
+.payment-gateway-redesign,
+.payment-gateway-redesign * {
+  box-sizing: border-box;
 }
 
-.access-token {
-  padding-left: 20px;
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.payment-gateway-page {
+  width: 100%;
+
+  min-height: calc(100vh - 80px);
+
+  padding: 34px 28px 40px;
+
+  background: var(--gateway-bg);
 }
 
-.paymentgateway {
-  margin-top: 172px;
-  overflow: auto;
-}
-.payment_gateway-content {
-  margin-top: calc(25px + 21px);
-  padding: 68px 0;
+.payment-gateway-container {
+  width: 100%;
+
+  max-width: 1450px;
+
+  margin: 0 auto;
 }
 
-.paymentgateway .card-body {
-  background-color: #fff;
+/* =========================================================
+   PAGE TITLE
+   ========================================================= */
+
+.payment-gateway-title-wrap {
+  margin-bottom: 28px;
+
+  padding-bottom: 15px;
+
+  border-bottom: 1px solid #e3e9f0;
 }
 
-.payment-field label {
-  color: #5b626b;
-  font-size: 14px;
+.payment-gateway-title {
+  margin: 0;
+
+  color: var(--gateway-heading);
+
+  font-family: "Sarabun", sans-serif;
+
+  font-size: 30px;
+
+  font-weight: 700;
+
+  line-height: 1.2;
 }
 
-@media only screen and (max-width: 1040px) {
-  .payment_gateway-content {
-    margin-top: calc(25px + 21px);
-    padding: 38px 0;
+/* =========================================================
+   GRID
+   ========================================================= */
+
+.payment-gateway-top-grid {
+  width: 100%;
+
+  margin-bottom: 20px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1fr);
+
+  gap: 20px;
+}
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.gateway-card {
+  width: 100%;
+
+  overflow: hidden;
+
+  display: flex;
+
+  flex-direction: column;
+
+  border: 1px solid var(--gateway-border);
+
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.04);
+}
+
+.payment-gateway-top-grid .gateway-card {
+  min-height: 278px;
+}
+
+.gateway-bank-card {
+  margin-bottom: 24px;
+}
+
+/* =========================================================
+   CARD HEADER
+   ========================================================= */
+
+.gateway-card-header {
+  min-height: 72px;
+
+  padding: 15px 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 16px;
+
+  border-bottom: 1px solid var(--gateway-border);
+
+  background: #ffffff;
+}
+
+.gateway-heading {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  min-width: 0;
+}
+
+.gateway-heading h2 {
+  margin: 0;
+
+  color: var(--gateway-heading);
+
+  font-size: 17px;
+
+  font-weight: 700;
+
+  line-height: 1.2;
+}
+
+/* =========================================================
+   ICON
+   ========================================================= */
+
+.gateway-icon {
+  width: 40px;
+
+  height: 40px;
+
+  min-width: 40px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: 1px solid #dfe6ef;
+
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #0f2037;
+
+  font-size: 19px;
+
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+}
+
+/* =========================================================
+   HEADER RIGHT
+   ========================================================= */
+
+.gateway-header-actions {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.gateway-status {
+  min-height: 26px;
+
+  padding: 0 10px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  border: 1px solid #dfe6ef;
+
+  border-radius: 7px;
+
+  background: #f5f7fa;
+
+  color: #757f8e;
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.gateway-status-dot {
+  width: 7px;
+
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #858e9b;
+}
+
+.gateway-status--configured {
+  border-color: #d7eee8;
+
+  background: #effaf7;
+
+  color: #306d5e;
+}
+
+.gateway-status--configured .gateway-status-dot {
+  background: var(--gateway-green);
+}
+
+.gateway-status--disabled {
+  background: #f5f7fa;
+
+  color: #79818e;
+}
+
+/* =========================================================
+   MUI SWITCH
+   ========================================================= */
+
+.gateway-switch-group {
+  margin: 0 !important;
+
+  padding: 0 !important;
+}
+
+.gateway-switch-label {
+  margin: 0 !important;
+}
+
+.gateway-switch-label .MuiFormControlLabel-label {
+  display: none !important;
+}
+
+/* =========================================================
+   CARD BODY
+   ========================================================= */
+
+.gateway-card-body {
+  flex: 1;
+
+  padding: 24px 24px 20px;
+
+  background: #ffffff;
+}
+
+.gateway-two-columns {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 18px;
+}
+
+.gateway-three-columns {
+  display: grid;
+
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 20px;
+}
+
+/* =========================================================
+   LABEL
+   ========================================================= */
+
+.gateway-field {
+  min-width: 0;
+}
+
+.gateway-field > label:first-child {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #243249;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  line-height: 1.3;
+}
+
+.gateway-field > label:first-child span {
+  color: #e84659;
+
+  margin-left: 2px;
+}
+
+/* =========================================================
+   INPUT
+   ========================================================= */
+
+.payment-gateway-redesign .gateway-input {
+  width: 100% !important;
+
+  height: 44px !important;
+
+  min-height: 44px !important;
+
+  margin: 0 !important;
+
+  padding: 9px 13px !important;
+
+  border: 1px solid #cbd5e1 !important;
+
+  border-radius: 8px !important;
+
+  outline: none !important;
+
+  background: #ffffff !important;
+
+  color: #223149 !important;
+
+  box-shadow: none !important;
+
+  font-size: 13px !important;
+
+  font-weight: 400 !important;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.payment-gateway-redesign .gateway-input::placeholder {
+  color: #9ba4b1 !important;
+}
+
+.payment-gateway-redesign .gateway-input:focus {
+  border-color: #7bcddb !important;
+
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08) !important;
+}
+
+/* =========================================================
+   HELPER
+   ========================================================= */
+
+.gateway-field-help {
+  margin-top: 7px;
+
+  color: var(--gateway-muted);
+
+  font-size: 11px;
+
+  line-height: 1.4;
+}
+
+/* =========================================================
+   VALIDATION
+   ========================================================= */
+
+.payment-gateway-redesign .validation {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #df4055 !important;
+
+  font-size: 11px !important;
+
+  font-weight: 500 !important;
+}
+
+/* =========================================================
+   INFO BOX
+   ========================================================= */
+
+.gateway-info-box {
+  width: 100%;
+
+  margin-top: 18px;
+
+  padding: 14px 15px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  border: 1px solid #d5e4ff;
+
+  border-radius: 8px;
+
+  background: #eef5ff;
+
+  color: #26374e;
+
+  font-size: 12px;
+
+  line-height: 1.4;
+}
+
+.gateway-info-box i {
+  color: #26bfea;
+
+  font-size: 17px;
+}
+
+/* =========================================================
+   CARD FOOTER
+   ========================================================= */
+
+.gateway-card-footer {
+  min-height: 66px;
+
+  padding: 14px 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  border-top: 1px solid var(--gateway-border);
+
+  background: #ffffff;
+}
+
+/* =========================================================
+   RESET BUTTON
+   ========================================================= */
+
+.payment-gateway-redesign .gateway-reset-btn {
+  min-height: 38px !important;
+
+  padding: 0 16px !important;
+
+  display: inline-flex !important;
+
+  align-items: center !important;
+
+  justify-content: center !important;
+
+  border: 1px solid #cbd5e1 !important;
+
+  border-radius: 8px !important;
+
+  background: #ffffff !important;
+
+  color: #26344a !important;
+
+  font-size: 12px !important;
+
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+}
+
+.payment-gateway-redesign .gateway-reset-btn:hover {
+  border-color: #b8c4d1 !important;
+
+  background: #f7f9fb !important;
+}
+
+/* =========================================================
+   SAVE BUTTON
+   ========================================================= */
+
+.payment-gateway-redesign .gateway-save-btn {
+  min-height: 38px !important;
+
+  padding: 0 17px !important;
+
+  display: inline-flex !important;
+
+  align-items: center !important;
+
+  justify-content: center !important;
+
+  border: 1px solid var(--gateway-cyan) !important;
+
+  border-radius: 8px !important;
+
+  background: var(--gateway-cyan) !important;
+
+  color: #ffffff !important;
+
+  font-size: 12px !important;
+
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+}
+
+.payment-gateway-redesign .gateway-save-btn:hover {
+  border-color: var(--gateway-cyan-hover) !important;
+
+  background: var(--gateway-cyan-hover) !important;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.payment-gateway-redesign footer {
+  background: var(--gateway-bg);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  .payment-gateway-page {
+    padding: 28px 20px 34px;
+  }
+
+  .payment-gateway-top-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gateway-three-columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
+@media (max-width: 767px) {
+  .payment-gateway-page {
+    padding: 22px 12px 28px;
+  }
+
+  .payment-gateway-title {
+    font-size: 24px;
+  }
+
+  .gateway-card-header {
+    min-height: auto;
+
+    padding: 14px;
+
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .gateway-header-actions {
+    width: 100%;
+
+    justify-content: space-between;
+  }
+
+  .gateway-card-body {
+    padding: 18px 14px;
+  }
+
+  .gateway-two-columns,
+  .gateway-three-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .gateway-card-footer {
+    padding: 12px 14px;
+  }
+
+  .gateway-info-box {
+    align-items: flex-start;
+  }
+}

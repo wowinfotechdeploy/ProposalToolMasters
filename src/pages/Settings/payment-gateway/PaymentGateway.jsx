@@ -33,7 +33,7 @@ const Payment_Gateway = () => {
     status: null,
     StatusType: null,
     PaymentGatewayID: null,
-    moduleName: ""
+    moduleName: "",
   });
 
   const [paymentGatewayObj, setPaymentGatewayObj] = useState({
@@ -49,9 +49,12 @@ const Payment_Gateway = () => {
   });
   const [openErrorModal, setOpenErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [RequireGoCardLessErrorMessage, setRequireGoCardLessErrorMessage] = useState(false);
-  const [RequireStripeErrorMessage, setRequireStripeErrorMessage] = useState(false);
-  const [RequireBankTransferErrorMessage, setRequireBankTransferErrorMessage] = useState(false);
+  const [RequireGoCardLessErrorMessage, setRequireGoCardLessErrorMessage] =
+    useState(false);
+  const [RequireStripeErrorMessage, setRequireStripeErrorMessage] =
+    useState(false);
+  const [RequireBankTransferErrorMessage, setRequireBankTransferErrorMessage] =
+    useState(false);
   const { setLoader, setTopbar, userAccessData, getCrudButtonToolTipName } =
     useContext(AuthContextProvider);
   const common = useSelector((state) => state.Storage); //Getting Logged Users Details From Persist Storage of redux hooks
@@ -85,12 +88,25 @@ const Payment_Gateway = () => {
             ...paymentGatewayObj,
             // keyID: ModelData.KeyID,
             userKeyID: common.userKeyID,
-            goCardlessAccessToken: ModelData.goCardlessAccessToken === null ? "" : ModelData.goCardlessAccessToken,
-            stripePublishableKey: ModelData.stripePublishableKey === null ? "" : ModelData.stripePublishableKey,
-            stripeSecretKey: ModelData.stripeSecretKey === null ? "" : ModelData.stripeSecretKey,
+            goCardlessAccessToken:
+              ModelData.goCardlessAccessToken === null
+                ? ""
+                : ModelData.goCardlessAccessToken,
+            stripePublishableKey:
+              ModelData.stripePublishableKey === null
+                ? ""
+                : ModelData.stripePublishableKey,
+            stripeSecretKey:
+              ModelData.stripeSecretKey === null
+                ? ""
+                : ModelData.stripeSecretKey,
             organisationKeyID: ModelData.organisationKeyID,
-            bankTransferName: ModelData.bankTransferName === null ? "" : ModelData.bankTransferName,
-            AccountNumber: ModelData.accountNumber === null ? "" : ModelData.accountNumber,
+            bankTransferName:
+              ModelData.bankTransferName === null
+                ? ""
+                : ModelData.bankTransferName,
+            AccountNumber:
+              ModelData.accountNumber === null ? "" : ModelData.accountNumber,
             PaymentGatewayID: ModelData.defaultPaymentGatewayID,
             sortCode: ModelData.authenticationCode
               ? ModelData.authenticationCode.replace(/(\d{2})(?=\d)/g, "$1-")
@@ -99,7 +115,7 @@ const Payment_Gateway = () => {
           setModelRequestData({
             ...modelRequestData,
             PaymentGatewayID: ModelData.defaultPaymentGatewayID,
-          })
+          });
         }
       } else {
         setErrorMessage(data?.data?.errorMessage);
@@ -111,15 +127,24 @@ const Payment_Gateway = () => {
   //Reset Function
   const HandleResetModalFunction = () => {
     if (modelRequestData.moduleName === "Bank Transfer") {
-      if (!paymentGatewayObj.bankTransferName && !paymentGatewayObj.AccountNumber && !paymentGatewayObj.sortCode) {
-        setOpenErrorModal(true)
-        setErrorMessage("All fields are already empty. No action needed.")
-        return
+      if (
+        !paymentGatewayObj.bankTransferName &&
+        !paymentGatewayObj.AccountNumber &&
+        !paymentGatewayObj.sortCode
+      ) {
+        setOpenErrorModal(true);
+        setErrorMessage("All fields are already empty. No action needed.");
+        return;
       }
-      if (paymentGatewayObj.PaymentGatewayID === ChangeDefaultPaymentGatewaysTypes.BankTransfer) {
-        setErrorMessage("To reset this payment gateway, please set it to not default first.")
-        setOpenErrorModal(true)
-        return false
+      if (
+        paymentGatewayObj.PaymentGatewayID ===
+        ChangeDefaultPaymentGatewaysTypes.BankTransfer
+      ) {
+        setErrorMessage(
+          "To reset this payment gateway, please set it to not default first.",
+        );
+        setOpenErrorModal(true);
+        return false;
       }
       const ApiRequest_ParamsObj = {
         //global level params : fixed
@@ -139,14 +164,19 @@ const Payment_Gateway = () => {
       AddUpdatePaymentGatewayData(ApiRequest_ParamsObj);
     } else if (modelRequestData.moduleName === "Go cardless") {
       if (!paymentGatewayObj.goCardlessAccessToken) {
-        setOpenErrorModal(true)
-        setErrorMessage("All fields are already empty. No action needed.")
-        return
+        setOpenErrorModal(true);
+        setErrorMessage("All fields are already empty. No action needed.");
+        return;
       }
-      if (paymentGatewayObj.PaymentGatewayID === ChangeDefaultPaymentGatewaysTypes.GoCardless) {
-        setErrorMessage("To reset this payment gateway, please set it to not default first.")
-        setOpenErrorModal(true)
-        return false
+      if (
+        paymentGatewayObj.PaymentGatewayID ===
+        ChangeDefaultPaymentGatewaysTypes.GoCardless
+      ) {
+        setErrorMessage(
+          "To reset this payment gateway, please set it to not default first.",
+        );
+        setOpenErrorModal(true);
+        return false;
       }
       const ApiRequest_ParamsObj = {
         //global level params : fixed
@@ -165,15 +195,23 @@ const Payment_Gateway = () => {
 
       AddUpdatePaymentGatewayData(ApiRequest_ParamsObj);
     } else if (modelRequestData.moduleName === "Stripe") {
-      if (!paymentGatewayObj.stripePublishableKey && !paymentGatewayObj.stripeSecretKey) {
-        setOpenErrorModal(true)
-        setErrorMessage("All fields are already empty. No action needed.")
-        return
+      if (
+        !paymentGatewayObj.stripePublishableKey &&
+        !paymentGatewayObj.stripeSecretKey
+      ) {
+        setOpenErrorModal(true);
+        setErrorMessage("All fields are already empty. No action needed.");
+        return;
       }
-      if (paymentGatewayObj.PaymentGatewayID === ChangeDefaultPaymentGatewaysTypes.Stripe) {
-        setErrorMessage("To reset this payment gateway, please set it to not default first.")
-        setOpenErrorModal(true)
-        return false
+      if (
+        paymentGatewayObj.PaymentGatewayID ===
+        ChangeDefaultPaymentGatewaysTypes.Stripe
+      ) {
+        setErrorMessage(
+          "To reset this payment gateway, please set it to not default first.",
+        );
+        setOpenErrorModal(true);
+        return false;
       }
       const ApiRequest_ParamsObj = {
         //global level params : fixed
@@ -192,7 +230,7 @@ const Payment_Gateway = () => {
 
       AddUpdatePaymentGatewayData(ApiRequest_ParamsObj);
     }
-  }
+  };
   // 2) Add Update Button Click Function
   const PaymentGatewayGoCardlessAddUpdateBtnClicked = () => {
     setSuccessMessage("Access Token");
@@ -214,7 +252,7 @@ const Payment_Gateway = () => {
       ...modelRequestData,
 
       Action: null,
-    })
+    });
     // Preparing Object For Add Update and if any modification then it will done here
     const ApiRequest_ParamsObj = {
       //global level params : fixed
@@ -298,7 +336,7 @@ const Payment_Gateway = () => {
       ...modelRequestData,
 
       Action: null,
-    })
+    });
     // Preparing Object For Add Update and if any modification then it will done here
     const ApiRequest_ParamsObj = {
       //global level params : fixed
@@ -332,7 +370,7 @@ const Payment_Gateway = () => {
         setLoader(false);
         if (response?.data?.statusCode === 200) {
           if (Type === "changeStatus") {
-            return
+            return;
           }
 
           if (apiRequestParams.Action === "Update") {
@@ -356,20 +394,24 @@ const Payment_Gateway = () => {
     $("#" + "ConfirmModel").modal("hide");
     if (modelRequestData.Action === "ResetPaymentGatewayChange") {
       GetPaymentGatewayModelData(common.organisationKeyID);
-
     }
     setOpenSuccessModal(false);
     setModelRequestData({
       ...modelRequestData,
-      PaymentGatewayID: null
-    })
+      PaymentGatewayID: null,
+    });
   };
   const IsValid = (paymentGatewayID) => {
     if (paymentGatewayID === ChangeDefaultPaymentGatewaysTypes.BankTransfer) {
-      if (paymentGatewayObj.PaymentGatewayID === ChangeDefaultPaymentGatewaysTypes.BankTransfer) {
-        setErrorMessage("To disable this as the default payment gateway, please set another payment gateway as the default first.")
-        setOpenErrorModal(true)
-        return false
+      if (
+        paymentGatewayObj.PaymentGatewayID ===
+        ChangeDefaultPaymentGatewaysTypes.BankTransfer
+      ) {
+        setErrorMessage(
+          "To disable this as the default payment gateway, please set another payment gateway as the default first.",
+        );
+        setOpenErrorModal(true);
+        return false;
       }
       setSuccessMessage("Bank Transfer");
       setModelRequestData({
@@ -378,7 +420,7 @@ const Payment_Gateway = () => {
         StatusType: null,
         PaymentGatewayID: ChangeDefaultPaymentGatewaysTypes.BankTransfer,
         Action: "PaymentStatus",
-      })
+      });
       if (
         isInvalidInput(paymentGatewayObj.bankTransferName) ||
         isInvalidInput(paymentGatewayObj.sortCode, 6) ||
@@ -389,11 +431,18 @@ const Payment_Gateway = () => {
         setRequireGoCardLessErrorMessage(false);
         return false; // Validation failed, terminate further execution.
       }
-    } else if (paymentGatewayID === ChangeDefaultPaymentGatewaysTypes.GoCardless) {
-      if (paymentGatewayObj.PaymentGatewayID === ChangeDefaultPaymentGatewaysTypes.GoCardless) {
-        setErrorMessage("To disable this as the default payment gateway, please set another payment gateway as the default first.")
-        setOpenErrorModal(true)
-        return false
+    } else if (
+      paymentGatewayID === ChangeDefaultPaymentGatewaysTypes.GoCardless
+    ) {
+      if (
+        paymentGatewayObj.PaymentGatewayID ===
+        ChangeDefaultPaymentGatewaysTypes.GoCardless
+      ) {
+        setErrorMessage(
+          "To disable this as the default payment gateway, please set another payment gateway as the default first.",
+        );
+        setOpenErrorModal(true);
+        return false;
       }
       setSuccessMessage("Access Token");
       setModelRequestData({
@@ -402,7 +451,7 @@ const Payment_Gateway = () => {
         StatusType: null,
         PaymentGatewayID: ChangeDefaultPaymentGatewaysTypes.GoCardless,
         Action: "PaymentStatus",
-      })
+      });
       if (
         !paymentGatewayObj.goCardlessAccessToken ||
         paymentGatewayObj.goCardlessAccessToken === "" ||
@@ -415,10 +464,15 @@ const Payment_Gateway = () => {
         return false; // Return false or handle your error logic here if needed.
       }
     } else {
-      if (paymentGatewayObj.PaymentGatewayID === ChangeDefaultPaymentGatewaysTypes.Stripe) {
-        setErrorMessage("To disable this as the default payment gateway, please set another payment gateway as the default first.")
-        setOpenErrorModal(true)
-        return false
+      if (
+        paymentGatewayObj.PaymentGatewayID ===
+        ChangeDefaultPaymentGatewaysTypes.Stripe
+      ) {
+        setErrorMessage(
+          "To disable this as the default payment gateway, please set another payment gateway as the default first.",
+        );
+        setOpenErrorModal(true);
+        return false;
       }
       setSuccessMessage("Publishable key and secret key");
       setModelRequestData({
@@ -427,7 +481,7 @@ const Payment_Gateway = () => {
         StatusType: null,
         PaymentGatewayID: ChangeDefaultPaymentGatewaysTypes.Stripe,
         Action: "PaymentStatus",
-      })
+      });
       if (
         !paymentGatewayObj.stripePublishableKey ||
         paymentGatewayObj.stripePublishableKey === "" ||
@@ -441,7 +495,7 @@ const Payment_Gateway = () => {
     }
 
     $("#" + "ConfirmModel").modal("show");
-  }
+  };
   const ChangePaymentStatusData = async () => {
     setLoader(true);
 
@@ -457,13 +511,24 @@ const Payment_Gateway = () => {
       goCardlessAccessToken: paymentGatewayObj.goCardlessAccessToken,
       stripePublishableKey: paymentGatewayObj.stripePublishableKey,
       stripeSecretKey: paymentGatewayObj.stripeSecretKey,
-      paymentGateWayType: modelRequestData.PaymentGatewayID === ChangeDefaultPaymentGatewaysTypes.BankTransfer ? "BankTransfer" : modelRequestData.PaymentGatewayID === ChangeDefaultPaymentGatewaysTypes.GoCardless ? "GoCardlessAccess" : "Stripe",
+      paymentGateWayType:
+        modelRequestData.PaymentGatewayID ===
+        ChangeDefaultPaymentGatewaysTypes.BankTransfer
+          ? "BankTransfer"
+          : modelRequestData.PaymentGatewayID ===
+              ChangeDefaultPaymentGatewaysTypes.GoCardless
+            ? "GoCardlessAccess"
+            : "Stripe",
     };
-    AddUpdatePaymentGatewayData(ApiRequest_ParamsObj, "changeStatus")
+    AddUpdatePaymentGatewayData(ApiRequest_ParamsObj, "changeStatus");
     if (modelRequestData.Action === "PaymentStatus") {
       if (modelRequestData.StatusType === null) {
         try {
-          const data = await ChangeDefaultPaymentGateways(common.organisationKeyID, common.userKeyID, modelRequestData.PaymentGatewayID)
+          const data = await ChangeDefaultPaymentGateways(
+            common.organisationKeyID,
+            common.userKeyID,
+            modelRequestData.PaymentGatewayID,
+          );
           if (data) {
             setLoader(false);
             if (data?.data?.statusCode === 200) {
@@ -473,487 +538,610 @@ const Payment_Gateway = () => {
               GetPaymentGatewayModelData(common.organisationKeyID);
               setErrorMessage(data?.response?.data?.errorMessage);
             }
-
           }
         } catch (error) {
           console.log(error);
         }
       }
     }
-  }
+  };
   const handleCloseErrorModel = () => {
     setOpenErrorModal(false);
     $("#" + "ConfirmModel").modal("hide");
   };
   //Design part :
   return (
-    <div>
-      <div class="main-content">
-        <div class="services page-background">
-          {/* <div class="page-info-header  page-info-strip"> */}
-            <div class="container">
-              <div class="page-title-cls">Payment Gateways</div>
+    <div className="payment-gateway-redesign">
+      <div className="main-content">
+        <div className="payment-gateway-page">
+          <div className="payment-gateway-container">
+            {/* =========================================
+              PAGE TITLE
+              ========================================= */}
+            <div className="payment-gateway-title-wrap">
+              <h1 className="payment-gateway-title">Payment Gateways</h1>
             </div>
-          {/* </div> */}
 
-          <div class="container ">
-            <div class="row">
-              <div class="col-12 mt-2 paymentgateway">
-                <div class="card" style={{ maxHeight: "70vh" }}>
-                  <div class="card-body">
-                    <div className="row">
-                      <div className="col-lg-4 col-md-4 col-sm-12">
-                        <div className="card payment-field">
-                          <div className="card-header text-center" style={{ position: "relative" }}>
-                            <img className="payment-gateway-logoGoCardLess" src={goCardless} />
+            {/* =========================================
+              TOP ROW
+              ========================================= */}
+            <div className="payment-gateway-top-grid">
+              {/* =========================================
+                GOCARDLESS
+                ========================================= */}
+              <div className="gateway-card">
+                <div className="gateway-card-header">
+                  <div className="gateway-heading">
+                    <span className="gateway-icon">
+                      <i className="bi bi-bank"></i>
+                    </span>
 
-                            {/* Tooltip and Switch (placed on the right side of the header) */}
+                    <h2>GoCardless</h2>
+                  </div>
 
-                            <FormGroup>
-                              <FormControlLabel
-                                control={
-                                  <Tooltip title={getCrudButtonToolTipName("Change Status")}>
-                                    <Android12Switch
+                  <div className="gateway-header-actions">
+                    <span
+                      className={`gateway-status ${
+                        paymentGatewayObj.goCardlessAccessToken
+                          ? "gateway-status--configured"
+                          : "gateway-status--disabled"
+                      }`}
+                    >
+                      <span className="gateway-status-dot"></span>
 
-                                      onClick={() => IsValid(ChangeDefaultPaymentGatewaysTypes.GoCardless)}
-                                      checked={
-                                        paymentGatewayObj.PaymentGatewayID === ChangeDefaultPaymentGatewaysTypes.GoCardless
-                                      }
-                                    // data-bs-toggle="modal"
-                                    // data-bs-target="#ConfirmModel"
-                                    />
-                                  </Tooltip>
-                                }
-                                style={{
-                                  position: "absolute",
-                                  right: "10px", // Adjust as needed for right positioning
-                                  top: "50%",
-                                  transform: "translateY(-50%)", // Vertically center the switch
-                                }}
-                              />
-                            </FormGroup>
+                      {paymentGatewayObj.goCardlessAccessToken
+                        ? "Configured"
+                        : "Not Configured"}
+                    </span>
 
-                          </div>
-
-                          <div className="card-body">
-                            <label>
-                              Access Token
-                              <span style={{ color: "red" }}>*</span>:
-                            </label>
-                            <input
-                              class="input-text"
-                              placeholder="Access Token"
-                              type="password"
-                              maxLength={50}
-                              value={paymentGatewayObj.goCardlessAccessToken}
-                              onChange={(e) => {
-                                const inputValue = e.target.value;
-                                // Directly update the state without modifying the input value
-                                setPaymentGatewayObj({
-                                  ...paymentGatewayObj,
-                                  goCardlessAccessToken: inputValue,
-                                });
-                              }}
+                    <FormGroup className="gateway-switch-group">
+                      <FormControlLabel
+                        className="gateway-switch-label"
+                        control={
+                          <Tooltip
+                            title={getCrudButtonToolTipName("Change Status")}
+                          >
+                            <Android12Switch
+                              onClick={() =>
+                                IsValid(
+                                  ChangeDefaultPaymentGatewaysTypes.GoCardless,
+                                )
+                              }
+                              checked={
+                                paymentGatewayObj.PaymentGatewayID ===
+                                ChangeDefaultPaymentGatewaysTypes.GoCardless
+                              }
                             />
+                          </Tooltip>
+                        }
+                      />
+                    </FormGroup>
+                  </div>
+                </div>
 
-                            {RequireGoCardLessErrorMessage &&
-                              !paymentGatewayObj.goCardlessAccessToken ? (
-                              <label className="validation">
-                                {ERROR_MESSAGES}
-                              </label>
-                            ) : (
-                              ""
-                            )}
-                          </div>
-                          {userAccessData.Admin_Setting_Practice_Config_CanEdit && (
-                            <div class="card-footer text-right">
-                              <button
-                                className="btn btn-light me-2"
-                                id="add-btn"
-                                data-bs-toggle="modal"
-                                data-bs-target="#ConfirmModel"
-                                style={{ background: "#fff", fontSize: "14px" }}
-                                onClick={() => {
-                                  setModelRequestData({
-                                    ...modelRequestData,
-                                    Action: "ResetPaymentGatewayChange",
-                                    moduleName: "Go cardless"
-                                  })
-                                }}
-                              >
-                                <span>Reset</span>
-                              </button>
-                              <button
-                                class="btn btn-success create-item-btn"
-                                id="add-btn"
-                                style={{ fontSize: "14px" }}
-                                onClick={() => {
-                                  PaymentGatewayGoCardlessAddUpdateBtnClicked();
-                                }}
-                              >
-                                <span>Save</span>
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div class="col-lg-8 col-md-8 col-sm-12">
-                        <div class="card payment-field">
-                          <div class="card-header text-center" style={{ position: "relative" }}>
-                            <img class="payment-gateway-logo" src={stripe} />
-                            <FormGroup>
-                              <FormControlLabel
-                                control={
-                                  <Tooltip title={getCrudButtonToolTipName("Change Status")}>
-                                    <Android12Switch
-                                      onClick={() => IsValid(ChangeDefaultPaymentGatewaysTypes.Stripe)}
-                                      checked={
-                                        paymentGatewayObj.PaymentGatewayID === ChangeDefaultPaymentGatewaysTypes.Stripe
-                                      }
-                                    // data-bs-toggle="modal"
-                                    // data-bs-target="#ConfirmModel"
-                                    />
-                                  </Tooltip>
-                                }
-                                style={{
-                                  position: "absolute",
-                                  right: "10px", // Adjust as needed for right positioning
-                                  top: "50%",
-                                  transform: "translateY(-50%)", // Vertically center the switch
-                                }}
-                              />
-                            </FormGroup>
+                <div className="gateway-card-body">
+                  <div className="gateway-field">
+                    <label>
+                      Access Token
+                      <span>*</span>
+                    </label>
 
-                          </div>
-                          <div class="card-body">
-                            <div class="row">
-                              <div class="col-lg-6 col-md-6 col-sm-12">
-                                <label>
-                                  Publishable Key{" "}
-                                  <span style={{ color: "red" }}>*</span>:
-                                </label>
-                                <input
-                                  class="input-text"
-                                  placeholder="Publishable Key"
-                                  value={paymentGatewayObj.stripePublishableKey}
-                                  onChange={(e) => {
-                                    const inputValue = e.target.value;
-                                    const sanitizedValue = inputValue.replace(
-                                      /\s/g,
-                                      ""
-                                    );
-                                    // const inputValue = e.target.value;
-                                    // const trimmedValue = inputValue.replace(/^\s+/g, '');
-                                    // const capitalizedValue = trimmedValue.charAt(0).toUpperCase() + trimmedValue.slice(1);
-                                    setPaymentGatewayObj({
-                                      ...paymentGatewayObj,
-                                      stripePublishableKey: sanitizedValue,
-                                    });
-                                  }}
-                                />
-                                {RequireStripeErrorMessage &&
-                                  !paymentGatewayObj.stripePublishableKey ? (
-                                  <label className="validation">
-                                    {ERROR_MESSAGES}
-                                  </label>
-                                ) : (
-                                  ""
-                                )}
-                              </div>
+                    <input
+                      className="input-text gateway-input"
+                      placeholder="Access Token"
+                      type="password"
+                      maxLength={50}
+                      value={paymentGatewayObj.goCardlessAccessToken}
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
 
-                              <div class="col-lg-6 col-md-6 col-sm-12">
-                                <label>
-                                  Secret Key
-                                  <span style={{ color: "red" }}>*</span>:
-                                </label>
-                                <input
-                                  class="input-text"
-                                  placeholder="Secret Key"
-                                  type="password"
-                                  value={paymentGatewayObj.stripeSecretKey}
-                                  onChange={(e) => {
-                                    const inputValue = e.target.value;
-                                    const sanitizedValue = inputValue.replace(
-                                      /\s/g,
-                                      ""
-                                    );
-                                    // const inputValue = e.target.value;
-                                    // const trimmedValue = inputValue.replace(/^\s+/g, '');
-                                    // const capitalizedValue = trimmedValue.charAt(0).toUpperCase() + trimmedValue.slice(1);
-                                    setPaymentGatewayObj({
-                                      ...paymentGatewayObj,
-                                      stripeSecretKey: sanitizedValue,
-                                    });
-                                  }}
-                                />
-                                {RequireStripeErrorMessage &&
-                                  !paymentGatewayObj.stripeSecretKey ? (
-                                  <label className="validation">
-                                    {ERROR_MESSAGES}
-                                  </label>
-                                ) : (
-                                  ""
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          {userAccessData.Admin_Setting_Practice_Config_CanEdit && (
-                            <div class="card-footer text-right">
-                              <button
-                                className="btn btn-light me-2"
-                                id="add-btn"
-                                data-bs-toggle="modal"
-                                data-bs-target="#ConfirmModel"
-                                style={{ background: "#fff", fontSize: "14px" }}
-                                onClick={() => {
-                                  setModelRequestData({
-                                    ...modelRequestData,
-                                    Action: "ResetPaymentGatewayChange",
-                                    moduleName: "Stripe"
-                                  })
-                                }}
-                              >
-                                <span>Reset</span>
-                              </button>
-                              <button
-                                class="btn btn-success create-item-btn"
-                                id="add-btn"
-                                style={{ fontSize: "14px" }}
-                                onClick={() => {
-                                  PaymentGatewayStripeAddUpdateBtnClicked();
-                                }}
-                              >
-                                <span>Save</span>
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="col-lg-12 col-md-12 col-sm-12">
-                        <div className="card payment-field">
-                          <div className="Bank-Transfer-header text-center" style={{ position: "relative" }}>
-                            <div>Bank Transfer</div>
+                        setPaymentGatewayObj({
+                          ...paymentGatewayObj,
 
-                            <FormGroup>
-                              <FormControlLabel
-                                control={
-                                  <Tooltip title={getCrudButtonToolTipName("Change Status")}>
-                                    <Android12Switch
-                                      onClick={() => IsValid(ChangeDefaultPaymentGatewaysTypes.BankTransfer)}
-                                      checked={
-                                        paymentGatewayObj.PaymentGatewayID === ChangeDefaultPaymentGatewaysTypes.BankTransfer
-                                      }
-                                    // data-bs-toggle="modal"
-                                    // data-bs-target="#ConfirmModel"
-                                    />
-                                  </Tooltip>
-                                }
-                                style={{
-                                  position: "absolute",
-                                  right: "10px", // Adjust as needed for right positioning
-                                  top: "50%",
-                                  transform: "translateY(-50%)", // Vertically center the switch
-                                }}
-                              />
-                            </FormGroup>
+                          goCardlessAccessToken: inputValue,
+                        });
+                      }}
+                    />
 
-                          </div>
-                          <div className="card-body">
-                            <div class="row">
-                              <div class="col-lg-4 col-md-4 col-sm-12">
-                                <label>
-                                  Name
-                                  <span style={{ color: "red" }}>*</span>:
-                                </label>
-                                <input
-                                  class="input-text"
-                                  placeholder="Name"
-                                  type="text"
-                                  value={paymentGatewayObj.bankTransferName}
-                                  maxLength={100}
-                                  onChange={(e) => {
-                                    const inputValue = e.target.value;
+                    <div className="gateway-field-help">
+                      Used for authenticating direct debit requests.
+                    </div>
 
-                                    // Remove any numeric characters
-                                    let sanitizedValue = inputValue.replace(/[0-9]/g, "");
+                    {RequireGoCardLessErrorMessage &&
+                    !paymentGatewayObj.goCardlessAccessToken ? (
+                      <label className="validation">{ERROR_MESSAGES}</label>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                </div>
 
-                                    // Remove leading spaces and allow only one space between words
-                                    sanitizedValue = sanitizedValue.replace(/^\s+/, "").replace(/\s+/g, " ");
+                {userAccessData.Admin_Setting_Practice_Config_CanEdit && (
+                  <div className="gateway-card-footer">
+                    <button
+                      className="btn gateway-reset-btn"
+                      id="add-btn"
+                      data-bs-toggle="modal"
+                      data-bs-target="#ConfirmModel"
+                      onClick={() => {
+                        setModelRequestData({
+                          ...modelRequestData,
 
-                                    // Capitalize the first letter
-                                    const capitalizedValue =
-                                      sanitizedValue.charAt(0).toUpperCase() + sanitizedValue.slice(1);
+                          Action: "ResetPaymentGatewayChange",
 
-                                    setPaymentGatewayObj({
-                                      ...paymentGatewayObj,
-                                      bankTransferName: capitalizedValue,
-                                    });
-                                  }}
+                          moduleName: "Go cardless",
+                        });
+                      }}
+                    >
+                      Reset
+                    </button>
 
-                                />
+                    <button
+                      className="btn gateway-save-btn"
+                      id="add-btn"
+                      onClick={() => {
+                        PaymentGatewayGoCardlessAddUpdateBtnClicked();
+                      }}
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                )}
+              </div>
 
-                                {RequireBankTransferErrorMessage &&
-                                  (paymentGatewayObj.bankTransferName === "" ||
-                                    paymentGatewayObj.bankTransferName === null ||
-                                    paymentGatewayObj.bankTransferName === undefined) ? (
-                                  <label className="validation">
-                                    {ERROR_MESSAGES}
-                                  </label>
-                                ) : (
-                                  ""
-                                )}
-                              </div>
-                              <div class="col-lg-4 col-md-4 col-sm-12">
-                                <label>
-                                  Account Number
-                                  <span style={{ color: "red" }}>*</span>:
-                                </label>
-                                <input
-                                  class="input-text"
-                                  placeholder="Account Number"
-                                  type="text"
-                                  value={paymentGatewayObj.AccountNumber}
-                                  onChange={(e) => {
-                                    let inputValue = e.target.value;
-                                    let sanitizedValue = inputValue.replace(/[^0-9]/g, "");
-                                    setPaymentGatewayObj({
-                                      ...paymentGatewayObj,
-                                      AccountNumber: sanitizedValue,
-                                    });
-                                  }}
-                                  maxLength={8} // This ensures that no more than 8 characters are allowed in the field
-                                />
-                                {RequireBankTransferErrorMessage && (
-                                  <>
-                                    {!paymentGatewayObj.AccountNumber || paymentGatewayObj.AccountNumber.trim() === "" ? (
-                                      <label className="validation">
-                                        {ERROR_MESSAGES} {/* Show a generic error message if the account number is empty */}
-                                      </label>
-                                    ) : (
-                                      isInvalidInput(paymentGatewayObj.AccountNumber, 8) && (
-                                        <label className="validation">
-                                          Please enter a valid account number consisting of 8 digits.{/* Show a specific error message if the account number is not exactly 8 digits */}
-                                        </label>
-                                      )
-                                    )}
-                                  </>
-                                )}
-                              </div>
+              {/* =========================================
+                STRIPE
+                ========================================= */}
+              <div className="gateway-card">
+                <div className="gateway-card-header">
+                  <div className="gateway-heading">
+                    <span className="gateway-icon">
+                      <i className="bi bi-credit-card"></i>
+                    </span>
 
-                              <div class="col-lg-4 col-md-4 col-sm-12">
-                                <label>
-                                  Sort Code
-                                  <span style={{ color: "red" }}>*</span>:
-                                </label>
-                                <input
-                                  class="input-text"
-                                  placeholder="Sort Code"
-                                  type="text"
-                                  value={paymentGatewayObj.sortCode}
-                                  onChange={(e) => {
-                                    let inputValue = e.target.value;
+                    <h2>Stripe</h2>
+                  </div>
 
-                                    // Remove non-numeric characters
-                                    let sanitizedValue = inputValue.replace(/[^0-9]/g, "");
+                  <div className="gateway-header-actions">
+                    <span
+                      className={`gateway-status ${
+                        paymentGatewayObj.stripePublishableKey &&
+                        paymentGatewayObj.stripeSecretKey
+                          ? "gateway-status--configured"
+                          : "gateway-status--disabled"
+                      }`}
+                    >
+                      <span className="gateway-status-dot"></span>
 
-                                    // Limit to 6 digits
-                                    if (sanitizedValue.length > 6) {
-                                      sanitizedValue = sanitizedValue.substring(0, 6);
-                                    }
+                      {paymentGatewayObj.stripePublishableKey &&
+                      paymentGatewayObj.stripeSecretKey
+                        ? "Configured"
+                        : "Not Configured"}
+                    </span>
 
-                                    // Format with dashes (22-22-22 format)
-                                    let formattedValue = sanitizedValue
-                                      .replace(/(\d{2})(?=\d)/g, "$1-"); // Add a dash after every 2 digits
+                    <FormGroup className="gateway-switch-group">
+                      <FormControlLabel
+                        className="gateway-switch-label"
+                        control={
+                          <Tooltip
+                            title={getCrudButtonToolTipName("Change Status")}
+                          >
+                            <Android12Switch
+                              onClick={() =>
+                                IsValid(
+                                  ChangeDefaultPaymentGatewaysTypes.Stripe,
+                                )
+                              }
+                              checked={
+                                paymentGatewayObj.PaymentGatewayID ===
+                                ChangeDefaultPaymentGatewaysTypes.Stripe
+                              }
+                            />
+                          </Tooltip>
+                        }
+                      />
+                    </FormGroup>
+                  </div>
+                </div>
 
-                                    setPaymentGatewayObj({
-                                      ...paymentGatewayObj,
-                                      sortCode: formattedValue,
-                                    });
-                                  }}
-                                />
+                <div className="gateway-card-body">
+                  <div className="gateway-two-columns">
+                    <div className="gateway-field">
+                      <label>
+                        Publishable Key
+                        <span>*</span>
+                      </label>
 
-                                {RequireBankTransferErrorMessage && (
-                                  <>
-                                    {!paymentGatewayObj.sortCode || paymentGatewayObj.sortCode.trim() === "" ? (
-                                      <label className="validation">{ERROR_MESSAGES}</label>
-                                    ) : (
-                                      paymentGatewayObj.sortCode.replace(/-/g, "").length !== 6 && (
-                                        <label className="validation">
-                                          Please enter a valid sort code consisting of 6 digits.{/* Show a specific error message if sortCode is not exactly 6 digits */}
-                                        </label>
-                                      )
-                                    )}
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          </div>
+                      <input
+                        className="input-text gateway-input"
+                        placeholder="Publishable Key"
+                        value={paymentGatewayObj.stripePublishableKey}
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
 
-                          {userAccessData.Admin_Setting_Practice_Config_CanEdit && (
-                            <div class="card-footer text-right">
-                              <button
-                                className="btn btn-light me-2"
-                                id="add-btn"
-                                data-bs-toggle="modal"
-                                data-bs-target="#ConfirmModel"
-                                style={{ background: "#fff", fontSize: "14px" }}
-                                onClick={() => {
-                                  setModelRequestData({
-                                    ...modelRequestData,
-                                    Action: "ResetPaymentGatewayChange",
-                                    moduleName: "Bank Transfer"
-                                  })
-                                }}
-                              >
-                                <span>Reset</span>
-                              </button>
-                              <button
-                                class="btn btn-success create-item-btn"
-                                id="add-btn"
-                                style={{ fontSize: "14px" }}
-                                onClick={() => {
-                                  PaymentGatewayBankTransferAddUpdateBtnClicked();
-                                }}
-                              >
-                                <span>Save</span>
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                          const sanitizedValue = inputValue.replace(/\s/g, "");
+
+                          setPaymentGatewayObj({
+                            ...paymentGatewayObj,
+
+                            stripePublishableKey: sanitizedValue,
+                          });
+                        }}
+                      />
+
+                      {RequireStripeErrorMessage &&
+                      !paymentGatewayObj.stripePublishableKey ? (
+                        <label className="validation">{ERROR_MESSAGES}</label>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+
+                    <div className="gateway-field">
+                      <label>
+                        Secret Key
+                        <span>*</span>
+                      </label>
+
+                      <input
+                        className="input-text gateway-input"
+                        placeholder="Secret Key"
+                        type="password"
+                        value={paymentGatewayObj.stripeSecretKey}
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
+
+                          const sanitizedValue = inputValue.replace(/\s/g, "");
+
+                          setPaymentGatewayObj({
+                            ...paymentGatewayObj,
+
+                            stripeSecretKey: sanitizedValue,
+                          });
+                        }}
+                      />
+
+                      {RequireStripeErrorMessage &&
+                      !paymentGatewayObj.stripeSecretKey ? (
+                        <label className="validation">{ERROR_MESSAGES}</label>
+                      ) : (
+                        ""
+                      )}
                     </div>
                   </div>
                 </div>
+
+                {userAccessData.Admin_Setting_Practice_Config_CanEdit && (
+                  <div className="gateway-card-footer">
+                    <button
+                      className="btn gateway-reset-btn"
+                      id="add-btn"
+                      data-bs-toggle="modal"
+                      data-bs-target="#ConfirmModel"
+                      onClick={() => {
+                        setModelRequestData({
+                          ...modelRequestData,
+
+                          Action: "ResetPaymentGatewayChange",
+
+                          moduleName: "Stripe",
+                        });
+                      }}
+                    >
+                      Reset
+                    </button>
+
+                    <button
+                      className="btn gateway-save-btn"
+                      id="add-btn"
+                      onClick={() => {
+                        PaymentGatewayStripeAddUpdateBtnClicked();
+                      }}
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                )}
               </div>
+            </div>
+
+            {/* =========================================
+              BANK TRANSFER
+              ========================================= */}
+            <div className="gateway-card gateway-bank-card">
+              <div className="gateway-card-header">
+                <div className="gateway-heading">
+                  <span className="gateway-icon">
+                    <i className="bi bi-currency-pound"></i>
+                  </span>
+
+                  <h2>Bank Transfer (BACS)</h2>
+                </div>
+
+                <div className="gateway-header-actions">
+                  <span
+                    className={`gateway-status ${
+                      paymentGatewayObj.bankTransferName &&
+                      paymentGatewayObj.AccountNumber &&
+                      paymentGatewayObj.sortCode
+                        ? "gateway-status--configured"
+                        : "gateway-status--disabled"
+                    }`}
+                  >
+                    <span className="gateway-status-dot"></span>
+
+                    {paymentGatewayObj.bankTransferName &&
+                    paymentGatewayObj.AccountNumber &&
+                    paymentGatewayObj.sortCode
+                      ? "Configured"
+                      : "Not Configured"}
+                  </span>
+
+                  <FormGroup className="gateway-switch-group">
+                    <FormControlLabel
+                      className="gateway-switch-label"
+                      control={
+                        <Tooltip
+                          title={getCrudButtonToolTipName("Change Status")}
+                        >
+                          <Android12Switch
+                            onClick={() =>
+                              IsValid(
+                                ChangeDefaultPaymentGatewaysTypes.BankTransfer,
+                              )
+                            }
+                            checked={
+                              paymentGatewayObj.PaymentGatewayID ===
+                              ChangeDefaultPaymentGatewaysTypes.BankTransfer
+                            }
+                          />
+                        </Tooltip>
+                      }
+                    />
+                  </FormGroup>
+                </div>
+              </div>
+
+              <div className="gateway-card-body">
+                <div className="gateway-three-columns">
+                  {/* ACCOUNT NAME */}
+                  <div className="gateway-field">
+                    <label>
+                      Account Name
+                      <span>*</span>
+                    </label>
+
+                    <input
+                      className="input-text gateway-input"
+                      placeholder="e.g. Acme Accounting Ltd"
+                      type="text"
+                      value={paymentGatewayObj.bankTransferName}
+                      maxLength={100}
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
+
+                        let sanitizedValue = inputValue.replace(/[0-9]/g, "");
+
+                        sanitizedValue = sanitizedValue
+                          .replace(/^\s+/, "")
+                          .replace(/\s+/g, " ");
+
+                        const capitalizedValue =
+                          sanitizedValue.charAt(0).toUpperCase() +
+                          sanitizedValue.slice(1);
+
+                        setPaymentGatewayObj({
+                          ...paymentGatewayObj,
+
+                          bankTransferName: capitalizedValue,
+                        });
+                      }}
+                    />
+
+                    {RequireBankTransferErrorMessage &&
+                    (paymentGatewayObj.bankTransferName === "" ||
+                      paymentGatewayObj.bankTransferName === null ||
+                      paymentGatewayObj.bankTransferName === undefined) ? (
+                      <label className="validation">{ERROR_MESSAGES}</label>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+
+                  {/* ACCOUNT NUMBER */}
+                  <div className="gateway-field">
+                    <label>
+                      Account Number
+                      <span>*</span>
+                    </label>
+
+                    <input
+                      className="input-text gateway-input"
+                      placeholder="8 digit number"
+                      type="text"
+                      value={paymentGatewayObj.AccountNumber}
+                      onChange={(e) => {
+                        let inputValue = e.target.value;
+
+                        let sanitizedValue = inputValue.replace(/[^0-9]/g, "");
+
+                        setPaymentGatewayObj({
+                          ...paymentGatewayObj,
+
+                          AccountNumber: sanitizedValue,
+                        });
+                      }}
+                      maxLength={8}
+                    />
+
+                    {RequireBankTransferErrorMessage && (
+                      <>
+                        {!paymentGatewayObj.AccountNumber ||
+                        paymentGatewayObj.AccountNumber.trim() === "" ? (
+                          <label className="validation">{ERROR_MESSAGES}</label>
+                        ) : (
+                          isInvalidInput(
+                            paymentGatewayObj.AccountNumber,
+                            8,
+                          ) && (
+                            <label className="validation">
+                              Please enter a valid account number consisting of
+                              8 digits.
+                            </label>
+                          )
+                        )}
+                      </>
+                    )}
+                  </div>
+
+                  {/* SORT CODE */}
+                  <div className="gateway-field">
+                    <label>
+                      Sort Code
+                      <span>*</span>
+                    </label>
+
+                    <input
+                      className="input-text gateway-input"
+                      placeholder="XX-XX-XX"
+                      type="text"
+                      value={paymentGatewayObj.sortCode}
+                      onChange={(e) => {
+                        let inputValue = e.target.value;
+
+                        let sanitizedValue = inputValue.replace(/[^0-9]/g, "");
+
+                        if (sanitizedValue.length > 6) {
+                          sanitizedValue = sanitizedValue.substring(0, 6);
+                        }
+
+                        let formattedValue = sanitizedValue.replace(
+                          /(\d{2})(?=\d)/g,
+                          "$1-",
+                        );
+
+                        setPaymentGatewayObj({
+                          ...paymentGatewayObj,
+
+                          sortCode: formattedValue,
+                        });
+                      }}
+                    />
+
+                    {RequireBankTransferErrorMessage && (
+                      <>
+                        {!paymentGatewayObj.sortCode ||
+                        paymentGatewayObj.sortCode.trim() === "" ? (
+                          <label className="validation">{ERROR_MESSAGES}</label>
+                        ) : (
+                          paymentGatewayObj.sortCode.replace(/-/g, "")
+                            .length !== 6 && (
+                            <label className="validation">
+                              Please enter a valid sort code consisting of 6
+                              digits.
+                            </label>
+                          )
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* INFO BOX */}
+                <div className="gateway-info-box">
+                  <i className="bi bi-info-circle"></i>
+
+                  <span>
+                    These details will be displayed on invoices generated for
+                    clients who prefer manual bank transfers.
+                  </span>
+                </div>
+              </div>
+
+              {userAccessData.Admin_Setting_Practice_Config_CanEdit && (
+                <div className="gateway-card-footer">
+                  <button
+                    className="btn gateway-reset-btn"
+                    id="add-btn"
+                    data-bs-toggle="modal"
+                    data-bs-target="#ConfirmModel"
+                    onClick={() => {
+                      setModelRequestData({
+                        ...modelRequestData,
+
+                        Action: "ResetPaymentGatewayChange",
+
+                        moduleName: "Bank Transfer",
+                      });
+                    }}
+                  >
+                    Reset
+                  </button>
+
+                  <button
+                    className="btn gateway-save-btn"
+                    id="add-btn"
+                    onClick={() => {
+                      PaymentGatewayBankTransferAddUpdateBtnClicked();
+                    }}
+                  >
+                    Save Details
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
-
       </div>
-      <button class="btn btn-danger btn-icon" id="back-to-top">
-        <i class="ri-arrow-up-line"></i>
+
+      {/* =========================================
+        EXISTING COMPONENTS — UNCHANGED
+        ========================================= */}
+
+      <button className="btn btn-danger btn-icon" id="back-to-top">
+        <i className="ri-arrow-up-line"></i>
       </button>
+
       <ErrorModel
         ErrorModel={openErrorModal}
         handleClose={handleCloseErrorModel}
         ErrorMessage={errorMessage}
       />
+
       <SuccessModal
         handleClose={handleClose}
         setDismissModal={setDismissModal}
         setOpenSuccessModal={setOpenSuccessModal}
         openSuccessModal={openSuccessModal}
-        modelAction={modelRequestData.Action === "PaymentStatus" ? "Status" : modelRequestData.Action === "ResetPaymentGatewayChange" ? null : "Update"}
-        message={modelRequestData.Action === "PaymentStatus" ? "Status has been changed successfully!" : modelRequestData.Action === "ResetPaymentGatewayChange" ? `${modelRequestData.moduleName} has been reset successfully!` : successMessage}
+        modelAction={
+          modelRequestData.Action === "PaymentStatus"
+            ? "Status"
+            : modelRequestData.Action === "ResetPaymentGatewayChange"
+              ? null
+              : "Update"
+        }
+        message={
+          modelRequestData.Action === "PaymentStatus"
+            ? "Status has been changed successfully!"
+            : modelRequestData.Action === "ResetPaymentGatewayChange"
+              ? `${modelRequestData.moduleName} has been reset successfully!`
+              : successMessage
+        }
       />
+
       <ConfirmModel
         openSuccessModal={openSuccessModal}
         modelRequestData={modelRequestData}
-        UpdatedStatus={modelRequestData.Action === "PaymentStatus" ? ChangePaymentStatusData : HandleResetModalFunction}
+        UpdatedStatus={
+          modelRequestData.Action === "PaymentStatus"
+            ? ChangePaymentStatusData
+            : HandleResetModalFunction
+        }
         handleClose={handleClose}
       />
+
       <Footer />
-    </div >
+    </div>
   );
 };
 
