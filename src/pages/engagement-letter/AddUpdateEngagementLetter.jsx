@@ -10355,6 +10355,8 @@ const Add_Update_Engagement_Letter = () => {
               engagementObj.Payment_Frequency,
               3,
               selectedPackagesList,
+              selectedRecurringServiceList,
+              selectedOneOffServiceList,
             );
           debugger;
           newArray = replacedArray;
@@ -19029,7 +19031,7 @@ const Add_Update_Engagement_Letter = () => {
                   setOneOffPricingInfo={setOneOffPricingInfo}
                   setVisibleFieldsCustomTemp={setVisibleFieldsCustomTemp}
                   visibleFieldsCustomTemp={visibleFieldsCustomTemp}
-                  vatPercentage={vatPercentage}
+                  // vatPercentage={vatPercentage}
                   currencyID={currencyID}
                   taxName={taxName}
                   currencySymbol={currencySymbol}

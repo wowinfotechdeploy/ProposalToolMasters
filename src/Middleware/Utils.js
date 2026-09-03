@@ -661,6 +661,9 @@ const FontFamily = [
   { value: 28, label: "Oswald, sans-serif" },
   { value: 29, label: "Bebas Neue, sans-serif" },
   { value: 30, label: "Comic Sans MS, cursive, sans-serif" },
+  { value: 31, label: "Gotham Bold" },
+  { value: 32, label: "Gotham Book" },
+  { value: 33, label: "Gotham Light" },
 ];
 
 const DECIMAL_PLACE_OPTIONS = [

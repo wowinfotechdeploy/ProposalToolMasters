@@ -389,7 +389,8 @@ function Add_New_Templates(props) {
   const FontFamilyLookupList = Utils.FontFamily.map((font) => ({
     value: font.value,
     label: font.label,
-  }));
+  }))
+  .sort((a, b) => a.label.localeCompare(b.label));;
   const FontFamilyValue = FontFamilyLookupList?.find(
     (font) => font.value === TemplateObj.fontFamilyID || null,
   );
