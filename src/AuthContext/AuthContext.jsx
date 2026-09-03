@@ -2144,10 +2144,10 @@ const AuthContext = ({ children }) => {
                 .map(
                   ({ label, value }) => `
                     <tr>
-                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
+                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 14px; text-align: left; width: 60%;">
                         ${label}
                       </td>
-                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: right; width: 60%;">
+                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 14px; text-align: right; width: 60%;">
                         ${formatValue(value)}
                       </td>
                     </tr>
@@ -2281,9 +2281,9 @@ const AuthContext = ({ children }) => {
         // When there is no servicePackageList
         if (!serviceList || serviceList?.length === 0) return "";
         return `
-           <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;page-break-inside: avoid; break-inside: avoid;">
+           <table style="border-collapse: collapse; width: 100%; margin-bottom: 14px;page-break-inside: avoid; break-inside: avoid;">
            <tr>
-                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
+                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 14px; text-align: left; width: 60%;">
   Service Name
 </td>     
                     </tr>
@@ -2294,7 +2294,7 @@ const AuthContext = ({ children }) => {
                    (subService) => `
                  
                     <tr>
-                      <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
+                      <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 14px; text-align: left; width: 60%;">
                         ${subService.serviceName}
                       </td>
                       
@@ -2351,7 +2351,7 @@ const AuthContext = ({ children }) => {
                   </th>
                 </tr>
                     <tr>
-                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
+                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 14px; text-align: left; width: 60%;">
   Service Name
 </td>
 
@@ -2362,7 +2362,7 @@ const AuthContext = ({ children }) => {
                     (subService) => `
                  
                       <tr>
-                        <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left;">
+                        <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 14px; text-align: left;">
                           ${subService.serviceName}
                         </td>
                       </tr>
@@ -2422,10 +2422,10 @@ const AuthContext = ({ children }) => {
         return ` 
           <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;page-break-inside: avoid; break-inside: avoid;">
               <tr>
-                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
+                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 14px; text-align: left; width: 60%;">
   Service Name
 </td>
-                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: right; width: 60%;">
+                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 14px; text-align: right; width: 60%;">
   Price
 </td>
 
@@ -2438,10 +2438,10 @@ const AuthContext = ({ children }) => {
                   (subService) => `
              
                     <tr>
-                      <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
+                      <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 14px; text-align: left; width: 60%;">
                         ${subService.serviceName}
                       </td>
-                      <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: right; width: 30%;">
+                      <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 14px; text-align: right; width: 30%;">
                           ${
                             subService.price == undefined
                               ? formatValue(subService.quotationPrice)
@@ -2498,10 +2498,10 @@ const AuthContext = ({ children }) => {
                   </th>
                 </tr>
                                      <tr>
-                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 60%;">
+                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 14px; text-align: left; width: 60%;">
   Service Name
 </td>
-                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: right; width: 60%;">
+                      <td style="font-weight: 600; border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 14px; text-align: right; width: 60%;">
   Price
 </td>
 
@@ -2519,10 +2519,10 @@ const AuthContext = ({ children }) => {
                     return `
      
                       <tr>
-                        <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: left; width: 70%;">
+                        <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 14px; text-align: left; width: 70%;">
                           ${subService.serviceName}
                         </td>
-                        <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 16px; text-align: right; width: 30%;">
+                        <td style="border: 1px solid rgb(10, 10, 10); padding: 8px; font-size: 14px; text-align: right; width: 30%;">
                           ${formatValue(packageValue)}
                         </td>
                       </tr>
@@ -2782,7 +2782,7 @@ const AuthContext = ({ children }) => {
         // When there is no servicePackageList
         if (!serviceList || serviceList?.length === 0) return "";
         return `
-  <ul style="margin: 8px 0; font-size: 16px; line-height: 1.5;">
+  <ul style="margin: 8px 0; font-size: 12px; line-height: 1.5;">
     ${serviceList
       .map((item) =>
         item.servicesList
@@ -2826,10 +2826,10 @@ const AuthContext = ({ children }) => {
             if (validServices?.length === 0) return "";
 
             return `
-              <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+              <p style="font-weight: 600; margin: 8px 0; font-size: 14px;">
                  ${servicePackage.servicePackageName}
               </p>
-              <ul style="margin: 8px 0; font-size: 16px; line-height: 1.5;">
+              <ul style="margin: 8px 0; font-size: 14px; line-height: 1.5;">
     ${serviceList
       .map((item) =>
         item.servicesList
@@ -2852,7 +2852,7 @@ const AuthContext = ({ children }) => {
     <div>
     ${
       selectedRecurringServiceList?.length !== 0
-        ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+        ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 13px;">
               Recurring Services
             </p>`
         : ""
@@ -2860,7 +2860,7 @@ const AuthContext = ({ children }) => {
       ${recurringServices}   
       ${
         selectedOneOffServiceList?.length !== 0
-          ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
+          ? ` <p style="font-weight: 600; margin: 8px 0; font-size: 13px;">
               One-Off Services
             </p>`
           : ""
@@ -2881,7 +2881,7 @@ const AuthContext = ({ children }) => {
         // When there is no servicePackageList
         if (!serviceList || serviceList?.length === 0) return "";
         return `
-        <ul style="margin: 8px 0; font-size: 16px; line-height: 1.5;">
+        <ul style="margin: 8px 0; font-size: 14px; line-height: 1.5;">
           ${serviceList
             .map((item) =>
               item.servicesList
@@ -2936,7 +2936,7 @@ const AuthContext = ({ children }) => {
    <p style="font-weight: 600; margin: 8px 0; font-size: 18px;">
     ${servicePackage.servicePackageName}:
   </p>
-   <ul style="margin: 8px 0; font-size: 16px; line-height: 1.5;">
+   <ul style="margin: 8px 0; font-size: 14px; line-height: 1.5;">
   ${validServices
     .map((subService) => {
       const packageValue =
