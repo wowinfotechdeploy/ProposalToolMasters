@@ -14,8 +14,13 @@ import ConfirmModel from "../../../../components/ConfirmationBox";
 import Footer from "../../../../components/Footer";
 import { AuthContextProvider } from "../../../../AuthContext/AuthContext";
 import Android12Switch from "../../../../components/AndroidSwitch";
-import { ChangeCouponStatus, DeleteCouponCode, GetCouponCodeList } from "../../../../redux/Services/Setting/CouponApi";
+import {
+  ChangeCouponStatus,
+  DeleteCouponCode,
+  GetCouponCodeList,
+} from "../../../../redux/Services/Setting/CouponApi";
 import { useNavigate } from "react-router-dom";
+import "./CouponCodeList-redesign.css";
 const CouponCodeList = () => {
   let getCouponCodeListApiCallCount = 0;
   const navigate = useNavigate();
@@ -55,7 +60,7 @@ const CouponCodeList = () => {
     formatValue,
     formatValueWithoutCurrencySymbol,
     activeOrganizationSubscriptionPlan,
-    isSubscriptionLoading
+    isSubscriptionLoading,
   } = useContext(AuthContextProvider);
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
   // B] Initial useEffect :
@@ -144,9 +149,8 @@ const CouponCodeList = () => {
     setModelRequestData({
       ...modelRequestData,
       Action: null,
-      couponKeyID: null
+      couponKeyID: null,
     });
-
   };
 
   // 2) On Click Coupon Delete Button
@@ -156,7 +160,7 @@ const CouponCodeList = () => {
       if (modelRequestData.Action === "Status") {
         const Data = await ChangeCouponStatus(
           modelRequestData.couponKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -171,7 +175,7 @@ const CouponCodeList = () => {
       } else {
         const Data = await DeleteCouponCode(
           modelRequestData.couponKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -184,7 +188,6 @@ const CouponCodeList = () => {
           GetCouponCodeListData(currentPage);
         }
       }
-
     } catch (error) {
       console.log(error);
     }
@@ -195,8 +198,6 @@ const CouponCodeList = () => {
     setCurrentPage(pageNumber);
     await GetCouponCodeListData(pageNumber); // Call your function with the selected page number
   };
-
-
 
   const handleSearch = (e) => {
     const searchKeywordValue = e.target.value;
@@ -214,318 +215,316 @@ const CouponCodeList = () => {
     setModelRequestData({
       ...modelRequestData,
       couponKeyID: CouponCode.couponKeyID,
-      Action: "Update"
-    })
-  }
+      Action: "Update",
+    });
+  };
   //Design part :
   return (
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
-        <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                        {/* <div className="container"> */}
-                          <div className="row">
-                            <div className="col-md-6 p-0 justify-content-start d-flex align-items-center">
-                  <div class="page-title-cls">Coupons</div>
-                </div>
-                <div className="col-auto ms-auto">
-                  <div className="d-flex justify-content-sm-end add-new-btn">
-                    {/* {userAccessData.Admin_Setting_CouponCodeCanAdd && */}
-                    {common.organisationKeyID !== null && (
-                      <CommonButtonComponent
-                        title={getCrudButtonToolTipName("Add", moduleName)}
-                        name={getCrudButtonTextName("Add", moduleName)}
-                        dataBsTarget="#CouponModel"
-                        data_bs_toggle="modal"
-                        AddBtn={() => CouponCodeAddBtnClicked()}
-                      />)}
-                    {/* )} */}
-                  </div>
-                </div>
+    <>
+      <div className="coupon-list-redesign">
+        <div className="coupon-list-page">
+          {/* =========================
+              PAGE HEADER
+              ========================= */}
+          <div className="coupon-list-page-header">
+            <div>
+              <h1 className="coupon-list-page-title">Coupons</h1>
+              <p className="coupon-list-page-subtitle">
+                Manage coupon codes, validity, discount values and availability.
+              </p>
+            </div>
+
+            {common.organisationKeyID !== null && (
+              <div className="coupon-list-add-action">
+                <CommonButtonComponent
+                  title={getCrudButtonToolTipName("Add", moduleName)}
+                  name={getCrudButtonTextName("Add", moduleName)}
+                  dataBsTarget="#CouponModel"
+                  data_bs_toggle="modal"
+                  AddBtn={() => CouponCodeAddBtnClicked()}
+                />
               </div>
-            {/* </div> */}
+            )}
           </div>
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
-                        {/* <div class="search-box col-md-4 col-8 width-searchbox mb-2">
-                          <i class="ri-search-line search-icon"></i>
-                          <input
-                            type="text"
-                            value={searchKeyword}
-                            onChange={(e) => {
-                              handleSearch(e);
-                            }}
-                            className="form-control search"
-                            placeholder={
-                              isMobile ? "Search" : getPlaceholderTextName("Search", moduleName)
-                            }
-                          />
-                        </div> */}
-                        <table
-                          class="table align-middle table-nowrap"
-                          id="customerTable"
-                        >
-                          <thead class="table-light table-header-font">
-                            <tr className="head-row ">
-                              <td
-                                className="tr-table-class text-white"
-                                style={{
-                                  width: "10%",
-                                }}
-                              >
-                                Coupon Code
-                              </td>
-                              <td className="tr-table-class  text-white">
-                                Coupon Amount
-                              </td>
-                              <td className="tr-table-class  text-white">
-                                Validity Count
-                              </td>
-                              <td className="tr-table-class  text-white">
-                                Coupon Type
-                              </td>
-                              <td className="tr-table-class  text-white">
-                                Validity From Date
-                              </td>
-                              <td className="tr-table-class  text-white">
-                                Validity To Date
-                              </td>
-                              <td className="tr-table-class  text-white">
-                                Status
-                              </td>
-                              <td className="tr-table-class text-center text-white">
 
-                                <>Action</>
-
-                              </td>
-                            </tr>
-                          </thead>
-                          <tbody class="list form-check-all ">
-                            {couponCodeList
-                              .slice(
-                                0,
-                                isMobile ? isMobileRecords : desktopRecords
-                              )
-                              .map((CouponCode) => {
-                                return (
-                                  <tr class="table_new">
-                                    <td className="table-content-font" style={{ width: "40%" }}>
-                                      {CouponCode.couponCode}
-                                    </td>
-
-                                    <td className="table-content-font">
-                                      {" "}
-                                      {formatValue(CouponCode.couponAmount)}
-                                    </td>
-                                    <td className="table-content-font">
-                                      {" "}
-                                      {formatValueWithoutCurrencySymbol(CouponCode.validityCount)}
-                                    </td>
-                                    <td className="table-content-font">
-                                      {" "}
-                                      {CouponCode.couponType}
-                                    </td>
-                                    <td className="table-content-font">
-                                      {CouponCode.fromDate !== null ? new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(CouponCode.fromDate)) : ""}
-                                    </td>
-                                    <td className="table-content-font">
-                                      {CouponCode.toDate !== null ? new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(CouponCode.toDate)) : ""}
-                                    </td>
-
-                                    <td className="Switch table-content-font">
-
-                                      <div
-                                        style={{ alignItems: "none" }}
-                                        class="d-flex gap-2"
-                                      >
-                                        <Tooltip
-                                          title={"Change Status"
-                                          }
-                                        >
-                                          <div style={{ width: "50px" }}>
-                                            {CouponCode.statusName}
-                                          </div>
-                                        </Tooltip>
-                                        <Tooltip
-                                          title={getCrudButtonToolTipName(
-                                            "Change Status"
-                                          )}
-                                        >
-                                          <FormGroup>
-                                            <FormControlLabel
-                                              control={
-                                                <Android12Switch
-                                                  data-bs-toggle="modal"
-                                                  data-bs-target="#ConfirmModel"
-                                                  onClick={() =>
-                                                    setModelRequestData({
-                                                      ...modelRequestData,
-                                                      couponKeyID:
-                                                        CouponCode.couponKeyID,
-                                                      userKeyID: common.userKeyID,
-                                                      Action: "Status",
-                                                    })
-                                                  }
-                                                  checked={
-                                                    CouponCode.statusName ===
-                                                    "Active"
-                                                  }
-                                                />
-                                              }
-                                            />
-                                          </FormGroup>
-                                        </Tooltip>
-                                      </div>
-                                    </td>
-                                    {/* <td> {CouponCode.statusName}</td> */}
-                                    <td className="table-content-font">
-                                      {!CouponCode.isUsed &&
-                                        <>
-                                          <div class="d-flex gap-2 justify-content-center">
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "Update",
-                                                moduleName
-                                              )}
-                                            >
-                                              <div class="edit">
-                                                <button
-
-                                                  class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
-                                                  data-bs-toggle="modal"
-                                                  data-bs-target="#CouponModel"
-                                                  onClick={() => UpdateCouponCode(CouponCode)}
-                                                >
-                                                  <i class="ri-pencil-fill"></i>
-                                                </button>
-                                              </div>
-                                            </Tooltip>
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "Delete",
-                                                moduleName
-                                              )}
-                                            >
-                                              <div class="remove">
-                                                <button
-                                                  class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                                  data-bs-toggle="modal"
-                                                  data-bs-target="#ConfirmModel"
-                                                  onClick={() =>
-                                                    setModelRequestData({
-                                                      ...modelRequestData,
-                                                      couponKeyID:
-                                                        CouponCode.couponKeyID,
-                                                      CouponCodeName:
-                                                        CouponCode.accessKeyName,
-                                                      userKeyID: common.userKeyID,
-                                                      Action: "Delete",
-                                                    })
-                                                  }
-                                                >
-                                                  <i class="ri-delete-bin-5-fill"></i>
-                                                </button>
-                                              </div>
-                                            </Tooltip>
-                                          </div>
-                                        </>}
-
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                          </tbody>
-                        </table>
-
-                        {totalRecords <= 0 && (
-                          <NoResultFoundModel
-                            name={moduleName}
-                            totalRecords={totalRecords}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  {listCount > pageSize && (
-                    <PaginationComponent
-                      totalCount={listCount}
-                      totalPages={totalPage}
-                      currentPage={currentPage}
-                      onPageChange={handlePageChange}
-                    />
-                  )}
-                </div>
+          {/* =========================
+              LIST CARD
+              ========================= */}
+          <section className="coupon-list-card">
+            <div className="coupon-list-card-toolbar">
+              <div>
+                <h2>Coupon List</h2>
+                <span>
+                  {listCount > 0
+                    ? `${listCount} ${listCount === 1 ? "coupon" : "coupons"}`
+                    : "No coupons found"}
+                </span>
               </div>
             </div>
-            <ErrorModel
-              ErrorModel={openErrorModal}
-              handleClose={handleClose}
-              ErrorMessage={errorMessage}
-            />
-            {/* Confirm Modal  */}
-            <ConfirmModel
-              openErrorModal={openErrorModal}
-              openSuccessModal={openSuccessModal}
-              modelRequestData={modelRequestData}
-              UpdatedStatus={DeleteCouponCodeData}
-            />
 
-            {/* Success Modal  */}
-            <SuccessModal
-              handleClose={handleClose}
-              setOpenSuccessModal={setOpenSuccessModal}
-              openSuccessModal={openSuccessModal}
-              modelAction={modelRequestData.Action}
-              message={
-                modelRequestData.Action === "Delete"
-                  ? moduleName + " " + modelRequestData.CouponCodeName
-                  : "Status has been changed successfully!"
-              }
-            />
-            {/* Modal  */}
-            <CouponsModal
-              class="modal fade"
-              id="CouponModel"
-              tabIndex="-1"
-              aria_labelledby="exampleModalLabel"
-              aria_hidden="true"
-              setIsAddUpdateActionDone={setIsAddUpdateActionDone}
-              modelRequestData={modelRequestData}
-            />
-          </div>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
+            <div className="coupon-list-table-wrap">
+              <table className="coupon-list-table" id="customerTable">
+                <thead>
+                  <tr>
+                    <th>Coupon Code</th>
+                    <th>Coupon Amount</th>
+                    <th>Validity Count</th>
+                    <th>Coupon Type</th>
+                    <th>Valid From</th>
+                    <th>Valid To</th>
+                    <th>Status</th>
+                    <th className="coupon-list-actions-heading">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {couponCodeList
+                    .slice(0, isMobile ? isMobileRecords : desktopRecords)
+                    .map((CouponCode) => {
+                      const statusClass = (CouponCode.statusName || "")
+                        .toLowerCase()
+                        .replace(/\s+/g, "-");
+
+                      const couponTypeClass = (CouponCode.couponType || "")
+                        .toLowerCase()
+                        .replace(/\s+/g, "-");
+
+                      return (
+                        <tr
+                          className="coupon-list-row"
+                          key={CouponCode.couponKeyID || CouponCode.couponCode}
+                        >
+                          <td>
+                            <div className="coupon-code-cell">
+                              <span className="coupon-code-icon">
+                                <i className="ri-coupon-3-line"></i>
+                              </span>
+
+                              <span
+                                className="coupon-code-value"
+                                title={CouponCode.couponCode}
+                              >
+                                {CouponCode.couponCode || "-"}
+                              </span>
+                            </div>
+                          </td>
+
+                          <td>
+                            <span className="coupon-amount">
+                              {formatValue(CouponCode.couponAmount)}
+                            </span>
+                          </td>
+
+                          <td>
+                            <span className="coupon-validity-count">
+                              {formatValueWithoutCurrencySymbol(
+                                CouponCode.validityCount,
+                              )}
+                            </span>
+                          </td>
+
+                          <td>
+                            <span
+                              className={`coupon-type-badge coupon-type-badge--${couponTypeClass}`}
+                            >
+                              {CouponCode.couponType || "-"}
+                            </span>
+                          </td>
+
+                          <td>
+                            <span className="coupon-date">
+                              {CouponCode.fromDate !== null
+                                ? new Intl.DateTimeFormat("en-GB", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
+                                  }).format(new Date(CouponCode.fromDate))
+                                : "-"}
+                            </span>
+                          </td>
+
+                          <td>
+                            <span className="coupon-date">
+                              {CouponCode.toDate !== null
+                                ? new Intl.DateTimeFormat("en-GB", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
+                                  }).format(new Date(CouponCode.toDate))
+                                : "-"}
+                            </span>
+                          </td>
+
+                          <td>
+                            <div className="coupon-status-control">
+                              {/* <Tooltip title={"Change Status"}>
+                                <span
+                                  className={`coupon-status-badge coupon-status-badge--${statusClass}`}
+                                >
+                                  <span className="coupon-status-dot"></span>
+                                  {CouponCode.statusName || "-"}
+                                </span>
+                              </Tooltip> */}
+
+                              <Tooltip
+                                title={getCrudButtonToolTipName(
+                                  "Change Status",
+                                )}
+                              >
+                                <FormGroup>
+                                  <FormControlLabel
+                                    className="coupon-status-switch-label"
+                                    control={
+                                      <Android12Switch
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#ConfirmModel"
+                                        onClick={() =>
+                                          setModelRequestData({
+                                            ...modelRequestData,
+                                            couponKeyID: CouponCode.couponKeyID,
+                                            userKeyID: common.userKeyID,
+                                            Action: "Status",
+                                          })
+                                        }
+                                        checked={
+                                          CouponCode.statusName === "Active"
+                                        }
+                                      />
+                                    }
+                                  />
+                                </FormGroup>
+                              </Tooltip>
+                            </div>
+                          </td>
+
+                          <td className="coupon-list-actions-cell">
+                            {!CouponCode.isUsed ? (
+                              <div className="coupon-row-actions">
+                                <Tooltip
+                                  title={getCrudButtonToolTipName(
+                                    "Update",
+                                    moduleName,
+                                  )}
+                                >
+                                  <button
+                                    type="button"
+                                    className="coupon-action-button coupon-action-button--edit"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#CouponModel"
+                                    onClick={() => UpdateCouponCode(CouponCode)}
+                                  >
+                                    <i className="ri-pencil-line"></i>
+                                  </button>
+                                </Tooltip>
+
+                                <Tooltip
+                                  title={getCrudButtonToolTipName(
+                                    "Delete",
+                                    moduleName,
+                                  )}
+                                >
+                                  <button
+                                    type="button"
+                                    className="coupon-action-button coupon-action-button--delete"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#ConfirmModel"
+                                    onClick={() =>
+                                      setModelRequestData({
+                                        ...modelRequestData,
+                                        couponKeyID: CouponCode.couponKeyID,
+                                        CouponCodeName:
+                                          CouponCode.accessKeyName,
+                                        userKeyID: common.userKeyID,
+                                        Action: "Delete",
+                                      })
+                                    }
+                                  >
+                                    <i className="ri-delete-bin-line"></i>
+                                  </button>
+                                </Tooltip>
+                              </div>
+                            ) : (
+                              <span className="coupon-used-badge">Used</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+
+              {totalRecords <= 0 && (
+                <div className="coupon-list-empty-state">
+                  <NoResultFoundModel
+                    name={moduleName}
+                    totalRecords={totalRecords}
+                  />
+                </div>
+              )}
+            </div>
+
+            {listCount > pageSize && (
+              <div className="coupon-list-pagination-wrap">
+                <PaginationComponent
+                  totalCount={listCount}
+                  totalPages={totalPage}
+                  currentPage={currentPage}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
+          </section>
         </div>
 
-        <Footer />
+        {/* =========================
+            EXISTING MODALS
+            ========================= */}
+        <ErrorModel
+          ErrorModel={openErrorModal}
+          handleClose={handleClose}
+          ErrorMessage={errorMessage}
+        />
+
+        <ConfirmModel
+          openErrorModal={openErrorModal}
+          openSuccessModal={openSuccessModal}
+          modelRequestData={modelRequestData}
+          UpdatedStatus={DeleteCouponCodeData}
+        />
+
+        <SuccessModal
+          handleClose={handleClose}
+          setOpenSuccessModal={setOpenSuccessModal}
+          openSuccessModal={openSuccessModal}
+          modelAction={modelRequestData.Action}
+          message={
+            modelRequestData.Action === "Delete"
+              ? moduleName + " " + modelRequestData.CouponCodeName
+              : "Status has been changed successfully!"
+          }
+        />
+
+        <CouponsModal
+          class="modal fade"
+          id="CouponModel"
+          tabIndex="-1"
+          aria_labelledby="exampleModalLabel"
+          aria_hidden="true"
+          setIsAddUpdateActionDone={setIsAddUpdateActionDone}
+          modelRequestData={modelRequestData}
+        />
+
+        <button
+          onclick="topFunction()"
+          className="btn btn-danger btn-icon"
+          id="back-to-top"
+        >
+          <i className="ri-arrow-up-line"></i>
+        </button>
       </div>
 
-      {/* start back-to-top */}
-      <button
-        onclick="topFunction()"
-        class="btn btn-danger btn-icon"
-        id="back-to-top"
-      >
-        <i class="ri-arrow-up-line"></i>
-      </button>
-      {/* end back-to-top */}
-    </div>
+      <Footer />
+    </>
   );
 };
 
