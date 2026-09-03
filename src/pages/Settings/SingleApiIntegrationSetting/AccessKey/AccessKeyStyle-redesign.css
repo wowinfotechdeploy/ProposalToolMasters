@@ -1,0 +1,760 @@
+/* =========================================================
+   ACCESS KEY LIST - PROSPECT / USERS STYLE REDESIGN
+   UI ONLY
+   ========================================================= */
+
+.access-key-redesign {
+  --ak-bg: #f7f9fc;
+  --ak-card: #ffffff;
+  --ak-heading: #14243a;
+  --ak-text: #334258;
+  --ak-muted: #778295;
+  --ak-border: #dce4ed;
+  --ak-border-soft: #e7edf3;
+  --ak-navy: #0f1b33;
+  --ak-cyan: #14b5d1;
+  --ak-cyan-hover: #0da5c1;
+
+  width: 100%;
+  min-height: 100%;
+  background: var(--ak-bg);
+  color: var(--ak-text);
+}
+
+.access-key-redesign,
+.access-key-redesign * {
+  box-sizing: border-box;
+}
+
+.access-key-page {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 30px 30px 42px;
+}
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.access-key-page-header {
+  width: 100%;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  border-bottom: 1px solid #e2e8ef;
+}
+
+.access-key-page-title {
+  margin: 0;
+
+  color: var(--ak-heading);
+
+  font-family: "Sarabun", sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.access-key-page-subtitle {
+  margin: 6px 0 0;
+
+  color: var(--ak-muted);
+
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Header switch block */
+.access-key-header-switch {
+  min-height: 54px;
+  padding: 8px 12px 8px 15px;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  border: 1px solid #d8e2ec;
+  border-radius: 9px;
+
+  background: #ffffff;
+}
+
+.access-key-header-switch-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.access-key-header-switch-title {
+  color: #24344a;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.access-key-header-switch-state {
+  color: #7b8697;
+
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.access-key-switch-label,
+.access-key-row-switch-label {
+  margin: 0 !important;
+}
+
+/* =========================================================
+   LIST CARD
+   ========================================================= */
+
+.access-key-list-card {
+  width: 100%;
+  overflow: hidden;
+
+  border: 1px solid var(--ak-border);
+  border-radius: 12px;
+
+  background: var(--ak-card);
+
+  box-shadow:
+    0 2px 7px rgba(15, 23, 42, 0.035),
+    0 8px 22px rgba(15, 23, 42, 0.02);
+}
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.access-key-toolbar {
+  min-height: 82px;
+  padding: 14px 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  border-bottom: 1px solid var(--ak-border);
+
+  background: #ffffff;
+}
+
+.access-key-search-wrap {
+  width: min(100%, 400px);
+  position: relative;
+}
+
+.access-key-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+
+  transform: translateY(-50%);
+
+  color: #536174;
+  font-size: 20px;
+
+  pointer-events: none;
+}
+
+.access-key-search-input {
+  width: 100%;
+  height: 44px;
+
+  padding: 9px 14px 9px 43px;
+
+  border: 1px solid #d3dde8;
+  border-radius: 8px;
+
+  outline: none;
+
+  background: #ffffff;
+  color: #27364b;
+
+  font-size: 13px;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.access-key-search-input::placeholder {
+  color: #8994a5;
+}
+
+.access-key-search-input:focus {
+  border-color: #7bcfdf;
+
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08);
+}
+
+.access-key-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Existing shared Add button */
+.access-key-add-action .btn,
+.access-key-add-action .create-item-btn {
+  min-height: 44px !important;
+  padding: 0 18px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border: 1px solid var(--ak-cyan) !important;
+  border-radius: 8px !important;
+
+  background: var(--ak-cyan) !important;
+  color: #ffffff !important;
+
+  font-size: 13px !important;
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+}
+
+.access-key-add-action .btn:hover,
+.access-key-add-action .create-item-btn:hover {
+  border-color: var(--ak-cyan-hover) !important;
+  background: var(--ak-cyan-hover) !important;
+  color: #ffffff !important;
+}
+
+/* How-to-use action */
+.access-key-help-button {
+  min-height: 42px;
+  padding: 0 14px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  border: 1px solid #d6e0ea;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #405067;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.access-key-help-button:hover {
+  border-color: #a8d9e4;
+  background: #f1fbfd;
+  color: #087f98;
+}
+
+.access-key-help-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.access-key-table-wrap {
+  width: 100%;
+  max-width: 100%;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+.access-key-table {
+  width: 100%;
+  min-width: 1080px;
+
+  margin: 0;
+
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.access-key-table thead th {
+  height: 58px;
+
+  padding: 0 22px;
+
+  border: 0;
+  border-bottom: 1px solid #1d2940;
+
+  background: var(--ak-navy);
+  color: #f6f8fc;
+
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.access-key-table tbody td {
+  height: 78px;
+
+  padding: 13px 22px;
+
+  border-bottom: 1px solid var(--ak-border-soft);
+
+  background: #ffffff;
+  color: #334258;
+
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.access-key-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.access-key-table tbody tr:hover td {
+  background: #fbfdff;
+}
+
+/* Organisation-specific layout */
+.access-key-table th:nth-child(1),
+.access-key-table td:nth-child(1) {
+  width: 20%;
+}
+
+.access-key-table th:nth-child(2),
+.access-key-table td:nth-child(2) {
+  width: 27%;
+}
+
+.access-key-table th:nth-child(3),
+.access-key-table td:nth-child(3) {
+  width: 23%;
+}
+
+.access-key-table th:nth-child(4),
+.access-key-table td:nth-child(4) {
+  width: 15%;
+}
+
+.access-key-table th:nth-child(5),
+.access-key-table td:nth-child(5) {
+  width: 15%;
+}
+
+/* =========================================================
+   SORT
+   ========================================================= */
+
+.access-key-sort-button {
+  width: auto;
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  border: 0;
+
+  background: transparent;
+  color: inherit;
+
+  font: inherit;
+  text-transform: inherit;
+
+  cursor: pointer;
+}
+
+.access-key-sort-button i {
+  color: #c4cedd;
+  font-size: 14px;
+}
+
+.access-key-sort-button:hover i {
+  color: #ffffff;
+}
+
+/* =========================================================
+   ACCESS KEY CELL
+   ========================================================= */
+
+.access-key-name-cell {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.access-key-key-icon {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #e9f7fa;
+  color: #087f98;
+
+  font-size: 17px;
+}
+
+.access-key-primary-text {
+  min-width: 0;
+
+  display: block;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #18283e;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   TOKEN / ORGANISATION / DATE
+   ========================================================= */
+
+.access-key-token {
+  max-width: 100%;
+
+  display: inline-block;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  padding: 5px 8px;
+
+  border: 1px solid #e1e7ee;
+  border-radius: 6px;
+
+  background: #f7f9fb;
+  color: #536174;
+
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 11px;
+}
+
+.access-key-organisation {
+  max-width: 100%;
+
+  display: block;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #46556b;
+}
+
+.access-key-date {
+  color: #566378;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.access-key-status-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.access-key-status-badge {
+  min-height: 27px;
+  padding: 0 10px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  border-radius: 999px;
+
+  background: #f2f4f7;
+  color: #657082;
+
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.access-key-status-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+
+  border-radius: 50%;
+
+  background: currentColor;
+}
+
+/* Common status variants */
+.access-key-status-badge--active,
+.access-key-status-badge--valid,
+.access-key-status-badge--enabled {
+  background: #eaf8f3;
+  color: #18845f;
+}
+
+.access-key-status-badge--inactive,
+.access-key-status-badge--disabled,
+.access-key-status-badge--expired {
+  background: #fff0f2;
+  color: #cf4052;
+}
+
+.access-key-status-badge--expiring-soon,
+.access-key-status-badge--pending {
+  background: #fff6e4;
+  color: #a97413;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.access-key-actions-heading,
+.access-key-actions-cell {
+  text-align: center !important;
+}
+
+.access-key-row-actions {
+  min-width: 42px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.access-key-action-button {
+  width: 34px;
+  height: 34px;
+
+  flex: 0 0 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #d8e0e9;
+  border-radius: 7px;
+
+  background: #ffffff;
+  color: #596679;
+
+  font-size: 15px;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.access-key-action-button--delete:hover {
+  border-color: #f0c2c8;
+  background: #fff2f3;
+  color: #d14455;
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.access-key-empty-state {
+  min-height: 250px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+}
+
+/* =========================================================
+   PAGINATION
+   ========================================================= */
+
+.access-key-pagination-wrap {
+  min-height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  border-top: 1px solid var(--ak-border);
+
+  background: #ffffff;
+}
+
+/* Keep the shared pagination visually inside this card. */
+.access-key-pagination-wrap .fixed-bottom {
+  position: static !important;
+
+  width: auto !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 13px 18px !important;
+}
+
+.access-key-pagination-wrap .row {
+  margin: 0 !important;
+}
+
+.access-key-pagination-wrap .mb-4 {
+  margin-bottom: 0 !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 991px) {
+  .access-key-page {
+    padding: 26px 20px 36px;
+  }
+
+  .access-key-page-header {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 767px) {
+  .access-key-page {
+    padding: 20px 12px 30px;
+  }
+
+  .access-key-page-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .access-key-page-title {
+    font-size: 24px;
+  }
+
+  .access-key-header-switch {
+    justify-content: space-between;
+  }
+
+  .access-key-toolbar {
+    padding: 12px;
+
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .access-key-search-wrap {
+    width: 100%;
+  }
+
+  .access-key-toolbar-actions {
+    width: 100%;
+  }
+
+  .access-key-toolbar-actions > * {
+    width: 100%;
+  }
+
+  .access-key-help-button,
+  .access-key-add-action .btn,
+  .access-key-add-action .create-item-btn {
+    width: 100% !important;
+  }
+}
+
+/* =========================================================
+   TOKEN COPY
+   ========================================================= */
+
+.access-key-token-wrapper {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.access-key-token-wrapper .access-key-token {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Copy button */
+
+.access-key-copy-btn {
+  width: 32px;
+  height: 32px;
+
+  flex: 0 0 32px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #d8e0e9;
+  border-radius: 7px;
+
+  background: #ffffff;
+  color: #596679;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+/* Hover */
+
+.access-key-copy-btn:hover {
+  border-color: #9bdce8;
+
+  background: #eefafd;
+
+  color: #0788a2;
+}
+
+/* Copied state */
+
+.access-key-copy-btn--copied {
+  border-color: #bce8d9;
+
+  background: #eaf8f3;
+
+  color: #17845f;
+}
