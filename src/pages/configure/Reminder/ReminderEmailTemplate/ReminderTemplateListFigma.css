@@ -1,0 +1,792 @@
+/* =========================================================
+   REMINDER TEMPLATE LIST
+   Same visual system as Prospect / Users list
+   ========================================================= */
+
+.reminder-templates-figma {
+  min-height: 100vh;
+  padding: 10px 30px 0;
+  background: #f5f7fa;
+  color: #172033;
+
+  /* Same page-flow idea as Prospect:
+     content -> pagination -> footer */
+  display: flex;
+  flex-direction: column;
+}
+
+.reminder-templates-figma__inner {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  flex: 1 0 auto;
+}
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.reminder-page-header {
+  min-height: 48px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.reminder-page-header h1 {
+  margin: 0;
+  color: #172033;
+  font-size: 21px;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
+.reminder-add-btn {
+  min-height: 40px;
+  padding: 9px 18px;
+  border: 1px solid #14b5d1;
+  border-radius: 8px;
+  background: #14b5d1;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: none;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    transform 0.16s ease;
+}
+
+.reminder-add-btn:hover {
+  border-color: #0fa8c4;
+  background: #0fa8c4;
+  color: #ffffff;
+}
+
+.reminder-add-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.16);
+}
+
+/* =========================================================
+   PANEL + TOOLBAR
+   ========================================================= */
+
+.reminder-panel {
+  width: 100%;
+  overflow: visible;
+  border: 1px solid #dfe5ec;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.reminder-toolbar {
+  min-height: 66px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid #e3e8ee;
+  background: #ffffff;
+  border-radius: 10px 10px 0 0;
+}
+
+.reminder-toolbar__left {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.reminder-search {
+  position: relative;
+  width: 310px;
+  max-width: 42vw;
+}
+
+.reminder-search__icon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  z-index: 1;
+  color: #8490a1;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.reminder-search input {
+  width: 100%;
+  height: 40px;
+  padding: 8px 13px 8px 38px;
+  border: 1px solid #d8e0e9;
+  border-radius: 8px;
+  outline: none;
+  background: #ffffff;
+  color: #263244;
+  font-size: 13px;
+  font-weight: 400;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.reminder-search input::placeholder {
+  color: #96a1b1;
+}
+
+.reminder-search input:focus {
+  border-color: #14b5d1;
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.11);
+}
+
+.reminder-filter-btn {
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid #d8e0e9;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #4b5768;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.reminder-filter-btn:hover {
+  border-color: #c9d2dc;
+  background: #f7f9fb;
+  color: #263244;
+}
+
+.reminder-filter-btn.is-active {
+  border-color: rgba(20, 181, 209, 0.38);
+  background: rgba(20, 181, 209, 0.08);
+  color: #0d9cb7;
+}
+
+.reminder-clear-filter {
+  height: 40px;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  color: #677386;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.reminder-clear-filter:hover {
+  color: #14a9c5;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.reminder-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.reminder-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background: #ffffff;
+}
+
+.reminder-table thead th {
+  height: 48px;
+  padding: 0 18px;
+  border: 0;
+  background: #0f172a;
+  color: #ffffff;
+  text-align: left;
+  vertical-align: middle;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.015em;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.reminder-table thead th:first-child {
+  padding-left: 20px;
+}
+
+.reminder-table__name-heading {
+  width: 36%;
+}
+
+.reminder-table__type-heading {
+  width: 25%;
+}
+
+.reminder-table__default-heading {
+  width: 14%;
+}
+
+.reminder-table__status-heading {
+  width: 16%;
+}
+
+.reminder-table__actions-heading {
+  width: 9%;
+  text-align: center !important;
+}
+
+.reminder-table__header-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.reminder-sort {
+  width: 24px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.74);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    color 0.16s ease,
+    transform 0.16s ease;
+}
+
+.reminder-sort:hover {
+  color: #ffffff;
+}
+
+.reminder-sort.is-desc {
+  transform: rotate(180deg);
+}
+
+.reminder-table tbody td {
+  height: 66px;
+  padding: 10px 18px;
+  border-bottom: 1px solid #e8edf2;
+  background: #ffffff;
+  color: #4b5768;
+  vertical-align: middle;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.reminder-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.reminder-table tbody tr:hover td {
+  background: #f9fbfc;
+}
+
+/* =========================================================
+   NAME CELL
+   ========================================================= */
+
+.reminder-name-cell {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.reminder-template-icon {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border: 1px solid rgba(20, 181, 209, 0.18);
+  border-radius: 8px;
+  background: rgba(20, 181, 209, 0.1);
+  color: #0ea9c5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reminder-name-cell__content {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reminder-template-name-text {
+  min-width: 0;
+  overflow: hidden;
+  color: #263244;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reminder-admin-change {
+  min-height: 25px;
+  padding: 4px 7px;
+  border: 1px solid #f1d9a9;
+  border-radius: 6px;
+  background: #fff8e8;
+  color: #aa6d10;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.reminder-admin-change:hover {
+  background: #fff3d7;
+  color: #935d0c;
+}
+
+/* =========================================================
+   TYPE / STATUS PILLS
+   ========================================================= */
+
+.reminder-type-pill {
+  max-width: 100%;
+  min-height: 28px;
+  padding: 5px 9px;
+  overflow: hidden;
+  border: 1px solid #dfe6ed;
+  border-radius: 999px;
+  background: #f5f8fb;
+  color: #516073;
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reminder-state-cell {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.reminder-toggle {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  min-width: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #d7dee7;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.reminder-toggle.is-on {
+  background: #14b5d1;
+}
+
+.reminder-toggle__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.18);
+  transition: transform 0.18s ease;
+}
+
+.reminder-toggle.is-on .reminder-toggle__thumb {
+  transform: translateX(14px);
+}
+
+.reminder-status-pill {
+  min-height: 26px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.reminder-status-pill.is-active,
+.reminder-status-pill.is-default {
+  border: 1px solid #bee9d0;
+  background: #edf9f2;
+  color: #25814c;
+}
+
+.reminder-status-pill.is-inactive {
+  border: 1px solid #f0c8cc;
+  background: #fff1f2;
+  color: #b54750;
+}
+
+.reminder-status-pill.is-neutral {
+  border: 1px solid #dfe5ec;
+  background: #f5f7f9;
+  color: #697586;
+}
+
+.reminder-status-pill__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.reminder-table__actions-cell {
+  text-align: center;
+}
+
+.reminder-actions {
+  display: inline-flex;
+  justify-content: center;
+}
+
+.reminder-actions__trigger {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: #788495;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.reminder-actions__trigger:hover,
+.reminder-actions__trigger[aria-expanded="true"] {
+  border-color: #dfe5ec;
+  background: #f3f6f8;
+  color: #263244;
+}
+
+.reminder-actions__menu {
+  min-width: 160px;
+  padding: 6px;
+  border: 1px solid #dfe5ec;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+}
+
+.reminder-actions__menu .dropdown-item {
+  min-height: 34px;
+  padding: 7px 9px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #435064;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.reminder-actions__menu .dropdown-item:hover {
+  background: #f4f7f9;
+  color: #172033;
+}
+
+.reminder-actions__menu .dropdown-divider {
+  margin: 5px 2px;
+  border-color: #edf0f3;
+}
+
+.reminder-actions__menu .reminder-actions__danger {
+  color: #c2414a;
+}
+
+.reminder-actions__menu .reminder-actions__danger:hover {
+  background: #fff2f3;
+  color: #b93640;
+}
+
+/* =========================================================
+   EMPTY / PAGINATION
+   ========================================================= */
+
+.reminder-no-results {
+  border-top: 1px solid #e8edf2;
+}
+
+.reminder-pagination {
+  /* Match the Prospect list: pagination owns a proper footer row
+     and stays in normal document flow. */
+  min-height: 96px;
+  padding: 28px 32px 26px;
+  border-top: 1px solid #e8edf2;
+  background: #ffffff;
+  border-radius: 0 0 10px 10px;
+  position: relative;
+  z-index: 1;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 991px) {
+  .reminder-templates-figma {
+    padding: 72px 15px 24px;
+  }
+
+  .reminder-search {
+    width: 280px;
+    max-width: 55vw;
+  }
+}
+
+@media (max-width: 767px) {
+  .reminder-templates-figma {
+    padding: 68px 12px 20px;
+  }
+
+  .reminder-page-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .reminder-page-header h1 {
+    font-size: 19px;
+  }
+
+  .reminder-add-btn {
+    width: 100%;
+  }
+
+  .reminder-toolbar {
+    align-items: stretch;
+  }
+
+  .reminder-toolbar__left {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .reminder-search {
+    width: 100%;
+    max-width: none;
+    flex-basis: 100%;
+  }
+
+  .reminder-filter-btn {
+    flex: 1;
+  }
+
+  .reminder-table {
+    min-width: 920px;
+  }
+}
+
+/* =========================================================
+   PAGE FLOW / FOOTER ALIGNMENT
+   Keep pagination above Footer exactly like Prospect list
+   ========================================================= */
+
+.reminder-panel {
+  margin-bottom: 18px;
+}
+
+/* Footer is now inside .reminder-templates-figma, like Prospect.
+   Do not force page/table height and do not hide vertical overflow. */
+.reminder-templates-figma,
+.reminder-templates-figma__inner,
+.reminder-panel {
+  height: auto;
+  max-height: none;
+}
+
+.reminder-templates-figma {
+  overflow: visible;
+}
+
+/* Avoid old pagination-fix rules if that stylesheet was previously copied. */
+.reminder-panel {
+  flex: none;
+  min-height: auto;
+}
+
+.reminder-table-wrap {
+  flex: none;
+  min-height: auto;
+}
+
+@media (max-width: 991px) {
+  .reminder-templates-figma {
+    padding-bottom: 0;
+  }
+
+  .reminder-pagination {
+    padding: 24px 20px 24px;
+  }
+}
+
+@media (max-width: 767px) {
+  .reminder-templates-figma {
+    padding-bottom: 0;
+  }
+
+  .reminder-pagination {
+    min-height: 84px;
+    padding: 22px 14px 22px;
+  }
+}
+
+/* =========================================================
+   FINAL PAGINATION / FOOTER FLOW FIX
+   ---------------------------------------------------------
+   Match the Prospect list:
+   table -> pagination -> footer
+   No fixed/absolute pagination and no footer overlap.
+   ========================================================= */
+
+.reminder-templates-figma {
+  min-height: 100% !important;
+  height: auto !important;
+
+  /* Keep the existing top spacing, but let the page grow naturally. */
+  padding: 10px 30px 0 !important;
+
+  display: block !important;
+  overflow: visible !important;
+}
+
+.reminder-templates-figma__inner {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+
+  /* Remove the flex growth that was forcing the footer below the page area. */
+  flex: none !important;
+
+  /* Same idea as Prospect list: reserve clean space before Footer. */
+  padding-bottom: 18px;
+}
+
+.reminder-panel {
+  margin-bottom: 0 !important;
+}
+
+/* Use the same compact pagination row as Prospect List. */
+.reminder-pagination {
+  min-height: 64px !important;
+  padding: 13px 16px !important;
+
+  border-top: 1px solid #e5ebf2 !important;
+  border-radius: 0 0 10px 10px;
+
+  background: #ffffff;
+
+  position: relative !important;
+  z-index: 1;
+}
+
+/*
+  Important:
+  If the shared PaginationComponent still contains Bootstrap's
+  "fixed-bottom" class, neutralise it only inside this page.
+*/
+.reminder-pagination .fixed-bottom {
+  position: static !important;
+
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.reminder-pagination .fixed-bottom > .row {
+  margin: 0 !important;
+}
+
+.reminder-pagination .pagination {
+  margin: 0 !important;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+}
+
+/* Keep Footer in normal page flow for this screen only. */
+.reminder-templates-figma > footer,
+.reminder-templates-figma .footer {
+  position: static !important;
+
+  width: 100% !important;
+
+  margin-top: 0 !important;
+
+  background: #f5f7fa;
+}
+
+/* Remove old responsive rules that were setting page bottom padding to zero. */
+@media (max-width: 991px) {
+  .reminder-templates-figma {
+    padding: 72px 15px 0 !important;
+  }
+
+  .reminder-pagination {
+    min-height: 64px !important;
+    padding: 13px 16px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .reminder-templates-figma {
+    padding: 68px 12px 0 !important;
+  }
+
+  .reminder-pagination {
+    min-height: 64px !important;
+    padding: 13px 12px !important;
+  }
+}

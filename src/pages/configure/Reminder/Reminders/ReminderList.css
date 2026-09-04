@@ -1,0 +1,667 @@
+.reminder-list-page {
+  min-height: 100vh;
+  padding: 30px 30px 26px;
+  background: #f5f7f9;
+  color: #172033;
+}
+
+.reminder-list-page__inner {
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+}
+
+.reminder-list-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+
+.reminder-list-page__header h1 {
+  margin: 0;
+  color: #172033;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.reminder-list-add-btn {
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid #14b5d1;
+  border-radius: 6px;
+  background: #14b5d1;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.reminder-list-add-btn:hover {
+  border-color: #0fa5bf;
+  background: #0fa5bf;
+  box-shadow: 0 5px 14px rgba(20, 181, 209, 0.2);
+}
+
+.reminder-list-card {
+  overflow: visible;
+  border: 1px solid #e1e5ea;
+  border-radius: 7px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.025);
+}
+
+.reminder-list-toolbar {
+  min-height: 58px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e7eaee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.reminder-list-toolbar__left {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.reminder-list-search {
+  position: relative;
+  width: min(300px, 38vw);
+}
+
+.reminder-list-search__icon {
+  position: absolute;
+  top: 50%;
+  left: 11px;
+  z-index: 1;
+  color: #8a94a3;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.reminder-list-search input {
+  width: 100%;
+  height: 36px;
+  padding: 7px 12px 7px 35px;
+  border: 1px solid #d9dee5;
+  border-radius: 6px;
+  outline: none;
+  background: #fff;
+  color: #253044;
+  font-size: 12.5px;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.reminder-list-search input::placeholder {
+  color: #9ca5b2;
+}
+
+.reminder-list-search input:focus {
+  border-color: #14b5d1;
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08);
+}
+
+.reminder-list-filter-btn {
+  position: relative;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid #d9dee5;
+  border-radius: 6px;
+  background: #fff;
+  color: #4f5b6d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 500;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.reminder-list-filter-btn:hover {
+  border-color: #c9d0d9;
+  background: #f8fafb;
+}
+
+.reminder-list-filter-btn.is-active {
+  border-color: #14b5d1;
+  background: #f2fcfe;
+  color: #0b91aa;
+}
+
+.reminder-list-filter-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #14b5d1;
+}
+
+.reminder-list-clear-filter {
+  height: 34px;
+  padding: 0 7px;
+  border: 0;
+  background: transparent;
+  color: #718096;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.reminder-list-clear-filter:hover {
+  color: #172033;
+}
+
+.reminder-list-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.reminder-list-table {
+  width: 100%;
+  min-width: 1380px;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+.reminder-list-table thead th {
+  height: 42px;
+  padding: 0 13px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 0;
+  background: #0f172a;
+  color: #fff;
+  text-align: left;
+  vertical-align: middle;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.reminder-list-table thead th:first-child {
+  border-top-left-radius: 0;
+}
+
+.reminder-list-table thead th:last-child {
+  border-right: 0;
+}
+
+.reminder-list-table tbody td {
+  height: 58px;
+  padding: 9px 13px;
+  border-bottom: 1px solid #edf0f3;
+  color: #4c586b;
+  vertical-align: middle;
+  font-size: 12px;
+}
+
+.reminder-list-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.reminder-list-table tbody tr:hover {
+  background: #f9fbfc;
+}
+
+.reminder-list-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.reminder-list-col-name {
+  width: 220px;
+}
+
+.reminder-list-col-template {
+  width: 190px;
+}
+
+.reminder-list-col-email {
+  width: 170px;
+}
+
+.reminder-list-col-trigger {
+  width: 180px;
+}
+
+.reminder-list-col-document {
+  width: 180px;
+}
+
+.reminder-list-col-frequency {
+  width: 120px;
+}
+
+.reminder-list-col-repeat {
+  width: 90px;
+}
+
+.reminder-list-col-status {
+  width: 150px;
+}
+
+.reminder-list-col-action {
+  width: 74px;
+  text-align: right !important;
+}
+
+.reminder-list-sort-btn {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+.reminder-list-sort-icon {
+  width: 14px;
+  height: 14px;
+  color: rgba(255, 255, 255, 0.55);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.reminder-list-sort-icon.is-active {
+  color: #5ee6ff;
+}
+
+.reminder-list-name-cell {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reminder-list-name {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  color: #1d2939;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reminder-list-notification {
+  width: 27px;
+  height: 27px;
+  flex: 0 0 27px;
+  padding: 0;
+  border: 1px solid #f1cf8e;
+  border-radius: 5px;
+  background: #fff8e9;
+  color: #b3750e;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reminder-list-notification:hover {
+  background: #fff3d8;
+}
+
+.reminder-list-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: 26px;
+  padding: 4px 8px;
+  overflow: hidden;
+  border: 1px solid #e3e7ec;
+  border-radius: 5px;
+  background: #f7f8fa;
+  color: #526074;
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reminder-list-chip--template {
+  background: #f5f7fb;
+}
+
+.reminder-list-chip--trigger {
+  border-color: #dce9ed;
+  background: #f3fafc;
+  color: #46717a;
+}
+
+.reminder-list-document-status {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  color: #5a6576;
+  font-size: 11.5px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reminder-list-frequency {
+  color: #49566a;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.reminder-list-repeat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  min-height: 24px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.reminder-list-repeat.is-yes {
+  background: #eaf8ef;
+  color: #2f7c49;
+}
+
+.reminder-list-repeat.is-no {
+  background: #f2f4f7;
+  color: #7b8492;
+}
+
+.reminder-list-status-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reminder-list-toggle {
+  position: relative;
+  width: 38px;
+  height: 21px;
+  flex: 0 0 38px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  transition:
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.reminder-list-toggle.is-active {
+  justify-content: flex-end;
+  padding-right: 2px;
+  background: #14b5d1;
+}
+
+.reminder-list-toggle.is-inactive {
+  justify-content: flex-start;
+  padding-left: 2px;
+  background: #d8dde4;
+}
+
+.reminder-list-toggle:hover {
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08);
+}
+
+.reminder-list-toggle__thumb {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: #fff;
+  color: #14b5d1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.18);
+}
+
+.reminder-list-toggle.is-inactive .reminder-list-toggle__thumb {
+  color: #9ca5b2;
+}
+
+.reminder-list-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.reminder-list-status-pill.is-active {
+  background: #eaf8ef;
+  color: #2f7c49;
+}
+
+.reminder-list-status-pill.is-inactive {
+  background: #fff0f1;
+  color: #b84a53;
+}
+
+.reminder-list-action-cell {
+  text-align: right;
+}
+
+.reminder-list-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.reminder-list-actions__trigger {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: #778194;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.reminder-list-actions__trigger:hover,
+.reminder-list-actions__trigger[aria-expanded="true"] {
+  border-color: #dfe3e8;
+  background: #f6f8fa;
+  color: #1f2937;
+}
+
+.reminder-list-actions__menu {
+  min-width: 150px;
+  padding: 5px;
+  border: 1px solid #e2e6eb;
+  border-radius: 7px;
+  box-shadow: 0 10px 25px rgba(16, 24, 40, 0.12);
+}
+
+.reminder-list-actions__menu .dropdown-item {
+  min-height: 32px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #4d596b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.reminder-list-actions__menu .dropdown-item:hover {
+  background: #f5f7f9;
+  color: #1f2937;
+}
+
+.reminder-list-actions__menu .dropdown-item.text-danger {
+  color: #c44a53 !important;
+}
+
+.reminder-list-actions__menu .dropdown-item.text-danger:hover {
+  background: #fff1f2;
+}
+
+.reminder-list-pagination {
+  padding: 12px 12px 3px;
+  border-top: 1px solid #edf0f3;
+}
+
+@media (max-width: 767px) {
+  .reminder-list-page {
+    padding: 76px 12px 20px;
+  }
+
+  .reminder-list-page__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .reminder-list-add-btn {
+    width: 100%;
+  }
+
+  .reminder-list-toolbar {
+    align-items: stretch;
+  }
+
+  .reminder-list-toolbar__left {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .reminder-list-search {
+    width: 100%;
+  }
+
+  .reminder-list-filter-btn {
+    flex: 1;
+  }
+}
+
+/* =========================================================
+   REMINDER LIST - PAGINATION / FOOTER FLOW FIX
+   Same behaviour as Prospect List
+   ========================================================= */
+
+.reminder-list-page {
+  min-height: 100% !important;
+  height: auto !important;
+
+  padding: 30px 30px 0 !important;
+
+  overflow: visible !important;
+}
+
+.reminder-list-page__inner {
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+
+  padding-bottom: 18px;
+}
+
+/* Pagination stays in normal document flow */
+
+.reminder-list-pagination {
+  min-height: 64px !important;
+
+  padding: 13px 16px !important;
+
+  border-top: 1px solid #e5ebf2 !important;
+
+  background: #ffffff;
+
+  position: relative !important;
+  z-index: 1;
+}
+
+/*
+  PaginationComponent currently uses fixed-bottom.
+  Neutralise it only inside Reminder List.
+*/
+
+.reminder-list-pagination .fixed-bottom {
+  position: static !important;
+
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.reminder-list-pagination .fixed-bottom > .row {
+  margin: 0 !important;
+}
+
+.reminder-list-pagination .pagination {
+  margin: 0 !important;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+}
+
+/* Remove Bootstrap margin coming from PaginationComponent */
+
+.reminder-list-pagination .mb-4 {
+  margin-bottom: 0 !important;
+}
+
+/* Responsive */
+
+@media (max-width: 767px) {
+  .reminder-list-page {
+    padding: 76px 12px 0 !important;
+  }
+
+  .reminder-list-pagination {
+    min-height: 64px !important;
+    padding: 13px 12px !important;
+  }
+}
