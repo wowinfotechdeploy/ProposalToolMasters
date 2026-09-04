@@ -1,0 +1,666 @@
+/* =========================================================
+   SERVICE CATEGORIES
+   Prospect / Users List Inspired Redesign
+   UI ONLY
+   ========================================================= */
+
+.service-category-redesign {
+  --sc-bg: #f7f9fc;
+  --sc-card: #ffffff;
+  --sc-heading: #14243a;
+  --sc-text: #334258;
+  --sc-muted: #778295;
+  --sc-border: #dce4ed;
+  --sc-border-soft: #e7edf3;
+  --sc-navy: #0f1b33;
+  --sc-cyan: #14b5d1;
+  --sc-cyan-hover: #0da5c1;
+
+  width: 100%;
+  min-height: 100%;
+  background: var(--sc-bg);
+  color: var(--sc-text);
+}
+
+.service-category-redesign,
+.service-category-redesign * {
+  box-sizing: border-box;
+}
+
+.service-category-page {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 30px 30px 42px;
+}
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.service-category-page-header {
+  width: 100%;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  border-bottom: 1px solid #e2e8ef;
+}
+
+.service-category-page-title {
+  margin: 0;
+
+  color: var(--sc-heading);
+
+  font-family: "Sarabun", sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.service-category-page-subtitle {
+  margin: 6px 0 0;
+
+  color: var(--sc-muted);
+
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Existing shared Add button */
+.service-category-add-action .btn,
+.service-category-add-action .create-item-btn {
+  min-height: 44px !important;
+  padding: 0 18px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border: 1px solid var(--sc-cyan) !important;
+  border-radius: 8px !important;
+
+  background: var(--sc-cyan) !important;
+  color: #ffffff !important;
+
+  font-size: 13px !important;
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+}
+
+.service-category-add-action .btn:hover,
+.service-category-add-action .create-item-btn:hover {
+  border-color: var(--sc-cyan-hover) !important;
+  background: var(--sc-cyan-hover) !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   LIST CARD
+   ========================================================= */
+
+.service-category-list-card {
+  width: 100%;
+  overflow: hidden;
+
+  border: 1px solid var(--sc-border);
+  border-radius: 12px;
+
+  background: var(--sc-card);
+
+  box-shadow:
+    0 2px 7px rgba(15, 23, 42, 0.035),
+    0 8px 22px rgba(15, 23, 42, 0.02);
+}
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.service-category-toolbar {
+  min-height: 82px;
+  padding: 14px 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  border-bottom: 1px solid var(--sc-border);
+
+  background: #ffffff;
+}
+
+.service-category-search-wrap {
+  width: min(100%, 400px);
+  position: relative;
+}
+
+.service-category-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+
+  transform: translateY(-50%);
+
+  color: #536174;
+  font-size: 20px;
+
+  pointer-events: none;
+}
+
+.service-category-search-input {
+  width: 100%;
+  height: 44px;
+
+  padding: 9px 14px 9px 43px;
+
+  border: 1px solid #d3dde8;
+  border-radius: 8px;
+
+  outline: none;
+
+  background: #ffffff;
+  color: #27364b;
+
+  font-size: 13px;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.service-category-search-input::placeholder {
+  color: #8994a5;
+}
+
+.service-category-search-input:focus {
+  border-color: #7bcfdf;
+
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08);
+}
+
+.service-category-record-count {
+  color: #758092;
+
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.service-category-table-wrap {
+  width: 100%;
+  max-width: 100%;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+.service-category-table {
+  width: 100%;
+  min-width: 920px;
+
+  margin: 0;
+
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.service-category-table thead th {
+  height: 58px;
+
+  padding: 0 22px;
+
+  border: 0;
+  border-bottom: 1px solid #1d2940;
+
+  background: var(--sc-navy);
+  color: #f6f8fc;
+
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.service-category-table tbody td {
+  height: 78px;
+
+  padding: 13px 22px;
+
+  border-bottom: 1px solid var(--sc-border-soft);
+
+  background: #ffffff;
+  color: #334258;
+
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.service-category-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.service-category-table tbody tr:hover td {
+  background: #fbfdff;
+}
+
+.service-category-table th:first-child,
+.service-category-table td:first-child {
+  width: 34%;
+}
+
+.service-category-table th:nth-child(2),
+.service-category-table td:nth-child(2) {
+  width: 28%;
+}
+
+.service-category-table th:nth-child(3),
+.service-category-table td:nth-child(3) {
+  width: 21%;
+}
+
+.service-category-table th:last-child,
+.service-category-table td:last-child {
+  width: 17%;
+  min-width: 150px;
+}
+
+/* =========================================================
+   SORT
+   ========================================================= */
+
+.service-category-sort-button {
+  width: auto;
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  border: 0;
+
+  background: transparent;
+  color: inherit;
+
+  font: inherit;
+  text-transform: inherit;
+
+  cursor: pointer;
+}
+
+.service-category-sort-button i {
+  color: #c4cedd;
+  font-size: 14px;
+}
+
+.service-category-sort-button:hover i {
+  color: #ffffff;
+}
+
+/* =========================================================
+   SERVICE CATEGORY CELL
+   ========================================================= */
+
+.service-category-name-cell {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.service-category-icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  background: #e9f7fa;
+  color: #087f98;
+
+  font-size: 18px;
+}
+
+.service-category-name-copy {
+  min-width: 0;
+}
+
+.service-category-name-line {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.service-category-primary-text {
+  min-width: 0;
+
+  display: block;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #18283e;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* System administrator change notification */
+.service-category-notification {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #f0d493;
+  border-radius: 6px;
+
+  background: #fff8e8;
+  color: #b67a12;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.service-category-notification:hover {
+  border-color: #e8c575;
+  background: #fff2d5;
+}
+
+/* =========================================================
+   PROFESSION TYPE
+   ========================================================= */
+
+.service-category-profession-chip {
+  max-width: 100%;
+  min-height: 28px;
+  padding: 0 10px;
+
+  display: inline-flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: #eaf2ff;
+  color: #536176;
+
+  font-size: 10.5px;
+  font-weight: 600;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.service-category-status-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.service-category-switch-label {
+  margin: 0 !important;
+}
+
+.service-category-status-badge {
+  min-height: 27px;
+  padding: 0 10px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  border-radius: 999px;
+
+  background: #f2f4f7;
+  color: #657082;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.service-category-status-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+
+  border-radius: 50%;
+
+  background: currentColor;
+}
+
+.service-category-status-badge--active {
+  background: #eaf8f3;
+  color: #18845f;
+}
+
+.service-category-status-badge--inactive {
+  background: #fff0f2;
+  color: #cf4052;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.service-category-actions-heading,
+.service-category-actions-cell {
+  text-align: center !important;
+}
+
+.service-category-row-actions {
+  min-width: 116px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  white-space: nowrap;
+}
+
+.service-category-action-button {
+  width: 34px;
+  height: 34px;
+
+  flex: 0 0 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #d8e0e9;
+  border-radius: 7px;
+
+  background: #ffffff;
+  color: #596679;
+
+  font-size: 15px;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.service-category-action-button--copy:hover {
+  border-color: #c4d2e7;
+  background: #f3f7fd;
+  color: #4f6f9d;
+}
+
+.service-category-action-button--edit:hover {
+  border-color: #a9deea;
+  background: #eefafd;
+  color: #0788a2;
+}
+
+.service-category-action-button--delete:hover {
+  border-color: #f0c2c8;
+  background: #fff2f3;
+  color: #d14455;
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.service-category-empty-state {
+  min-height: 250px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+}
+
+/* =========================================================
+   PAGINATION / FOOTER FLOW
+   Same approach used for Prospect/Reminder list fixes.
+   ========================================================= */
+
+.service-category-pagination-wrap {
+  min-height: 64px;
+
+  padding: 13px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  border-top: 1px solid var(--sc-border);
+
+  background: #ffffff;
+
+  position: relative;
+  z-index: 1;
+}
+
+/* Neutralise fixed-bottom only inside this screen */
+.service-category-pagination-wrap .fixed-bottom {
+  position: static !important;
+
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.service-category-pagination-wrap .fixed-bottom > .row,
+.service-category-pagination-wrap .row {
+  margin: 0 !important;
+}
+
+.service-category-pagination-wrap .pagination {
+  margin: 0 !important;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+}
+
+.service-category-pagination-wrap .mb-4 {
+  margin-bottom: 0 !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 991px) {
+  .service-category-page {
+    padding: 26px 20px 36px;
+  }
+}
+
+@media (max-width: 767px) {
+  .service-category-page {
+    padding: 20px 12px 30px;
+  }
+
+  .service-category-page-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .service-category-page-title {
+    font-size: 24px;
+  }
+
+  .service-category-add-action {
+    width: 100%;
+  }
+
+  .service-category-add-action .btn,
+  .service-category-add-action .create-item-btn {
+    width: 100% !important;
+  }
+
+  .service-category-toolbar {
+    padding: 12px;
+
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .service-category-search-wrap {
+    width: 100%;
+  }
+
+  .service-category-record-count {
+    display: none;
+  }
+
+  .service-category-pagination-wrap {
+    min-height: 64px;
+    padding: 13px 12px;
+  }
+}

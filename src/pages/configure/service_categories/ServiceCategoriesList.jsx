@@ -1,6 +1,7 @@
 /* global $ */
 import React, { useContext, useEffect, useState } from "react";
 import "./ServiceCategory.css";
+import "./ServiceCategory-redesign.css";
 import CommonButtonComponent from "../../../components/CommonButtonComponent";
 import ServicesCategoriesModel from "./ServicesCategoriesModel";
 import ConfirmModel from "../../../components/ConfirmationBox";
@@ -70,7 +71,7 @@ const Service_Categories = () => {
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
   const [openErrorModal, setOpenErrorModal] = React.useState(false);
   const [showProfessionType, setShowProfessionType] = useState(
-    common.organisationKeyID === null || common.professionTypeLists.length > 1
+    common.organisationKeyID === null || common.professionTypeLists.length > 1,
   );
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
   const formattedErrorMessage = handleErrorMessage(errorMessage);
@@ -103,7 +104,7 @@ const Service_Categories = () => {
     i,
     searchKeywordValue,
     sortValue,
-    ServiceSortType
+    ServiceSortType,
   ) => {
     setLoader(true);
     const pageNoList = i - 1;
@@ -138,7 +139,7 @@ const Service_Categories = () => {
                 newPaneNo,
                 searchKeywordValue,
                 sortValue,
-                ServiceSortType
+                ServiceSortType,
               );
               setCurrentPage(pageNoList);
               return;
@@ -156,7 +157,7 @@ const Service_Categories = () => {
                 i,
                 searchKeywordValue,
                 sortValue,
-                ServiceSortType
+                ServiceSortType,
               );
             }, 2000);
           } else {
@@ -189,7 +190,7 @@ const Service_Categories = () => {
       setLoader(true);
       const data = await GetServiceCategoryModel(
         serviceCategory.serviceCatKeyID,
-        true
+        true,
       );
       if (data?.data?.statusCode === 200) {
         setLoader(false);
@@ -217,26 +218,27 @@ const Service_Categories = () => {
   };
 
   // Copy Service Category
-  const CopyServiceCategoryData = async() => {
-    if(!common.userKeyID) return;
+  const CopyServiceCategoryData = async () => {
+    if (!common.userKeyID) return;
     try {
       setLoader(true);
-      const data = await CopyServiceCategory(modelRequestData.serviceCatKeyID,common.userKeyID);
-      if(data?.data?.statusCode === 200) {
+      const data = await CopyServiceCategory(
+        modelRequestData.serviceCatKeyID,
+        common.userKeyID,
+      );
+      if (data?.data?.statusCode === 200) {
         setLoader(false);
         setOpenSuccessModal(true);
         GetServiceCategoryListData(currentPage);
-      }
-      else {
+      } else {
         setLoader(false);
         setErrorMessage(data?.data?.errorMessage);
         setOpenErrorModal(true);
       }
-    }
-    catch(error) {
+    } catch (error) {
       console.error(error);
     }
-  }
+  };
   // Update Function Modal
   // 2) On Click Service Category Status Button
   const ServiceCategoryChangeStatusDataAndDeleteData = async () => {
@@ -245,7 +247,7 @@ const Service_Categories = () => {
       try {
         const Data = await ServiceCategoryChangeStatus(
           modelRequestData.serviceCatKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -256,7 +258,7 @@ const Service_Categories = () => {
             ) {
               const servicePackageNames =
                 Data?.data?.responseData.serviceCategoryExistsinServices.map(
-                  (item) => item.serviceName
+                  (item) => item.serviceName,
                 );
               setModelRequestData({
                 ...modelRequestData,
@@ -285,7 +287,7 @@ const Service_Categories = () => {
       try {
         const Data = await DeleteServiceCategory(
           modelRequestData.serviceCatKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -296,7 +298,7 @@ const Service_Categories = () => {
             ) {
               const servicePackageNames =
                 Data?.data?.responseData.serviceCategoryExistsinServices.map(
-                  (item) => item.serviceName
+                  (item) => item.serviceName,
                 );
               setModelRequestData({
                 ...modelRequestData,
@@ -366,528 +368,463 @@ const Service_Categories = () => {
   };
 
   //Design part :
+  const canAdd =
+    (userAccessData.Admin_Config_ServiceCat_CanAdd &&
+      common.organisationKeyID !== null) ||
+    (userAccessData.SuperAdmin_Config_ServiceCat_CanAdd &&
+      common.organisationKeyID === null);
+
+  const canEdit =
+    (userAccessData.Admin_Config_ServiceCat_CanEdit &&
+      common.organisationKeyID !== null) ||
+    (userAccessData.SuperAdmin_Config_ServiceCat_CanEdit &&
+      common.organisationKeyID === null);
+
+  const canDelete =
+    (userAccessData.Admin_Config_ServiceCat_CanDelete &&
+      common.organisationKeyID !== null) ||
+    (userAccessData.SuperAdmin_Config_ServiceCat_CanDelete &&
+      common.organisationKeyID === null);
+
   return (
     <>
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
-        <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  <div class="card-body mb-2">
-                  {/* end card header  */}
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                          <div className="row">
-                            <div className="col-md-6 p-0 ">
-                  <div class="page-title-cls">Service Categories
-                  </div>
-                </div>
-                <div class="col-auto ms-auto">
-                          <div className="d-flex justify-content-sm-end add-new-btn">
-                            {((userAccessData.Admin_Config_ServiceCat_CanAdd &&
-                              common.organisationKeyID !== null) ||
-                              (userAccessData.SuperAdmin_Config_ServiceCat_CanAdd &&
-                                common.organisationKeyID === null)) && (
-                                <CommonButtonComponent
-                                  title={getCrudButtonToolTipName("Add", moduleName)}
-                                  dataBsTarget="#addUpdateModal"
-                                  data_bs_toggle="modal"
-                                  name={getCrudButtonTextName("Add", moduleName)}
-                                  AddBtn={() => ServiceCategoryAddBtnClicked()}
-                                />
-                              )}
-                          </div>
-                          </div>
-                  </div>
-                </div>
+      <div className="service-category-redesign">
+        <div className="service-category-page">
+          {/* =========================
+              PAGE HEADER
+              ========================= */}
+          <div className="service-category-page-header">
+            <div>
+              <h1 className="service-category-page-title">
+                Service Categories
+              </h1>
+              <p className="service-category-page-subtitle">
+                Manage service categories, profession mapping and availability.
+              </p>
+            </div>
+
+            {canAdd && (
+              <div className="service-category-add-action">
+                <CommonButtonComponent
+                  title={getCrudButtonToolTipName("Add", moduleName)}
+                  dataBsTarget="#addUpdateModal"
+                  data_bs_toggle="modal"
+                  name={getCrudButtonTextName("Add", moduleName)}
+                  AddBtn={() => ServiceCategoryAddBtnClicked()}
+                />
               </div>
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card ">
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
-                        <div className="div mb-2">
-                        <div className="search-box ms-2 width-searchbox ">
-                          <div class="row">
-                            <div className="col-lg-12 col-md-12 col-sm-12 ">
-                              <div className="row align-items-center">
-                            <div className="col-md-3 col-7">
-                              <div class="search-box w-100 width-searchbox">
-                          <i class="ri-search-line search-icon"></i>
-                          <input
-                            type="text"
-                            value={searchKeyword}
-                            onChange={(e) => {
-                              handleSearch(e);
-                            }}
-                            className="form-control search"
-                            placeholder={
-                              isMobile
-                                ? "Search"
-                                : getPlaceholderTextName("Search", moduleName)
-                            }
-                          />
-                            </div>
-                          </div>
-                          </div>
-                        </div>
-                        </div>
-                        </div>
-                        </div>
-                        <table
-                          class="table align-middle table-nowrap"
-                          id="customerTable"
+            )}
+          </div>
+
+          {/* =========================
+              LIST CARD
+              ========================= */}
+          <section className="service-category-list-card">
+            {/* Toolbar */}
+            <div className="service-category-toolbar">
+              <div className="service-category-search-wrap">
+                <i className="ri-search-line service-category-search-icon"></i>
+
+                <input
+                  type="text"
+                  value={searchKeyword}
+                  onChange={handleSearch}
+                  className="service-category-search-input"
+                  placeholder={
+                    isMobile
+                      ? "Search"
+                      : getPlaceholderTextName("Search", moduleName)
+                  }
+                />
+              </div>
+
+              <div className="service-category-record-count">
+                {listCount > 0
+                  ? `${listCount} ${
+                      listCount === 1 ? "category" : "categories"
+                    }`
+                  : ""}
+              </div>
+            </div>
+
+            {/* Table */}
+            <div className="service-category-table-wrap">
+              <table className="service-category-table" id="customerTable">
+                <thead>
+                  <tr>
+                    <th>
+                      <button
+                        type="button"
+                        className="service-category-sort-button"
+                        onClick={() => {
+                          setSortType("ServiceCatName");
+                          handleSort(
+                            primarySortDirectionObj.ServiceNameSort === null
+                              ? "asc"
+                              : primarySortDirectionObj.ServiceNameSort ===
+                                  "asc"
+                                ? "desc"
+                                : "asc",
+                            "ServiceCatName",
+                          );
+                        }}
+                      >
+                        <span>Service Category</span>
+                        <i
+                          className={
+                            primarySortDirectionObj.ServiceNameSort === "desc"
+                              ? "ri-arrow-up-line"
+                              : "ri-arrow-down-line"
+                          }
+                        ></i>
+                      </button>
+                    </th>
+
+                    {showProfessionType && (
+                      <th>
+                        <button
+                          type="button"
+                          className="service-category-sort-button"
+                          onClick={() => {
+                            setSortType("ProfessionType");
+                            handleSort(
+                              primarySortDirectionObj.ProfessionTypeSort ===
+                                null
+                                ? "asc"
+                                : primarySortDirectionObj.ProfessionTypeSort ===
+                                    "asc"
+                                  ? "desc"
+                                  : "asc",
+                              "ProfessionType",
+                            );
+                          }}
                         >
-                          <thead class="table-light table-header-font">
-                            <tr className="head-row">
-                              <td
-                                className="tr-table-class text-white"
-                                style={{ width: "50%" }}
-                              >
-                                Service Categories
-                                {primarySortDirectionObj.ServiceNameSort ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("ServiceCatName");
-                                        handleSort("asc", "ServiceCatName");
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primarySortDirectionObj.ServiceNameSort ===
-                                  null ||
-                                  primarySortDirectionObj.ServiceNameSort ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("ServiceCatName");
-                                        handleSort(
-                                          primarySortDirectionObj.ServiceNameSort ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "ServiceCatName"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class text-white profession-type-column">
-                                {showProfessionType && (
-                                  <>
-                                    Profession Type
-                                    {primarySortDirectionObj.ProfessionTypeSort ===
-                                      "desc" && (
-                                        <i
-                                          onClick={() => {
-                                            setSortType("ProfessionType");
-                                            handleSort("asc", "ProfessionType");
-                                          }}
-                                          style={{ cursor: "pointer" }}
-                                          class="fas fa-sort-alpha-up ml-1"
-                                        ></i>
-                                      )}
-                                    {(primarySortDirectionObj.ProfessionTypeSort ===
-                                      null ||
-                                      primarySortDirectionObj.ProfessionTypeSort ===
-                                      "asc") && (
-                                        <i
-                                          onClick={() => {
-                                            setSortType("ProfessionType");
-                                            handleSort(
-                                              primarySortDirectionObj.ProfessionTypeSort ===
-                                                null
-                                                ? "asc"
-                                                : "desc",
-                                              "ProfessionType"
-                                            );
-                                          }}
-                                          style={{ cursor: "pointer" }}
-                                          class="fas fa-sort-alpha-down ml-1"
-                                        ></i>
-                                      )}
-                                  </>
-                                )}
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Status
-                              </td>
-                              <td className="tr-table-class text-white">
-                                {((userAccessData.Admin_Config_ServiceCat_CanEdit &&
-                                  common.organisationKeyID !== null) ||
-                                  (userAccessData.SuperAdmin_Config_ServiceCat_CanEdit &&
-                                    common.organisationKeyID === null) ||
-                                  (userAccessData.Admin_Config_ServiceCat_CanDelete &&
-                                    common.organisationKeyID !== null) ||
-                                  (userAccessData.SuperAdmin_Config_ServiceCat_CanEdit &&
-                                    common.organisationKeyID === null)) && (
-                                    <>Action</>
-                                  )}
-                              </td>
-                            </tr>
-                          </thead>
-                          <tbody class="list form-check-all">
-                            {serviceCategoryList
-                              ?.slice(
-                                0,
-                                isMobile ? isMobileRecords : desktopRecords
-                              )
-                              .map((serviceCategory, index) => {
-                                return (
-                                  <tr class="table_new" key={index}>
-                                    <td className="table-content-font">
-                                      {/* {isMobile ? (
-                                        <>
-                                          {serviceCategory.serviceCatName
-                                            .length > 20
-                                            ? serviceCategory.serviceCatName.substring(
+                          <span>Profession Type</span>
+                          <i
+                            className={
+                              primarySortDirectionObj.ProfessionTypeSort ===
+                              "desc"
+                                ? "ri-arrow-up-line"
+                                : "ri-arrow-down-line"
+                            }
+                          ></i>
+                        </button>
+                      </th>
+                    )}
+
+                    <th>Status</th>
+
+                    {(canEdit || canDelete) && (
+                      <th className="service-category-actions-heading">
+                        Actions
+                      </th>
+                    )}
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {serviceCategoryList
+                    ?.slice(0, isMobile ? isMobileRecords : desktopRecords)
+                    .map((serviceCategory) => {
+                      const formattedName =
+                        serviceCategory.serviceCatName?.replace(/\b\w/g, (l) =>
+                          l.toUpperCase(),
+                        ) || "-";
+
+                      const statusClass = (serviceCategory.statusName || "")
+                        .toLowerCase()
+                        .replace(/\s+/g, "-");
+
+                      return (
+                        <tr
+                          className="service-category-table-row"
+                          key={serviceCategory.serviceCatKeyID}
+                        >
+                          <td>
+                            <div className="service-category-name-cell">
+                              <span className="service-category-icon">
+                                <i className="ri-stack-line"></i>
+                              </span>
+
+                              <div className="service-category-name-copy">
+                                <div className="service-category-name-line">
+                                  {serviceCategory.notifySAChanges !== null &&
+                                    common.organisationKeyID !== null && (
+                                      <Tooltip title="View System Administrator Changes">
+                                        <button
+                                          type="button"
+                                          className="service-category-notification"
+                                          onClick={() =>
+                                            ServiceCategoryEditBtnClicked(
+                                              serviceCategory,
+                                              "editPredefined",
+                                            )
+                                          }
+                                        >
+                                          <i className="ri-notification-3-line"></i>
+                                        </button>
+                                      </Tooltip>
+                                    )}
+
+                                  <Tooltip
+                                    title={
+                                      serviceCategory.serviceCatName?.length >
+                                      50
+                                        ? serviceCategory.serviceCatName
+                                        : ""
+                                    }
+                                  >
+                                    <span className="service-category-primary-text">
+                                      {isMobile && formattedName.length > 24
+                                        ? `${formattedName.substring(0, 24)}...`
+                                        : !isMobile && formattedName.length > 50
+                                          ? `${formattedName.substring(
                                               0,
-                                              20
-                                            ) + "..."
-                                            : serviceCategory.serviceCatName}
-                                        </>
-                                      ) : (
-                                        <>
-                                          {serviceCategory.serviceCatName
-                                            .length > 45 ? (
-                                            <Tooltip
-                                              title={
-                                                serviceCategory.serviceCatName
-                                              }
-                                            >
-                                              {serviceCategory.serviceCatName.substring(
-                                                0,
-                                                45
-                                              ) + "..."}
-                                            </Tooltip>
-                                          ) : (
-                                            <>
-                                              {serviceCategory.serviceCatName}
-                                            </>
-                                          )}
-                                        </>
-                                      )} */}
-                                      {serviceCategory.notifySAChanges !== null && common.organisationKeyID !== null && (
-                                        <>
-                                          <Tooltip
-                                            title="View System Administrator Changes"
+                                              50,
+                                            )}...`
+                                          : formattedName}
+                                    </span>
+                                  </Tooltip>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
 
-                                          >
-                                            <span onClick={() =>
-                                              ServiceCategoryEditBtnClicked(
-                                                serviceCategory, "editPredefined"
-                                              )
-                                            } className="UpdateConfigValue"
-                                            // data-bs-toggle="modal"
+                          {showProfessionType && (
+                            <td>
+                              <span
+                                className="service-category-profession-chip"
+                                title={serviceCategory.professionTypeNames}
+                              >
+                                {serviceCategory.professionTypeNames || "-"}
+                              </span>
+                            </td>
+                          )}
 
-                                            // data-bs-target="#addUpdateModal"
-                                            >
-                                              <i class="fa fa-regular fa-bell"></i>
-                                            </span>
-                                          </Tooltip>
-                                        </>
-                                      )}
-                                      {isMobile ? (
-                                        <>
-                                          {serviceCategory.serviceCatName
-                                            .length > 20
-                                            ? serviceCategory.serviceCatName
-                                              .substring(0, 20)
-                                              .replace(/\b\w/g, (l) =>
-                                                l.toUpperCase()
-                                              ) + "..."
-                                            : serviceCategory.serviceCatName
-                                              .substring(0, 20)
-                                              .replace(/\b\w/g, (l) =>
-                                                l.toUpperCase()
-                                              )}
-                                        </>
-                                      ) : (
-                                        <>
-                                          {serviceCategory.serviceCatName
-                                            .length > 50 ? (
-                                            <Tooltip
-                                              title={
-                                                serviceCategory.serviceCatName
-                                              }
-                                            >
-                                              {serviceCategory.serviceCatName
-                                                .substring(0, 50)
-                                                .replace(/\b\w/g, (l) =>
-                                                  l.toUpperCase()
-                                                ) + "..."}
-                                            </Tooltip>
-                                          ) : (
-                                            <>
-                                              {serviceCategory.serviceCatName
-                                                .replace(/\b\w/g, (l) =>
-                                                  l.toUpperCase()
-                                                )}
-                                            </>
-                                          )}
-                                        </>
-                                      )}
+                          <td>
+                            <div className="service-category-status-control">
+                              <span
+                                className={`service-category-status-badge service-category-status-badge--${statusClass}`}
+                              >
+                                <span className="service-category-status-dot"></span>
+                                {serviceCategory.statusName || "-"}
+                              </span>
 
+                              {canDelete && (
+                                <Tooltip
+                                  title={getCrudButtonToolTipName(
+                                    "Change Status",
+                                  )}
+                                >
+                                  <FormGroup>
+                                    <FormControlLabel
+                                      className="service-category-switch-label"
+                                      control={
+                                        <Android12Switch
+                                          onClick={() =>
+                                            setModelRequestData({
+                                              ...modelRequestData,
+                                              status:
+                                                serviceCategory.statusName,
+                                              serviceCatKeyID:
+                                                serviceCategory.serviceCatKeyID,
+                                              userKeyID: common.userKeyID,
+                                              Action: "Status",
+                                            })
+                                          }
+                                          checked={
+                                            serviceCategory.statusName ===
+                                            "Active"
+                                          }
+                                          data-bs-toggle="modal"
+                                          data-bs-target="#ConfirmModel"
+                                        />
+                                      }
+                                    />
+                                  </FormGroup>
+                                </Tooltip>
+                              )}
+                            </div>
+                          </td>
 
-                                    </td>
+                          {(canEdit || canDelete) && (
+                            <td className="service-category-actions-cell">
+                              <div className="service-category-row-actions">
+                                <Tooltip
+                                  title={getCrudButtonToolTipName(
+                                    "Copy",
+                                    moduleName,
+                                  )}
+                                >
+                                  <button
+                                    type="button"
+                                    className="service-category-action-button service-category-action-button--copy"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#ConfirmModel"
+                                    onClick={() =>
+                                      setModelRequestData({
+                                        ...modelRequestData,
+                                        serviceCatName:
+                                          serviceCategory.serviceCatName,
+                                        Action: "Copy",
+                                        serviceCatKeyID:
+                                          serviceCategory.serviceCatKeyID,
+                                        userKeyID: common.userKeyID,
+                                      })
+                                    }
+                                  >
+                                    <i className="ri-file-copy-line"></i>
+                                  </button>
+                                </Tooltip>
 
-                                    <td className="table-content-font">
-                                      {showProfessionType &&
-                                        serviceCategory.professionTypeNames}
-                                    </td>
-                                    <td className="Switch table-content-font">
-                                      <div
-                                        style={{
-                                          alignItems: "none",
-                                          marginLeft:
-                                            (((userAccessData.Admin_Config_ServiceCat_CanEdit &&
-                                              common.organisationKeyID !==
-                                              null) ||
-                                              (userAccessData.SuperAdmin_Config_ServiceCat_CanEdit &&
-                                                common.organisationKeyID ===
-                                                null)) &&
-                                              common.organisationKeyID !==
-                                              null) ||
-                                              (userAccessData.SuperAdmin_Config_ServiceCat_CanEdit &&
-                                                common.organisationKeyID === null)
-                                              ? ""
-                                              : "10px",
-                                        }}
-                                        class="d-flex gap-2 "
-                                      >
-                                        <div style={{ width: "50px" }}>
-                                          {" "}
-                                          {serviceCategory.statusName}
-                                        </div>
-                                        {((userAccessData.Admin_Config_ServiceCat_CanDelete &&
-                                          common.organisationKeyID !== null) ||
-                                          (userAccessData.SuperAdmin_Config_ServiceCat_CanDelete &&
-                                            common.organisationKeyID ===
-                                            null)) && (
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "Change Status"
-                                              )}
-                                            >
-                                              <FormGroup>
-                                                <FormControlLabel
-                                                  control={
-                                                    <Android12Switch
-                                                      onClick={() =>
-                                                        setModelRequestData({
-                                                          ...modelRequestData,
-                                                          status:
-                                                            serviceCategory.statusName,
-                                                          serviceCatKeyID:
-                                                            serviceCategory.serviceCatKeyID,
-                                                          userKeyID:
-                                                            common.userKeyID,
-                                                          Action: "Status",
-                                                        })
-                                                      }
-                                                      checked={
-                                                        serviceCategory.statusName ===
-                                                        "Active"
-                                                      }
-                                                      data-bs-toggle="modal"
-                                                      data-bs-target="#ConfirmModel"
-                                                    />
-                                                  }
-                                                />
-                                              </FormGroup>
-                                            </Tooltip>
-                                          )}
-                                      </div>
-                                    </td>
+                                {canEdit && (
+                                  <Tooltip
+                                    title={getCrudButtonToolTipName(
+                                      "Update",
+                                      moduleName,
+                                    )}
+                                  >
+                                    <button
+                                      type="button"
+                                      className="service-category-action-button service-category-action-button--edit"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#addUpdateModal"
+                                      onClick={() =>
+                                        ServiceCategoryEditBtnClicked(
+                                          serviceCategory,
+                                        )
+                                      }
+                                    >
+                                      <i className="ri-pencil-line"></i>
+                                    </button>
+                                  </Tooltip>
+                                )}
 
-                                    <td className="table-content-font">
-                                      <div class="d-flex gap-2">
-                                      <Tooltip
-                                        title={getCrudButtonToolTipName(
-                                          "Copy",
-                                          moduleName
-                                        )}
-                                      >
-                                        <div class="copy">
-                                          <button
-                                            class="btn btn-sm btn-success edit-item-btn edit"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#ConfirmModel"
-                                            onClick={() =>
-                                              setModelRequestData({
-                                                ...modelRequestData,
-                                                serviceCatName: serviceCategory.serviceCatName,
-                                                Action: "Copy",
-                                                serviceCatKeyID: serviceCategory.serviceCatKeyID,
-                                                userKeyID: common.userKeyID
-                                              })
-                                            }
-                                          >
-                                            <i class="fa-solid fa-copy"></i>
-                                          </button>
-                                        </div>
-                                      </Tooltip> 
-                                        {((userAccessData.Admin_Config_ServiceCat_CanEdit &&
-                                          common.organisationKeyID !== null) ||
-                                          (userAccessData.SuperAdmin_Config_ServiceCat_CanEdit &&
-                                            common.organisationKeyID ===
-                                            null)) && (
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "Update",
-                                                moduleName
-                                              )}
-                                            >
-                                              <div class="edit">
-                                                <button
-                                                  onClick={() =>
-                                                    ServiceCategoryEditBtnClicked(
-                                                      serviceCategory
-                                                    )
-                                                  }
-                                                  class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
-                                                  data-bs-toggle="modal"
-                                                  data-bs-target="#addUpdateModal"
-                                                >
-                                                  <i class="ri-pencil-fill"></i>
-                                                </button>
-                                              </div>
-                                            </Tooltip>
-                                          )}
-                                        {((userAccessData.Admin_Config_ServiceCat_CanDelete &&
-                                          common.organisationKeyID !== null) ||
-                                          (userAccessData.SuperAdmin_Config_ServiceCat_CanDelete &&
-                                            common.organisationKeyID ===
-                                            null)) && (
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "Delete",
-                                                moduleName
-                                              )}
-                                            >
-                                              <div class="remove">
-                                                <button
-                                                  class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                                  data-bs-toggle="modal"
-                                                  data-bs-target="#ConfirmModel"
-                                                  onClick={() =>
-                                                    setModelRequestData({
-                                                      ...modelRequestData,
-                                                      serviceCatKeyID:
-                                                        serviceCategory.serviceCatKeyID,
-                                                      serviceCatName:
-                                                        serviceCategory.serviceCatName,
-                                                      userKeyID: common.userKeyID,
-                                                      Action: "Delete",
-                                                    })
-                                                  }
-                                                >
-                                                  <i class="ri-delete-bin-5-fill"></i>
-                                                </button>
-                                              </div>
-                                            </Tooltip>
-                                          )}
-                                      </div>
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                          </tbody>
-                        </table>
+                                {canDelete && (
+                                  <Tooltip
+                                    title={getCrudButtonToolTipName(
+                                      "Delete",
+                                      moduleName,
+                                    )}
+                                  >
+                                    <button
+                                      type="button"
+                                      className="service-category-action-button service-category-action-button--delete"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#ConfirmModel"
+                                      onClick={() =>
+                                        setModelRequestData({
+                                          ...modelRequestData,
+                                          serviceCatKeyID:
+                                            serviceCategory.serviceCatKeyID,
+                                          serviceCatName:
+                                            serviceCategory.serviceCatName,
+                                          userKeyID: common.userKeyID,
+                                          Action: "Delete",
+                                        })
+                                      }
+                                    >
+                                      <i className="ri-delete-bin-line"></i>
+                                    </button>
+                                  </Tooltip>
+                                )}
+                              </div>
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+
+              {totalRecords <= 0 && (
+                <div className="service-category-empty-state">
+                  <NoResultFoundModel
+                    name={moduleName}
+                    totalRecords={totalRecords}
+                  />
                 </div>
-                {totalRecords <= 0 && (
-                          <NoResultFoundModel
-                            name={moduleName}
-                            totalRecords={totalRecords}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  {listCount > pageSize && (
-                    <PaginationComponent
-                      totalCount={listCount}
-                      totalPages={totalPage}
-                      desktopRecords={desktopRecords}
-                      currentPage={currentPage}
-                      onPageChange={handlePageChange}
-                    />
-                  )}
-              </div>
+              )}
             </div>
-            </div>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
-            <ErrorModel
-              ErrorModel={openErrorModal}
-              handleClose={handleClose}
-              ErrorMessage={formattedErrorMessage}
-            />
-            {/* Confirm Modal  */}
-            <ConfirmModel
-              openErrorModal={openErrorModal}
-              openSuccessModal={openSuccessModal}
-              modelRequestData={modelRequestData}
-              UpdatedStatus={modelRequestData.Action === "Delete" || modelRequestData.Action === "Status" ? ServiceCategoryChangeStatusDataAndDeleteData : CopyServiceCategoryData}
-            />
-            <RecordsAvailablePopupModel
-              handleClose={handleClose}
-              openErrorModal={openErrorModal}
-              openSuccessModal={openSuccessModal}
-              modelRequestData={modelRequestData}
-              UpdatedStatus={ServiceCategoryChangeStatusDataAndDeleteData}
-            />
-            {/* Success Modal  */}
-            <SuccessModal
-              handleClose={handleClose}
-              setOpenSuccessModal={setOpenSuccessModal}
-              openSuccessModal={openSuccessModal}
-              modelAction={modelRequestData.Action}
-              message={`${
-                modelRequestData.Action === "Delete"
-                  ? `${moduleName} ${modelRequestData.serviceCatName}`
-                  : modelRequestData.Action === "Copy"
-                  ? `Copy of ${modelRequestData.serviceCatName} has been created successfully!`
-                  : "Status has been changed successfully!"
-              }`}
-            />
 
-            {/* service Category Modal  */}
-            <ServicesCategoriesModel
-              class="modal fade"
-              id="addUpdateModal"
-              tabIndex="-1"
-              aria_labelledby="exampleModalLabel"
-              aria_hidden="true"
-              setIsAddUpdateActionDone={setIsAddUpdateActionDone}
-              modelRequestData={modelRequestData}
-            />
-          
+            {/* Pagination */}
+            {listCount > pageSize && (
+              <div className="service-category-pagination-wrap">
+                <PaginationComponent
+                  totalCount={listCount}
+                  totalPages={totalPage}
+                  desktopRecords={desktopRecords}
+                  currentPage={currentPage}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
+          </section>
+        </div>
+
+        {/* =========================
+            EXISTING MODALS
+            ========================= */}
+        <ErrorModel
+          ErrorModel={openErrorModal}
+          handleClose={handleClose}
+          ErrorMessage={formattedErrorMessage}
+        />
+
+        <ConfirmModel
+          openErrorModal={openErrorModal}
+          openSuccessModal={openSuccessModal}
+          modelRequestData={modelRequestData}
+          UpdatedStatus={
+            modelRequestData.Action === "Delete" ||
+            modelRequestData.Action === "Status"
+              ? ServiceCategoryChangeStatusDataAndDeleteData
+              : CopyServiceCategoryData
+          }
+        />
+
+        <RecordsAvailablePopupModel
+          handleClose={handleClose}
+          openErrorModal={openErrorModal}
+          openSuccessModal={openSuccessModal}
+          modelRequestData={modelRequestData}
+          UpdatedStatus={ServiceCategoryChangeStatusDataAndDeleteData}
+        />
+
+        <SuccessModal
+          handleClose={handleClose}
+          setOpenSuccessModal={setOpenSuccessModal}
+          openSuccessModal={openSuccessModal}
+          modelAction={modelRequestData.Action}
+          message={`${
+            modelRequestData.Action === "Delete"
+              ? `${moduleName} ${modelRequestData.serviceCatName}`
+              : modelRequestData.Action === "Copy"
+                ? `Copy of ${modelRequestData.serviceCatName} has been created successfully!`
+                : "Status has been changed successfully!"
+          }`}
+        />
+
+        <ServicesCategoriesModel
+          class="modal fade"
+          id="addUpdateModal"
+          tabIndex="-1"
+          aria_labelledby="exampleModalLabel"
+          aria_hidden="true"
+          setIsAddUpdateActionDone={setIsAddUpdateActionDone}
+          modelRequestData={modelRequestData}
+        />
+
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="btn btn-danger btn-icon"
+          id="back-to-top"
+        >
+          <i className="ri-arrow-up-line"></i>
+        </button>
       </div>
 
-      {/* start back-to-top */}
-      <button
-        onClick="topFunction()"
-        class="btn btn-danger btn-icon"
-        id="back-to-top"
-      >
-        <i class="ri-arrow-up-line"></i>
-      </button>
-      {/* end back-to-top */}
-    </div>
-    <Footer />
+      <Footer />
     </>
   );
 };

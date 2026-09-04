@@ -16,6 +16,7 @@ import { NotifySuperAdminPredefinedChangesToAdmin } from "../../../redux/Service
 import AcceptSuperAdminChangesConfirmation from "../../../components/AcceptSuperAdminChangesConfirmation";
 import ErrorModel from "../../../components/ErrorModel";
 import SAPredefinedChangesNotifyMessageModel from "../../../components/SAPredefinedChangesNotifyMessageModel";
+import "./ServiceCategoryModal-redesign.css";
 
 function ServicesCategoriesModel(props) {
   // A] States Declaration :
@@ -51,8 +52,10 @@ function ServicesCategoriesModel(props) {
       props.modelRequestData.Action !== undefined &&
       props.modelRequestData.Action !== null
     ) {
-      GetServiceCategoryModelData(props.modelRequestData.serviceCatKeyID, props.modelRequestData.Type);
-
+      GetServiceCategoryModelData(
+        props.modelRequestData.serviceCatKeyID,
+        props.modelRequestData.Type,
+      );
     } else {
       SetInitialModelData();
     }
@@ -102,11 +105,11 @@ function ServicesCategoriesModel(props) {
     (ptype) => ({
       value: ptype.professionTypeId,
       label: ptype.professionTypeName,
-    })
+    }),
   );
 
   const professionTypeInputValue = professionTypeLookupList?.filter(
-    (item) => common.professionTypeLists[0] === item.professionTypeId
+    (item) => common.professionTypeLists[0] === item.professionTypeId,
   );
 
   const professionTypeValue =
@@ -148,14 +151,15 @@ function ServicesCategoriesModel(props) {
             serviceCatKeyID: ModelData.serviceCatKeyID,
             keyID: ModelData.keyID,
             serviceCatName: ModelData.serviceCatName,
-            description: ModelData.description === null ? "" : ModelData.description,
+            description:
+              ModelData.description === null ? "" : ModelData.description,
             createdByID: ModelData.createdByID,
             professionTypeList: ModelData.professionTypeList, //this will be professional type array
           });
         }
       } else {
         setErrorMessage(data?.response?.data?.errorMessage);
-        setOpenErrorModal(true)
+        setOpenErrorModal(true);
         // setTimeout(() => {
         //   $('#' + "addUpdateModal").modal('hide')
         // }, 400);
@@ -168,7 +172,6 @@ function ServicesCategoriesModel(props) {
   };
   // 2) Add Update Button Click Function
   const ServiceCategoryAddUpdateBtnClicked = (Accept) => {
-
     if (
       (common.professionTypeLists?.length > 1 ||
         common.organisationKeyID === null) &&
@@ -189,12 +192,11 @@ function ServicesCategoriesModel(props) {
     if (Accept === "Accept") {
       $("#" + "ConfirmSAChangesModel").modal("show");
 
-      setStatus(true)
-      return
+      setStatus(true);
+      return;
     }
     // Preparing Object For Add Update and if any modification then it will done here
     const ApiRequest_ParamsObj = {
-
       Action: props.modelRequestData.Action,
       userKeyID: common.userKeyID,
       organisationID: common.organisationID,
@@ -208,15 +210,15 @@ function ServicesCategoriesModel(props) {
         serviceCatObj.description === "" ? null : serviceCatObj.description,
       professionTypeList:
         common.professionTypeLists?.length > 1 ||
-          common.organisationKeyID === null
+        common.organisationKeyID === null
           ? serviceCatObj.professionTypeList
           : [
-            {
-              professionTypeId: professionTypeInputValue[0]?.professionTypeId,
-              professionTypeName:
-                professionTypeInputValue[0]?.professionTypeName,
-            },
-          ],
+              {
+                professionTypeId: professionTypeInputValue[0]?.professionTypeId,
+                professionTypeName:
+                  professionTypeInputValue[0]?.professionTypeName,
+              },
+            ],
     };
 
     AddUpdateServiceCategoryData(ApiRequest_ParamsObj);
@@ -228,11 +230,11 @@ function ServicesCategoriesModel(props) {
   const handleConfirmButton = () => {
     $("#" + "ConfirmSAChangesModel").modal("hide");
     if (Status) {
-      ServiceCategoryAddUpdateBtnClicked(true)
+      ServiceCategoryAddUpdateBtnClicked(true);
     } else {
-      DeclineSuperAdminChangesData()
+      DeclineSuperAdminChangesData();
     }
-  }
+  };
   // Add or Update Service Category Data
   const AddUpdateServiceCategoryData = async (apiRequestParams) => {
     setLoader(true);
@@ -266,9 +268,9 @@ function ServicesCategoriesModel(props) {
     if (Decline === "Decline") {
       // $('#' + props.id).modal('hide')
 
-      setStatus(false)
+      setStatus(false);
       $("#" + "ConfirmSAChangesModel").modal("show");
-      return
+      return;
     }
     setLoader(true);
     try {
@@ -276,22 +278,22 @@ function ServicesCategoriesModel(props) {
         organisationKeyID: common.organisationKeyID,
         userKeyID: common.userKeyID,
         moduleKeyID: props.modelRequestData.serviceCatKeyID,
-        moduleName: "Predefined-ServiceCategory"
+        moduleName: "Predefined-ServiceCategory",
         //Predefined-ServiceCategory, Predefined-GlobalConstant, Predefined-GlobalPricingDriver,
         //Predefined-PL-EL-Template, Predefined-TnC-Template, Predefined-Email-Template,
         //Predefined-Service, Predefined-ServicePackage
-      }
+      };
       const response = await DeclineSuperAdminChanges(apiRequestParams);
       if (response) {
         setLoader(false);
         if (response?.data?.statusCode === 200) {
           if (apiRequestParams.Action === null) {
-            $('#' + props.id).modal('hide')
+            $("#" + props.id).modal("hide");
             $("#" + "ConfirmSAChangesModel").modal("hide");
             // setOpenSuccessModal(true);
             props.setIsAddUpdateActionDone(true);
           } else {
-            $('#' + props.id).modal('hide')
+            $("#" + props.id).modal("hide");
             $("#" + "ConfirmSAChangesModel").modal("hide");
             // setOpenSuccessModal(true);
             props.setIsAddUpdateActionDone(true);
@@ -304,41 +306,40 @@ function ServicesCategoriesModel(props) {
     } catch (error) {
       console.error(error);
     }
-  }
+  };
   const handleCloseModal = () => {
     setOpenSuccessModal(false);
   };
-  // Handle Close 
+  // Handle Close
   const handleClose = async () => {
     if (isCheck) {
-      setLoader(true)
+      setLoader(true);
       const Notification = await NotifySuperAdminPredefinedChangesToAdmin({
         userKeyID: common.userKeyID,
         moduleKeyID: serviceCatObj.serviceCatKeyID,
-        moduleName: "Predefined-ServiceCategory"
-      })
+        moduleName: "Predefined-ServiceCategory",
+      });
       if (Notification?.data?.statusCode === 200) {
-        setLoader(false)
-        setModelAction("NotificationSend")
-        setOpenSuccessModal(true)
-        setIsCheck(false)
+        setLoader(false);
+        setModelAction("NotificationSend");
+        setOpenSuccessModal(true);
+        setIsCheck(false);
       }
     } else {
       $("#" + props.id).modal("hide");
       $("#" + "ConfirmSAChangesModel").modal("hide");
       setOpenSuccessModal(false);
-      setOpenErrorModal(false)
-      setIsCheck(false)
+      setOpenErrorModal(false);
+      setIsCheck(false);
     }
-
   };
 
   //Design part :
   return (
-    <div>
+    <div className="service-category-modal-redesign">
       <div
         style={{ display: (openSuccessModal || openErrorModal) && "none" }}
-        class={props.class}
+        className={props.class}
         id={props.id}
         ref={modalRef}
         tabIndex={props.tabIndex}
@@ -347,92 +348,98 @@ function ServicesCategoriesModel(props) {
         data-bs-backdrop="static"
         data-bs-keyboard="false"
       >
-        <div class="modal-dialog modal-md modal-dialog-centered">
-          <div class="modal-content">
-            {/*Heading Start */}
-            <div class="modal-header bg-light p-3">
-              <h5 class="modal-title" id="exampleModalLabel">
-                {modelAction === "Add"
-                  ? getCrudPopUpTitleName("Add", moduleName)
-                  : getCrudPopUpTitleName("Update", moduleName)}
-              </h5>
-              {/* Close Button Start */}
+        <div className="modal-dialog modal-md modal-dialog-centered service-category-modal-dialog">
+          <div className="modal-content service-category-modal-content">
+            {/* =========================
+                HEADER
+                ========================= */}
+            <div className="modal-header service-category-modal-header">
+              <div className="service-category-modal-heading">
+                <span className="service-category-modal-heading-icon">
+                  <i className="ri-stack-line"></i>
+                </span>
+
+                <div>
+                  <h5 className="modal-title" id="exampleModalLabel">
+                    {modelAction === "Add"
+                      ? getCrudPopUpTitleName("Add", moduleName)
+                      : getCrudPopUpTitleName("Update", moduleName)}
+                  </h5>
+
+                  <p>
+                    {modelAction === "Add"
+                      ? "Create a new service category"
+                      : "Update the service category"}
+                  </p>
+                </div>
+              </div>
+
               <button
                 type="button"
-                class="btn-close"
+                className="btn-close service-category-modal-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
                 onClick={SetInitialModelData}
                 id="close-modal"
-              >
-                {/* Close Button End */}
-              </button>
+              ></button>
             </div>
-            {/*Heading End */}
-            {/*Modal body Start */}
-            <div class="modal-body">
-              <div>
-                <div class="row fieldset">
-                  <SAPredefinedChangesNotifyMessageModel Params={{ moduleName: moduleName, SAChanges: props.modelRequestData.Type }} />
-                  {(common.professionTypeLists?.length > 1 ||
-                    common.organisationKeyID === null) && (
-                      <>
-                        <div class="col-12 mb-1">
-                          <label>
-                            Profession Type
-                            <span className="text-danger">*</span>
-                          </label>
-                        </div>
 
-                        <div className="col-12 input-group">
-                          {
-                            common.professionTypeLists?.length > 1 ||
-                              common.organisationKeyID === null ? (
-                              <Select
-                                isMulti
-                                style={{ padding: "5px" }}
-                                className="user-role-select"
-                                options={ProfessionalTypeLookeupListOptions}
-                                value={professionTypeValue}
-                                onChange={OnChangeSelectProfessionType}
-                              />
-                            ) : (
-                              ""
-                            )
-                            // <input
-                            //   disabled
-                            //   style={{ padding: "5px" }}
-                            //   type="text"
-                            //   class="input-text"
-                            //   placeholder=" Profession Type"
-                            //   value={professionTypeInputValue[0]?.professionTypeName}
-                            // />
-                          }
-                          {requireErrorMessage &&
-                            (common.professionTypeLists?.length > 1 ||
-                              common.organisationKeyID === null) &&
-                            professionTypeValue?.length === 0 ? (
-                            <label className="validation">{ERROR_MESSAGES}</label>
-                          ) : (
-                            ""
-                          )}
-                        </div>
-                      </>
-                    )}
-                </div>
-                <div class="row fieldset">
-                  <div class="col-12 mb-1">
-                    <label>
-                      Service Category Name
-                      <span className="text-danger">*</span>
+            {/* =========================
+                BODY
+                ========================= */}
+            <div className="modal-body service-category-modal-body">
+              <SAPredefinedChangesNotifyMessageModel
+                Params={{
+                  moduleName: moduleName,
+                  SAChanges: props.modelRequestData.Type,
+                }}
+              />
+
+              <div className="service-category-modal-form">
+                {(common.professionTypeLists?.length > 1 ||
+                  common.organisationKeyID === null) && (
+                  <div className="service-category-modal-field">
+                    <label className="service-category-modal-label">
+                      Profession Type
+                      <span className="service-category-required">*</span>
                     </label>
+
+                    <Select
+                      isMulti
+                      className="user-role-select service-category-modal-select"
+                      classNamePrefix="service-category-select"
+                      options={ProfessionalTypeLookeupListOptions}
+                      value={professionTypeValue}
+                      onChange={OnChangeSelectProfessionType}
+                      placeholder="Select profession type"
+                    />
+
+                    {requireErrorMessage &&
+                    (common.professionTypeLists?.length > 1 ||
+                      common.organisationKeyID === null) &&
+                    professionTypeValue?.length === 0 ? (
+                      <label className="validation service-category-modal-validation">
+                        {ERROR_MESSAGES}
+                      </label>
+                    ) : (
+                      ""
+                    )}
                   </div>
-                  <div class="col-12">
+                )}
+
+                <div className="service-category-modal-field">
+                  <label className="service-category-modal-label">
+                    Service Category Name
+                    <span className="service-category-required">*</span>
+                  </label>
+
+                  <div className="service-category-input-wrap">
+                    <i className="ri-stack-line service-category-input-icon"></i>
+
                     <input
-                      style={{ padding: "5px" }}
                       type="text"
-                      class="input-text"
-                      placeholder="Service Category Name"
+                      className="input-text service-category-modal-input service-category-modal-input--with-icon"
+                      placeholder="Enter service category name"
                       value={serviceCatObj.serviceCatName}
                       onChange={(e) => {
                         setErrorMessage("");
@@ -451,91 +458,116 @@ function ServicesCategoriesModel(props) {
                       }}
                       maxLength={50}
                     />
-                    {requireErrorMessage &&
-                      serviceCatObj.serviceCatName === "" ? (
-                      <label className="validation">{ERROR_MESSAGES}</label>
-                    ) : (
-                      ""
-                    )}
+                  </div>
+
+                  <div className="service-category-field-meta">
+                    <span>{serviceCatObj.serviceCatName?.length || 0}/50</span>
+                  </div>
+
+                  {requireErrorMessage &&
+                  serviceCatObj.serviceCatName === "" ? (
+                    <label className="validation service-category-modal-validation">
+                      {ERROR_MESSAGES}
+                    </label>
+                  ) : (
+                    ""
+                  )}
+                </div>
+
+                <div className="service-category-modal-field">
+                  <label className="service-category-modal-label">
+                    Service Category Description
+                  </label>
+
+                  <textarea
+                    className="input-text service-category-modal-textarea"
+                    placeholder="Enter a short description for this service category"
+                    value={serviceCatObj.description}
+                    onChange={(e) => {
+                      const capitalizedValue =
+                        e.target.value.charAt(0).toUpperCase() +
+                        e.target.value.slice(1);
+                      setserviceCatObj({
+                        ...serviceCatObj,
+                        description: capitalizedValue,
+                      });
+                    }}
+                    maxLength={250}
+                  ></textarea>
+
+                  <div className="service-category-field-meta">
+                    <span>{serviceCatObj.description?.length || 0}/250</span>
                   </div>
                 </div>
-                <div class="row fieldset">
-                  <div class="col-12 mb-1">
-                    <label>Service Category Description</label>
+
+                {errorMessage && (
+                  <div className="service-category-modal-api-error">
+                    <i className="ri-error-warning-line"></i>
+
+                    <span>
+                      {common.professionTypeLists?.length <= 1
+                        ? errorMessage?.includes(
+                            `Please don't choose this profession type`,
+                          )
+                          ? errorMessage.split(".")[0]
+                          : errorMessage
+                        : errorMessage}
+                    </span>
                   </div>
-                  <div class="col-12">
-                    <textarea
-                      style={{ padding: "5px" }}
-                      class="input-text"
-                      placeholder="Service Category Description"
-                      value={serviceCatObj.description}
-                      onChange={(e) => {
-                        const capitalizedValue =
-                          e.target.value.charAt(0).toUpperCase() +
-                          e.target.value.slice(1);
-                        setserviceCatObj({
-                          ...serviceCatObj,
-                          description: capitalizedValue,
-                        });
-                      }}
-                      maxLength={250}
-                    ></textarea>
-                  </div>
-                </div>
-                <label
-                  style={{ display: "flex", justifyContent: "center" }}
-                  className="validation"
-                >
-                  {common.professionTypeLists?.length <= 1 ?
-                    errorMessage?.includes(
-                      `Please don't choose this profession type`
-                    )
-                      ? errorMessage.split(".")[0]
-                      : errorMessage : errorMessage}
-                </label>
+                )}
               </div>
             </div>
-            {/* {errorMessage} */}
-            {/*Modal body End */}
-            {/*Footer body button Start */}
-            <div class="modal-footer">
-              <div class="hstack gap-2 justify-content-end">
 
-                {props.modelRequestData.Type ? (<>
-                  <button
-                    type="submit"
-                    class="btn btn-md btn-success accept-item-btn"
-                    onClick={() => {
-                      ServiceCategoryAddUpdateBtnClicked("Accept");
-                    }}
-                  >
-                    <span>
-                      Accept
-                    </span>
-                  </button>
-                  <button
-                    type="submit"
-                    class="btn btn-md btn-success declined-item-btn"
-                    // data-bs-dismiss="modal"
-                    onClick={() => DeclineSuperAdminChangesData("Decline")}
-                  >
-                    <span>
-                      Decline
-                    </span>
-                  </button>
-                </>) : (
-                  <>
+            {/* =========================
+                FOOTER
+                ========================= */}
+            <div className="modal-footer service-category-modal-footer">
+              {props.modelRequestData.Type ? (
+                <>
+                  <div className="service-category-sa-footer-copy">
+                    Review the System Administrator changes before accepting or
+                    declining.
+                  </div>
+
+                  <div className="service-category-modal-actions">
+                    <button
+                      type="submit"
+                      className="btn btn-md declined-item-btn service-category-decline-btn"
+                      onClick={() => DeclineSuperAdminChangesData("Decline")}
+                    >
+                      <i className="ri-close-line"></i>
+                      <span>Decline</span>
+                    </button>
+
+                    <button
+                      type="submit"
+                      className="btn btn-md accept-item-btn service-category-accept-btn"
+                      onClick={() => {
+                        ServiceCategoryAddUpdateBtnClicked("Accept");
+                      }}
+                    >
+                      <i className="ri-check-line"></i>
+                      <span>Accept</span>
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div></div>
+
+                  <div className="service-category-modal-actions">
                     <button
                       type="button"
-                      class="btn btn-md btn-light"
+                      className="btn btn-md btn-light service-category-cancel-btn"
                       data-bs-dismiss="modal"
                       onClick={() => SetInitialModelData()}
                     >
                       <span>{getCrudButtonTextName("Cancel")}</span>
                     </button>
+
                     <button
                       type="submit"
-                      class="btn btn-md btn-success create-item-btn"
+                      className="btn btn-md create-item-btn service-category-save-btn"
                       onClick={() => {
                         ServiceCategoryAddUpdateBtnClicked();
                       }}
@@ -546,13 +578,14 @@ function ServicesCategoriesModel(props) {
                           : getCrudButtonTextName("Update", moduleName)}
                       </span>
                     </button>
-                  </>
-                )}
-              </div>
+                  </div>
+                </>
+              )}
             </div>
-            {/*Footer body button End */}
           </div>
         </div>
+
+        {/* Existing functional modals */}
         <SuccessModal
           handleClose={handleClose}
           setDismissModal={setDismissModal}
@@ -563,15 +596,16 @@ function ServicesCategoriesModel(props) {
           modelAction={modelAction}
           message={`${moduleName} ${serviceCatObj.serviceCatName}`}
         />
+
         <AcceptSuperAdminChangesConfirmation
           openErrorModal={openErrorModal}
-          // openExistingModel={openExistingModel}
           ModelId={props.id}
           Status={Status}
           openSuccessModal={openSuccessModal}
           modelRequestData={props.modelRequestData}
           UpdatedChanges={handleConfirmButton}
         />
+
         <ErrorModel
           ErrorModel={openErrorModal}
           handleClose={handleClose}
