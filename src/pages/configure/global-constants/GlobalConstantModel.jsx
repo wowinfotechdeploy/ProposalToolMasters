@@ -2,6 +2,7 @@
 import React, { useContext, useState } from "react";
 import Select from "react-select";
 import "./PredefineGlobalConstant.css";
+import "./GlobalConstantModal-redesign.css";
 import { useEffect } from "react";
 import { GetProfessionTypeLookupList } from "../../../redux/Services/Master/ProfessionTypeApi";
 import {
@@ -47,8 +48,14 @@ function GlobalConstantModal(props) {
   const common = useSelector((state) => state.Storage); //Getting Logged Users Details From Persist Storage of redux hooks
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
   const [openErrorModal, setOpenErrorModal] = React.useState(false);
-  const { setLoader, getCrudButtonTextName, getCrudPopUpTitleName } =
-    useContext(AuthContextProvider);
+  const {
+    setLoader,
+    getCrudButtonTextName,
+    getCrudPopUpTitleName,
+    getCurrencySymbol,
+  } = useContext(AuthContextProvider);
+
+  const currencySymbol = getCurrencySymbol(common.currencyID);
 
   //c]Declare UseEffect
   useEffect(() => {
@@ -59,7 +66,8 @@ function GlobalConstantModal(props) {
       props.modelRequestData.Action !== null
     ) {
       GetGlobalConstantModelData(
-        props.modelRequestData.globalPricingDriverKeyID, props.modelRequestData.Type
+        props.modelRequestData.globalPricingDriverKeyID,
+        props.modelRequestData.Type,
       );
     } else {
       SetInitialModelData();
@@ -102,16 +110,16 @@ function GlobalConstantModal(props) {
     (ptype) => ({
       value: ptype.professionTypeId,
       label: ptype.professionTypeName,
-    })
+    }),
   );
   const professionTypeValue = GlobalConstantObj?.professionTypeList?.map(
     (item) => ({
       value: item.professionTypeId,
       label: item.professionTypeName,
-    })
+    }),
   );
   const professionTypeInputValue = professionTypeLookupList.filter(
-    (item) => common.professionTypeLists[0] === item.professionTypeId
+    (item) => common.professionTypeLists[0] === item.professionTypeId,
   );
   // D] Event Handling Functions will call here.
   // 1) On Change Select Profession Type
@@ -155,7 +163,7 @@ function GlobalConstantModal(props) {
         }
       } else {
         setErrorMessage(data?.data?.errorMessage);
-        setOpenErrorModal(true)
+        setOpenErrorModal(true);
       }
     } catch (error) {
       console.log(error);
@@ -188,8 +196,8 @@ function GlobalConstantModal(props) {
     if (Accept === "Accept") {
       $("#" + "ConfirmSAChangesModel").modal("show");
 
-      setStatus(true)
-      return
+      setStatus(true);
+      return;
     }
     // Preparing Object For Add Update and if any modification then it will done here
     const ApiRequest_ParamsObj = {
@@ -212,15 +220,15 @@ function GlobalConstantModal(props) {
       addedFor: "",
       professionTypeList:
         common.professionTypeLists?.length > 1 ||
-          common.organisationKeyID === null
+        common.organisationKeyID === null
           ? GlobalConstantObj.professionTypeList
           : [
-            {
-              professionTypeId: professionTypeInputValue[0]?.professionTypeId,
-              professionTypeName:
-                professionTypeInputValue[0]?.professionTypeName,
-            },
-          ],
+              {
+                professionTypeId: professionTypeInputValue[0]?.professionTypeId,
+                professionTypeName:
+                  professionTypeInputValue[0]?.professionTypeName,
+              },
+            ],
     };
     AddUpdateGlobalConstantData(ApiRequest_ParamsObj);
   };
@@ -274,9 +282,9 @@ function GlobalConstantModal(props) {
     if (Decline === "Decline") {
       // $('#' + props.id).modal('hide')
 
-      setStatus(false)
+      setStatus(false);
       $("#" + "ConfirmSAChangesModel").modal("show");
-      return
+      return;
     }
     setLoader(true);
     try {
@@ -284,22 +292,22 @@ function GlobalConstantModal(props) {
         organisationKeyID: common.organisationKeyID,
         userKeyID: common.userKeyID,
         moduleKeyID: props.modelRequestData.globalPricingDriverKeyID,
-        moduleName: "Predefined-GlobalConstant"
+        moduleName: "Predefined-GlobalConstant",
         //Predefined-ServiceCategory, Predefined-GlobalConstant, Predefined-GlobalPricingDriver,
         //Predefined-PL-EL-Template, Predefined-TnC-Template, Predefined-Email-Template,
         //Predefined-Service, Predefined-ServicePackage
-      }
+      };
       const response = await DeclineSuperAdminChanges(apiRequestParams);
       if (response) {
         setLoader(false);
         if (response?.data?.statusCode === 200) {
           if (apiRequestParams.Action === null) {
-            $('#' + props.id).modal('hide')
+            $("#" + props.id).modal("hide");
             $("#" + "ConfirmSAChangesModel").modal("hide");
             // setOpenSuccessModal(true);
             props.setIsAddUpdateActionDone(true);
           } else {
-            $('#' + props.id).modal('hide')
+            $("#" + props.id).modal("hide");
             $("#" + "ConfirmSAChangesModel").modal("hide");
             // setOpenSuccessModal(true);
             props.setIsAddUpdateActionDone(true);
@@ -312,307 +320,358 @@ function GlobalConstantModal(props) {
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   const handleClose = async () => {
     if (isCheck) {
-      setLoader(true)
+      setLoader(true);
       const Notification = await NotifySuperAdminPredefinedChangesToAdmin({
         userKeyID: common.userKeyID,
         moduleKeyID: props.modelRequestData.globalPricingDriverKeyID,
-        moduleName: "Predefined-GlobalConstant"
-      })
+        moduleName: "Predefined-GlobalConstant",
+      });
       if (Notification?.data?.statusCode === 200) {
-        setLoader(false)
-        setModelAction("NotificationSend")
-        setOpenSuccessModal(true)
-        setIsCheck(false)
+        setLoader(false);
+        setModelAction("NotificationSend");
+        setOpenSuccessModal(true);
+        setIsCheck(false);
       }
     } else {
       $("#" + props.id).modal("hide");
       setOpenSuccessModal(false);
       $("#" + "ConfirmSAChangesModel").modal("hide");
-      setOpenErrorModal(false)
-      setIsCheck(false)
+      setOpenErrorModal(false);
+      setIsCheck(false);
     }
   };
 
   const handleConfirmButton = () => {
     $("#" + "ConfirmSAChangesModel").modal("hide");
     if (Status) {
-      GlobalConstantAddUpdateBtnClicked(true)
+      GlobalConstantAddUpdateBtnClicked(true);
     } else {
-      DeclineSuperAdminChangesData()
+      DeclineSuperAdminChangesData();
     }
-  }
+  };
   return (
-    <div
-      style={{ display: openSuccessModal && "none" }}
-      class={props.class}
-      id={props.id}
-      tabIndex={props.tabIndex}
-      aria-labelledby={props.aria_labelledby}
-      aria-hidden={props.aria_hidden}
-      data-bs-backdrop="static"
-      data-bs-keyboard="false"
-    >
-      <div class="modal-dialog modal-md modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header bg-light p-3">
-            <h5 class="modal-title" id="exampleModalLabel">
-              {modelAction === "Add"
-                ? getCrudPopUpTitleName("Add", moduleName)
-                : getCrudPopUpTitleName("Update", moduleName)}
-            </h5>
-            <button
-              onClick={SetInitialModelData}
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-              id="close-modal"
-            ></button>
-          </div>
-          {/* Modal Body */}
-          <div class="modal-body">
-            <div>
-              <div class="row fieldset">
-                <SAPredefinedChangesNotifyMessageModel Params={{ moduleName: moduleName, SAChanges: props.modelRequestData.Type }} />
+    <div className="global-constant-modal-redesign">
+      <div
+        style={{ display: openSuccessModal && "none" }}
+        className={props.class}
+        id={props.id}
+        tabIndex={props.tabIndex}
+        aria-labelledby={props.aria_labelledby}
+        aria-hidden={props.aria_hidden}
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+      >
+        <div className="modal-dialog modal-md modal-dialog-centered global-constant-modal-dialog">
+          <div className="modal-content global-constant-modal-content">
+            {/* =========================
+                HEADER
+                ========================= */}
+            <div className="modal-header global-constant-modal-header">
+              <div className="global-constant-modal-heading">
+                <span className="global-constant-modal-heading-icon">
+                  <i className="ri-function-line"></i>
+                </span>
+
+                <div>
+                  <h5 className="modal-title" id="exampleModalLabel">
+                    {modelAction === "Add"
+                      ? getCrudPopUpTitleName("Add", moduleName)
+                      : getCrudPopUpTitleName("Update", moduleName)}
+                  </h5>
+
+                  <p>
+                    {modelAction === "Add"
+                      ? "Create a reusable global constant for your pricing and service workflows."
+                      : "Update the global constant value and profession mapping."}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={SetInitialModelData}
+                type="button"
+                className="btn-close global-constant-modal-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+                id="close-modal"
+              ></button>
+            </div>
+
+            {/* =========================
+                BODY
+                ========================= */}
+            <div className="modal-body global-constant-modal-body">
+              <SAPredefinedChangesNotifyMessageModel
+                Params={{
+                  moduleName: moduleName,
+                  SAChanges: props.modelRequestData.Type,
+                }}
+              />
+
+              <div className="global-constant-modal-form">
                 {(common.professionTypeLists?.length > 1 ||
                   common.organisationKeyID === null) && (
-                    <>
-                      <div class="col-12 mb-1">
-                        <label>
-                          Profession Type
-                          <span className="text-danger">*</span>
-                        </label>
-                      </div>
-                      <div className="col-12 ">
-                        <div className="input-group">
-                          {common.professionTypeLists?.length > 1 ||
-                            common.organisationKeyID === null ? (
-                            <Select
-                              isMulti
-                              style={{ padding: "5px" }}
-                              className="user-role-select"
-                              options={ProfessionalTypeLookeupListOptions}
-                              value={professionTypeValue}
-                              onChange={OnChangeSelectProfessionType}
-                            />
-                        ) : ("")}
-                        </div>
-                        {requireErrorMessage &&
-                          (common.professionTypeLists?.length > 1 ||
-                            common.organisationKeyID === null) &&
-                          professionTypeValue?.length === 0 ? (
-                          <label className="validation">{ERROR_MESSAGES}</label>
-                        ) : (
-                          ""
-                        )}
-                      </div>
-                    </>
-                  )}
-              </div>
+                  <div className="global-constant-modal-field">
+                    <label className="global-constant-modal-label">
+                      Profession Type
+                      <span className="global-constant-required">*</span>
+                    </label>
 
-              <div className="row">
-                <div className="col-12">
-                  <div class="row fieldset">
-                    <div class="col-12 mb-1">
-                      <label>
-                        Driver Name
-                        <span className="text-danger">*</span>
+                    <Select
+                      isMulti
+                      className="user-role-select global-constant-modal-select"
+                      classNamePrefix="global-constant-select"
+                      options={ProfessionalTypeLookeupListOptions}
+                      value={professionTypeValue}
+                      onChange={OnChangeSelectProfessionType}
+                      placeholder="Select profession type"
+                    />
+
+                    {requireErrorMessage &&
+                    (common.professionTypeLists?.length > 1 ||
+                      common.organisationKeyID === null) &&
+                    professionTypeValue?.length === 0 ? (
+                      <label className="validation global-constant-modal-validation">
+                        {ERROR_MESSAGES}
                       </label>
-                    </div>
-                    <div class="col-12">
-                      <input
-                        style={{ padding: "5px" }}
-                        type="text"
-                        className="input-text"
-                        placeholder="Driver Name"
-                        value={GlobalConstantObj.GlobalConstantDriverName}
-                        onChange={(e) => {
-                          setErrorMessage("");
-                          const inputValue = e.target.value;
-                          const trimmedValue = inputValue.replace(/^\s+/g, ""); // Remove leading spaces
-                          // Handle consecutive spaces
-                          const singleSpaceValue = trimmedValue.replace(
-                            /\s{2,}/g,
-                            " "
-                          );
-                          // Remove dot if it follows a space
-                          const sanitizedValue = singleSpaceValue.replace(
-                            / \./g,
-                            " "
-                          );
-                          const capitalizedValue =
-                            sanitizedValue.charAt(0).toUpperCase() +
-                            sanitizedValue.slice(1);
-                          setGlobalConstantObj({
-                            ...GlobalConstantObj,
-                            GlobalConstantDriverName: capitalizedValue,
-                          });
-                        }}
-                        maxLength={75}
-                      />
-                      {requireErrorMessage &&
-                        GlobalConstantObj.GlobalConstantDriverName === "" ? (
-                        <label className="validation">{ERROR_MESSAGES}</label>
-                      ) : (
-                        ""
-                      )}
-                    </div>
+                    ) : (
+                      ""
+                    )}
                   </div>
-                </div>
-                <div className="col-12">
-                  <div class="row fieldset">
-                    <div class="col-12 mb-1">
-                      <label>
-                        Driver Value
-                        <span className="text-danger">*</span>
-                      </label>
-                    </div>
-                    <div class="col-12">
-                      <input
-                        style={{ padding: "5px" }}
-                        type="text"
-                        className="input-text"
-                        placeholder="Driver Value"
-                        value={GlobalConstantObj.GlobalConstantDriverValue.toString().replace(
-                          /\B(?=(\d{3})+(?!\d))/g,
-                          ","
-                        )}
-                        onChange={(e) => {
-                          const inputValue = e.target.value;
+                )}
 
-                          // Ensure that the input only contains numeric and dot characters
-                          const sanitizedInput = inputValue
-                            .replace(/[^0-9.]/g, "") // Allow only numeric and dot characters
-                            .slice(0, 16); // Limit to 6 characters (5 digits + 1 dot or 4 digits + 2 decimals)
+                <div className="global-constant-modal-field">
+                  <label className="global-constant-modal-label">
+                    Driver Name
+                    <span className="global-constant-required">*</span>
+                  </label>
 
-                          // Split the input into integer and decimal parts
-                          const [integerPart, decimalPart] =
-                            sanitizedInput.split(".");
+                  <div className="global-constant-input-wrap">
+                    <i className="ri-function-line global-constant-input-icon"></i>
 
-                          // Format the integer part with commas as thousand separators
-                          const formattedIntegerPart = integerPart;
+                    <input
+                      type="text"
+                      className="input-text global-constant-modal-input global-constant-modal-input--with-icon"
+                      placeholder="Enter driver name"
+                      value={GlobalConstantObj.GlobalConstantDriverName}
+                      onChange={(e) => {
+                        setErrorMessage("");
+                        const inputValue = e.target.value;
+                        const trimmedValue = inputValue.replace(/^\s+/g, "");
+                        const singleSpaceValue = trimmedValue.replace(
+                          /\s{2,}/g,
+                          " ",
+                        );
+                        const sanitizedValue = singleSpaceValue.replace(
+                          / \./g,
+                          " ",
+                        );
+                        const capitalizedValue =
+                          sanitizedValue.charAt(0).toUpperCase() +
+                          sanitizedValue.slice(1);
 
-                          // Combine integer and decimal parts with appropriate precision
-                          let formattedInput =
-                            decimalPart !== undefined
-                              ? `${formattedIntegerPart.slice(
-                                0,
-                                12
-                              )}.${decimalPart.slice(0, 2)}`
-                              : formattedIntegerPart.slice(0, 12);
-
-                          setGlobalConstantObj({
-                            ...GlobalConstantObj,
-                            GlobalConstantDriverValue: formattedInput,
-                          });
-                        }}
-                      />
-                      {requireErrorMessage &&
-                        GlobalConstantObj.GlobalConstantDriverValue === "" ? (
-                        <label className="validation">{ERROR_MESSAGES}</label>
-                      ) : (
-                        ""
-                      )}
-                    </div>
+                        setGlobalConstantObj({
+                          ...GlobalConstantObj,
+                          GlobalConstantDriverName: capitalizedValue,
+                        });
+                      }}
+                      maxLength={75}
+                    />
                   </div>
-                </div>
-              </div>
-              <label
-                style={{ display: "flex", justifyContent: "center" }}
-                className="validation"
-              >
-                {/* {errorMessage} */}
 
-                {common.professionTypeLists?.length <= 1 &&
-                  errorMessage?.includes(
-                    `Please don't choose this profession type`
-                  )
-                  ? errorMessage.split(".")[0]
-                  : errorMessage}
-              </label>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <div class="hstack gap-2 justify-content-end">
-              {props.modelRequestData.Type ? (<>
-                <button
-                  type="submit"
-                  class="btn btn-md btn-success accept-item-btn"
-                  onClick={() => {
-                    GlobalConstantAddUpdateBtnClicked("Accept");
-                  }}
-                >
-                  <span>
-                    Accept
-                  </span>
-                </button>
-                <button
-                  type="submit"
-                  class="btn btn-md btn-success declined-item-btn"
-                  // data-bs-dismiss="modal"
-                  onClick={() => DeclineSuperAdminChangesData("Decline")}
-                >
-                  <span>
-                    Decline
-                  </span>
-                </button>
-              </>) : (
-                <>
-                  <button
-                    onClick={() => {
-                      SetInitialModelData();
-                    }}
-                    type="button"
-                    class="btn btn-md btn-light"
-                    data-bs-dismiss="modal"
-                  >
-                    <span>{getCrudButtonTextName("Cancel")}</span>
-                  </button>
-                  <button
-                    type="submit"
-                    class="btn btn-md btn-success create-item-btn"
-                    onClick={() => GlobalConstantAddUpdateBtnClicked()}
-                  >
+                  <div className="global-constant-field-meta">
                     <span>
-                      {modelAction === "Add"
-                        ? getCrudButtonTextName("Add", moduleName)
-                        : getCrudButtonTextName("Update", moduleName)}
+                      {GlobalConstantObj.GlobalConstantDriverName?.length || 0}
+                      /75
                     </span>
-                  </button>
+                  </div>
+
+                  {requireErrorMessage &&
+                  GlobalConstantObj.GlobalConstantDriverName === "" ? (
+                    <label className="validation global-constant-modal-validation">
+                      {ERROR_MESSAGES}
+                    </label>
+                  ) : (
+                    ""
+                  )}
+                </div>
+
+                <div className="global-constant-modal-field">
+                  <label className="global-constant-modal-label">
+                    Driver Value
+                    <span className="global-constant-required">*</span>
+                  </label>
+
+                  <div className="global-constant-input-wrap">
+                    <span className="global-constant-input-icon global-constant-currency-symbol">
+                      {currencySymbol}
+                    </span>
+
+                    <input
+                      type="text"
+                      className="input-text global-constant-modal-input global-constant-modal-input--with-icon"
+                      placeholder="Enter driver value"
+                      value={GlobalConstantObj.GlobalConstantDriverValue.toString().replace(
+                        /\B(?=(\d{3})+(?!\d))/g,
+                        ",",
+                      )}
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
+
+                        const sanitizedInput = inputValue
+                          .replace(/[^0-9.]/g, "")
+                          .slice(0, 16);
+
+                        const [integerPart, decimalPart] =
+                          sanitizedInput.split(".");
+
+                        const formattedIntegerPart = integerPart;
+
+                        let formattedInput =
+                          decimalPart !== undefined
+                            ? `${formattedIntegerPart.slice(
+                                0,
+                                12,
+                              )}.${decimalPart.slice(0, 2)}`
+                            : formattedIntegerPart.slice(0, 12);
+
+                        setGlobalConstantObj({
+                          ...GlobalConstantObj,
+                          GlobalConstantDriverValue: formattedInput,
+                        });
+                      }}
+                    />
+                  </div>
+
+                  <div className="global-constant-field-help">
+                    Enter a numeric value with up to 2 decimal places.
+                  </div>
+
+                  {requireErrorMessage &&
+                  GlobalConstantObj.GlobalConstantDriverValue === "" ? (
+                    <label className="validation global-constant-modal-validation">
+                      {ERROR_MESSAGES}
+                    </label>
+                  ) : (
+                    ""
+                  )}
+                </div>
+
+                {errorMessage && (
+                  <div className="global-constant-modal-api-error">
+                    <i className="ri-error-warning-line"></i>
+
+                    <span>
+                      {common.professionTypeLists?.length <= 1 &&
+                      errorMessage?.includes(
+                        `Please don't choose this profession type`,
+                      )
+                        ? errorMessage.split(".")[0]
+                        : errorMessage}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* =========================
+                FOOTER
+                ========================= */}
+            <div className="modal-footer global-constant-modal-footer">
+              {props.modelRequestData.Type ? (
+                <>
+                  <div className="global-constant-sa-footer-copy">
+                    Review the System Administrator changes before accepting or
+                    declining.
+                  </div>
+
+                  <div className="global-constant-modal-actions">
+                    <button
+                      type="submit"
+                      className="btn btn-md declined-item-btn global-constant-decline-btn"
+                      onClick={() => DeclineSuperAdminChangesData("Decline")}
+                    >
+                      <i className="ri-close-line"></i>
+                      <span>Decline</span>
+                    </button>
+
+                    <button
+                      type="submit"
+                      className="btn btn-md accept-item-btn global-constant-accept-btn"
+                      onClick={() => {
+                        GlobalConstantAddUpdateBtnClicked("Accept");
+                      }}
+                    >
+                      <i className="ri-check-line"></i>
+                      <span>Accept</span>
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div></div>
+
+                  <div className="global-constant-modal-actions">
+                    <button
+                      onClick={() => {
+                        SetInitialModelData();
+                      }}
+                      type="button"
+                      className="btn btn-md btn-light global-constant-cancel-btn"
+                      data-bs-dismiss="modal"
+                    >
+                      <span>{getCrudButtonTextName("Cancel")}</span>
+                    </button>
+
+                    <button
+                      type="submit"
+                      className="btn btn-md create-item-btn global-constant-save-btn"
+                      onClick={() => GlobalConstantAddUpdateBtnClicked()}
+                    >
+                      <span>
+                        {modelAction === "Add"
+                          ? getCrudButtonTextName("Add", moduleName)
+                          : getCrudButtonTextName("Update", moduleName)}
+                      </span>
+                    </button>
+                  </div>
                 </>
               )}
-
             </div>
           </div>
         </div>
+
+        {/* Existing functional modals */}
+        <SuccessModal
+          handleClose={handleClose}
+          setIsCheck={setIsCheck}
+          isCheck={isCheck}
+          setOpenSuccessModal={setOpenSuccessModal}
+          openSuccessModal={openSuccessModal}
+          modelAction={modelAction}
+          modelRequestData={modelRequestData}
+          message={`${moduleName} ${GlobalConstantObj.GlobalConstantDriverName}`}
+        />
+
+        <AcceptSuperAdminChangesConfirmation
+          openErrorModal={openErrorModal}
+          ModelId={props.id}
+          Status={Status}
+          openSuccessModal={openSuccessModal}
+          modelRequestData={props.modelRequestData}
+          UpdatedChanges={handleConfirmButton}
+        />
+
+        <ErrorModel
+          ErrorModel={openErrorModal}
+          handleClose={handleClose}
+          ErrorMessage={errorMessage}
+        />
       </div>
-      <SuccessModal
-        handleClose={handleClose}
-        setIsCheck={setIsCheck}
-        isCheck={isCheck}
-        setOpenSuccessModal={setOpenSuccessModal}
-        openSuccessModal={openSuccessModal}
-        modelAction={modelAction}
-        modelRequestData={modelRequestData}
-        message={`${moduleName} ${GlobalConstantObj.GlobalConstantDriverName}`}
-      />
-      <AcceptSuperAdminChangesConfirmation
-        openErrorModal={openErrorModal}
-        ModelId={props.id}
-        Status={Status}
-        openSuccessModal={openSuccessModal}
-        modelRequestData={props.modelRequestData}
-        UpdatedChanges={handleConfirmButton}
-      />
-      <ErrorModel
-        ErrorModel={openErrorModal}
-        handleClose={handleClose}
-        ErrorMessage={errorMessage}
-      />
     </div>
   );
 }

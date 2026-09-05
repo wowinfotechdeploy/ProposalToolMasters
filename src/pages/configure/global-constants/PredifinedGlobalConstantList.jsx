@@ -1,6 +1,7 @@
 /* global $ */
 import React, { useContext, useEffect, useState } from "react";
 import "./PredefineGlobalConstant.css";
+import "./PredefineGlobalConstant-redesign.css";
 import CommonButtonComponent from "../../../components/CommonButtonComponent";
 import GlobalConstantModal from "./GlobalConstantModel";
 import ConfirmModel from "../../../components/ConfirmationBox";
@@ -73,7 +74,7 @@ function Global_Constants() {
   } = useContext(AuthContextProvider);
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
   const [showProfessionType, setShowProfessionType] = useState(
-    common.organisationKeyID === null || common.professionTypeLists.length > 1
+    common.organisationKeyID === null || common.professionTypeLists.length > 1,
   );
   const formattedErrorMessage = handleErrorMessage(errorMessage);
   // B] Initial useEffect :
@@ -109,7 +110,7 @@ function Global_Constants() {
     i,
     searchKeywordValue,
     sortValue,
-    GlobalConstantSortType
+    GlobalConstantSortType,
   ) => {
     setLoader(true);
     const pageNoList = i - 1;
@@ -126,7 +127,7 @@ function Global_Constants() {
           GlobalConstantSortType === null
             ? null
             : GlobalConstantSortType == undefined ||
-              GlobalConstantSortType == ""
+                GlobalConstantSortType == ""
               ? sortType
               : GlobalConstantSortType !== null
                 ? GlobalConstantSortType
@@ -148,7 +149,7 @@ function Global_Constants() {
                 newPaneNo,
                 searchKeywordValue,
                 sortValue,
-                GlobalConstantSortType
+                GlobalConstantSortType,
               );
               setCurrentPage(pageNoList);
               return;
@@ -165,7 +166,7 @@ function Global_Constants() {
                 i,
                 searchKeywordValue,
                 sortValue,
-                GlobalConstantSortType
+                GlobalConstantSortType,
               );
             }, 2000);
           } else {
@@ -187,7 +188,7 @@ function Global_Constants() {
       setLoader(true);
       const data = await GetGlobalConstantModel(
         GlobalConstant.globalPricingDriverKeyID,
-        true
+        true,
       );
       if (data?.data?.statusCode === 200) {
         setLoader(false);
@@ -233,7 +234,7 @@ function Global_Constants() {
       try {
         const Data = await GlobalConstantChangeStatus(
           modelRequestData.globalPricingDriverKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -244,7 +245,7 @@ function Global_Constants() {
             ) {
               const servicePackageNames =
                 Data?.data?.responseData.globalConstantExistsInServices.map(
-                  (item) => item.serviceName
+                  (item) => item.serviceName,
                 );
               setModelRequestData({
                 ...modelRequestData,
@@ -272,7 +273,7 @@ function Global_Constants() {
       try {
         const Data = await DeleteGlobalConstant(
           modelRequestData.globalPricingDriverKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -283,7 +284,7 @@ function Global_Constants() {
             ) {
               const servicePackageNames =
                 Data?.data?.responseData.globalConstantExistsInServices.map(
-                  (item) => item.serviceName
+                  (item) => item.serviceName,
                 );
               setModelRequestData({
                 ...modelRequestData,
@@ -311,26 +312,27 @@ function Global_Constants() {
   };
 
   // Copy Record
-  const CopyGlobalConstantData = async() => {
-    if(!common.userKeyID) return;
+  const CopyGlobalConstantData = async () => {
+    if (!common.userKeyID) return;
     try {
       setLoader(true);
-      const data = await CopyGlobalConstant(modelRequestData.globalPricingDriverKeyID,common.userKeyID);
-      if(data?.data?.statusCode === 200) {
+      const data = await CopyGlobalConstant(
+        modelRequestData.globalPricingDriverKeyID,
+        common.userKeyID,
+      );
+      if (data?.data?.statusCode === 200) {
         setLoader(false);
         setOpenSuccessModal(true);
         GetGlobalConstantListData(currentPage);
-      }
-      else {
+      } else {
         setLoader(false);
         setErrorMessage(data?.data?.errorMessage);
         setOpenErrorModal(true);
       }
-    }
-    catch(error) {
+    } catch (error) {
       console.error(error);
     }
-  }
+  };
   // F] Pagination :
   const HandlePageChange = async (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -350,7 +352,7 @@ function Global_Constants() {
         1,
         searchKeyword,
         sortValue,
-        GlobalConstantSortType
+        GlobalConstantSortType,
       );
     } else if (GlobalConstantSortType == "ProfessionType") {
       setPrimarySortDirection(sortValue);
@@ -363,7 +365,7 @@ function Global_Constants() {
         1,
         searchKeyword,
         sortValue,
-        GlobalConstantSortType
+        GlobalConstantSortType,
       );
     }
   };
@@ -382,503 +384,455 @@ function Global_Constants() {
     setOpenSuccessModal(false);
     setOpenErrorModal(false);
   };
+  const canAdd =
+    (userAccessData.Admin_Config_Global_Constant_CanAdd &&
+      common.organisationKeyID !== null) ||
+    (userAccessData.SuperAdmin_Config_Global_Constant_CanAdd &&
+      common.organisationKeyID === null);
+
+  const canEdit =
+    (userAccessData.Admin_Config_Global_Constant_CanEdit &&
+      common.organisationKeyID !== null) ||
+    (userAccessData.SuperAdmin_Config_Global_Constant_CanEdit &&
+      common.organisationKeyID === null);
+
+  const canDelete =
+    (userAccessData.Admin_Config_Global_Constant_CanDelete &&
+      common.organisationKeyID !== null) ||
+    (userAccessData.SuperAdmin_Config_Global_Constant_CanDelete &&
+      common.organisationKeyID === null);
+
   return (
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
-        <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                          <div className="row">
-                            <div className="col-md-6 p-0 ">
-                  <div class="page-title-cls">Global Constants</div>
-                </div>
-                <div className="col-auto ms-auto">
-                  <div className="d-flex justify-content-sm-end add-new-btn">
-                    {((userAccessData.Admin_Config_Global_Constant_CanAdd &&
-                      common.organisationKeyID !== null) ||
-                      (userAccessData.SuperAdmin_Config_Global_Constant_CanAdd &&
-                        common.organisationKeyID === null)) && (
-                        <CommonButtonComponent
-                          title={getCrudButtonToolTipName("Add", moduleName)}
-                          AddBtn={() => GlobalConstantAddBtnClicked()}
-                          dataBsTarget="#addUpdateModal"
-                          data_bs_toggle="modal"
-                          name={getCrudButtonTextName("Add", moduleName)}
-                        />
-                      )}
-                  </div>
-                  </div>
-                  </div>
-                </div>
-              </div>
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
-                        <div class="search-box ms-2 width-searchbox">
-                          <div class="row">
-                            <div className="col-lg-12 col-md-12 col-sm-12 ">
-                              <div className="row align-items-center">
-                                <div className="col-3 mb-2">
-                                  <div class="search-box w-100 width-searchbox">
-                          <i class="ri-search-line search-icon"></i>
-                          <input
-                            type="text"
-                            value={searchKeyword}
-                            onChange={(e) => {
-                              HandleSearch(e);
-                            }}
-                            className="form-control search"
-                            placeholder={
-                              isMobile
-                                ? "Search"
-                                : getPlaceholderTextName("Search", moduleName)
-                            }
-                          />
-                        </div>
-                        </div>
-                </div>
-                </div>
-                </div>
-                        </div>
-                        <table
-                          class="table align-middle table-nowrap"
-                          id="customerTable"
-                        >
-                          <thead class="table-light table-header-font">
-                            <tr className="head-row">
-                              <td
-                                className="tr-table-class text-white"
-                                style={{
-                                  width: "36%",
-                                }}
-                              >
-                                Driver Name
-                                {primarySortDirectionObj.DriverNameSort ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("DriverName");
-                                        handleSort("asc", "DriverName");
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primarySortDirectionObj.DriverNameSort ===
-                                  null ||
-                                  primarySortDirectionObj.DriverNameSort ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("DriverName");
-                                        handleSort(
-                                          primarySortDirectionObj.DriverNameSort ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "DriverName"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class text-white profession-type-column">
-                                {showProfessionType && (
-                                  <>
-                                    Profession Type
-                                    {primarySortDirectionObj.ProfessionTypeSort ===
-                                      "desc" && (
-                                        <i
-                                          onClick={() => {
-                                            setSortType("ProfessionType");
-                                            handleSort("asc", "ProfessionType");
-                                          }}
-                                          style={{ cursor: "pointer" }}
-                                          class="fas fa-sort-alpha-up ml-1"
-                                        ></i>
-                                      )}
-                                    {(primarySortDirectionObj.ProfessionTypeSort ===
-                                      null ||
-                                      primarySortDirectionObj.ProfessionTypeSort ===
-                                      "asc") && (
-                                        <i
-                                          onClick={() => {
-                                            setSortType("ProfessionType");
-                                            handleSort(
-                                              primarySortDirectionObj.ProfessionTypeSort ===
-                                                null
-                                                ? "asc"
-                                                : "desc",
-                                              "ProfessionType"
-                                            );
-                                          }}
-                                          style={{ cursor: "pointer" }}
-                                          class="fas fa-sort-alpha-down ml-1"
-                                        ></i>
-                                      )}
-                                  </>
-                                )}
-                              </td>
-                              <td className="tr-table-class  text-white">
-                                Type
-                              </td>
-                              <td className="tr-table-class  text-white">
-                                Value
-                              </td>
-
-                              <td className="tr-table-class  text-white">
-                                Status
-                              </td>
-                              <td className="tr-table-class  text-white">
-                                {((userAccessData.Admin_Config_Global_Constant_CanEdit &&
-                                  common.organisationKeyID !== null) ||
-                                  (userAccessData.SuperAdmin_Config_Global_Constant_CanEdit &&
-                                    common.organisationKeyID === null) ||
-                                  (userAccessData.Admin_Config_Global_Constant_CanDelete &&
-                                    common.organisationKeyID !== null) ||
-                                  (userAccessData.SuperAdmin_Config_Global_Constant_CanDelete &&
-                                    common.organisationKeyID === null)) && (
-                                    <>Action</>
-                                  )}
-                              </td>
-                            </tr>
-                          </thead>
-                          <tbody class="list form-check-all table-content-font">
-                            {globalConstantList
-                              .slice(
-                                0,
-                                isMobile ? isMobileRecords : desktopRecords
-                              )
-                              .map((GlobalConstant) => {
-                                return (
-                                  <tr class="table_new">
-                                    <td className="table-content-font">
-                                      {GlobalConstant.notifySAChanges !== null && common.organisationKeyID !== null && (
-                                        <>
-                                          <Tooltip
-                                            title="View System Administrator Changes"
-
-                                          >
-                                            <span onClick={() =>
-                                              GlobalConstantEditBtnClicked(
-                                                GlobalConstant, "editPredefined"
-                                              )
-                                            }
-                                              className="UpdateConfigValue"
-                                            // data-bs-toggle="modal"
-
-                                            // data-bs-target="#addUpdateModal"
-                                            ><i class="fa fa-regular fa-bell"></i></span>
-                                          </Tooltip>
-                                        </>
-                                      )}
-                                      {isMobile ? (
-                                        <>
-                                          {GlobalConstant.driverName.length > 20
-                                            ? GlobalConstant.driverName
-                                              .substring(0, 20)
-                                              .replace(/\b\w/g, (l) =>
-                                                l.toUpperCase()
-                                              ) + "..."
-                                            : GlobalConstant.driverName
-                                              .substring(0, 20)
-                                              .replace(/\b\w/g, (l) =>
-                                                l.toUpperCase()
-                                              )}
-                                        </>
-                                      ) : (
-                                        <>
-                                          {GlobalConstant.driverName.length >
-                                            63 ? (
-                                            <Tooltip
-                                              title={GlobalConstant.driverName}
-                                            >
-                                              {GlobalConstant.driverName
-                                                .substring(0, 63)
-                                                .replace(/\b\w/g, (l) =>
-                                                  l.toUpperCase()
-                                                ) + "..."}
-                                            </Tooltip>
-                                          ) : (
-                                            <>
-                                              {GlobalConstant.driverName
-                                                .replace(/\b\w/g, (l) =>
-                                                  l.toUpperCase()
-                                                )}
-                                            </>
-                                          )}
-                                        </>
-                                      )}
-
-                                    </td>
-                                    <td className="table-content-font">
-                                      {showProfessionType &&
-                                        GlobalConstant.professionTypeNames}
-                                    </td>
-
-                                    <td className="table-content-font">
-                                      {GlobalConstant.driverTypeName}
-                                    </td>
-                                    <td className="table-content-font">
-                                      {" "}
-                                      {formatValue(GlobalConstant.driverValue)}
-                                      {/* {Number(GlobalConstant.driverValue)
-                                        .toFixed(2)
-                                        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} */}
-                                    </td>
-                                    <td className="Switch table-content-font">
-                                      <div
-                                        style={{
-                                          alignItems: "none",
-                                          marginLeft:
-                                            ((userAccessData.Admin_Config_Global_Constant_CanEdit &&
-                                              common.organisationKeyID !==
-                                              null) ||
-                                              (userAccessData.SuperAdmin_Config_Global_Constant_CanEdit &&
-                                                common.organisationKeyID ===
-                                                null)) &&
-                                              ((userAccessData.Admin_Config_Global_Constant_CanDelete &&
-                                                common.organisationKeyID !==
-                                                null) ||
-                                                (userAccessData.SuperAdmin_Config_Global_Constant_CanDelete &&
-                                                  common.organisationKeyID ===
-                                                  null))
-                                              ? ""
-                                              : "10px",
-                                        }}
-                                        class="d-flex gap-2 "
-                                      >
-                                        <div style={{ width: "50px" }}>
-                                          {" "}
-                                          {GlobalConstant.statusName}
-                                        </div>
-                                        {((userAccessData.Admin_Config_Global_Constant_CanDelete &&
-                                          common.organisationKeyID !== null) ||
-                                          (userAccessData.SuperAdmin_Config_Global_Constant_CanDelete &&
-                                            common.organisationKeyID ===
-                                            null)) && (
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "Change Status"
-                                              )}
-                                            >
-                                              <FormGroup>
-                                                <FormControlLabel
-                                                  control={
-                                                    <Android12Switch
-                                                      onClick={() =>
-                                                        setModelRequestData({
-                                                          ...modelRequestData,
-                                                          status:
-                                                            GlobalConstant.statusName,
-                                                          globalPricingDriverKeyID:
-                                                            GlobalConstant.globalPricingDriverKeyID,
-                                                          userKeyID:
-                                                            common.userKeyID,
-                                                          Action: "Status",
-                                                        })
-                                                      }
-                                                      checked={
-                                                        GlobalConstant.statusName ===
-                                                        "Active"
-                                                      }
-                                                      data-bs-toggle="modal"
-                                                      data-bs-target="#ConfirmModel"
-                                                    />
-                                                  }
-                                                />
-                                              </FormGroup>
-                                            </Tooltip>
-                                          )}
-                                      </div>
-                                    </td>
-                                    <td className="table-content-font">
-                                      <div class="d-flex gap-2 ">
-                                      <Tooltip
-                                          title={getCrudButtonToolTipName(
-                                            "Copy",
-                                            moduleName
-                                          )}
-                                        >
-                                          <div class="copy">
-                                            <button
-                                              class="btn btn-sm btn-success edit-item-btn edit"
-                                              data-bs-toggle="modal"
-                                              data-bs-target="#ConfirmModel"
-                                              onClick={() =>
-                                                setModelRequestData({
-                                                  ...modelRequestData,
-                                                  driverName: GlobalConstant.driverName,
-                                                  Action: "Copy",
-                                                  globalPricingDriverKeyID: GlobalConstant.globalPricingDriverKeyID,
-                                                  userKeyID: common.userKeyID
-                                                })
-                                              }
-                                            >
-                                              <i class="fa-solid fa-copy"></i>
-                                            </button>
-                                          </div>
-                                        </Tooltip>
-                                        {((userAccessData.Admin_Config_Global_Constant_CanEdit &&
-                                          common.organisationKeyID !== null) ||
-                                          (userAccessData.SuperAdmin_Config_Global_Constant_CanEdit &&
-                                            common.organisationKeyID ===
-                                            null)) && (
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "Update",
-                                                moduleName
-                                              )}
-                                            >
-                                              <div class="edit">
-                                                <button
-                                                  onClick={() =>
-                                                    GlobalConstantEditBtnClicked(
-                                                      GlobalConstant
-                                                    )
-                                                  }
-                                                  class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
-                                                  data-bs-toggle="modal"
-                                                  data-bs-target="#addUpdateModal"
-                                                >
-                                                  <i class="ri-pencil-fill"></i>
-                                                </button>
-                                              </div>
-                                            </Tooltip>
-                                          )}
-                                        {((userAccessData.Admin_Config_Global_Constant_CanDelete &&
-                                          common.organisationKeyID !== null) ||
-                                          (userAccessData.SuperAdmin_Config_Global_Constant_CanDelete &&
-                                            common.organisationKeyID ===
-                                            null)) && (
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "Delete",
-                                                moduleName
-                                              )}
-                                            >
-                                              <div class="remove">
-                                                <button
-                                                  onClick={() =>
-                                                    setModelRequestData({
-                                                      ...modelRequestData,
-                                                      globalPricingDriverKeyID:
-                                                        GlobalConstant.globalPricingDriverKeyID,
-                                                      driverName:
-                                                        GlobalConstant.driverName,
-                                                      userKeyID: common.userKeyID,
-                                                      Action: "Delete",
-                                                    })
-                                                  }
-                                                  class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                                  data-bs-toggle="modal"
-                                                  data-bs-target="#ConfirmModel"
-                                                >
-                                                  <i class="ri-delete-bin-5-fill"></i>
-                                                </button>
-                                              </div>
-                                            </Tooltip>
-                                          )}
-                                      </div>
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                          </tbody>
-                        </table>
-
-                        {totalRecords <= 0 && (
-                          <NoResultFoundModel
-                            name={moduleName}
-                            totalRecords={totalRecords}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  {listCount > pageSize && (
-                    <PaginationComponent
-                      totalCount={listCount}
-                      totalPages={totalPage}
-                      currentPage={currentPage}
-                      onPageChange={HandlePageChange}
-                    />
-                  )}
-                  </div>
-                  {/* end card  */}
-                </div>
-                {/* end col */}
-              </div>
-              {/* end col  */}
+    <>
+      <div className="global-constant-redesign">
+        <div className="global-constant-page">
+          <div className="global-constant-page-header">
+            <div>
+              <h1 className="global-constant-page-title">Global Constants</h1>
+              <p className="global-constant-page-subtitle">
+                Manage constant values.
+              </p>
             </div>
-            {/* end row */}
 
-            <ErrorModel
-              ErrorModel={openErrorModal}
-              handleClose={handleClose}
-              ErrorMessage={formattedErrorMessage}
-            />
-            {/* Confirm Modal  */}
-            <ConfirmModel
-              openErrorModal={openErrorModal}
-              openSuccessModal={openSuccessModal}
-              modelRequestData={modelRequestData}
-              UpdatedStatus={modelRequestData.Action === "Delete" || modelRequestData.Action === "Status" ? GlobalConstantChangeStatusDataAndDeleteData : CopyGlobalConstantData}
-            />
-            <RecordsAvailablePopupModel
-              handleClose={handleClose}
-              openErrorModal={openErrorModal}
-              openSuccessModal={openSuccessModal}
-              modelRequestData={modelRequestData}
-              UpdatedStatus={GlobalConstantChangeStatusDataAndDeleteData}
-            />
-
-            {/* Success Modal  */}
-            <SuccessModal
-              handleClose={handleClose}
-              setOpenSuccessModal={setOpenSuccessModal}
-              openSuccessModal={openSuccessModal}
-              modelAction={modelRequestData.Action}
-              message={`${
-                modelRequestData.Action === "Delete"
-                  ? `${moduleName} ${modelRequestData.driverName}`
-                  : modelRequestData.Action === "Copy"
-                  ? `Copy of ${modelRequestData.driverName} has been created successfully!`
-                  : "Status has been changed successfully!"
-              }`}
-            />
-            {/* Model */}
-            <GlobalConstantModal
-              class="modal fade"
-              id="addUpdateModal"
-              tabIndex="-1"
-              aria_labelledby="exampleModalLabel"
-              aria_hidden="true"
-              setIsAddUpdateActionDone={setIsAddUpdateActionDone}
-              modelRequestData={modelRequestData}
-            />
+            {canAdd && (
+              <div className="global-constant-add-action">
+                <CommonButtonComponent
+                  title={getCrudButtonToolTipName("Add", moduleName)}
+                  AddBtn={() => GlobalConstantAddBtnClicked()}
+                  dataBsTarget="#addUpdateModal"
+                  data_bs_toggle="modal"
+                  name={getCrudButtonTextName("Add", moduleName)}
+                />
+              </div>
+            )}
           </div>
-          {/* container-fluid  */}
+
+          <section className="global-constant-list-card">
+            <div className="global-constant-toolbar">
+              <div className="global-constant-search-wrap">
+                <i className="ri-search-line global-constant-search-icon"></i>
+                <input
+                  type="text"
+                  value={searchKeyword || ""}
+                  onChange={HandleSearch}
+                  className="global-constant-search-input"
+                  placeholder={
+                    isMobile
+                      ? "Search"
+                      : getPlaceholderTextName("Search", moduleName)
+                  }
+                />
+              </div>
+
+              {/* <div className="global-constant-record-count">
+                {listCount > 0
+                  ? `${listCount} ${listCount === 1 ? "constant" : "constants"}`
+                  : ""}
+              </div> */}
+            </div>
+
+            <div className="global-constant-table-wrap">
+              <table
+                className={`global-constant-table ${
+                  !showProfessionType
+                    ? "global-constant-table--no-profession"
+                    : ""
+                }`}
+                id="customerTable"
+              >
+                <thead>
+                  <tr>
+                    <th>
+                      <button
+                        type="button"
+                        className="global-constant-sort-button"
+                        onClick={() => {
+                          setSortType("DriverName");
+                          handleSort(
+                            primarySortDirectionObj.DriverNameSort === null
+                              ? "asc"
+                              : primarySortDirectionObj.DriverNameSort === "asc"
+                                ? "desc"
+                                : "asc",
+                            "DriverName",
+                          );
+                        }}
+                      >
+                        <span>Driver Name</span>
+                        <i
+                          className={
+                            primarySortDirectionObj.DriverNameSort === "desc"
+                              ? "ri-arrow-up-line"
+                              : "ri-arrow-down-line"
+                          }
+                        ></i>
+                      </button>
+                    </th>
+
+                    {showProfessionType && (
+                      <th>
+                        <button
+                          type="button"
+                          className="global-constant-sort-button"
+                          onClick={() => {
+                            setSortType("ProfessionType");
+                            handleSort(
+                              primarySortDirectionObj.ProfessionTypeSort ===
+                                null
+                                ? "asc"
+                                : primarySortDirectionObj.ProfessionTypeSort ===
+                                    "asc"
+                                  ? "desc"
+                                  : "asc",
+                              "ProfessionType",
+                            );
+                          }}
+                        >
+                          <span>Profession Type</span>
+                          <i
+                            className={
+                              primarySortDirectionObj.ProfessionTypeSort ===
+                              "desc"
+                                ? "ri-arrow-up-line"
+                                : "ri-arrow-down-line"
+                            }
+                          ></i>
+                        </button>
+                      </th>
+                    )}
+
+                    <th>Type</th>
+                    <th>Value</th>
+                    <th>Status</th>
+                    <th className="global-constant-actions-heading">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {globalConstantList
+                    .slice(0, isMobile ? isMobileRecords : desktopRecords)
+                    .map((GlobalConstant) => {
+                      const driverName =
+                        GlobalConstant.driverName?.replace(/\b\w/g, (l) =>
+                          l.toUpperCase(),
+                        ) || "-";
+
+                      const statusClass = (GlobalConstant.statusName || "")
+                        .toLowerCase()
+                        .replace(/\s+/g, "-");
+
+                      return (
+                        <tr
+                          className="global-constant-table-row"
+                          key={
+                            GlobalConstant.globalPricingDriverKeyID ||
+                            GlobalConstant.driverName
+                          }
+                        >
+                          <td>
+                            <div className="global-constant-name-cell">
+                              {/* <span className="global-constant-icon">
+                                <i className="ri-function-line"></i>
+                              </span> */}
+
+                              <div className="global-constant-name-copy">
+                                <div className="global-constant-name-line">
+                                  {GlobalConstant.notifySAChanges !== null &&
+                                    common.organisationKeyID !== null && (
+                                      <Tooltip title="View System Administrator Changes">
+                                        <button
+                                          type="button"
+                                          className="global-constant-notification-button"
+                                          onClick={() =>
+                                            GlobalConstantEditBtnClicked(
+                                              GlobalConstant,
+                                              "editPredefined",
+                                            )
+                                          }
+                                        >
+                                          <i className="ri-notification-3-line"></i>
+                                        </button>
+                                      </Tooltip>
+                                    )}
+
+                                  <Tooltip
+                                    title={
+                                      driverName.length > 55
+                                        ? GlobalConstant.driverName
+                                        : ""
+                                    }
+                                  >
+                                    <span className="global-constant-primary-text">
+                                      {isMobile && driverName.length > 24
+                                        ? `${driverName.substring(0, 24)}...`
+                                        : !isMobile && driverName.length > 55
+                                          ? `${driverName.substring(0, 55)}...`
+                                          : driverName}
+                                    </span>
+                                  </Tooltip>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          {showProfessionType && (
+                            <td>
+                              <span
+                                className="global-constant-profession-chip"
+                                title={GlobalConstant.professionTypeNames}
+                              >
+                                {GlobalConstant.professionTypeNames || "-"}
+                              </span>
+                            </td>
+                          )}
+
+                          <td>
+                            <span className="global-constant-type-badge">
+                              {GlobalConstant.driverTypeName || "-"}
+                            </span>
+                          </td>
+
+                          <td>
+                            <span className="global-constant-value">
+                              {formatValue(GlobalConstant.driverValue)}
+                            </span>
+                          </td>
+
+                          <td>
+                            <div className="global-constant-status-control">
+                              <span
+                                className={`global-constant-status-badge global-constant-status-badge--${statusClass}`}
+                              >
+                                <span className="global-constant-status-dot"></span>
+                                {GlobalConstant.statusName || "-"}
+                              </span>
+
+                              {canDelete && (
+                                <Tooltip
+                                  title={getCrudButtonToolTipName(
+                                    "Change Status",
+                                  )}
+                                >
+                                  <FormGroup>
+                                    <FormControlLabel
+                                      className="global-constant-switch-label"
+                                      control={
+                                        <Android12Switch
+                                          onClick={() =>
+                                            setModelRequestData({
+                                              ...modelRequestData,
+                                              status: GlobalConstant.statusName,
+                                              globalPricingDriverKeyID:
+                                                GlobalConstant.globalPricingDriverKeyID,
+                                              userKeyID: common.userKeyID,
+                                              Action: "Status",
+                                            })
+                                          }
+                                          checked={
+                                            GlobalConstant.statusName ===
+                                            "Active"
+                                          }
+                                          data-bs-toggle="modal"
+                                          data-bs-target="#ConfirmModel"
+                                        />
+                                      }
+                                    />
+                                  </FormGroup>
+                                </Tooltip>
+                              )}
+                            </div>
+                          </td>
+
+                          <td className="global-constant-actions-cell">
+                            <div className="global-constant-row-actions">
+                              <Tooltip
+                                title={getCrudButtonToolTipName(
+                                  "Copy",
+                                  moduleName,
+                                )}
+                              >
+                                <button
+                                  type="button"
+                                  className="global-constant-action-button global-constant-action-button--copy"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#ConfirmModel"
+                                  onClick={() =>
+                                    setModelRequestData({
+                                      ...modelRequestData,
+                                      driverName: GlobalConstant.driverName,
+                                      Action: "Copy",
+                                      globalPricingDriverKeyID:
+                                        GlobalConstant.globalPricingDriverKeyID,
+                                      userKeyID: common.userKeyID,
+                                    })
+                                  }
+                                >
+                                  <i className="ri-file-copy-line"></i>
+                                </button>
+                              </Tooltip>
+
+                              {canEdit && (
+                                <Tooltip
+                                  title={getCrudButtonToolTipName(
+                                    "Update",
+                                    moduleName,
+                                  )}
+                                >
+                                  <button
+                                    type="button"
+                                    className="global-constant-action-button global-constant-action-button--edit"
+                                    onClick={() =>
+                                      GlobalConstantEditBtnClicked(
+                                        GlobalConstant,
+                                      )
+                                    }
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#addUpdateModal"
+                                  >
+                                    <i className="ri-pencil-line"></i>
+                                  </button>
+                                </Tooltip>
+                              )}
+
+                              {canDelete && (
+                                <Tooltip
+                                  title={getCrudButtonToolTipName(
+                                    "Delete",
+                                    moduleName,
+                                  )}
+                                >
+                                  <button
+                                    type="button"
+                                    className="global-constant-action-button global-constant-action-button--delete"
+                                    onClick={() =>
+                                      setModelRequestData({
+                                        ...modelRequestData,
+                                        globalPricingDriverKeyID:
+                                          GlobalConstant.globalPricingDriverKeyID,
+                                        driverName: GlobalConstant.driverName,
+                                        userKeyID: common.userKeyID,
+                                        Action: "Delete",
+                                      })
+                                    }
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#ConfirmModel"
+                                  >
+                                    <i className="ri-delete-bin-line"></i>
+                                  </button>
+                                </Tooltip>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+
+              {totalRecords <= 0 && (
+                <div className="global-constant-empty-state">
+                  <NoResultFoundModel
+                    name={moduleName}
+                    totalRecords={totalRecords}
+                  />
+                </div>
+              )}
+            </div>
+
+            {listCount > pageSize && (
+              <div className="global-constant-pagination-wrap">
+                <PaginationComponent
+                  totalCount={listCount}
+                  totalPages={totalPage}
+                  currentPage={currentPage}
+                  onPageChange={HandlePageChange}
+                />
+              </div>
+            )}
+          </section>
         </div>
-        {/* End Page-content */}
-        </div>
+
+        <ErrorModel
+          ErrorModel={openErrorModal}
+          handleClose={handleClose}
+          ErrorMessage={formattedErrorMessage}
+        />
+
+        <ConfirmModel
+          openErrorModal={openErrorModal}
+          openSuccessModal={openSuccessModal}
+          modelRequestData={modelRequestData}
+          UpdatedStatus={
+            modelRequestData.Action === "Delete" ||
+            modelRequestData.Action === "Status"
+              ? GlobalConstantChangeStatusDataAndDeleteData
+              : CopyGlobalConstantData
+          }
+        />
+
+        <RecordsAvailablePopupModel
+          handleClose={handleClose}
+          openErrorModal={openErrorModal}
+          openSuccessModal={openSuccessModal}
+          modelRequestData={modelRequestData}
+          UpdatedStatus={GlobalConstantChangeStatusDataAndDeleteData}
+        />
+
+        <SuccessModal
+          handleClose={handleClose}
+          setOpenSuccessModal={setOpenSuccessModal}
+          openSuccessModal={openSuccessModal}
+          modelAction={modelRequestData.Action}
+          message={`${
+            modelRequestData.Action === "Delete"
+              ? `${moduleName} ${modelRequestData.driverName}`
+              : modelRequestData.Action === "Copy"
+                ? `Copy of ${modelRequestData.driverName} has been created successfully!`
+                : "Status has been changed successfully!"
+          }`}
+        />
+
+        <GlobalConstantModal
+          class="modal fade"
+          id="addUpdateModal"
+          tabIndex="-1"
+          aria_labelledby="exampleModalLabel"
+          aria_hidden="true"
+          setIsAddUpdateActionDone={setIsAddUpdateActionDone}
+          modelRequestData={modelRequestData}
+        />
+
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="btn btn-danger btn-icon"
+          id="back-to-top"
+        >
+          <i className="ri-arrow-up-line"></i>
+        </button>
       </div>
-      </div>
-      </div>
+
       <Footer />
-    </div>
+    </>
   );
 }
 
