@@ -1,0 +1,1008 @@
+/* =========================================================
+   EMAIL TEMPLATE LIST
+   Matches Prospect / Users / Terms & Conditions UI
+   UI ONLY
+   ========================================================= */
+
+.email-template-redesign {
+  --et-bg: #f7f9fc;
+  --et-card: #ffffff;
+  --et-heading: #14243a;
+  --et-text: #334258;
+  --et-muted: #778295;
+  --et-border: #dce4ed;
+  --et-border-soft: #e7edf3;
+  --et-navy: #0f1b33;
+  --et-cyan: #14b5d1;
+  --et-cyan-hover: #0da5c1;
+
+  width: 100%;
+  min-height: 100%;
+
+  padding-left: 16px;
+  padding-right: 16px;
+
+  background: var(--et-bg);
+  color: var(--et-text);
+}
+
+.email-template-redesign,
+.email-template-redesign * {
+  box-sizing: border-box;
+}
+
+.email-template-page {
+  width: 100%;
+  max-width: 1500px;
+
+  margin: 0 auto;
+  padding: 24px 0 32px;
+}
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.email-template-page-header {
+  width: 100%;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  padding-left: 15px;
+
+  border-bottom: 1px solid #e2e8ef;
+}
+
+.email-template-page-title {
+  margin: 0;
+
+  color: var(--et-heading);
+
+  font-family: "Sarabun", sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.email-template-page-subtitle {
+  margin: 6px 0 0;
+
+  color: var(--et-muted);
+
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* =========================================================
+   LIST CARD
+   ========================================================= */
+
+.email-template-list-card {
+  width: 100%;
+
+  overflow: hidden;
+  margin-left: 15px;
+
+  border: 1px solid var(--et-border);
+  border-radius: 12px;
+
+  background: var(--et-card);
+
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.04),
+    0 10px 28px rgba(15, 23, 42, 0.025);
+}
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.email-template-toolbar {
+  width: 100%;
+  min-height: 72px;
+  padding: 14px 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  border-bottom: 1px solid var(--et-border);
+
+  background: #ffffff;
+}
+
+.email-template-search-wrap {
+  position: relative;
+
+  width: 340px;
+  max-width: 340px;
+  min-width: 240px;
+
+  flex: 0 1 340px;
+}
+
+.email-template-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  z-index: 2;
+
+  transform: translateY(-50%);
+
+  color: #657286;
+  font-size: 18px;
+
+  pointer-events: none;
+}
+
+.email-template-search-input {
+  width: 100%;
+  height: 42px;
+
+  padding: 9px 13px 9px 40px;
+
+  border: 1px solid #d4dde7;
+  border-radius: 8px;
+
+  outline: none;
+
+  background: #ffffff;
+  color: #28374c;
+
+  font-size: 12.5px;
+
+  box-shadow: none;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.email-template-search-input::placeholder {
+  color: #939eae;
+}
+
+.email-template-search-input:focus {
+  border-color: #7bcfdf;
+
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08);
+}
+
+.email-template-toolbar-right {
+  min-width: max-content;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+}
+
+.email-template-record-count {
+  color: #7c8797;
+
+  font-size: 10.5px;
+  font-weight: 500;
+
+  white-space: nowrap;
+}
+
+.email-template-add-action .btn,
+.email-template-add-action .create-item-btn {
+  min-height: 42px !important;
+  height: 42px !important;
+
+  margin: 0 !important;
+  padding: 0 15px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border: 1px solid var(--et-cyan) !important;
+  border-radius: 8px !important;
+
+  background: var(--et-cyan) !important;
+  color: #ffffff !important;
+
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+
+  white-space: nowrap;
+
+  box-shadow: none !important;
+}
+
+.email-template-add-action .btn:hover,
+.email-template-add-action .create-item-btn:hover {
+  border-color: var(--et-cyan-hover) !important;
+  background: var(--et-cyan-hover) !important;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.email-template-table-scroll {
+  width: 100%;
+
+  overflow-x: auto;
+  overflow-y: visible;
+
+  scrollbar-width: thin;
+  scrollbar-color: #c9d1dc transparent;
+}
+
+.email-template-table-scroll::-webkit-scrollbar {
+  height: 7px;
+}
+
+.email-template-table-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #c9d1dc;
+}
+
+.email-template-table-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.email-template-table {
+  width: 100%;
+  min-width: 980px;
+
+  margin: 0;
+
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.email-template-table thead th {
+  height: 52px;
+
+  padding: 0 14px;
+
+  border: 0;
+  border-bottom: 1px solid #1d2940;
+
+  background: var(--et-navy);
+  color: #ffffff;
+
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.email-template-table tbody td {
+  height: 68px;
+
+  padding: 10px 14px;
+
+  border-bottom: 1px solid var(--et-border-soft);
+
+  background: #ffffff;
+  color: var(--et-text);
+
+  font-size: 11.5px;
+  vertical-align: middle;
+}
+
+.email-template-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.email-template-table tbody tr:hover td {
+  background: #fbfdff;
+}
+
+/* With profession column */
+.email-template-table th:nth-child(1),
+.email-template-table td:nth-child(1) {
+  width: 31%;
+}
+
+.email-template-table th:nth-child(2),
+.email-template-table td:nth-child(2) {
+  width: 20%;
+}
+
+.email-template-table th:nth-child(3),
+.email-template-table td:nth-child(3) {
+  width: 17%;
+}
+
+.email-template-table th:nth-child(4),
+.email-template-table td:nth-child(4) {
+  width: 12%;
+}
+
+.email-template-table th:nth-child(5),
+.email-template-table td:nth-child(5) {
+  width: 12%;
+}
+
+.email-template-table th:nth-child(6),
+.email-template-table td:nth-child(6) {
+  width: 8%;
+  min-width: 120px;
+}
+
+/* Without profession column */
+@media (min-width: 1100px) {
+  .email-template-table {
+    min-width: 0;
+  }
+
+  .email-template-table--no-profession th:nth-child(1),
+  .email-template-table--no-profession td:nth-child(1) {
+    width: 39%;
+  }
+
+  .email-template-table--no-profession th:nth-child(2),
+  .email-template-table--no-profession td:nth-child(2) {
+    width: 20%;
+  }
+
+  .email-template-table--no-profession th:nth-child(3),
+  .email-template-table--no-profession td:nth-child(3) {
+    width: 14%;
+  }
+
+  .email-template-table--no-profession th:nth-child(4),
+  .email-template-table--no-profession td:nth-child(4) {
+    width: 14%;
+  }
+
+  .email-template-table--no-profession th:nth-child(5),
+  .email-template-table--no-profession td:nth-child(5) {
+    width: 13%;
+    min-width: 0;
+  }
+
+  .email-template-table-scroll {
+    overflow-x: hidden;
+  }
+}
+
+/* =========================================================
+   SORT
+   ========================================================= */
+
+.email-template-sort-button {
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  border: 0;
+
+  background: transparent;
+  color: inherit;
+
+  font: inherit;
+  text-transform: inherit;
+
+  cursor: pointer;
+}
+
+.email-template-sort-button i {
+  color: #c4cedd;
+  font-size: 13px;
+}
+
+.email-template-sort-button:hover i {
+  color: #ffffff;
+}
+
+/* =========================================================
+   NAME
+   ========================================================= */
+
+.email-template-name-cell {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.email-template-name-icon {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #e9f7fa;
+  color: #087f98;
+
+  font-size: 16px;
+}
+
+.email-template-name-content,
+.email-template-name-line {
+  min-width: 0;
+}
+
+.email-template-name-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.email-template-name {
+  min-width: 0;
+
+  display: block;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #20314a;
+
+  font-weight: 600;
+}
+
+.email-template-notification-button {
+  width: 27px;
+  height: 27px;
+  flex: 0 0 27px;
+
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #f0d493;
+  border-radius: 6px;
+
+  background: #fff8e8;
+  color: #b67a12;
+
+  font-size: 13px;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   CHIPS / BADGES
+   ========================================================= */
+
+.email-template-profession-chip,
+.email-template-type-badge {
+  max-width: 100%;
+  min-height: 27px;
+  padding: 0 9px;
+
+  display: inline-flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.email-template-profession-chip {
+  background: #eaf2ff;
+  color: #536176;
+}
+
+.email-template-type-badge {
+  background: #f1efff;
+  color: #665ca6;
+}
+
+.email-template-default-badge,
+.email-template-status-badge {
+  min-width: 46px;
+  min-height: 26px;
+  padding: 0 8px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  font-size: 9.5px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.email-template-default-badge.is-default,
+.email-template-status-badge.is-active {
+  background: #eaf8f3;
+  color: #18845f;
+}
+
+.email-template-default-badge.is-not-default {
+  background: #f2f4f7;
+  color: #697586;
+}
+
+.email-template-status-badge.is-inactive {
+  background: #fff0f2;
+  color: #cf4052;
+}
+
+/* =========================================================
+   STATUS / SWITCH
+   ========================================================= */
+
+.email-template-status-control {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.email-template-switch-label {
+  margin: 0 !important;
+}
+
+.email-template-status-control .MuiFormGroup-root {
+  width: auto !important;
+  min-width: 0 !important;
+}
+
+.email-template-status-control .MuiFormControlLabel-root {
+  min-width: 0 !important;
+}
+
+.email-template-status-control .MuiSwitch-root {
+  margin-left: -4px !important;
+  margin-right: -7px !important;
+
+  transform: scale(0.82);
+  transform-origin: center;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.email-template-actions-heading,
+.email-template-actions-cell {
+  text-align: center !important;
+}
+
+.email-template-row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+
+  white-space: nowrap;
+}
+
+.email-template-action-button {
+  width: 31px;
+  height: 31px;
+  flex: 0 0 31px;
+
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #d8e0e9;
+  border-radius: 6px;
+
+  background: #ffffff;
+  color: #596679;
+
+  font-size: 13px;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.email-template-action-button--copy:hover {
+  border-color: #c4d2e7;
+  background: #f3f7fd;
+  color: #4f6f9d;
+}
+
+.email-template-action-button--edit:hover {
+  border-color: #a9deea;
+  background: #eefafd;
+  color: #0788a2;
+}
+
+.email-template-action-button--delete:hover {
+  border-color: #f0c2c8;
+  background: #fff2f3;
+  color: #d14455;
+}
+
+/* =========================================================
+   EMPTY / PAGINATION
+   ========================================================= */
+
+.email-template-empty-state {
+  min-height: 250px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-top: 1px solid var(--et-border-soft);
+
+  background: #ffffff;
+}
+
+.email-template-pagination {
+  position: relative;
+
+  width: 100%;
+  min-height: 60px;
+  padding: 10px 14px;
+
+  border-top: 1px solid var(--et-border);
+
+  background: #ffffff;
+}
+
+.email-template-pagination .fixed-bottom {
+  position: static !important;
+
+  inset: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.email-template-pagination .fixed-bottom > .row,
+.email-template-pagination .row {
+  margin: 0 !important;
+}
+
+.email-template-pagination .pagination {
+  margin: 0 !important;
+
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.email-template-pagination .mb-4 {
+  margin-bottom: 0 !important;
+}
+
+/* =========================================================
+   FOOTER FLOW
+   ========================================================= */
+
+.email-template-footer-wrap,
+.email-template-footer-wrap footer,
+.email-template-footer-wrap .footer,
+.email-template-footer-wrap .fixed-bottom {
+  position: static !important;
+
+  inset: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+}
+
+.email-template-footer-wrap {
+  display: block;
+  clear: both;
+
+  background: #f7f9fc;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 991px) {
+  .email-template-redesign {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .email-template-table {
+    min-width: 900px;
+  }
+
+  .email-template-table-scroll {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .email-template-redesign {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .email-template-page {
+    padding-top: 18px;
+  }
+
+  .email-template-page-title {
+    font-size: 24px;
+  }
+
+  .email-template-toolbar {
+    padding: 12px;
+
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .email-template-search-wrap {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+
+    flex: 1 1 100%;
+  }
+
+  .email-template-toolbar-right {
+    width: 100%;
+
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .email-template-record-count {
+    display: none;
+  }
+
+  .email-template-add-action,
+  .email-template-add-action .btn,
+  .email-template-add-action .create-item-btn {
+    width: 100% !important;
+  }
+
+  .email-template-table {
+    min-width: 820px;
+  }
+}
+
+/* =========================================================
+   EMAIL TEMPLATE V2 — FOOTER FLOW FIX
+   The shared Footer component has legacy fixed/sticky positioning.
+   Keep it in normal document flow for this screen only.
+   ========================================================= */
+
+.email-template-redesign {
+  display: flex !important;
+  flex-direction: column !important;
+
+  min-height: 100% !important;
+  height: auto !important;
+
+  overflow: visible !important;
+}
+
+.email-template-redesign .email-template-page {
+  flex: 0 0 auto;
+
+  height: auto !important;
+  min-height: 0 !important;
+
+  padding-bottom: 24px !important;
+}
+
+/* Pagination must remain part of the list card, never fixed to viewport. */
+.email-template-redesign .email-template-pagination,
+.email-template-redesign .email-template-pagination .fixed-bottom,
+.email-template-redesign .email-template-pagination [class*="fixed-bottom"] {
+  position: static !important;
+
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  inset: auto !important;
+
+  transform: none !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+
+  z-index: auto !important;
+}
+
+/* Footer wrapper itself participates in normal document flow. */
+.email-template-redesign .email-template-footer-wrap {
+  position: static !important;
+
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  inset: auto !important;
+
+  flex: 0 0 auto;
+
+  display: block !important;
+  clear: both !important;
+
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  transform: none !important;
+
+  z-index: auto !important;
+
+  background: #f7f9fc;
+}
+
+/*
+  The Footer component may use .footer, .fixed-bottom, a footer tag,
+  or another nested wrapper. Override all of those only inside this
+  screen's dedicated footer wrapper.
+*/
+.email-template-redesign .email-template-footer-wrap > *,
+.email-template-redesign .email-template-footer-wrap footer,
+.email-template-redesign .email-template-footer-wrap .footer,
+.email-template-redesign .email-template-footer-wrap .fixed-bottom,
+.email-template-redesign .email-template-footer-wrap [class*="footer"],
+.email-template-redesign .email-template-footer-wrap [id*="footer"] {
+  position: static !important;
+
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  inset: auto !important;
+
+  float: none !important;
+
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+
+  margin: 0 !important;
+
+  transform: none !important;
+
+  z-index: auto !important;
+}
+
+/* Remove viewport-style spacing that legacy footer CSS can introduce. */
+.email-template-redesign .email-template-footer-wrap .footer {
+  min-height: 52px !important;
+}
+
+/* List/card should never establish a clipped or positioned containing block. */
+.email-template-redesign .email-template-list-card,
+.email-template-redesign .email-template-table-scroll {
+  position: static !important;
+}
+
+.email-template-redesign .email-template-list-card {
+  overflow: hidden !important;
+}
+
+.email-template-redesign .email-template-table-scroll {
+  overflow-y: visible !important;
+}
+
+/* Ensure footer starts only after the complete list + pagination. */
+.email-template-redesign .email-template-footer-wrap {
+  margin-top: 0 !important;
+}
+
+/* =========================================================
+   EMAIL TEMPLATE V3 — ADD BUTTON IN PAGE HEADER
+   Matches the Terms & Conditions page header layout.
+   ========================================================= */
+
+.email-template-redesign .email-template-page-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 24px !important;
+}
+
+.email-template-redesign .email-template-page-heading {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.email-template-redesign .email-template-page-action {
+  flex: 0 0 auto;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+
+  margin: 0 !important;
+}
+
+.email-template-redesign .email-template-page-action .btn,
+.email-template-redesign .email-template-page-action .create-item-btn {
+  min-height: 42px !important;
+  height: 42px !important;
+
+  margin: 0 !important;
+  padding: 0 15px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border: 1px solid var(--et-cyan) !important;
+  border-radius: 8px !important;
+
+  background: var(--et-cyan) !important;
+  color: #ffffff !important;
+
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+
+  white-space: nowrap;
+
+  box-shadow: none !important;
+}
+
+.email-template-redesign .email-template-page-action .btn:hover,
+.email-template-redesign .email-template-page-action .create-item-btn:hover {
+  border-color: var(--et-cyan-hover) !important;
+  background: var(--et-cyan-hover) !important;
+  color: #ffffff !important;
+}
+
+/* Search toolbar is now search-only */
+.email-template-redesign .email-template-toolbar {
+  justify-content: flex-start !important;
+}
+
+/* Old toolbar-right block is no longer used */
+.email-template-redesign .email-template-toolbar-right {
+  display: none !important;
+}
+
+/* Mobile: button moves below title and becomes full-width */
+@media (max-width: 767px) {
+  .email-template-redesign .email-template-page-header {
+    align-items: stretch !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+
+  .email-template-redesign .email-template-page-action,
+  .email-template-redesign .email-template-page-action .btn,
+  .email-template-redesign .email-template-page-action .create-item-btn {
+    width: 100% !important;
+  }
+}

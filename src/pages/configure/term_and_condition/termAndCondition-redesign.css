@@ -820,3 +820,88 @@
     padding-right: 8px !important;
   }
 }
+
+/* =========================================================
+   TERMS & CONDITIONS V3 — ADD BUTTON IN PAGE HEADER
+   Same placement pattern used on the previous list page.
+   ========================================================= */
+
+.tnc-list-redesign .tnc-list-page-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 24px !important;
+}
+
+.tnc-list-redesign .tnc-list-page-heading {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.tnc-list-redesign .tnc-list-page-action {
+  flex: 0 0 auto;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+
+  margin: 0 !important;
+}
+
+.tnc-list-redesign .tnc-list-page-action .btn,
+.tnc-list-redesign .tnc-list-page-action .create-item-btn {
+  min-height: 42px !important;
+  height: 42px !important;
+
+  margin: 0 !important;
+  padding: 0 15px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border: 1px solid var(--tnc-cyan) !important;
+  border-radius: 8px !important;
+
+  background: var(--tnc-cyan) !important;
+  color: #ffffff !important;
+
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+
+  white-space: nowrap;
+
+  box-shadow: none !important;
+}
+
+.tnc-list-redesign .tnc-list-page-action .btn:hover,
+.tnc-list-redesign .tnc-list-page-action .create-item-btn:hover {
+  border-color: var(--tnc-cyan-hover) !important;
+  background: var(--tnc-cyan-hover) !important;
+  color: #ffffff !important;
+}
+
+/* Search toolbar no longer reserves space for the Add button */
+.tnc-list-redesign .tnc-list-toolbar {
+  justify-content: flex-start !important;
+}
+
+/* Old toolbar action block is no longer used */
+.tnc-list-redesign .tnc-list-toolbar-right {
+  display: none !important;
+}
+
+/* Mobile: keep the same responsive behaviour as the other list headers */
+@media (max-width: 767px) {
+  .tnc-list-redesign .tnc-list-page-header {
+    align-items: stretch !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+
+  .tnc-list-redesign .tnc-list-page-action,
+  .tnc-list-redesign .tnc-list-page-action .btn,
+  .tnc-list-redesign .tnc-list-page-action .create-item-btn {
+    width: 100% !important;
+  }
+}

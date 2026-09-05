@@ -552,12 +552,22 @@ function Term_and_Condition() {
               PAGE HEADER
               ========================= */}
           <div className="tnc-list-page-header">
-            <div>
+            <div className="tnc-list-page-heading">
               <h1 className="tnc-list-page-title">Terms &amp; Conditions</h1>
               <p className="tnc-list-page-subtitle">
                 Manage reusable terms and conditions.
               </p>
             </div>
+
+            {canAdd && (
+              <div className="tnc-list-page-action">
+                <CommonButtonComponent
+                  title={getCrudButtonToolTipName("Add", moduleName)}
+                  name={getCrudButtonTextName("Add", moduleName)}
+                  AddBtn={TemplateAddBtnClicked}
+                />
+              </div>
+            )}
           </div>
 
           {/* =========================
@@ -580,27 +590,6 @@ function Term_and_Condition() {
                       : getPlaceholderTextName("Search", moduleName)
                   }
                 />
-              </div>
-
-              <div className="tnc-list-toolbar-right">
-                {/* {listCount > 0 && (
-                  <span className="tnc-list-record-count">
-                    {listCount}{" "}
-                    {listCount === 1
-                      ? "terms & conditions"
-                      : "terms & conditions"}
-                  </span>
-                )} */}
-
-                {canAdd && (
-                  <div className="tnc-list-add-action">
-                    <CommonButtonComponent
-                      title={getCrudButtonToolTipName("Add", moduleName)}
-                      name={getCrudButtonTextName("Add", moduleName)}
-                      AddBtn={TemplateAddBtnClicked}
-                    />
-                  </div>
-                )}
               </div>
             </div>
 
@@ -752,9 +741,9 @@ function Term_and_Condition() {
                       >
                         <td>
                           <div className="tnc-list-name-cell">
-                            <span className="tnc-list-name-icon">
+                            {/* <span className="tnc-list-name-icon">
                               <i className="ri-file-list-3-line"></i>
-                            </span>
+                            </span> */}
 
                             <div className="tnc-list-name-content">
                               <div className="tnc-list-name-line">

@@ -1726,3 +1726,86 @@
 .template-list-redesign .template-list-table-card {
   border-radius: 0 0 12px 12px !important;
 }
+
+/* =========================================================
+   TEMPLATE LIST V6 — HEADER ADD BUTTON ALIGNMENT
+   Keeps the Add button aligned with the page title block.
+   ========================================================= */
+
+.template-list-redesign .template-list-page-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 24px !important;
+}
+
+.template-list-redesign
+  .template-list-page-header
+  > .template-list-toolbar-right {
+  min-height: 0 !important;
+  margin: 0 !important;
+
+  flex: 0 0 auto;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+.template-list-redesign .template-list-page-header .template-list-add-action {
+  margin: 0 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+.template-list-redesign
+  .template-list-page-header
+  .template-list-add-action
+  .btn,
+.template-list-redesign
+  .template-list-page-header
+  .template-list-add-action
+  .create-item-btn {
+  min-height: 42px !important;
+  height: 42px !important;
+
+  margin: 0 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  vertical-align: middle !important;
+}
+
+/* Keep title/subtitle block from being pushed by the button */
+.template-list-redesign .template-list-page-header > div:first-child {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+/* Mobile: button moves below heading and uses full width */
+@media (max-width: 767px) {
+  .template-list-redesign .template-list-page-header {
+    align-items: stretch !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+
+  .template-list-redesign
+    .template-list-page-header
+    > .template-list-toolbar-right,
+  .template-list-redesign .template-list-page-header .template-list-add-action,
+  .template-list-redesign
+    .template-list-page-header
+    .template-list-add-action
+    .btn,
+  .template-list-redesign
+    .template-list-page-header
+    .template-list-add-action
+    .create-item-btn {
+    width: 100% !important;
+  }
+}

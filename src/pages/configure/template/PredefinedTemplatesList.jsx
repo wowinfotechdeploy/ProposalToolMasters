@@ -1162,6 +1162,50 @@ function Predefined_Templates() {
               configurations.
             </p>
           </div>
+          <div className="template-list-toolbar-right">
+            {((userAccessData.Admin_Config_Template_CanAdd &&
+              common.organisationKeyID !== null) ||
+              (userAccessData.SuperAdmin_Config_Template_CanAdd &&
+                common.organisationKeyID === null)) && (
+              <div className="template-list-add-action">
+                {activeTab === "Templates" && (
+                  <CommonButtonComponent
+                    title={getCrudButtonToolTipName("Add", moduleName)}
+                    name={getCrudButtonTextName("Add", moduleName)}
+                    AddBtn={TemplateAddBtnClicked}
+                  />
+                )}
+
+                {activeTab === "Templates PDF" && (
+                  <CommonButtonComponent
+                    title={getCrudButtonToolTipName(
+                      "Add",
+                      moduleNameForTemplatePdf,
+                    )}
+                    name={getCrudButtonTextName(
+                      "Add",
+                      moduleNameForTemplatePdf,
+                    )}
+                    AddBtn={() => TemplatePDFEditBtnClicked()}
+                  />
+                )}
+
+                {activeTab === "Header and Footer" && (
+                  <CommonButtonComponent
+                    title={getCrudButtonToolTipName(
+                      "Add",
+                      moduleNameForHeaderFooter,
+                    )}
+                    name={getCrudButtonTextName(
+                      "Add",
+                      moduleNameForHeaderFooter,
+                    )}
+                    AddBtn={TemplateHeaderFooterAddBtnClicked}
+                  />
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* <div class="main-content"> */}
@@ -1344,63 +1388,6 @@ function Predefined_Templates() {
                                                     )
                                               }
                                             />
-                                          </div>
-                                        )}
-                                      </div>
-
-                                      <div className="template-list-toolbar-right">
-                                        {((userAccessData.Admin_Config_Template_CanAdd &&
-                                          common.organisationKeyID !== null) ||
-                                          (userAccessData.SuperAdmin_Config_Template_CanAdd &&
-                                            common.organisationKeyID ===
-                                              null)) && (
-                                          <div className="template-list-add-action">
-                                            {activeTab === "Templates" && (
-                                              <CommonButtonComponent
-                                                title={getCrudButtonToolTipName(
-                                                  "Add",
-                                                  moduleName,
-                                                )}
-                                                name={getCrudButtonTextName(
-                                                  "Add",
-                                                  moduleName,
-                                                )}
-                                                AddBtn={TemplateAddBtnClicked}
-                                              />
-                                            )}
-
-                                            {activeTab === "Templates PDF" && (
-                                              <CommonButtonComponent
-                                                title={getCrudButtonToolTipName(
-                                                  "Add",
-                                                  moduleNameForTemplatePdf,
-                                                )}
-                                                name={getCrudButtonTextName(
-                                                  "Add",
-                                                  moduleNameForTemplatePdf,
-                                                )}
-                                                AddBtn={() =>
-                                                  TemplatePDFEditBtnClicked()
-                                                }
-                                              />
-                                            )}
-
-                                            {activeTab ===
-                                              "Header and Footer" && (
-                                              <CommonButtonComponent
-                                                title={getCrudButtonToolTipName(
-                                                  "Add",
-                                                  moduleNameForHeaderFooter,
-                                                )}
-                                                name={getCrudButtonTextName(
-                                                  "Add",
-                                                  moduleNameForHeaderFooter,
-                                                )}
-                                                AddBtn={
-                                                  TemplateHeaderFooterAddBtnClicked
-                                                }
-                                              />
-                                            )}
                                           </div>
                                         )}
                                       </div>

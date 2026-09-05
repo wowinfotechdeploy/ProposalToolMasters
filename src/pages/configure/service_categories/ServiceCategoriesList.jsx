@@ -438,13 +438,13 @@ const Service_Categories = () => {
                 />
               </div>
 
-              <div className="service-category-record-count">
+              {/* <div className="service-category-record-count">
                 {listCount > 0
                   ? `${listCount} ${
                       listCount === 1 ? "category" : "categories"
                     }`
                   : ""}
-              </div>
+              </div> */}
             </div>
 
             {/* Table */}
@@ -542,9 +542,9 @@ const Service_Categories = () => {
                         >
                           <td>
                             <div className="service-category-name-cell">
-                              <span className="service-category-icon">
+                              {/* <span className="service-category-icon">
                                 <i className="ri-stack-line"></i>
-                              </span>
+                              </span> */}
 
                               <div className="service-category-name-copy">
                                 <div className="service-category-name-line">
