@@ -2,6 +2,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import DropDown from "../../../components/DropDown";
 import "./GlobalPricingDriversStyle.css";
+import "./GlobalPricingDriverModal-redesign.css";
 import { GetProfessionTypeLookupList } from "../../../redux/Services/Master/ProfessionTypeApi";
 import Select from "react-select";
 import {
@@ -36,7 +37,10 @@ import {
 import Utils from "../../../Middleware/Utils";
 function Modal(props) {
   //A] Declare State
-  const moduleName = props.modelRequestData?.addedFor === "GlobalProspect" ? "Global Prospect Variable" : "Global Pricing Driver";
+  const moduleName =
+    props.modelRequestData?.addedFor === "GlobalProspect"
+      ? "Global Prospect Variable"
+      : "Global Pricing Driver";
   const modalRef = useRef(null);
   const [Status, setStatus] = React.useState(false);
   const [gdrivererror, setGdriverError] = useState(false);
@@ -177,7 +181,7 @@ function Modal(props) {
     ) {
       GetServiceCategoryModelData(
         props.modelRequestData.globalPricingDriverKeyID,
-        props.modelRequestData.Type
+        props.modelRequestData.Type,
       );
     } else {
       SetInitialModelData();
@@ -246,15 +250,14 @@ function Modal(props) {
       textLength: null,
       textValue: null,
       allowedSpecialCharacters: "",
-    }
-  );
+    });
     setQuantity([
-    {
-      quantityKeyID: null,
-      quantityDecimalPlaces: 0,
-      quantityFrom: null,
-      quantityTo: null,
-    },
+      {
+        quantityKeyID: null,
+        quantityDecimalPlaces: 0,
+        quantityFrom: null,
+        quantityTo: null,
+      },
     ]);
     setErrorMessage("");
     setGdriverError(false);
@@ -325,7 +328,7 @@ function Modal(props) {
         // Format slabFrom and slabTo to match the new decimal places
         if (slab.slabFrom !== "") {
           updatedSlab.slabFrom = parseFloat(slab.slabFrom).toFixed(
-            decimalPlaces
+            decimalPlaces,
           );
         }
 
@@ -420,7 +423,7 @@ function Modal(props) {
         common.userKeyID,
         null,
         null,
-        slabsCopy[index].slabKeyID
+        slabsCopy[index].slabKeyID,
       );
       setLoader(false);
       if (pricingDriverDelete?.data?.statusCode === 200) {
@@ -493,12 +496,12 @@ function Modal(props) {
     for (let i = 1; i < blocks.length; i++) {
       const prevToDate = parseStoredDate(
         blocks[i - 1].toDate,
-        updatedDates[dateIndex].dateFormat
+        updatedDates[dateIndex].dateFormat,
       );
       blocks[i].fromDate = prevToDate
         ? formatToDisplay(
             addDays(prevToDate, 1),
-            updatedDates[dateIndex].dateFormat
+            updatedDates[dateIndex].dateFormat,
           )
         : "";
     }
@@ -526,7 +529,7 @@ function Modal(props) {
         common.userKeyID,
         null,
         variationsCopy[index].variationKeyID,
-        null
+        null,
       );
       setLoader(false);
       if (pricingDriverDelete?.data?.statusCode === 200) {
@@ -744,7 +747,7 @@ function Modal(props) {
 
       setTimeout(() => {
         scrollUpDownByElementID(
-          `Period_Block_${updatedDates[0].blocks.length - 1}`
+          `Period_Block_${updatedDates[0].blocks.length - 1}`,
         );
       }, 200);
     } else {
@@ -905,7 +908,7 @@ function Modal(props) {
       dates.map((date) => ({
         ...date,
         defaultDateValue: cleanValue === "" ? null : parseInt(cleanValue, 10),
-      }))
+      })),
     );
 
     setDateError({ date: false, dateValue: false });
@@ -934,7 +937,7 @@ function Modal(props) {
     (ptype) => ({
       value: ptype.professionTypeId,
       label: ptype.professionTypeName,
-    })
+    }),
   );
   // Select Profession type
   const OnChangeSelectProfessionType = (ptype) => {
@@ -955,7 +958,7 @@ function Modal(props) {
     (item) => ({
       value: item.professionTypeId,
       label: item.professionTypeName,
-    })
+    }),
   );
 
   //2] On Change Select Driver Type
@@ -1002,7 +1005,7 @@ function Modal(props) {
         common.userKeyID,
         null,
         variationKeyIDs,
-        slabKeyIDs
+        slabKeyIDs,
       );
 
       if (pricingDriverDelete?.data?.statusCode === 200) {
@@ -1130,7 +1133,8 @@ function Modal(props) {
           if (response?.data?.responseData?.data) {
             const ModelData = response?.data?.responseData?.data;
             const driverTypeValueNew = driverType?.filter(
-              (DriverType) => DriverType.driverTypeId === ModelData.driverTypeID
+              (DriverType) =>
+                DriverType.driverTypeId === ModelData.driverTypeID,
             );
             const driverTypeConvert = driverTypeValueNew.map((i) => ({
               value: i.driverTypeId,
@@ -1246,7 +1250,6 @@ function Modal(props) {
 
   // 2) Add Update Button Click Function
   const GlobalPricingDriverAddUpdateBtnClicked = (Accept) => {
-
     console.log(props?.modelRequestData?.addedFor);
     let hasError = false;
     const variationData =
@@ -1283,7 +1286,8 @@ function Modal(props) {
       globalPricingDriverKeyID: globalPricingDriverObj.globalPricingDriverKeyID,
       driverName: globalPricingDriverObj.driverName,
       driverTypeID: globalPricingDriverObj.driverTypeID,
-      addedFor: props?.modelRequestData?.addedFor || globalPricingDriverObj.addedFor,
+      addedFor:
+        props?.modelRequestData?.addedFor || globalPricingDriverObj.addedFor,
       acceptSAChanges: Accept,
       professionTypeList:
         common.professionTypeLists?.length > 1 ||
@@ -1384,22 +1388,22 @@ function Modal(props) {
                 return variations
                   .slice(0, index)
                   .some(
-                    (prevItem) => prevItem.variationName === item.variationName
+                    (prevItem) => prevItem.variationName === item.variationName,
                   );
-              }
+              },
             );
 
             if (duplicateVariationFound.length > 0) {
               // Remove duplicates from the array
               const uniqueVariations = Array.from(
                 new Set(
-                  duplicateVariationFound.map((item) => item.variationName)
-                )
+                  duplicateVariationFound.map((item) => item.variationName),
+                ),
               );
               // Construct the error message
               const duplicateNames = uniqueVariations.join(", ");
               setErrorMessageTitle(
-                `Variation ${duplicateNames} already exist. Please choose different name.`
+                `Variation ${duplicateNames} already exist. Please choose different name.`,
               );
               setOpenErrorModal(true);
               hasError = true;
@@ -1542,7 +1546,7 @@ function Modal(props) {
 
       const response = await AddUpdateGlobalPricingDriver(
         URL,
-        ApiRequest_ParamsObj
+        ApiRequest_ParamsObj,
       );
       if (response) {
         setLoader(false);
@@ -1652,7 +1656,7 @@ function Modal(props) {
   };
 
   const professionTypeInputValue = professionTypeLookupList?.filter(
-    (item) => common.professionTypeLists[0] === item.professionTypeId
+    (item) => common.professionTypeLists[0] === item.professionTypeId,
   );
 
   const DriverValue = (e, index, Type) => {
@@ -1671,13 +1675,13 @@ function Modal(props) {
         // For negative values, ensure 5 digits after the negative sign
         formattedInput = `-${integerPart.slice(1, 13)}.${decimalPart.slice(
           0,
-          2
+          2,
         )}`;
       } else {
         // For positive values, limit to 5 digits before the decimal point
         formattedInput = `${integerPart.slice(0, 12)}.${decimalPart.slice(
           0,
-          2
+          2,
         )}`;
       }
     } else {
@@ -1691,30 +1695,30 @@ function Modal(props) {
         index,
         "variationValue",
         formattedInput.replace(/-/g, (match, index) =>
-          index === 0 ? match : ""
-        )
+          index === 0 ? match : "",
+        ),
       );
     } else if (Type === "slabValue") {
       OnSlabChange(
         index,
         "slabValue",
         formattedInput.replace(/-/g, (match, index) =>
-          index === 0 ? match : ""
-        )
+          index === 0 ? match : "",
+        ),
       );
     } else if (Type === "slabFrom") {
       OnSlabChange(
         index,
         "slabFrom",
         formattedInput.replace(/-/g, (match, index) =>
-          index === 0 ? match : ""
-        )
+          index === 0 ? match : "",
+        ),
       );
     } else if (Type === "slabTo") {
       const updatedSlabs = [...slabs];
       updatedSlabs[index].slabTo = formattedInput.replace(
         /-/g,
-        (match, index) => (index === 0 ? match : "")
+        (match, index) => (index === 0 ? match : ""),
       );
       // Update the next slab's slabFrom based on the current slab's slabTo
       const nextSlabIndex = index + 1;
@@ -1786,371 +1790,414 @@ function Modal(props) {
   };
   //Design part :
   return (
-    <div
-      style={{ display: openSuccessModal && "none" }}
-      class={props.class}
-      id={props.id}
-      ref={modalRef}
-      tabIndex={props.tabIndex}
-      aria-labelledby={props.aria_labelledby}
-      aria-hidden={props.aria_hidden}
-      data-bs-backdrop="static"
-      data-bs-keyboard="true"
-    >
-      <div class="modal-dialog modal-md modal-dialog-centered pricing-driver-popup">
-        <div class="modal-content">
-          <div class="modal-header bg-light p-3">
-            <h5 class="modal-title" id="exampleModalLabel">
-              {modelAction === "Add"
-                ? getCrudPopUpTitleName("Add", moduleName)
-                : getCrudPopUpTitleName("Update", moduleName)}
-            </h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-              id="close-modal"
-              onClick={SetInitialModelData}
-            ></button>
-          </div>
-          <div class="modal-body gpd-scroll">
-            <div class="tab-content">
-              <div className="row" id="DriverName">
-                <SAPredefinedChangesNotifyMessageModel
-                  Params={{
-                    moduleName: moduleName,
-                    SAChanges: props.modelRequestData.Type,
-                  }}
-                />
-                {(common.professionTypeLists?.length > 1 ||
-                  common.organisationKeyID === null) && (
-                  <div className="col-lg-12">
-                    <div className="mb-3 ">
-                      <label className="form-label">
-                        Profession Type<span className="text-danger">*</span>
-                      </label>
-                      <div className="col-12 ">
-                        <div className="input-group">
-                          {common.professionTypeLists?.length > 1 ||
-                          common.organisationKeyID === null ? (
-                            <Select
-                              isMulti
-                              isDisabled={
-                                globalPricingDriverObj.addedFor ===
-                                  "Predefined-NOB" ||
-                                globalPricingDriverObj.addedFor ===
-                                  "Predefined-PT"
-                              }
-                              style={{ padding: "5px" }}
-                              className="user-role-select"
-                              options={ProfessionalTypeLookeupListOptions}
-                              value={professionTypeValue}
-                              onChange={OnChangeSelectProfessionType}
-                            />
+    <div className="global-pricing-driver-modal-redesign">
+      <div
+        style={{ display: openSuccessModal && "none" }}
+        className={props.class}
+        id={props.id}
+        ref={modalRef}
+        tabIndex={props.tabIndex}
+        aria-labelledby={props.aria_labelledby}
+        aria-hidden={props.aria_hidden}
+        data-bs-backdrop="static"
+        data-bs-keyboard="true"
+      >
+        <div className="modal-dialog modal-md modal-dialog-centered global-pricing-driver-modal-dialog">
+          <div className="modal-content global-pricing-driver-modal-content">
+            {/* =========================
+                HEADER
+                Same structure as Global Constant modal
+                ========================= */}
+            <div className="modal-header global-pricing-driver-modal-header">
+              <div className="global-pricing-driver-modal-heading">
+                <span className="global-pricing-driver-modal-heading-icon">
+                  <i
+                    className={
+                      props.modelRequestData?.addedFor === "GlobalProspect"
+                        ? "ri-user-settings-line"
+                        : "ri-line-chart-line"
+                    }
+                  ></i>
+                </span>
+
+                <div>
+                  <h5 className="modal-title" id="exampleModalLabel">
+                    {modelAction === "Add"
+                      ? getCrudPopUpTitleName("Add", moduleName)
+                      : getCrudPopUpTitleName("Update", moduleName)}
+                  </h5>
+
+                  <p>
+                    {modelAction === "Add"
+                      ? `Create a new ${moduleName.toLowerCase()} and configure its values.`
+                      : `Update the ${moduleName.toLowerCase()} configuration and values.`}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="btn-close global-pricing-driver-modal-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+                id="close-modal"
+                onClick={SetInitialModelData}
+              ></button>
+            </div>
+
+            {/* =========================
+                BODY
+                Same spacing/form treatment as Global Constant modal
+                ========================= */}
+            <div className="modal-body gpd-scroll global-pricing-driver-modal-body">
+              <div className="tab-content global-pricing-driver-modal-form">
+                <div
+                  className="row global-pricing-driver-main-fields"
+                  id="DriverName"
+                >
+                  <SAPredefinedChangesNotifyMessageModel
+                    Params={{
+                      moduleName: moduleName,
+                      SAChanges: props.modelRequestData.Type,
+                    }}
+                  />
+                  {(common.professionTypeLists?.length > 1 ||
+                    common.organisationKeyID === null) && (
+                    <div className="col-lg-12">
+                      <div className="mb-3 ">
+                        <label className="form-label">
+                          Profession Type<span className="text-danger">*</span>
+                        </label>
+                        <div className="col-12 ">
+                          <div className="input-group">
+                            {common.professionTypeLists?.length > 1 ||
+                            common.organisationKeyID === null ? (
+                              <Select
+                                isMulti
+                                isDisabled={
+                                  globalPricingDriverObj.addedFor ===
+                                    "Predefined-NOB" ||
+                                  globalPricingDriverObj.addedFor ===
+                                    "Predefined-PT"
+                                }
+                                style={{ padding: "5px" }}
+                                className="user-role-select global-pricing-driver-modal-select"
+                                classNamePrefix="global-pricing-driver-select"
+                                options={ProfessionalTypeLookeupListOptions}
+                                value={professionTypeValue}
+                                onChange={OnChangeSelectProfessionType}
+                              />
+                            ) : (
+                              ""
+                            )}
+                          </div>
+                          {gdrivererror &&
+                          (common.professionTypeLists?.length > 1 ||
+                            common.organisationKeyID === null) &&
+                          professionTypeValue?.length === 0 ? (
+                            <label className="validation">
+                              {ERROR_MESSAGES}
+                            </label>
                           ) : (
                             ""
                           )}
                         </div>
-                        {gdrivererror &&
-                        (common.professionTypeLists?.length > 1 ||
-                          common.organisationKeyID === null) &&
-                        professionTypeValue?.length === 0 ? (
-                          <label className="validation">{ERROR_MESSAGES}</label>
-                        ) : (
-                          ""
-                        )}
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                <div className="col-lg-12">
-                  <div className="mb-3 ">
-                    <label className="form-label">
-                      Driver Name <span className="text-danger">*</span>
-                    </label>
-                    <div className="input-group">
-                      <input
-                        type="text"
-                        className="input-text"
-                        placeholder="Enter Driver Name"
-                        value={globalPricingDriverObj.driverName}
-                        disabled={
-                          globalPricingDriverObj.addedFor ===
-                            "Predefined-NOB" ||
-                          globalPricingDriverObj.addedFor === "Predefined-PT"
-                        }
-                        onChange={(e) => {
-                          setErrorMessage("");
-                          const inputValue = e.target.value;
-                          const trimmedValue = inputValue.replace(/^\s+/g, ""); // Remove leading spaces
-                          // Handle consecutive spaces
-                          const singleSpaceValue = trimmedValue.replace(
-                            /\s{2,}/g,
-                            " "
-                          );
-                          // Remove dot if it follows a space
-                          const sanitizedValue = singleSpaceValue.replace(
-                            / \./g,
-                            " "
-                          );
-                          const capitalizedValue =
-                            sanitizedValue.charAt(0).toUpperCase() +
-                            sanitizedValue.slice(1);
-                          setGlobalPricingDriverObj({
-                            ...globalPricingDriverObj,
-                            driverName: capitalizedValue,
-                          });
-                        }}
-                        maxLength={75}
-                      />
+                  <div className="col-lg-12">
+                    <div className="mb-3 ">
+                      <label className="form-label">
+                        Driver Name <span className="text-danger">*</span>
+                      </label>
+                      <div className="input-group">
+                        <input
+                          type="text"
+                          className="input-text"
+                          placeholder="Enter Driver Name"
+                          value={globalPricingDriverObj.driverName}
+                          disabled={
+                            globalPricingDriverObj.addedFor ===
+                              "Predefined-NOB" ||
+                            globalPricingDriverObj.addedFor === "Predefined-PT"
+                          }
+                          onChange={(e) => {
+                            setErrorMessage("");
+                            const inputValue = e.target.value;
+                            const trimmedValue = inputValue.replace(
+                              /^\s+/g,
+                              "",
+                            ); // Remove leading spaces
+                            // Handle consecutive spaces
+                            const singleSpaceValue = trimmedValue.replace(
+                              /\s{2,}/g,
+                              " ",
+                            );
+                            // Remove dot if it follows a space
+                            const sanitizedValue = singleSpaceValue.replace(
+                              / \./g,
+                              " ",
+                            );
+                            const capitalizedValue =
+                              sanitizedValue.charAt(0).toUpperCase() +
+                              sanitizedValue.slice(1);
+                            setGlobalPricingDriverObj({
+                              ...globalPricingDriverObj,
+                              driverName: capitalizedValue,
+                            });
+                          }}
+                          maxLength={75}
+                        />
+                      </div>
+                      {gdrivererror &&
+                      globalPricingDriverObj.driverName === "" ? (
+                        <label className="validation">{ERROR_MESSAGES}</label>
+                      ) : (
+                        ""
+                      )}
                     </div>
-                    {gdrivererror &&
-                    globalPricingDriverObj.driverName === "" ? (
-                      <label className="validation">{ERROR_MESSAGES}</label>
-                    ) : (
-                      ""
-                    )}
+                  </div>
+                  <div className="col-lg-12">
+                    <div className="mb-3 ">
+                      <label className="form-label">
+                        Driver Type <span className="text-danger">*</span>
+                      </label>
+                      <div className="input-group">
+                        <DropDown
+                          className="phone-input-country-code selectDropDown Drop-down-width driver-type-cls"
+                          options={driverTypeValue}
+                          value={driverTypeValue1}
+                          onChange={OnDriverTypeChange}
+                          placeholder="Select..."
+                          disabled={
+                            globalPricingDriverObj.addedFor ===
+                              "Predefined-NOB" ||
+                            globalPricingDriverObj.addedFor === "Predefined-PT"
+                          }
+                        />
+                      </div>
+                      {gdrivererror && driverTypeValue1.length === 0 ? (
+                        <label className="validation">{ERROR_MESSAGES}</label>
+                      ) : (
+                        ""
+                      )}
+                    </div>
                   </div>
                 </div>
-                <div className="col-lg-12">
-                  <div className="mb-3 ">
-                    <label className="form-label">
-                      Driver Type <span className="text-danger">*</span>
-                    </label>
-                    <div className="input-group">
-                      <DropDown
-                        className="phone-input-country-code selectDropDown Drop-down-width driver-type-cls"
-                        options={driverTypeValue}
-                        value={driverTypeValue1}
-                        onChange={OnDriverTypeChange}
-                        placeholder="Select..."
-                        disabled={
-                          globalPricingDriverObj.addedFor ===
-                            "Predefined-NOB" ||
-                          globalPricingDriverObj.addedFor === "Predefined-PT"
-                        }
-                      />
-                    </div>
-                    {gdrivererror && driverTypeValue1.length === 0 ? (
-                      <label className="validation">{ERROR_MESSAGES}</label>
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                </div>
-              </div>
 
-              {/* <!-- end tab row --> */}
-              {/* <!-- Start tab row --> */}
-              {globalPricingDriverObj.driverTypeID === 3 && (
-                <div class="row">
-                  <div class="col-xl-12 col-lg-12">
-                    {variations?.map((i, index) => {
-                      return (
-                        <div
-                          id={`Variation_Div_${index}`}
-                          class="card-1 pricing-box p-4 mt-4"
-                          draggable="true"
-                          onDragStart={(e) => {
-                            e.dataTransfer.setData("index", index);
-                          }}
-                          onDragOver={(e) => {
-                            e.preventDefault();
-                          }}
-                          onDrop={(e) => {
-                            e.preventDefault();
-                            const sourceIndex = e.dataTransfer.getData("index");
-                            const targetIndex = index;
+                {/* <!-- end tab row --> */}
+                {/* <!-- Start tab row --> */}
+                {globalPricingDriverObj.driverTypeID === 3 && (
+                  <div class="row">
+                    <div class="col-xl-12 col-lg-12">
+                      {variations?.map((i, index) => {
+                        return (
+                          <div
+                            id={`Variation_Div_${index}`}
+                            class="card-1 pricing-box p-4 mt-4"
+                            draggable="true"
+                            onDragStart={(e) => {
+                              e.dataTransfer.setData("index", index);
+                            }}
+                            onDragOver={(e) => {
+                              e.preventDefault();
+                            }}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              const sourceIndex =
+                                e.dataTransfer.getData("index");
+                              const targetIndex = index;
 
-                            // Rearrange the templateElementList based on the drag-and-drop
-                            if (sourceIndex !== targetIndex) {
-                              const variationsList = [...variations];
-                              const [draggedItem] = variationsList.splice(
-                                sourceIndex,
-                                1
-                              );
-                              variationsList.splice(
-                                targetIndex,
-                                0,
-                                draggedItem
-                              );
-                              setVariations(variationsList);
-                            }
-                          }}
-                          key={index}
-                        >
-                          <div class="col-lg-6 col-md-6">
-                            <p
-                              class="office-name font-weight"
-                              style={{ width: "auto", zIndex: "0" }}
-                            >
-                              Variation {index + 1}
-                            </p>
-                          </div>
-
-                          <p
-                            class="delete delete-margin "
-                            style={{ marginBottom: "0", width: "auto" }}
-                          >
-                            <button
-                              disabled={
-                                variations[index].canDelete === false
-                                  ? true
-                                  : false
+                              // Rearrange the templateElementList based on the drag-and-drop
+                              if (sourceIndex !== targetIndex) {
+                                const variationsList = [...variations];
+                                const [draggedItem] = variationsList.splice(
+                                  sourceIndex,
+                                  1,
+                                );
+                                variationsList.splice(
+                                  targetIndex,
+                                  0,
+                                  draggedItem,
+                                );
+                                setVariations(variationsList);
                               }
-                              onClick={() => OnDeleteVariations(index)}
-                              class="btn btn-sm btn-danger remove-item-btn d-flex gap-1 globalDriver"
-                            >
-                              <i class="ri-delete-bin-5-fill"></i>
-                              <p className="delete-margin font-12">
-                                Delete Variation
+                            }}
+                            key={index}
+                          >
+                            <div class="col-lg-6 col-md-6">
+                              <p
+                                class="office-name font-weight"
+                                style={{ width: "auto", zIndex: "0" }}
+                              >
+                                Variation {index + 1}
                               </p>
-                            </button>
-                          </p>
-                          <div class="row mt-1">
-                            <div className="col-lg-6">
-                              <div className="mb-3 ">
-                                <label className="form-label">
-                                  Variation Name{" "}
-                                  <span className="text-danger">*</span>
-                                </label>
-                                <div className="input-group">
-                                  <input
-                                    disabled={
-                                      variations[index].canDelete === false
-                                        ? true
-                                        : false
-                                    }
-                                    type="text"
-                                    className="input-text"
-                                    placeholder="Enter Variation Name"
-                                    value={
-                                      variations[index]
-                                        ? variations[index].variationName
-                                        : ""
-                                    }
-                                    onChange={(e) => {
-                                      setErrorMessage("");
-                                      const inputValue = e.target.value;
-                                      const trimmedValue = inputValue.replace(
-                                        /^\s+/g,
-                                        ""
-                                      ); // Remove leading spaces
-                                      if (/^\d/.test(trimmedValue)) {
-                                        // setErrorMessage("Driver name cannot start with a number");
-                                        return; // Do not update state if numeric value is detected
-                                      }
-                                      const capitalizedValue =
-                                        trimmedValue.charAt(0).toUpperCase() +
-                                        trimmedValue.slice(1);
-                                      OnVariationChange(
-                                        index,
-                                        "variationName",
-                                        capitalizedValue
-                                      );
-                                    }}
-                                    maxLength={200}
-                                  />
-                                </div>
-                                {variationError?.variationName &&
-                                variations[index].variationName === "" ? (
-                                  <label className="validation">
-                                    {ERROR_MESSAGES}
-                                  </label>
-                                ) : (
-                                  ""
-                                )}
-                              </div>
-                            </div>
-                            <div className="col-lg-6">
-                              <div className="mb-3 ">
-                                <label className="form-label">
-                                  Variation Value{" "}
-                                  <span className="text-danger">*</span>
-                                </label>
-                                <div className="input-group">
-                                  <input
-                                    type="text"
-                                    className="input-text"
-                                    placeholder="Enter Variation Value"
-                                    // value={variations[index].variationValue === "" ? "" : variations[index].variationValue.includes("-") ?
-                                    //   `-${Number(variations[index].variationValue.replace('-', '')).toLocaleString("en-US")}` :
-                                    //   Number(variations[index].variationValue).toLocaleString("en-US")
-                                    // }
-                                    value={variations[index].variationValue
-                                      .toString()
-                                      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                                    onChange={(e) => {
-                                      DriverValue(e, index, "variationValue");
-                                    }}
-                                  />
-                                </div>
-
-                                {variationError.variationValue &&
-                                variations[index].variationValue === "" ? (
-                                  <label className="validation">
-                                    {ERROR_MESSAGES}
-                                  </label>
-                                ) : (
-                                  ""
-                                )}
-                              </div>
                             </div>
 
-                            <div
-                              className="col-lg-12 col-12"
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                              }}
+                            <p
+                              class="delete delete-margin "
+                              style={{ marginBottom: "0", width: "auto" }}
                             >
-                              {" "}
-                              <input
-                                style={{
-                                  marginRight: "1rem",
-                                  verticalAlign: "middle",
-                                }}
-                                type="radio"
-                                id={`variation${index}`}
-                                name="variations"
+                              <button
                                 disabled={
                                   variations[index].canDelete === false
                                     ? true
                                     : false
                                 }
-                                checked={variations[index].isDefault}
-                                onChange={(e) => OnVariationsRadioChange(index)}
-                              />
-                              <label
-                                className="toggle"
-                                name="variations"
-                                style={{
-                                  cursor: "pointer",
-                                  marginTop: "0",
-                                  marginBottom: "0",
-                                }}
-                                htmlFor={`variation${index}`}
+                                onClick={() => OnDeleteVariations(index)}
+                                class="btn btn-sm btn-danger remove-item-btn d-flex gap-1 globalDriver"
                               >
-                                Set to Default
-                              </label>
+                                <i class="ri-delete-bin-5-fill"></i>
+                                <p className="delete-margin font-12">
+                                  Delete Variation
+                                </p>
+                              </button>
+                            </p>
+                            <div class="row mt-1">
+                              <div className="col-lg-6">
+                                <div className="mb-3 ">
+                                  <label className="form-label">
+                                    Variation Name{" "}
+                                    <span className="text-danger">*</span>
+                                  </label>
+                                  <div className="input-group">
+                                    <input
+                                      disabled={
+                                        variations[index].canDelete === false
+                                          ? true
+                                          : false
+                                      }
+                                      type="text"
+                                      className="input-text"
+                                      placeholder="Enter Variation Name"
+                                      value={
+                                        variations[index]
+                                          ? variations[index].variationName
+                                          : ""
+                                      }
+                                      onChange={(e) => {
+                                        setErrorMessage("");
+                                        const inputValue = e.target.value;
+                                        const trimmedValue = inputValue.replace(
+                                          /^\s+/g,
+                                          "",
+                                        ); // Remove leading spaces
+                                        if (/^\d/.test(trimmedValue)) {
+                                          // setErrorMessage("Driver name cannot start with a number");
+                                          return; // Do not update state if numeric value is detected
+                                        }
+                                        const capitalizedValue =
+                                          trimmedValue.charAt(0).toUpperCase() +
+                                          trimmedValue.slice(1);
+                                        OnVariationChange(
+                                          index,
+                                          "variationName",
+                                          capitalizedValue,
+                                        );
+                                      }}
+                                      maxLength={200}
+                                    />
+                                  </div>
+                                  {variationError?.variationName &&
+                                  variations[index].variationName === "" ? (
+                                    <label className="validation">
+                                      {ERROR_MESSAGES}
+                                    </label>
+                                  ) : (
+                                    ""
+                                  )}
+                                </div>
+                              </div>
+                              <div className="col-lg-6">
+                                <div className="mb-3 ">
+                                  <label className="form-label">
+                                    Variation Value{" "}
+                                    <span className="text-danger">*</span>
+                                  </label>
+                                  <div className="input-group">
+                                    <input
+                                      type="text"
+                                      className="input-text"
+                                      placeholder="Enter Variation Value"
+                                      // value={variations[index].variationValue === "" ? "" : variations[index].variationValue.includes("-") ?
+                                      //   `-${Number(variations[index].variationValue.replace('-', '')).toLocaleString("en-US")}` :
+                                      //   Number(variations[index].variationValue).toLocaleString("en-US")
+                                      // }
+                                      value={variations[index].variationValue
+                                        .toString()
+                                        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                      onChange={(e) => {
+                                        DriverValue(e, index, "variationValue");
+                                      }}
+                                    />
+                                  </div>
+
+                                  {variationError.variationValue &&
+                                  variations[index].variationValue === "" ? (
+                                    <label className="validation">
+                                      {ERROR_MESSAGES}
+                                    </label>
+                                  ) : (
+                                    ""
+                                  )}
+                                </div>
+                              </div>
+
+                              <div
+                                className="col-lg-12 col-12"
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                {" "}
+                                <input
+                                  style={{
+                                    marginRight: "1rem",
+                                    verticalAlign: "middle",
+                                  }}
+                                  type="radio"
+                                  id={`variation${index}`}
+                                  name="variations"
+                                  disabled={
+                                    variations[index].canDelete === false
+                                      ? true
+                                      : false
+                                  }
+                                  checked={variations[index].isDefault}
+                                  onChange={(e) =>
+                                    OnVariationsRadioChange(index)
+                                  }
+                                />
+                                <label
+                                  className="toggle"
+                                  name="variations"
+                                  style={{
+                                    cursor: "pointer",
+                                    marginTop: "0",
+                                    marginBottom: "0",
+                                  }}
+                                  htmlFor={`variation${index}`}
+                                >
+                                  Set to Default
+                                </label>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                    {variationError.variation && variations.length === 0 ? (
-                      <label
-                        id="Variation"
-                        className="col-lg-12 col-12 variation-validation"
-                      >
-                        At least 1 Variation is required.
-                      </label>
-                    ) : (
-                      ""
-                    )}
-                    {/* <p class="delete-right mt-2">
+                        );
+                      })}
+                      {variationError.variation && variations.length === 0 ? (
+                        <label
+                          id="Variation"
+                          className="col-lg-12 col-12 variation-validation"
+                        >
+                          At least 1 Variation is required.
+                        </label>
+                      ) : (
+                        ""
+                      )}
+                      {/* <p class="delete-right mt-2">
                       <button
                         onClick={OnAddVariations}
                         class="btn btn-md btn-success create-item-btn d-flex gap-1"
@@ -2159,25 +2206,25 @@ function Modal(props) {
                         <span className="font-12">Add Variation</span>
                       </button>
                     </p> */}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* <!-- end tab row --> */}
-              {globalPricingDriverObj.driverTypeID == 4 && (
-                <div class="row">
-                  <div class="col-xl-12 col-lg-12">
-                    {slabError.slab && slabs.length === 0 ? (
-                      <label
-                        id="Slab"
-                        className="col-lg-12 col-12 variation-validation"
-                      >
-                        At least 1 Slab is required.
-                      </label>
-                    ) : (
-                      ""
-                    )}
-                    {/* {slabs.length === 0 && (
+                {/* <!-- end tab row --> */}
+                {globalPricingDriverObj.driverTypeID == 4 && (
+                  <div class="row">
+                    <div class="col-xl-12 col-lg-12">
+                      {slabError.slab && slabs.length === 0 ? (
+                        <label
+                          id="Slab"
+                          className="col-lg-12 col-12 variation-validation"
+                        >
+                          At least 1 Slab is required.
+                        </label>
+                      ) : (
+                        ""
+                      )}
+                      {/* {slabs.length === 0 && (
                       <p class="delete-right" style={{ marginBottom: "0" }}>
                         <button
                           onClick={AddSlab}
@@ -2188,482 +2235,493 @@ function Modal(props) {
                         </button>
                       </p>
                     )} */}
-                    <div className="col-lg-6">
-                      <div className="mb-1">
-                        <label className="form-label">
-                          Decimal Places <span className="text-danger">*</span>
-                        </label>
-                        <div className="input-group">
-                          <Select
-                            className="user-role-select"
-                            value={{
-                              value: slabs[0]?.decimalPlaces ?? 2,
-                              label: Utils.getDecimalPlaceLabel(
-                                slabs[0]?.decimalPlaces ?? 2
-                              ),
-                            }}
-                            onChange={(selectedOption) =>
-                              OnSlabChange(
-                                0,
-                                "decimalPlaces",
-                                selectedOption.value
-                              )
-                            }
-                            options={Utils.DECIMAL_PLACE_OPTIONS}
-                          />
+                      <div className="col-lg-6">
+                        <div className="mb-1">
+                          <label className="form-label">
+                            Decimal Places{" "}
+                            <span className="text-danger">*</span>
+                          </label>
+                          <div className="input-group">
+                            <Select
+                              className="user-role-select"
+                              value={{
+                                value: slabs[0]?.decimalPlaces ?? 2,
+                                label: Utils.getDecimalPlaceLabel(
+                                  slabs[0]?.decimalPlaces ?? 2,
+                                ),
+                              }}
+                              onChange={(selectedOption) =>
+                                OnSlabChange(
+                                  0,
+                                  "decimalPlaces",
+                                  selectedOption.value,
+                                )
+                              }
+                              options={Utils.DECIMAL_PLACE_OPTIONS}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    {slabs?.map((i, index) => {
-                      return (
-                        <>
-                          <div
-                            class="card-1 pricing-box p-4 mt-4"
-                            key={index}
-                            id={`Slab_Div_${index}`}
-                          >
-                            <div class="col-lg-6 col-md-6 ">
-                              <p
-                                class="office-name font-weight"
-                                style={{ width: "auto", zIndex: "0" }}
-                              >
-                                Slab{index + 1}
-                              </p>
-                            </div>
-
-                            <p
-                              class="delete delete-margin "
-                              style={{ marginBottom: "0", width: "auto" }}
+                      {slabs?.map((i, index) => {
+                        return (
+                          <>
+                            <div
+                              class="card-1 pricing-box p-4 mt-4"
+                              key={index}
+                              id={`Slab_Div_${index}`}
                             >
-                              <button
-                                disabled={props.disable}
-                                onClick={() => OnDeleteSlabs(index)}
-                                class="btn btn-sm btn-danger remove-item-btn d-flex gap-1 globalDriver"
-                              >
-                                <i class="ri-delete-bin-5-fill"></i>
-                                <p className="delete-margin font-12">
-                                  Delete Slab
+                              <div class="col-lg-6 col-md-6 ">
+                                <p
+                                  class="office-name font-weight"
+                                  style={{ width: "auto", zIndex: "0" }}
+                                >
+                                  Slab{index + 1}
                                 </p>
-                              </button>
-                            </p>
-                            <div class="row mt-1">
-                              <div className="col-lg-6">
-                                <div className="mb-3 ">
-                                  <label className="form-label">
-                                    Slab Type{" "}
-                                    <span className="text-danger">*</span>
-                                  </label>
-                                  <div className="input-group">
-                                    <Select
-                                      className="user-role-select"
-                                      onChange={(selectedOption) => {
-                                        setErrorMessage("");
-                                        OnSlabChange(
-                                          index,
-                                          "slabTypeID",
-                                          selectedOption.value
-                                        );
-                                      }}
-                                      value={slabType
-                                        ?.filter(
-                                          (item) =>
-                                            item.slabTypeId ===
-                                            slabs[index].slabTypeID
-                                        )
-                                        .map((i) => ({
-                                          value: i.slabTypeId,
-                                          label: i.slabTypeName,
-                                        }))}
-                                      options={slabType?.map((item) => ({
-                                        value: item.slabTypeId,
-                                        label: item.slabTypeName,
-                                      }))}
-                                      placeholder="Select..."
-                                    />
-                                  </div>
-                                  {slabError.slabType &&
-                                  slabs[index].slabTypeID === "" ? (
-                                    <label className="validation">
-                                      {ERROR_MESSAGES}
-                                    </label>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
                               </div>
-                              {slabs && slabs[index]?.slabTypeID == "1" && (
-                                <>
-                                  <div className="col-lg-6">
-                                    <div className="mb-3 ">
-                                      <label className="form-label">
-                                        Value{" "}
-                                        <span className="text-danger">*</span>
-                                      </label>
-                                      <div className="input-group">
-                                        <input
-                                          type="text"
-                                          className="input-text"
-                                          placeholder="Value"
-                                          value={
-                                            slabs[index].slabValue === ""
-                                              ? ""
-                                              : slabs[index].slabValue
-                                                  .toString()
-                                                  .replace(
-                                                    /\B(?=(\d{3})+(?!\d))/g,
-                                                    ","
-                                                  )
-                                          }
-                                          onChange={(e) => {
-                                            DriverValue(e, index, "slabValue");
-                                          }}
-                                          onWheel={(e) => e.preventDefault()}
-                                        />
-                                      </div>
-                                      <div className="invalid-feedback">
-                                        Please enter Slab Value
-                                      </div>
-                                      {slabError.slabValue &&
-                                      slabs[index].slabValue === "" ? (
-                                        <label className="validation">
-                                          {ERROR_MESSAGES}
-                                        </label>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </div>
-                                  </div>
 
-                                  <div className="col-lg-6">
-                                    <div className="mb-3 ">
-                                      <label
-                                        htmlFor="useremail"
-                                        className="form-label"
-                                      >
-                                        From{" "}
-                                        <span className="text-danger">*</span>
-                                      </label>
-                                      <div className="input-group">
-                                        <input
-                                          type="text"
-                                          className="input-text"
-                                          placeholder="From"
-                                          // disabled={props.disable}
-                                          disabled={index === 0 ? false : true}
-                                          value={
-                                            slabs[index].slabFrom === ""
-                                              ? ""
-                                              : slabs[index].slabFrom
-                                                  .toString()
-                                                  .replace(
-                                                    /\B(?=(\d{3})+(?!\d))/g,
-                                                    ","
-                                                  )
-                                          }
-                                          // onChange={(e) => OnSlabChange(index, 'slabFrom', e.target.value)}
-                                          onChange={(e) => {
-                                            DriverValue(e, index, "slabFrom");
-                                          }}
-                                          onBlur={() => {
-                                            const updatedSlabs = [...slabs];
-                                            const userInput =
-                                              updatedSlabs[index].slabFrom;
-                                            const numberValue =
-                                              parseFloat(userInput);
-                                            const decimalPlaces =
-                                              updatedSlabs[index]
-                                                .decimalPlaces ?? 2;
-
-                                            if (!isNaN(numberValue)) {
-                                              const roundedValue =
-                                                numberValue.toFixed(
-                                                  decimalPlaces
-                                                );
-                                              updatedSlabs[index].slabFrom =
-                                                roundedValue;
-                                              setSlabs(updatedSlabs);
-                                            }
-                                          }}
-                                        />
-                                      </div>
-                                      <div className="invalid-feedback">
-                                        Please enter Slab Value
-                                      </div>
-                                      {slabError.slabValue &&
-                                      slabs[index].slabFrom === "" ? (
-                                        <label className="validation">
-                                          {ERROR_MESSAGES}
-                                        </label>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div className="col-lg-6">
-                                    <div className="mb-3 ">
-                                      <label className="form-label">
-                                        To{" "}
-                                        <span className="text-danger">*</span>
-                                      </label>
-                                      <div className="input-group">
-                                        <input
-                                          type="text"
-                                          className="input-text"
-                                          disabled={props.disable}
-                                          placeholder="To"
-                                          value={
-                                            slabs[index].slabTo === ""
-                                              ? ""
-                                              : slabs[index].slabTo
-                                                  .toString()
-                                                  .replace(
-                                                    /\B(?=(\d{3})+(?!\d))/g,
-                                                    ","
-                                                  )
-                                          }
-                                          onChange={(e) => {
-                                            DriverValue(e, index, "slabTo");
-                                          }}
-                                          onBlur={() => {
-                                            const updatedSlabs = [...slabs];
-                                            const userInput =
-                                              updatedSlabs[index].slabTo;
-                                            const numberValue =
-                                              parseFloat(userInput);
-                                            const decimalPlaces =
-                                              updatedSlabs[index]
-                                                .decimalPlaces ?? 2;
-
-                                            if (!isNaN(numberValue)) {
-                                              const roundedValue =
-                                                numberValue.toFixed(
-                                                  decimalPlaces
-                                                );
-                                              updatedSlabs[index].slabTo =
-                                                roundedValue;
-                                              setSlabs(updatedSlabs);
-                                            }
-                                          }}
-                                        />
-                                      </div>
-                                      <div className="invalid-feedback">
-                                        Please enter Slab Value
-                                      </div>
-                                      {slabError.slabValue &&
-                                      parseFloat(slabs[index].slabTo) <
-                                        parseFloat(slabs[index].slabFrom) ? (
-                                        <label className="validation">
-                                          The field must not be less than{" "}
-                                          {slabs[index].slabFrom}.
-                                        </label>
-                                      ) : (
-                                        ""
-                                      )}
-                                      {slabError.slabValue &&
-                                      slabs[index].slabTo === "" ? (
-                                        <label className="validation">
-                                          {ERROR_MESSAGES}
-                                        </label>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div
-                                    className="col-lg-12 col-12"
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                    }}
-                                  >
-                                    {" "}
-                                    <input
-                                      style={{ marginRight: "1rem" }}
-                                      type="radio"
-                                      id={`slab block${index}`}
-                                      disabled={props.disable}
-                                      checked={slabs[index].isDefault}
-                                      name="slabs"
-                                      onChange={(e) =>
-                                        OnSlabsRadioChange(index)
-                                      }
-                                    />
-                                    <label
-                                      className="toggle"
-                                      name="slabs"
-                                      style={{ cursor: "pointer" }}
-                                      htmlFor={`slab block${index}`}
-                                    >
-                                      Set to Default
+                              <p
+                                class="delete delete-margin "
+                                style={{ marginBottom: "0", width: "auto" }}
+                              >
+                                <button
+                                  disabled={props.disable}
+                                  onClick={() => OnDeleteSlabs(index)}
+                                  class="btn btn-sm btn-danger remove-item-btn d-flex gap-1 globalDriver"
+                                >
+                                  <i class="ri-delete-bin-5-fill"></i>
+                                  <p className="delete-margin font-12">
+                                    Delete Slab
+                                  </p>
+                                </button>
+                              </p>
+                              <div class="row mt-1">
+                                <div className="col-lg-6">
+                                  <div className="mb-3 ">
+                                    <label className="form-label">
+                                      Slab Type{" "}
+                                      <span className="text-danger">*</span>
                                     </label>
-                                  </div>
-                                </>
-                              )}
-                              {slabs && slabs[index]?.slabTypeID == "2" && (
-                                <>
-                                  <div className="col-lg-6">
-                                    <div className="mb-3 ">
-                                      <label
-                                        htmlFor="useremail"
-                                        className="form-label"
-                                      >
-                                        Increment Value By{" "}
-                                        <span className="text-danger">*</span>
-                                      </label>
-                                      <div className="input-group">
-                                        <input
-                                          type="text"
-                                          className="input-text"
-                                          placeholder="Increment Value By"
-                                          value={
-                                            slabs[index].slabValue === ""
-                                              ? ""
-                                              : slabs[index].slabValue
-                                                  .toString()
-                                                  .replace(
-                                                    /\B(?=(\d{3})+(?!\d))/g,
-                                                    ","
-                                                  )
-                                          }
-                                          onChange={(e) => {
-                                            DriverValue(e, index, "slabValue");
-                                          }}
-                                        />
-                                      </div>
-                                      <div className="invalid-feedback">
-                                        Please enter Slab Value
-                                      </div>
-                                      {slabError.slabValue &&
-                                      slabs[index].slabValue === "" ? (
-                                        <label className="validation">
-                                          {ERROR_MESSAGES}
-                                        </label>
-                                      ) : (
-                                        ""
-                                      )}
+                                    <div className="input-group">
+                                      <Select
+                                        className="user-role-select"
+                                        onChange={(selectedOption) => {
+                                          setErrorMessage("");
+                                          OnSlabChange(
+                                            index,
+                                            "slabTypeID",
+                                            selectedOption.value,
+                                          );
+                                        }}
+                                        value={slabType
+                                          ?.filter(
+                                            (item) =>
+                                              item.slabTypeId ===
+                                              slabs[index].slabTypeID,
+                                          )
+                                          .map((i) => ({
+                                            value: i.slabTypeId,
+                                            label: i.slabTypeName,
+                                          }))}
+                                        options={slabType?.map((item) => ({
+                                          value: item.slabTypeId,
+                                          label: item.slabTypeName,
+                                        }))}
+                                        placeholder="Select..."
+                                      />
                                     </div>
+                                    {slabError.slabType &&
+                                    slabs[index].slabTypeID === "" ? (
+                                      <label className="validation">
+                                        {ERROR_MESSAGES}
+                                      </label>
+                                    ) : (
+                                      ""
+                                    )}
                                   </div>
+                                </div>
+                                {slabs && slabs[index]?.slabTypeID == "1" && (
+                                  <>
+                                    <div className="col-lg-6">
+                                      <div className="mb-3 ">
+                                        <label className="form-label">
+                                          Value{" "}
+                                          <span className="text-danger">*</span>
+                                        </label>
+                                        <div className="input-group">
+                                          <input
+                                            type="text"
+                                            className="input-text"
+                                            placeholder="Value"
+                                            value={
+                                              slabs[index].slabValue === ""
+                                                ? ""
+                                                : slabs[index].slabValue
+                                                    .toString()
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ",",
+                                                    )
+                                            }
+                                            onChange={(e) => {
+                                              DriverValue(
+                                                e,
+                                                index,
+                                                "slabValue",
+                                              );
+                                            }}
+                                            onWheel={(e) => e.preventDefault()}
+                                          />
+                                        </div>
+                                        <div className="invalid-feedback">
+                                          Please enter Slab Value
+                                        </div>
+                                        {slabError.slabValue &&
+                                        slabs[index].slabValue === "" ? (
+                                          <label className="validation">
+                                            {ERROR_MESSAGES}
+                                          </label>
+                                        ) : (
+                                          ""
+                                        )}
+                                      </div>
+                                    </div>
 
-                                  <div className="col-lg-6">
-                                    <div className="mb-3 ">
-                                      <label className="form-label">
-                                        From{" "}
-                                        <span className="text-danger">*</span>
-                                      </label>
-                                      <div className="input-group">
-                                        <input
-                                          type="text"
-                                          className="input-text"
-                                          placeholder="From"
-                                          disabled={
-                                            slabs[index].isDefault === false
-                                              ? true
-                                              : false
-                                          }
-                                          value={
-                                            slabs[index].slabFrom === ""
-                                              ? 0
-                                              : slabs[index].slabFrom
-                                                  .toString()
-                                                  .replace(
-                                                    /\B(?=(\d{3})+(?!\d))/g,
-                                                    ","
-                                                  )
-                                          }
-                                          onChange={(e) => {
-                                            DriverValue(e, index, "slabFrom");
-                                          }}
-                                        />
-                                      </div>
+                                    <div className="col-lg-6">
+                                      <div className="mb-3 ">
+                                        <label
+                                          htmlFor="useremail"
+                                          className="form-label"
+                                        >
+                                          From{" "}
+                                          <span className="text-danger">*</span>
+                                        </label>
+                                        <div className="input-group">
+                                          <input
+                                            type="text"
+                                            className="input-text"
+                                            placeholder="From"
+                                            // disabled={props.disable}
+                                            disabled={
+                                              index === 0 ? false : true
+                                            }
+                                            value={
+                                              slabs[index].slabFrom === ""
+                                                ? ""
+                                                : slabs[index].slabFrom
+                                                    .toString()
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ",",
+                                                    )
+                                            }
+                                            // onChange={(e) => OnSlabChange(index, 'slabFrom', e.target.value)}
+                                            onChange={(e) => {
+                                              DriverValue(e, index, "slabFrom");
+                                            }}
+                                            onBlur={() => {
+                                              const updatedSlabs = [...slabs];
+                                              const userInput =
+                                                updatedSlabs[index].slabFrom;
+                                              const numberValue =
+                                                parseFloat(userInput);
+                                              const decimalPlaces =
+                                                updatedSlabs[index]
+                                                  .decimalPlaces ?? 2;
 
-                                      {slabError.slabValue &&
-                                      slabs[index].slabFrom === "" ? (
-                                        <label className="validation">
-                                          {ERROR_MESSAGES}
-                                        </label>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div className="col-lg-6">
-                                    <div className="mb-3 ">
-                                      <label
-                                        htmlFor="useremail"
-                                        className="form-label"
-                                      >
-                                        Increment Slab By{" "}
-                                        <span className="text-danger">*</span>
-                                      </label>
-                                      <div className="input-group">
-                                        <input
-                                          type="text"
-                                          className="input-text"
-                                          placeholder="Increment Slab By"
-                                          disabled={props.disable}
-                                          value={
-                                            slabs[index].slabTo === ""
-                                              ? ""
-                                              : slabs[index].slabTo
-                                                  .toString()
-                                                  .replace(
-                                                    /\B(?=(\d{3})+(?!\d))/g,
-                                                    ","
-                                                  )
-                                          }
-                                          // onChange={(e) => OnSlabChange(index, 'slabTo', e.target.value)}
-                                          onChange={(e) => {
-                                            DriverValue(e, index, "slabTo");
-                                          }}
-                                        />
+                                              if (!isNaN(numberValue)) {
+                                                const roundedValue =
+                                                  numberValue.toFixed(
+                                                    decimalPlaces,
+                                                  );
+                                                updatedSlabs[index].slabFrom =
+                                                  roundedValue;
+                                                setSlabs(updatedSlabs);
+                                              }
+                                            }}
+                                          />
+                                        </div>
+                                        <div className="invalid-feedback">
+                                          Please enter Slab Value
+                                        </div>
+                                        {slabError.slabValue &&
+                                        slabs[index].slabFrom === "" ? (
+                                          <label className="validation">
+                                            {ERROR_MESSAGES}
+                                          </label>
+                                        ) : (
+                                          ""
+                                        )}
                                       </div>
-                                      {slabError.slabValue &&
-                                      slabs[index].slabTo === "" ? (
-                                        <label className="validation">
-                                          {ERROR_MESSAGES}
-                                        </label>
-                                      ) : (
-                                        ""
-                                      )}
                                     </div>
-                                  </div>
-                                  <div
-                                    className="col-lg-12 col-12"
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                    }}
-                                  >
-                                    {" "}
-                                    <input
-                                      style={{ marginRight: "1rem" }}
-                                      type="radio"
-                                      id={`incremental slab${index}`}
-                                      disabled={props.disable}
-                                      defaultChecked
-                                      checked={slabs[index].isDefault}
-                                      name="slabs"
-                                      onChange={(e) =>
-                                        OnSlabsRadioChange(index)
-                                      }
-                                    />
-                                    <label
-                                      className="toggle"
-                                      name="slabs"
-                                      style={{ cursor: "pointer" }}
-                                      htmlFor={`incremental slab${index}`}
+                                    <div className="col-lg-6">
+                                      <div className="mb-3 ">
+                                        <label className="form-label">
+                                          To{" "}
+                                          <span className="text-danger">*</span>
+                                        </label>
+                                        <div className="input-group">
+                                          <input
+                                            type="text"
+                                            className="input-text"
+                                            disabled={props.disable}
+                                            placeholder="To"
+                                            value={
+                                              slabs[index].slabTo === ""
+                                                ? ""
+                                                : slabs[index].slabTo
+                                                    .toString()
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ",",
+                                                    )
+                                            }
+                                            onChange={(e) => {
+                                              DriverValue(e, index, "slabTo");
+                                            }}
+                                            onBlur={() => {
+                                              const updatedSlabs = [...slabs];
+                                              const userInput =
+                                                updatedSlabs[index].slabTo;
+                                              const numberValue =
+                                                parseFloat(userInput);
+                                              const decimalPlaces =
+                                                updatedSlabs[index]
+                                                  .decimalPlaces ?? 2;
+
+                                              if (!isNaN(numberValue)) {
+                                                const roundedValue =
+                                                  numberValue.toFixed(
+                                                    decimalPlaces,
+                                                  );
+                                                updatedSlabs[index].slabTo =
+                                                  roundedValue;
+                                                setSlabs(updatedSlabs);
+                                              }
+                                            }}
+                                          />
+                                        </div>
+                                        <div className="invalid-feedback">
+                                          Please enter Slab Value
+                                        </div>
+                                        {slabError.slabValue &&
+                                        parseFloat(slabs[index].slabTo) <
+                                          parseFloat(slabs[index].slabFrom) ? (
+                                          <label className="validation">
+                                            The field must not be less than{" "}
+                                            {slabs[index].slabFrom}.
+                                          </label>
+                                        ) : (
+                                          ""
+                                        )}
+                                        {slabError.slabValue &&
+                                        slabs[index].slabTo === "" ? (
+                                          <label className="validation">
+                                            {ERROR_MESSAGES}
+                                          </label>
+                                        ) : (
+                                          ""
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div
+                                      className="col-lg-12 col-12"
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                      }}
                                     >
-                                      Set to Default
-                                    </label>
-                                  </div>
-                                </>
-                              )}
+                                      {" "}
+                                      <input
+                                        style={{ marginRight: "1rem" }}
+                                        type="radio"
+                                        id={`slab block${index}`}
+                                        disabled={props.disable}
+                                        checked={slabs[index].isDefault}
+                                        name="slabs"
+                                        onChange={(e) =>
+                                          OnSlabsRadioChange(index)
+                                        }
+                                      />
+                                      <label
+                                        className="toggle"
+                                        name="slabs"
+                                        style={{ cursor: "pointer" }}
+                                        htmlFor={`slab block${index}`}
+                                      >
+                                        Set to Default
+                                      </label>
+                                    </div>
+                                  </>
+                                )}
+                                {slabs && slabs[index]?.slabTypeID == "2" && (
+                                  <>
+                                    <div className="col-lg-6">
+                                      <div className="mb-3 ">
+                                        <label
+                                          htmlFor="useremail"
+                                          className="form-label"
+                                        >
+                                          Increment Value By{" "}
+                                          <span className="text-danger">*</span>
+                                        </label>
+                                        <div className="input-group">
+                                          <input
+                                            type="text"
+                                            className="input-text"
+                                            placeholder="Increment Value By"
+                                            value={
+                                              slabs[index].slabValue === ""
+                                                ? ""
+                                                : slabs[index].slabValue
+                                                    .toString()
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ",",
+                                                    )
+                                            }
+                                            onChange={(e) => {
+                                              DriverValue(
+                                                e,
+                                                index,
+                                                "slabValue",
+                                              );
+                                            }}
+                                          />
+                                        </div>
+                                        <div className="invalid-feedback">
+                                          Please enter Slab Value
+                                        </div>
+                                        {slabError.slabValue &&
+                                        slabs[index].slabValue === "" ? (
+                                          <label className="validation">
+                                            {ERROR_MESSAGES}
+                                          </label>
+                                        ) : (
+                                          ""
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    <div className="col-lg-6">
+                                      <div className="mb-3 ">
+                                        <label className="form-label">
+                                          From{" "}
+                                          <span className="text-danger">*</span>
+                                        </label>
+                                        <div className="input-group">
+                                          <input
+                                            type="text"
+                                            className="input-text"
+                                            placeholder="From"
+                                            disabled={
+                                              slabs[index].isDefault === false
+                                                ? true
+                                                : false
+                                            }
+                                            value={
+                                              slabs[index].slabFrom === ""
+                                                ? 0
+                                                : slabs[index].slabFrom
+                                                    .toString()
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ",",
+                                                    )
+                                            }
+                                            onChange={(e) => {
+                                              DriverValue(e, index, "slabFrom");
+                                            }}
+                                          />
+                                        </div>
+
+                                        {slabError.slabValue &&
+                                        slabs[index].slabFrom === "" ? (
+                                          <label className="validation">
+                                            {ERROR_MESSAGES}
+                                          </label>
+                                        ) : (
+                                          ""
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="col-lg-6">
+                                      <div className="mb-3 ">
+                                        <label
+                                          htmlFor="useremail"
+                                          className="form-label"
+                                        >
+                                          Increment Slab By{" "}
+                                          <span className="text-danger">*</span>
+                                        </label>
+                                        <div className="input-group">
+                                          <input
+                                            type="text"
+                                            className="input-text"
+                                            placeholder="Increment Slab By"
+                                            disabled={props.disable}
+                                            value={
+                                              slabs[index].slabTo === ""
+                                                ? ""
+                                                : slabs[index].slabTo
+                                                    .toString()
+                                                    .replace(
+                                                      /\B(?=(\d{3})+(?!\d))/g,
+                                                      ",",
+                                                    )
+                                            }
+                                            // onChange={(e) => OnSlabChange(index, 'slabTo', e.target.value)}
+                                            onChange={(e) => {
+                                              DriverValue(e, index, "slabTo");
+                                            }}
+                                          />
+                                        </div>
+                                        {slabError.slabValue &&
+                                        slabs[index].slabTo === "" ? (
+                                          <label className="validation">
+                                            {ERROR_MESSAGES}
+                                          </label>
+                                        ) : (
+                                          ""
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div
+                                      className="col-lg-12 col-12"
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      {" "}
+                                      <input
+                                        style={{ marginRight: "1rem" }}
+                                        type="radio"
+                                        id={`incremental slab${index}`}
+                                        disabled={props.disable}
+                                        defaultChecked
+                                        checked={slabs[index].isDefault}
+                                        name="slabs"
+                                        onChange={(e) =>
+                                          OnSlabsRadioChange(index)
+                                        }
+                                      />
+                                      <label
+                                        className="toggle"
+                                        name="slabs"
+                                        style={{ cursor: "pointer" }}
+                                        htmlFor={`incremental slab${index}`}
+                                      >
+                                        Set to Default
+                                      </label>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        </>
-                      );
-                    })}
-                    {/* {slabs && slabs[slabs.length - 1]?.slabTypeID == "1" && (
+                          </>
+                        );
+                      })}
+                      {/* {slabs && slabs[slabs.length - 1]?.slabTypeID == "1" && (
                       <p class="delete-right mt-2">
                         <button
                           onClick={() => OnAddSlab()}
@@ -2674,732 +2732,800 @@ function Modal(props) {
                         </button>
                       </p>
                     )} */}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {globalPricingDriverObj.driverTypeID === 5 && (
-                <>
-                  <div class="row">
-                    <div className="col-lg-6">
-                      <div className="mb-1">
-                        <label className="form-label">Text Value</label>
-                        <input
-                          type="text"
-                          className="input-text"
-                          placeholder="Enter Text Value"
-                          value={textDriver.textValue || ""}
-                          onChange={(e) => {
-                            const cleanValue = e.target.value.replace(
-                              /[^\d.]/g,
-                              ""
-                            );
-                            setTextDriver({
-                              ...textDriver,
-                              textValue:
-                                cleanValue === ""
-                                  ? null
-                                  : parseFloat(cleanValue),
-                            });
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <div className="col-lg-6">
-                      <div className="mb-1">
-                        <label className="form-label">
-                          Text Length <span className="text-danger">*</span>
-                        </label>
-                        <input
-                          type="number"
-                          className="input-text"
-                          placeholder="Enter Text Value"
-                          value={textDriver.textLength || null}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            setTextDriver({
-                              ...textDriver,
-                              textLength: value,
-                            });
-                          }}
-                        />
-                      </div>
-                      {textError.textLength &&
-                        (textDriver.textLength === null ||
-                          textDriver.textLength === undefined ||
-                          textDriver.textLength === "") && (
-                          <label className="validation">{ERROR_MESSAGES}</label>
-                        )}
-                    </div>
-                    <div className="col-lg-6">
-                      <div className="mb-1">
-                        <label className="form-label">
-                          Allowed Special Characters
-                        </label>
-                        <Select
-                          isMulti
-                          className="basic-multi-select"
-                          classNamePrefix="select"
-                          options={specialCharOptions}
-                          value={specialCharOptions.filter((opt) =>
-                            (textDriver.allowedSpecialCharacters || "")
-                              .split(",")
-                              .includes(opt.value)
-                          )}
-                          onChange={handleSpecialCharChange}
-                          placeholder="Select special characters..."
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {globalPricingDriverObj.driverTypeID === 6 && (
-                <>
-                  <div class="row">
-                    <div className="col-lg-6">
-                      <div className="mb-1">
-                        <label className="form-label">
-                          Date Format <span className="text-danger">*</span>
-                        </label>
-                        <Select
-                          options={dateFormats}
-                          className="basic-multi-select"
-                          classNamePrefix="select"
-                          value={
-                            dateFormats.find(
-                              (f) => f.value === dates[0]?.dateFormat
-                            ) || dateFormats[3]
-                          }
-                          onChange={handleDateFormatChange}
-                        />
-                      </div>
-                      {dateError.dateFormat &&
-                      (!dates[0] || dates[0].dateFormat === null) ? (
-                        <label className="validation">{ERROR_MESSAGES}</label>
-                      ) : (
-                        ""
-                      )}
-                    </div>
-                    <div className="col-lg-6">
-                      <div className="mb-1">
-                        <label className="form-label">Default Date Value</label>
-                        <input
-                          type="text"
-                          className="input-text"
-                          value={
-                            dates[0]?.defaultDateValue
-                              ? dates[0]?.defaultDateValue
-                              : null
-                          }
-                          onChange={handleDefaultDateValueChange}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-xl-12 col-lg-12">
-                      {dates?.map((date, dateIndex) =>
-                        date?.blocks?.map((block, blockIndex) => (
-                          <div
-                            className="card-1 pricing-box p-4 mt-4"
-                            key={`${dateIndex}-${blockIndex}`} // Unique key for each block
-                            id={`Date_Div_${dateIndex}_${blockIndex}`}
-                          >
-                            <div className="col-lg-6 col-md-6">
-                              <p
-                                className="office-name font-weight"
-                                style={{ width: "auto", zIndex: "0" }}
-                              >
-                                Period Block {blockIndex + 1}
-                              </p>
-                            </div>
-                            <p
-                              className="delete delete-margin"
-                              style={{ marginBottom: "0", width: "auto" }}
-                            >
-                              <button
-                                disabled={props.disable}
-                                onClick={() =>
-                                  OnDeletePeriodBlock(dateIndex, blockIndex)
-                                } // Pass dateIndex and blockIndex
-                                className="btn btn-sm btn-danger remove-item-btn d-flex gap-1 globalDriver"
-                              >
-                                <i className="ri-delete-bin-5-fill"></i>
-                                <p className="delete-margin font-12">
-                                  Delete Period Block
-                                </p>
-                              </button>
-                            </p>
-                            <div className="row mt-1">
-                              <div className="col-lg-6">
-                                <div className="mb-3">
-                                  <label
-                                    htmlFor="useremail"
-                                    className="form-label"
-                                  >
-                                    From Date
-                                  </label>
-                                  <div className="input-group">
-                                    <DatePicker
-                                      className="input-text"
-                                      selected={parseStoredDate(
-                                        block.fromDate,
-                                        date?.dateFormat
-                                      )}
-                                      placeholder="From Date"
-                                      disabled={
-                                        blockIndex === 0 && dateIndex === 0
-                                          ? false
-                                          : true
-                                      } // Only enable first block of first date
-                                      maxDate={
-                                        block.toDate
-                                          ? subDays(
-                                              parseStoredDate(
-                                                block.toDate,
-                                                date.dateFormat
-                                              ),
-                                              1
-                                            )
-                                          : null
-                                      }
-                                      onChange={(selectedDate) =>
-                                        OnPeriodBlockChange(
-                                          dateIndex,
-                                          "fromDate",
-                                          formatToDisplay(
-                                            selectedDate,
-                                            date.dateFormat
-                                          ),
-                                          blockIndex
-                                        )
-                                      }
-                                      dateFormat={date.dateFormat}
-                                    />
-                                  </div>
-                                  <div className="invalid-feedback">
-                                    Please enter Date Value
-                                  </div>
-                                </div>
-                                {dateError.fromDate &&
-                                  block.fromDate === "" && (
-                                    <label className="validation">
-                                      {ERROR_MESSAGES}
-                                    </label>
-                                  )}
-                              </div>
-                              <div className="col-lg-6">
-                                <div className="mb-3">
-                                  <label className="form-label">To Date</label>
-                                  <div className="input-group">
-                                    <DatePicker
-                                      className="input-text"
-                                      selected={parseStoredDate(
-                                        block.toDate,
-                                        date?.dateFormat
-                                      )}
-                                      placeholder="To Date"
-                                      onChange={(selectedDate) =>
-                                        OnPeriodBlockChange(
-                                          dateIndex,
-                                          "toDate",
-                                          formatToDisplay(
-                                            selectedDate,
-                                            date.dateFormat
-                                          ),
-                                          blockIndex
-                                        )
-                                      }
-                                      minDate={
-                                        block.fromDate
-                                          ? addDays(
-                                              parseStoredDate(
-                                                block.fromDate,
-                                                date.dateFormat
-                                              ),
-                                              1
-                                            )
-                                          : null
-                                      }
-                                      maxDate={
-                                        dates[dateIndex]?.blocks[blockIndex + 1]
-                                          ?.fromDate ||
-                                        (dateIndex + 1 < dates.length &&
-                                          dates[dateIndex + 1]?.blocks[0]
-                                            ?.fromDate)
-                                          ? subDays(
-                                              parseStoredDate(
-                                                dates[dateIndex]?.blocks[
-                                                  blockIndex + 1
-                                                ]?.fromDate ||
-                                                  dates[dateIndex + 1]
-                                                    ?.blocks[0]?.fromDate,
-                                                date.dateFormat
-                                              ),
-                                              1
-                                            )
-                                          : null
-                                      }
-                                      dateFormat={date.dateFormat}
-                                    />
-                                  </div>
-                                  {block.fromDate &&
-                                    block.toDate &&
-                                    parseStoredDate(
-                                      block.toDate,
-                                      date.dateFormat
-                                    ) <
-                                      parseStoredDate(
-                                        block.fromDate,
-                                        date.dateFormat
-                                      ) && (
-                                      <div className="text-danger mt-1">
-                                        To Date cannot be earlier than From
-                                        Date.
-                                      </div>
-                                    )}
-                                  {dateError.toDate && block.toDate === "" && (
-                                    <label className="validation">
-                                      {ERROR_MESSAGES}
-                                    </label>
-                                  )}
-                                </div>
-                                {!dateError?.toDate &&
-                                  !dateError?.fromDate &&
-                                  formatToDisplay(block.toDate) <
-                                    formatToDisplay(block.fromDate) && (
-                                    <label className="validation">
-                                      The field must not be less than{" "}
-                                      {block.fromDate}.
-                                    </label>
-                                  )}
-                              </div>
-                              {dateError.date && (
-                                <label className="text-danger text-center">
-                                  Either From date or To date is required
-                                </label>
-                              )}
-                            </div>
-                            <div className="row mt-1">
-                              <div className="col-lg-6">
-                                <div className="mb-3">
-                                  <label
-                                    htmlFor="useremail"
-                                    className="form-label"
-                                  >
-                                    Date Value
-                                  </label>
-                                  <input
-                                    type="text"
-                                    className="input-text"
-                                    value={block.dateValue || ""}
-                                    onChange={(e) =>
-                                      OnPeriodBlockChange(
-                                        dateIndex,
-                                        "dateValue",
-                                        e.target.value,
-                                        blockIndex
-                                      )
-                                    }
-                                  />
-                                  <div className="invalid-feedback">
-                                    Please enter Date Value
-                                  </div>
-                                </div>
-                                {dateError.dateValue &&
-                                  block.dateValue === null && (
-                                    <label className="validation">
-                                      {ERROR_MESSAGES}
-                                    </label>
-                                  )}
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
-              {globalPricingDriverObj.driverTypeID === 2 && (
-                <>
-                  <div className="row mb-3">
-                    <div className="col-lg-6">
-                      <div className="mb-1">
-                        <label className="form-label">
-                          Quantity Decimal Places{" "}
-                          <span className="text-danger">*</span>
-                        </label>
-                        <div className="input-group">
-                          <Select
-                            className="user-role-select"
-                            onChange={(selectedOption) => {
-                              const updatedDrivers = [...quantity];
-                              updatedDrivers[0] = {
-                                ...updatedDrivers[0],
-                                quantityDecimalPlaces: selectedOption.value,
-                              };
-                              if (
-                                updatedDrivers[0].quantityFrom &&
-                                updatedDrivers[0].quantityFrom !== ""
-                              ) {
-                                const numValue = parseFloat(
-                                  updatedDrivers[0].quantityFrom
-                                );
-                                if (!isNaN(numValue)) {
-                                  updatedDrivers[0].quantityFrom =
-                                    formatDisplayValue(
-                                      numValue.toString(),
-                                      selectedOption.value
-                                    );
-                                }
-                              }
-
-                              // Update quantityTo if it exists
-                              if (
-                                updatedDrivers[0].quantityTo &&
-                                updatedDrivers[0].quantityTo !== ""
-                              ) {
-                                const numValue = parseFloat(
-                                  updatedDrivers[0].quantityTo
-                                );
-                                if (!isNaN(numValue)) {
-                                  updatedDrivers[0].quantityTo =
-                                    formatDisplayValue(
-                                      numValue.toString(),
-                                      selectedOption.value
-                                    );
-                                }
-                              }
-                              setQuantity(updatedDrivers);
+                {globalPricingDriverObj.driverTypeID === 5 && (
+                  <>
+                    <div class="row">
+                      <div className="col-lg-6">
+                        <div className="mb-1">
+                          <label className="form-label">Text Value</label>
+                          <input
+                            type="text"
+                            className="input-text"
+                            placeholder="Enter Text Value"
+                            value={textDriver.textValue || ""}
+                            onChange={(e) => {
+                              const cleanValue = e.target.value.replace(
+                                /[^\d.]/g,
+                                "",
+                              );
+                              setTextDriver({
+                                ...textDriver,
+                                textValue:
+                                  cleanValue === ""
+                                    ? null
+                                    : parseFloat(cleanValue),
+                              });
                             }}
-                            value={{
-                              value: quantity[0]?.quantityDecimalPlaces ?? 0,
-                              label: (() => {
+                          />
+                        </div>
+                      </div>
+                      <div className="col-lg-6">
+                        <div className="mb-1">
+                          <label className="form-label">
+                            Text Length <span className="text-danger">*</span>
+                          </label>
+                          <input
+                            type="number"
+                            className="input-text"
+                            placeholder="Enter Text Value"
+                            value={textDriver.textLength || null}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setTextDriver({
+                                ...textDriver,
+                                textLength: value,
+                              });
+                            }}
+                          />
+                        </div>
+                        {textError.textLength &&
+                          (textDriver.textLength === null ||
+                            textDriver.textLength === undefined ||
+                            textDriver.textLength === "") && (
+                            <label className="validation">
+                              {ERROR_MESSAGES}
+                            </label>
+                          )}
+                      </div>
+                      <div className="col-lg-6">
+                        <div className="mb-1">
+                          <label className="form-label">
+                            Allowed Special Characters
+                          </label>
+                          <Select
+                            isMulti
+                            className="basic-multi-select"
+                            classNamePrefix="select"
+                            options={specialCharOptions}
+                            value={specialCharOptions.filter((opt) =>
+                              (textDriver.allowedSpecialCharacters || "")
+                                .split(",")
+                                .includes(opt.value),
+                            )}
+                            onChange={handleSpecialCharChange}
+                            placeholder="Select special characters..."
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {globalPricingDriverObj.driverTypeID === 6 && (
+                  <>
+                    <div class="row">
+                      <div className="col-lg-6">
+                        <div className="mb-1">
+                          <label className="form-label">
+                            Date Format <span className="text-danger">*</span>
+                          </label>
+                          <Select
+                            options={dateFormats}
+                            className="basic-multi-select"
+                            classNamePrefix="select"
+                            value={
+                              dateFormats.find(
+                                (f) => f.value === dates[0]?.dateFormat,
+                              ) || dateFormats[3]
+                            }
+                            onChange={handleDateFormatChange}
+                          />
+                        </div>
+                        {dateError.dateFormat &&
+                        (!dates[0] || dates[0].dateFormat === null) ? (
+                          <label className="validation">{ERROR_MESSAGES}</label>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                      <div className="col-lg-6">
+                        <div className="mb-1">
+                          <label className="form-label">
+                            Default Date Value
+                          </label>
+                          <input
+                            type="text"
+                            className="input-text"
+                            value={
+                              dates[0]?.defaultDateValue
+                                ? dates[0]?.defaultDateValue
+                                : null
+                            }
+                            onChange={handleDefaultDateValueChange}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-xl-12 col-lg-12">
+                        {dates?.map((date, dateIndex) =>
+                          date?.blocks?.map((block, blockIndex) => (
+                            <div
+                              className="card-1 pricing-box p-4 mt-4"
+                              key={`${dateIndex}-${blockIndex}`} // Unique key for each block
+                              id={`Date_Div_${dateIndex}_${blockIndex}`}
+                            >
+                              <div className="col-lg-6 col-md-6">
+                                <p
+                                  className="office-name font-weight"
+                                  style={{ width: "auto", zIndex: "0" }}
+                                >
+                                  Period Block {blockIndex + 1}
+                                </p>
+                              </div>
+                              <p
+                                className="delete delete-margin"
+                                style={{ marginBottom: "0", width: "auto" }}
+                              >
+                                <button
+                                  disabled={props.disable}
+                                  onClick={() =>
+                                    OnDeletePeriodBlock(dateIndex, blockIndex)
+                                  } // Pass dateIndex and blockIndex
+                                  className="btn btn-sm btn-danger remove-item-btn d-flex gap-1 globalDriver"
+                                >
+                                  <i className="ri-delete-bin-5-fill"></i>
+                                  <p className="delete-margin font-12">
+                                    Delete Period Block
+                                  </p>
+                                </button>
+                              </p>
+                              <div className="row mt-1">
+                                <div className="col-lg-6">
+                                  <div className="mb-3">
+                                    <label
+                                      htmlFor="useremail"
+                                      className="form-label"
+                                    >
+                                      From Date
+                                    </label>
+                                    <div className="input-group">
+                                      <DatePicker
+                                        className="input-text"
+                                        selected={parseStoredDate(
+                                          block.fromDate,
+                                          date?.dateFormat,
+                                        )}
+                                        placeholder="From Date"
+                                        disabled={
+                                          blockIndex === 0 && dateIndex === 0
+                                            ? false
+                                            : true
+                                        } // Only enable first block of first date
+                                        maxDate={
+                                          block.toDate
+                                            ? subDays(
+                                                parseStoredDate(
+                                                  block.toDate,
+                                                  date.dateFormat,
+                                                ),
+                                                1,
+                                              )
+                                            : null
+                                        }
+                                        onChange={(selectedDate) =>
+                                          OnPeriodBlockChange(
+                                            dateIndex,
+                                            "fromDate",
+                                            formatToDisplay(
+                                              selectedDate,
+                                              date.dateFormat,
+                                            ),
+                                            blockIndex,
+                                          )
+                                        }
+                                        dateFormat={date.dateFormat}
+                                      />
+                                    </div>
+                                    <div className="invalid-feedback">
+                                      Please enter Date Value
+                                    </div>
+                                  </div>
+                                  {dateError.fromDate &&
+                                    block.fromDate === "" && (
+                                      <label className="validation">
+                                        {ERROR_MESSAGES}
+                                      </label>
+                                    )}
+                                </div>
+                                <div className="col-lg-6">
+                                  <div className="mb-3">
+                                    <label className="form-label">
+                                      To Date
+                                    </label>
+                                    <div className="input-group">
+                                      <DatePicker
+                                        className="input-text"
+                                        selected={parseStoredDate(
+                                          block.toDate,
+                                          date?.dateFormat,
+                                        )}
+                                        placeholder="To Date"
+                                        onChange={(selectedDate) =>
+                                          OnPeriodBlockChange(
+                                            dateIndex,
+                                            "toDate",
+                                            formatToDisplay(
+                                              selectedDate,
+                                              date.dateFormat,
+                                            ),
+                                            blockIndex,
+                                          )
+                                        }
+                                        minDate={
+                                          block.fromDate
+                                            ? addDays(
+                                                parseStoredDate(
+                                                  block.fromDate,
+                                                  date.dateFormat,
+                                                ),
+                                                1,
+                                              )
+                                            : null
+                                        }
+                                        maxDate={
+                                          dates[dateIndex]?.blocks[
+                                            blockIndex + 1
+                                          ]?.fromDate ||
+                                          (dateIndex + 1 < dates.length &&
+                                            dates[dateIndex + 1]?.blocks[0]
+                                              ?.fromDate)
+                                            ? subDays(
+                                                parseStoredDate(
+                                                  dates[dateIndex]?.blocks[
+                                                    blockIndex + 1
+                                                  ]?.fromDate ||
+                                                    dates[dateIndex + 1]
+                                                      ?.blocks[0]?.fromDate,
+                                                  date.dateFormat,
+                                                ),
+                                                1,
+                                              )
+                                            : null
+                                        }
+                                        dateFormat={date.dateFormat}
+                                      />
+                                    </div>
+                                    {block.fromDate &&
+                                      block.toDate &&
+                                      parseStoredDate(
+                                        block.toDate,
+                                        date.dateFormat,
+                                      ) <
+                                        parseStoredDate(
+                                          block.fromDate,
+                                          date.dateFormat,
+                                        ) && (
+                                        <div className="text-danger mt-1">
+                                          To Date cannot be earlier than From
+                                          Date.
+                                        </div>
+                                      )}
+                                    {dateError.toDate &&
+                                      block.toDate === "" && (
+                                        <label className="validation">
+                                          {ERROR_MESSAGES}
+                                        </label>
+                                      )}
+                                  </div>
+                                  {!dateError?.toDate &&
+                                    !dateError?.fromDate &&
+                                    formatToDisplay(block.toDate) <
+                                      formatToDisplay(block.fromDate) && (
+                                      <label className="validation">
+                                        The field must not be less than{" "}
+                                        {block.fromDate}.
+                                      </label>
+                                    )}
+                                </div>
+                                {dateError.date && (
+                                  <label className="text-danger text-center">
+                                    Either From date or To date is required
+                                  </label>
+                                )}
+                              </div>
+                              <div className="row mt-1">
+                                <div className="col-lg-6">
+                                  <div className="mb-3">
+                                    <label
+                                      htmlFor="useremail"
+                                      className="form-label"
+                                    >
+                                      Date Value
+                                    </label>
+                                    <input
+                                      type="text"
+                                      className="input-text"
+                                      value={block.dateValue || ""}
+                                      onChange={(e) =>
+                                        OnPeriodBlockChange(
+                                          dateIndex,
+                                          "dateValue",
+                                          e.target.value,
+                                          blockIndex,
+                                        )
+                                      }
+                                    />
+                                    <div className="invalid-feedback">
+                                      Please enter Date Value
+                                    </div>
+                                  </div>
+                                  {dateError.dateValue &&
+                                    block.dateValue === null && (
+                                      <label className="validation">
+                                        {ERROR_MESSAGES}
+                                      </label>
+                                    )}
+                                </div>
+                              </div>
+                            </div>
+                          )),
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+                {globalPricingDriverObj.driverTypeID === 2 && (
+                  <>
+                    <div className="row mb-3">
+                      <div className="col-lg-6">
+                        <div className="mb-1">
+                          <label className="form-label">
+                            Quantity Decimal Places{" "}
+                            <span className="text-danger">*</span>
+                          </label>
+                          <div className="input-group">
+                            <Select
+                              className="user-role-select"
+                              onChange={(selectedOption) => {
+                                const updatedDrivers = [...quantity];
+                                updatedDrivers[0] = {
+                                  ...updatedDrivers[0],
+                                  quantityDecimalPlaces: selectedOption.value,
+                                };
+                                if (
+                                  updatedDrivers[0].quantityFrom &&
+                                  updatedDrivers[0].quantityFrom !== ""
+                                ) {
+                                  const numValue = parseFloat(
+                                    updatedDrivers[0].quantityFrom,
+                                  );
+                                  if (!isNaN(numValue)) {
+                                    updatedDrivers[0].quantityFrom =
+                                      formatDisplayValue(
+                                        numValue.toString(),
+                                        selectedOption.value,
+                                      );
+                                  }
+                                }
+
+                                // Update quantityTo if it exists
+                                if (
+                                  updatedDrivers[0].quantityTo &&
+                                  updatedDrivers[0].quantityTo !== ""
+                                ) {
+                                  const numValue = parseFloat(
+                                    updatedDrivers[0].quantityTo,
+                                  );
+                                  if (!isNaN(numValue)) {
+                                    updatedDrivers[0].quantityTo =
+                                      formatDisplayValue(
+                                        numValue.toString(),
+                                        selectedOption.value,
+                                      );
+                                  }
+                                }
+                                setQuantity(updatedDrivers);
+                              }}
+                              value={{
+                                value: quantity[0]?.quantityDecimalPlaces ?? 0,
+                                label: (() => {
+                                  const decimalPlaces =
+                                    quantity[0]?.quantityDecimalPlaces ?? 0;
+                                  if (decimalPlaces === 0)
+                                    return "No decimal places";
+                                  if (decimalPlaces === 1)
+                                    return "1 decimal place";
+                                  return `${decimalPlaces} decimal places`;
+                                })(),
+                              }}
+                              options={[
+                                { value: 2, label: "2 decimal places" },
+                                { value: 1, label: "1 decimal place" },
+                                { value: 0, label: "No decimal places" },
+                              ]}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="row mb-1">
+                      <label>Allowed Range</label>
+                    </div>
+                    <div className="row fieldset">
+                      <div className="col-lg-6">
+                        <div className="mb-1">
+                          <label className="form-label">Quantity From</label>
+                          <div className="input-group">
+                            <input
+                              className="input-text"
+                              type="text"
+                              value={quantity[0]?.quantityFrom || ""}
+                              onChange={(e) => {
                                 const decimalPlaces =
                                   quantity[0]?.quantityDecimalPlaces ?? 0;
-                                if (decimalPlaces === 0)
-                                  return "No decimal places";
-                                if (decimalPlaces === 1)
-                                  return "1 decimal place";
-                                return `${decimalPlaces} decimal places`;
-                              })(),
-                            }}
-                            options={[
-                              { value: 2, label: "2 decimal places" },
-                              { value: 1, label: "1 decimal place" },
-                              { value: 0, label: "No decimal places" },
-                            ]}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="row mb-1">
-                    <label>Allowed Range</label>
-                  </div>
-                  <div className="row fieldset">
-                    <div className="col-lg-6">
-                      <div className="mb-1">
-                        <label className="form-label">Quantity From</label>
-                        <div className="input-group">
-                          <input
-                            className="input-text"
-                            type="text"
-                            value={quantity[0]?.quantityFrom || ""}
-                            onChange={(e) => {
-                              const decimalPlaces =
-                                quantity[0]?.quantityDecimalPlaces ?? 0;
-                              const sanitized = handleQuantityInput(
-                                e.target.value,
-                                decimalPlaces
-                              );
-
-                              const updatedDrivers = [...quantity];
-                              updatedDrivers[0] = {
-                                ...updatedDrivers[0],
-                                quantityFrom: sanitized,
-                              };
-                              setQuantity(updatedDrivers);
-                            }}
-                            onBlur={() => {
-                              const currentValue = quantity[0]?.quantityFrom;
-                              const decimalPlaces =
-                                quantity[0]?.quantityDecimalPlaces ?? 0;
-
-                              // Only format if there's a valid number
-                              if (
-                                currentValue &&
-                                currentValue !== "" &&
-                                !isNaN(parseFloat(currentValue))
-                              ) {
-                                const formattedValue = formatDisplayValue(
-                                  currentValue,
-                                  decimalPlaces
+                                const sanitized = handleQuantityInput(
+                                  e.target.value,
+                                  decimalPlaces,
                                 );
 
                                 const updatedDrivers = [...quantity];
                                 updatedDrivers[0] = {
                                   ...updatedDrivers[0],
-                                  quantityFrom: formattedValue,
+                                  quantityFrom: sanitized,
                                 };
                                 setQuantity(updatedDrivers);
-                              } else if (
-                                currentValue &&
-                                currentValue.endsWith(".")
-                              ) {
-                                // Remove trailing decimal point if user left it
-                                const updatedDrivers = [...quantity];
-                                updatedDrivers[0] = {
-                                  ...updatedDrivers[0],
-                                  quantityFrom: currentValue.slice(0, -1),
-                                };
-                                setQuantity(updatedDrivers);
-                              }
-                            }}
-                          />
+                              }}
+                              onBlur={() => {
+                                const currentValue = quantity[0]?.quantityFrom;
+                                const decimalPlaces =
+                                  quantity[0]?.quantityDecimalPlaces ?? 0;
+
+                                // Only format if there's a valid number
+                                if (
+                                  currentValue &&
+                                  currentValue !== "" &&
+                                  !isNaN(parseFloat(currentValue))
+                                ) {
+                                  const formattedValue = formatDisplayValue(
+                                    currentValue,
+                                    decimalPlaces,
+                                  );
+
+                                  const updatedDrivers = [...quantity];
+                                  updatedDrivers[0] = {
+                                    ...updatedDrivers[0],
+                                    quantityFrom: formattedValue,
+                                  };
+                                  setQuantity(updatedDrivers);
+                                } else if (
+                                  currentValue &&
+                                  currentValue.endsWith(".")
+                                ) {
+                                  // Remove trailing decimal point if user left it
+                                  const updatedDrivers = [...quantity];
+                                  updatedDrivers[0] = {
+                                    ...updatedDrivers[0],
+                                    quantityFrom: currentValue.slice(0, -1),
+                                  };
+                                  setQuantity(updatedDrivers);
+                                }
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="col-lg-6">
-                      <div className="mb-1">
-                        <label className="form-label">Quantity To</label>
-                        <div className="input-group">
-                          <input
-                            className="input-text"
-                            type="text"
-                            value={quantity[0].quantityTo || ""}
-                            onChange={(e) => {
-                              const decimalPlaces =
-                                quantity[0]?.quantityDecimalPlaces ?? 0;
-                              const sanitized = handleQuantityInput(
-                                e.target.value,
-                                decimalPlaces
-                              );
-
-                              const updatedDrivers = [...quantity];
-                              updatedDrivers[0] = {
-                                ...updatedDrivers[0],
-                                quantityTo: sanitized,
-                              };
-                              setQuantity(updatedDrivers);
-                            }}
-                            onBlur={() => {
-                              const currentValue = quantity[0]?.quantityTo;
-                              const decimalPlaces =
-                                quantity[0]?.quantityDecimalPlaces ?? 0;
-
-                              // Only format if there's a valid number
-                              if (
-                                currentValue &&
-                                currentValue !== "" &&
-                                !isNaN(parseFloat(currentValue))
-                              ) {
-                                const formattedValue = formatDisplayValue(
-                                  currentValue,
-                                  decimalPlaces
+                      <div className="col-lg-6">
+                        <div className="mb-1">
+                          <label className="form-label">Quantity To</label>
+                          <div className="input-group">
+                            <input
+                              className="input-text"
+                              type="text"
+                              value={quantity[0].quantityTo || ""}
+                              onChange={(e) => {
+                                const decimalPlaces =
+                                  quantity[0]?.quantityDecimalPlaces ?? 0;
+                                const sanitized = handleQuantityInput(
+                                  e.target.value,
+                                  decimalPlaces,
                                 );
 
                                 const updatedDrivers = [...quantity];
                                 updatedDrivers[0] = {
                                   ...updatedDrivers[0],
-                                  quantityTo: formattedValue,
+                                  quantityTo: sanitized,
                                 };
                                 setQuantity(updatedDrivers);
-                              } else if (
-                                currentValue &&
-                                currentValue.endsWith(".")
-                              ) {
-                                // Remove trailing decimal point if user left it
-                                const updatedDrivers = [...quantity];
-                                updatedDrivers[0] = {
-                                  ...updatedDrivers[0],
-                                  quantityTo: currentValue.slice(0, -1),
-                                };
-                                setQuantity(updatedDrivers);
-                              }
-                            }}
-                          />
+                              }}
+                              onBlur={() => {
+                                const currentValue = quantity[0]?.quantityTo;
+                                const decimalPlaces =
+                                  quantity[0]?.quantityDecimalPlaces ?? 0;
+
+                                // Only format if there's a valid number
+                                if (
+                                  currentValue &&
+                                  currentValue !== "" &&
+                                  !isNaN(parseFloat(currentValue))
+                                ) {
+                                  const formattedValue = formatDisplayValue(
+                                    currentValue,
+                                    decimalPlaces,
+                                  );
+
+                                  const updatedDrivers = [...quantity];
+                                  updatedDrivers[0] = {
+                                    ...updatedDrivers[0],
+                                    quantityTo: formattedValue,
+                                  };
+                                  setQuantity(updatedDrivers);
+                                } else if (
+                                  currentValue &&
+                                  currentValue.endsWith(".")
+                                ) {
+                                  // Remove trailing decimal point if user left it
+                                  const updatedDrivers = [...quantity];
+                                  updatedDrivers[0] = {
+                                    ...updatedDrivers[0],
+                                    quantityTo: currentValue.slice(0, -1),
+                                  };
+                                  setQuantity(updatedDrivers);
+                                }
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  {qtyError.quantityError &&
-                    quantity[0].quantityFrom !== "" &&
-                    quantity[0].quantityTo !== "" &&
-                    Number(quantity[0].quantityTo) <=
-                      Number(quantity[0].quantityFrom) && (
-                      <label className="text-danger text-center">
-                        Invalid Range
-                      </label>
-                    )}
-                </>
-              )}
-              <label
-                className="validation"
-                style={{
-                  fontSize: "15px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                {common.professionTypeLists?.length <= 1 &&
-                errorMessage?.includes(
-                  `Please dont choose this profession type`
-                )
-                  ? errorMessage.split(".")[0]
-                  : errorMessage}
-              </label>
-              {/* <!-- end tab row --> */}
+                    {qtyError.quantityError &&
+                      quantity[0].quantityFrom !== "" &&
+                      quantity[0].quantityTo !== "" &&
+                      Number(quantity[0].quantityTo) <=
+                        Number(quantity[0].quantityFrom) && (
+                        <label className="text-danger text-center">
+                          Invalid Range
+                        </label>
+                      )}
+                  </>
+                )}
+                <label
+                  className="validation"
+                  style={{
+                    fontSize: "15px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {common.professionTypeLists?.length <= 1 &&
+                  errorMessage?.includes(
+                    `Please dont choose this profession type`,
+                  )
+                    ? errorMessage.split(".")[0]
+                    : errorMessage}
+                </label>
+                {/* <!-- end tab row --> */}
+              </div>
             </div>
-          </div>
-          <div class="modal-footer">
-            <div class="hstack gap-2 justify-content-end">
-              {slabs &&
-                slabs[slabs.length - 1]?.slabTypeID == "1" &&
-                globalPricingDriverObj.driverTypeID == 4 && (
-                  <button
-                    onClick={() => OnAddSlab()}
-                    class="btn btn-sm btn-primary create-item-btn d-flex gap-1"
-                  >
-                    <i class="bi bi-plus-circle"></i>
-                    <p className="delete-margin font-12">Add Slab </p>
-                  </button>
-                )}
-              {slabs.length === 0 &&
-                globalPricingDriverObj.driverTypeID == 4 && (
-                  <button
-                    onClick={AddSlab}
-                    class="btn btn-sm btn-primary create-item-btn d-flex gap-1"
-                  >
-                    <i class="bi bi-plus-circle "></i>
-                    <span className="font-12 delete-margin">Add Slab</span>
-                  </button>
-                )}
-              {globalPricingDriverObj.driverTypeID == 3 && (
-                <button
-                  type="submit"
-                  class="btn btn-sm btn-primary create-item-btn d-flex gap-1"
-                  onClick={OnAddVariations}
-                >
-                  <i class="bi bi-plus-circle"></i>
-                  <span className="font-12 delete-margin">Add Variation</span>
-                </button>
-              )}
-              {dates && globalPricingDriverObj.driverTypeID === 6 && (
-                <button
-                  disabled={
-                    dates[0]?.blocks?.length > 0 &&
-                    // Disable if fromDate is filled but toDate is empty
-                    ((dates[0].blocks.at(-1)?.fromDate &&
-                      !dates[0].blocks.at(-1)?.toDate) ||
-                      // Disable if both fromDate and toDate are empty
-                      (!dates[0].blocks.at(-1)?.fromDate &&
-                        !dates[0].blocks.at(-1)?.toDate))
-                  }
-                  onClick={() => OnAddPeriodBlock()}
-                  className="btn btn-sm btn-primary create-item-btn d-flex gap-1"
-                >
-                  <i className="bi bi-plus-circle"></i>
-                  <p className="delete-margin font-12">Add Period Block</p>
-                </button>
-              )}
 
-              {/* {dates.length > 0 &&
-                globalPricingDriverObj.driverTypeID == 6 && (
-                  <button
-                    onClick={AddPeriodBlock}
-                    class="btn btn-sm btn-primary create-item-btn d-flex gap-1"
-                  >
-                    <i class="bi bi-plus-circle "></i>
-                    <span className="font-12 delete-margin">Add Period Block</span>
-                  </button>
-                )} */}
+            {/* =========================
+                FOOTER
+                ========================= */}
+            <div className="modal-footer global-pricing-driver-modal-footer">
               {props.modelRequestData.Type ? (
                 <>
-                  <button
-                    type="submit"
-                    class="btn btn-md btn-success accept-item-btn"
-                    disabled={props.addCategoryLoader}
-                    onClick={() =>
-                      GlobalPricingDriverAddUpdateBtnClicked("Accept")
-                    }
-                  >
-                    <span>Accept</span>
-                  </button>
-                  <button
-                    type="submit"
-                    class="btn btn-md btn-success declined-item-btn"
-                    // data-bs-dismiss="modal"
-                    onClick={() => DeclineSuperAdminChangesData("Decline")}
-                  >
-                    <span>Decline</span>
-                  </button>
+                  <div className="global-pricing-driver-sa-footer-copy">
+                    Review the System Administrator changes before accepting or
+                    declining.
+                  </div>
+
+                  <div className="global-pricing-driver-modal-actions">
+                    {slabs &&
+                      slabs[slabs.length - 1]?.slabTypeID == "1" &&
+                      globalPricingDriverObj.driverTypeID == 4 && (
+                        <button
+                          onClick={() => OnAddSlab()}
+                          className="btn btn-md global-pricing-driver-secondary-action"
+                        >
+                          <i className="ri-add-line"></i>
+                          <span>Add Slab</span>
+                        </button>
+                      )}
+
+                    {slabs.length === 0 &&
+                      globalPricingDriverObj.driverTypeID == 4 && (
+                        <button
+                          onClick={AddSlab}
+                          className="btn btn-md global-pricing-driver-secondary-action"
+                        >
+                          <i className="ri-add-line"></i>
+                          <span>Add Slab</span>
+                        </button>
+                      )}
+
+                    {globalPricingDriverObj.driverTypeID == 3 && (
+                      <button
+                        type="submit"
+                        className="btn btn-md global-pricing-driver-secondary-action"
+                        onClick={OnAddVariations}
+                      >
+                        <i className="ri-add-line"></i>
+                        <span>Add Variation</span>
+                      </button>
+                    )}
+
+                    {dates && globalPricingDriverObj.driverTypeID === 6 && (
+                      <button
+                        disabled={
+                          dates[0]?.blocks?.length > 0 &&
+                          ((dates[0].blocks.at(-1)?.fromDate &&
+                            !dates[0].blocks.at(-1)?.toDate) ||
+                            (!dates[0].blocks.at(-1)?.fromDate &&
+                              !dates[0].blocks.at(-1)?.toDate))
+                        }
+                        onClick={() => OnAddPeriodBlock()}
+                        className="btn btn-md global-pricing-driver-secondary-action"
+                      >
+                        <i className="ri-add-line"></i>
+                        <span>Add Period Block</span>
+                      </button>
+                    )}
+
+                    <button
+                      type="submit"
+                      className="btn btn-md declined-item-btn global-pricing-driver-decline-btn"
+                      onClick={() => DeclineSuperAdminChangesData("Decline")}
+                    >
+                      <i className="ri-close-line"></i>
+                      <span>Decline</span>
+                    </button>
+
+                    <button
+                      type="submit"
+                      className="btn btn-md accept-item-btn global-pricing-driver-accept-btn"
+                      disabled={props.addCategoryLoader}
+                      onClick={() =>
+                        GlobalPricingDriverAddUpdateBtnClicked("Accept")
+                      }
+                    >
+                      <i className="ri-check-line"></i>
+                      <span>Accept</span>
+                    </button>
+                  </div>
                 </>
               ) : (
                 <>
-                  <button
-                    type="button"
-                    class="btn btn-md btn-light"
-                    data-bs-dismiss="modal"
-                    onClick={SetInitialModelData}
-                  >
-                    <span>{getCrudButtonTextName("Cancel")}</span>
-                  </button>
-                  <button
-                    type="submit"
-                    class="btn btn-md btn-success create-item-btn"
-                    disabled={props.addCategoryLoader}
-                    onClick={() => GlobalPricingDriverAddUpdateBtnClicked()}
-                  >
-                    <span>
-                      {modelAction === "Add"
-                        ? getCrudButtonTextName("Add", moduleName)
-                        : getCrudButtonTextName("Update", moduleName)}
-                    </span>
-                  </button>
+                  <div></div>
+
+                  <div className="global-pricing-driver-modal-actions">
+                    {slabs &&
+                      slabs[slabs.length - 1]?.slabTypeID == "1" &&
+                      globalPricingDriverObj.driverTypeID == 4 && (
+                        <button
+                          onClick={() => OnAddSlab()}
+                          className="btn btn-md global-pricing-driver-secondary-action"
+                        >
+                          <i className="ri-add-line"></i>
+                          <span>Add Slab</span>
+                        </button>
+                      )}
+
+                    {slabs.length === 0 &&
+                      globalPricingDriverObj.driverTypeID == 4 && (
+                        <button
+                          onClick={AddSlab}
+                          className="btn btn-md global-pricing-driver-secondary-action"
+                        >
+                          <i className="ri-add-line"></i>
+                          <span>Add Slab</span>
+                        </button>
+                      )}
+
+                    {globalPricingDriverObj.driverTypeID == 3 && (
+                      <button
+                        type="submit"
+                        className="btn btn-md global-pricing-driver-secondary-action"
+                        onClick={OnAddVariations}
+                      >
+                        <i className="ri-add-line"></i>
+                        <span>Add Variation</span>
+                      </button>
+                    )}
+
+                    {dates && globalPricingDriverObj.driverTypeID === 6 && (
+                      <button
+                        disabled={
+                          dates[0]?.blocks?.length > 0 &&
+                          ((dates[0].blocks.at(-1)?.fromDate &&
+                            !dates[0].blocks.at(-1)?.toDate) ||
+                            (!dates[0].blocks.at(-1)?.fromDate &&
+                              !dates[0].blocks.at(-1)?.toDate))
+                        }
+                        onClick={() => OnAddPeriodBlock()}
+                        className="btn btn-md global-pricing-driver-secondary-action"
+                      >
+                        <i className="ri-add-line"></i>
+                        <span>Add Period Block</span>
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      className="btn btn-md btn-light global-pricing-driver-cancel-btn"
+                      data-bs-dismiss="modal"
+                      onClick={SetInitialModelData}
+                    >
+                      <span>{getCrudButtonTextName("Cancel")}</span>
+                    </button>
+
+                    <button
+                      type="submit"
+                      className="btn btn-md create-item-btn global-pricing-driver-save-btn"
+                      disabled={props.addCategoryLoader}
+                      onClick={() => GlobalPricingDriverAddUpdateBtnClicked()}
+                    >
+                      <span>
+                        {modelAction === "Add"
+                          ? getCrudButtonTextName("Add", moduleName)
+                          : getCrudButtonTextName("Update", moduleName)}
+                      </span>
+                    </button>
+                  </div>
                 </>
               )}
             </div>
           </div>
         </div>
-      </div>
-      <SuccessModal
-        handleClose={handleClose}
-        setDismissModal={setDismissModal}
-        setOpenSuccessModal={setOpenSuccessModal}
-        openSuccessModal={openSuccessModal}
-        modelAction={modelAction}
-        setIsCheck={setIsCheck}
-        isCheck={isCheck}
-        modelRequestData={modelRequestData}
-        message={`${moduleName} ${globalPricingDriverObj.driverName}`}
-      />
 
-      <DeleteDriverModal
-        handleClose={handleCloseDeleteDriverModel}
-        openDeleteDriverModel={openDeleteDriverModel}
-        modelRequestData={modelRequestDataForDeleteDriver}
-        openSuccessModal={openSuccessModal}
-        openErrorModal={openErrorModal}
-      />
-      <ErrorModel
-        ErrorModel={openErrorModal}
-        handleClose={HandleClose}
-        ErrorMessage={errorMessageTitle}
-        errorMessageTitle={""}
-      />
-      <AcceptSuperAdminChangesConfirmation
-        openErrorModal={openErrorModal}
-        ModelId={props.id}
-        Status={Status}
-        openSuccessModal={openSuccessModal}
-        modelRequestData={props.modelRequestData}
-        UpdatedChanges={handleConfirmButton}
-      />
+        <SuccessModal
+          handleClose={handleClose}
+          setDismissModal={setDismissModal}
+          setOpenSuccessModal={setOpenSuccessModal}
+          openSuccessModal={openSuccessModal}
+          modelAction={modelAction}
+          setIsCheck={setIsCheck}
+          isCheck={isCheck}
+          modelRequestData={modelRequestData}
+          message={`${moduleName} ${globalPricingDriverObj.driverName}`}
+        />
+
+        <DeleteDriverModal
+          handleClose={handleCloseDeleteDriverModel}
+          openDeleteDriverModel={openDeleteDriverModel}
+          modelRequestData={modelRequestDataForDeleteDriver}
+          openSuccessModal={openSuccessModal}
+          openErrorModal={openErrorModal}
+        />
+        <ErrorModel
+          ErrorModel={openErrorModal}
+          handleClose={HandleClose}
+          ErrorMessage={errorMessageTitle}
+          errorMessageTitle={""}
+        />
+        <AcceptSuperAdminChangesConfirmation
+          openErrorModal={openErrorModal}
+          ModelId={props.id}
+          Status={Status}
+          openSuccessModal={openSuccessModal}
+          modelRequestData={props.modelRequestData}
+          UpdatedChanges={handleConfirmButton}
+        />
+      </div>
     </div>
   );
 }

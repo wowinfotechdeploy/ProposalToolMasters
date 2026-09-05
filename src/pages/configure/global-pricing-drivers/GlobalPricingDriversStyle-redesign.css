@@ -1,0 +1,794 @@
+/* =========================================================
+   GLOBAL PRICING DRIVERS / GLOBAL PROSPECT VARIABLES
+   Prospect / Users inspired redesign
+   UI ONLY
+   ========================================================= */
+
+.global-driver-redesign {
+  --gd-bg: #f7f9fc;
+  --gd-card: #ffffff;
+  --gd-heading: #14243a;
+  --gd-text: #334258;
+  --gd-muted: #778295;
+  --gd-border: #dce4ed;
+  --gd-border-soft: #e7edf3;
+  --gd-navy: #0f1b33;
+  --gd-cyan: #14b5d1;
+  --gd-cyan-hover: #0da5c1;
+
+  width: 100%;
+  min-height: 100%;
+  background: var(--gd-bg);
+  color: var(--gd-text);
+}
+
+.global-driver-redesign,
+.global-driver-redesign * {
+  box-sizing: border-box;
+}
+
+.global-driver-page {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 30px 30px 42px;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.global-driver-page-header {
+  width: 100%;
+  padding-bottom: 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.global-driver-page-title {
+  margin: 0;
+
+  color: var(--gd-heading);
+
+  font-family: "Sarabun", sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.global-driver-page-subtitle {
+  margin: 6px 0 0;
+
+  color: var(--gd-muted);
+
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.global-driver-add-action .btn,
+.global-driver-add-action .create-item-btn {
+  min-height: 44px !important;
+  padding: 0 18px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border: 1px solid var(--gd-cyan) !important;
+  border-radius: 8px !important;
+
+  background: var(--gd-cyan) !important;
+  color: #ffffff !important;
+
+  font-size: 13px !important;
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+}
+
+.global-driver-add-action .btn:hover,
+.global-driver-add-action .create-item-btn:hover {
+  border-color: var(--gd-cyan-hover) !important;
+  background: var(--gd-cyan-hover) !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   TABS
+   ========================================================= */
+
+.global-driver-tabs {
+  min-height: 58px;
+  margin-bottom: 16px;
+
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+
+  border-bottom: 1px solid #e2e8ef;
+}
+
+.global-driver-tab {
+  position: relative;
+
+  min-height: 58px;
+  padding: 0 4px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  border: 0;
+
+  background: transparent;
+  color: #667286;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.global-driver-tab::after {
+  content: "";
+
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+
+  height: 2px;
+
+  border-radius: 2px 2px 0 0;
+
+  background: transparent;
+}
+
+.global-driver-tab i {
+  font-size: 16px;
+}
+
+.global-driver-tab:hover {
+  color: #26364b;
+}
+
+.global-driver-tab.is-active {
+  color: #13243a;
+}
+
+.global-driver-tab.is-active::after {
+  background: var(--gd-cyan);
+}
+
+/* =========================================================
+   LIST CARD
+   ========================================================= */
+
+.global-driver-list-card {
+  width: 100%;
+
+  overflow: hidden;
+
+  border: 1px solid var(--gd-border);
+  border-radius: 12px;
+
+  background: var(--gd-card);
+
+  box-shadow:
+    0 2px 7px rgba(15, 23, 42, 0.035),
+    0 8px 22px rgba(15, 23, 42, 0.02);
+}
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.global-driver-toolbar {
+  min-height: 82px;
+  padding: 14px 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  border-bottom: 1px solid var(--gd-border);
+
+  background: #ffffff;
+}
+
+.global-driver-search-wrap {
+  width: min(100%, 400px);
+  position: relative;
+}
+
+.global-driver-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+
+  transform: translateY(-50%);
+
+  color: #536174;
+  font-size: 20px;
+
+  pointer-events: none;
+}
+
+.global-driver-search-input {
+  width: 100%;
+  height: 44px;
+
+  padding: 9px 14px 9px 43px;
+
+  border: 1px solid #d3dde8;
+  border-radius: 8px;
+
+  outline: none;
+
+  background: #ffffff;
+  color: #27364b;
+
+  font-size: 13px;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.global-driver-search-input::placeholder {
+  color: #8994a5;
+}
+
+.global-driver-search-input:focus {
+  border-color: #7bcfdf;
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08);
+}
+
+.global-driver-toolbar-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.global-driver-current-view {
+  min-height: 28px;
+  padding: 0 10px;
+
+  display: inline-flex;
+  align-items: center;
+
+  border-radius: 999px;
+
+  background: #eaf7fa;
+  color: #168099;
+
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.global-driver-record-count {
+  color: #788497;
+
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.global-driver-table-wrap {
+  width: 100%;
+  max-width: 100%;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+.global-driver-table {
+  width: 100%;
+  min-width: 1040px;
+
+  margin: 0;
+
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.global-driver-table thead th {
+  height: 58px;
+
+  padding: 0 20px;
+
+  border: 0;
+  border-bottom: 1px solid #1d2940;
+
+  background: var(--gd-navy);
+  color: #f6f8fc;
+
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.global-driver-table tbody td {
+  height: 76px;
+
+  padding: 12px 20px;
+
+  border-bottom: 1px solid var(--gd-border-soft);
+
+  background: #ffffff;
+  color: var(--gd-text);
+
+  font-size: 12.5px;
+  vertical-align: middle;
+}
+
+.global-driver-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.global-driver-table tbody tr:hover td {
+  background: #fbfdff;
+}
+
+.global-driver-table th:nth-child(1),
+.global-driver-table td:nth-child(1) {
+  width: 31%;
+}
+
+.global-driver-table th:nth-child(2),
+.global-driver-table td:nth-child(2) {
+  width: 24%;
+}
+
+.global-driver-table th:nth-child(3),
+.global-driver-table td:nth-child(3) {
+  width: 17%;
+}
+
+.global-driver-table th:nth-child(4),
+.global-driver-table td:nth-child(4) {
+  width: 16%;
+}
+
+.global-driver-table th:nth-child(5),
+.global-driver-table td:nth-child(5) {
+  width: 12%;
+  min-width: 125px;
+}
+
+.global-driver-table--no-profession th:nth-child(1),
+.global-driver-table--no-profession td:nth-child(1) {
+  width: 38%;
+}
+
+.global-driver-table--no-profession th:nth-child(2),
+.global-driver-table--no-profession td:nth-child(2) {
+  width: 21%;
+}
+
+.global-driver-table--no-profession th:nth-child(3),
+.global-driver-table--no-profession td:nth-child(3) {
+  width: 23%;
+}
+
+.global-driver-table--no-profession th:nth-child(4),
+.global-driver-table--no-profession td:nth-child(4) {
+  width: 18%;
+  min-width: 125px;
+}
+
+/* =========================================================
+   SORT
+   ========================================================= */
+
+.global-driver-sort-button {
+  width: auto;
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  border: 0;
+
+  background: transparent;
+  color: inherit;
+
+  font: inherit;
+  text-transform: inherit;
+
+  cursor: pointer;
+}
+
+.global-driver-sort-button i {
+  color: #c4cedd;
+  font-size: 14px;
+}
+
+.global-driver-sort-button:hover i {
+  color: #ffffff;
+}
+
+/* =========================================================
+   NAME
+   ========================================================= */
+
+.global-driver-name-cell {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.global-driver-icon {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #e9f7fa;
+  color: #087f98;
+
+  font-size: 17px;
+}
+
+.global-driver-name-copy,
+.global-driver-name-line {
+  min-width: 0;
+}
+
+.global-driver-name-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.global-driver-primary-text {
+  min-width: 0;
+
+  display: block;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #18283e;
+
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.global-driver-notification-button {
+  width: 27px;
+  height: 27px;
+  flex: 0 0 27px;
+
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #f0d493;
+  border-radius: 6px;
+
+  background: #fff8e8;
+  color: #b67a12;
+
+  font-size: 13px;
+
+  cursor: pointer;
+}
+
+.global-driver-notification-button:hover {
+  background: #fff2d5;
+}
+
+/* =========================================================
+   CHIPS
+   ========================================================= */
+
+.global-driver-profession-chip,
+.global-driver-type-badge,
+.global-driver-system-badge {
+  max-width: 100%;
+  min-height: 28px;
+  padding: 0 10px;
+
+  display: inline-flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  font-size: 10.5px;
+  font-weight: 600;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.global-driver-profession-chip {
+  background: #eaf2ff;
+  color: #536176;
+}
+
+.global-driver-type-badge {
+  background: #f1efff;
+  color: #665ca6;
+}
+
+.global-driver-system-badge {
+  min-height: 24px;
+  padding: 0 8px;
+
+  background: #eef1f5;
+  color: #697586;
+
+  font-size: 9.5px;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.global-driver-status-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.global-driver-switch-label {
+  margin: 0 !important;
+}
+
+.global-driver-status-badge {
+  min-height: 27px;
+  padding: 0 10px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  border-radius: 999px;
+
+  background: #f2f4f7;
+  color: #657082;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.global-driver-status-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+
+  border-radius: 50%;
+
+  background: currentColor;
+}
+
+.global-driver-status-badge--active {
+  background: #eaf8f3;
+  color: #18845f;
+}
+
+.global-driver-status-badge--inactive {
+  background: #fff0f2;
+  color: #cf4052;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.global-driver-actions-heading,
+.global-driver-actions-cell {
+  text-align: center !important;
+}
+
+.global-driver-row-actions {
+  min-width: 112px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  white-space: nowrap;
+}
+
+.global-driver-action-button {
+  width: 34px;
+  height: 34px;
+
+  flex: 0 0 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #d8e0e9;
+  border-radius: 7px;
+
+  background: #ffffff;
+  color: #596679;
+
+  font-size: 15px;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.global-driver-action-button--copy:hover {
+  border-color: #c4d2e7;
+  background: #f3f7fd;
+  color: #4f6f9d;
+}
+
+.global-driver-action-button--edit:hover {
+  border-color: #a9deea;
+  background: #eefafd;
+  color: #0788a2;
+}
+
+.global-driver-action-button--delete:hover {
+  border-color: #f0c2c8;
+  background: #fff2f3;
+  color: #d14455;
+}
+
+/* =========================================================
+   EMPTY
+   ========================================================= */
+
+.global-driver-empty-state {
+  min-height: 260px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+}
+
+/* =========================================================
+   PAGINATION / FOOTER
+   ========================================================= */
+
+.global-driver-pagination-wrap {
+  min-height: 64px;
+  padding: 13px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  border-top: 1px solid var(--gd-border);
+
+  background: #ffffff;
+
+  position: relative;
+  z-index: 1;
+}
+
+/* Neutralise shared fixed-bottom pagination only here. */
+.global-driver-pagination-wrap .fixed-bottom {
+  position: static !important;
+
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.global-driver-pagination-wrap .fixed-bottom > .row,
+.global-driver-pagination-wrap .row {
+  margin: 0 !important;
+}
+
+.global-driver-pagination-wrap .pagination {
+  margin: 0 !important;
+
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.global-driver-pagination-wrap .mb-4 {
+  margin-bottom: 0 !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 991px) {
+  .global-driver-page {
+    padding: 26px 20px 36px;
+  }
+}
+
+@media (max-width: 767px) {
+  .global-driver-page {
+    padding: 20px 12px 30px;
+  }
+
+  .global-driver-page-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .global-driver-page-title {
+    font-size: 24px;
+  }
+
+  .global-driver-add-action {
+    width: 100%;
+  }
+
+  .global-driver-add-action .btn,
+  .global-driver-add-action .create-item-btn {
+    width: 100% !important;
+  }
+
+  .global-driver-tabs {
+    overflow-x: auto;
+  }
+
+  .global-driver-tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .global-driver-toolbar {
+    padding: 12px;
+
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .global-driver-search-wrap {
+    width: 100%;
+  }
+
+  .global-driver-toolbar-meta {
+    justify-content: space-between;
+  }
+
+  .global-driver-pagination-wrap {
+    padding: 13px 12px;
+  }
+}

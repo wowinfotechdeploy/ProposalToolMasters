@@ -1,6 +1,7 @@
 /* global $ */
 import React, { lazy, Suspense, useContext, useEffect, useState } from "react";
 import "./GlobalPricingDriversStyle.css";
+import "./GlobalPricingDriversStyle-redesign.css";
 import CommonButtonComponent from "../../../components/CommonButtonComponent";
 // import Global_Pricing_Driver_model from "./GlobalPricingDriverModel";
 import {
@@ -23,7 +24,9 @@ import SuccessModal from "../../../components/SuccessModal";
 import ErrorModel from "../../../components/ErrorModel";
 import Footer from "../../../components/Footer";
 import RecordsAvailablePopupModel from "../../../components/RecordsAvailablePopupModel";
-const Global_Pricing_Driver_model = lazy(() => import("./GlobalPricingDriverModel"))
+const Global_Pricing_Driver_model = lazy(
+  () => import("./GlobalPricingDriverModel"),
+);
 
 function Predefined_Global_Pricing_Drivers() {
   let getGlobalPricingDriverListApiCallCount = 0;
@@ -45,7 +48,7 @@ function Predefined_Global_Pricing_Drivers() {
     variationKeyID: null,
     userKeyID: null,
     slabKeyID: null,
-    addedFor: null
+    addedFor: null,
   });
   const [primarySortDirectionObj, setPrimarySortDirectionObj] = useState({
     DriverNameSort: null,
@@ -56,7 +59,7 @@ function Predefined_Global_Pricing_Drivers() {
   const [globalPricingDriverList, setGlobalPricingDriverList] = useState([]);
   const common = useSelector((state) => state.Storage); //Getting Logged Users Details From Persist Storage of redux hooks
   const [showProfessionType, setShowProfessionType] = useState(
-    common.organisationKeyID === null || common.professionTypeLists.length > 1
+    common.organisationKeyID === null || common.professionTypeLists.length > 1,
   );
   const [primarySortDirection, setPrimarySortDirection] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState(null);
@@ -85,7 +88,13 @@ function Predefined_Global_Pricing_Drivers() {
 
   useEffect(() => {
     setTopbar("block");
-    GetGlobalPricingDriverListData(1, null, null, null, modelRequestData.addedFor);
+    GetGlobalPricingDriverListData(
+      1,
+      null,
+      null,
+      null,
+      modelRequestData.addedFor,
+    );
   }, []);
   const formattedErrorMessage = handleErrorMessage(errorMessage);
   //2) This useEffect will trigger when we successfully add or update record from popup model
@@ -95,9 +104,21 @@ function Predefined_Global_Pricing_Drivers() {
         setSearchKeyword("");
         setPrimarySortDirection(null);
         setCurrentPage(1);
-        GetGlobalPricingDriverListData(1, null, null, null, modelRequestData.addedFor);
+        GetGlobalPricingDriverListData(
+          1,
+          null,
+          null,
+          null,
+          modelRequestData.addedFor,
+        );
       } else {
-        GetGlobalPricingDriverListData(currentPage, null, null, null, modelRequestData.addedFor);
+        GetGlobalPricingDriverListData(
+          currentPage,
+          null,
+          null,
+          null,
+          modelRequestData.addedFor,
+        );
       }
       setIsAddUpdateActionDone(false);
     }
@@ -110,7 +131,7 @@ function Predefined_Global_Pricing_Drivers() {
     searchKeywordValue,
     sortValue,
     GlobalDriverSortType,
-    addedFor
+    addedFor,
   ) => {
     setLoader(true);
     const pageNoList = i - 1;
@@ -129,7 +150,7 @@ function Predefined_Global_Pricing_Drivers() {
             : GlobalDriverSortType !== null
               ? GlobalDriverSortType
               : null,
-        addedFor: addedFor
+        addedFor: addedFor,
       });
       if (response) {
         if (response?.data?.statusCode === 200) {
@@ -149,7 +170,7 @@ function Predefined_Global_Pricing_Drivers() {
                 searchKeywordValue,
                 sortValue,
                 GlobalDriverSortType,
-                addedFor
+                addedFor,
               );
               setCurrentPage(pageNoList);
               return;
@@ -167,7 +188,7 @@ function Predefined_Global_Pricing_Drivers() {
                 searchKeywordValue,
                 sortValue,
                 GlobalDriverSortType,
-                addedFor
+                addedFor,
               );
             }, 2000);
           } else {
@@ -190,7 +211,8 @@ function Predefined_Global_Pricing_Drivers() {
         ...modelRequestData,
         Action: null,
         globalPricingDriverKeyID: null,
-        addedFor: activeTab === "GlobalProspectDriver" ? "GlobalProspect" : null
+        addedFor:
+          activeTab === "GlobalProspectDriver" ? "GlobalProspect" : null,
       });
     }
   };
@@ -201,7 +223,7 @@ function Predefined_Global_Pricing_Drivers() {
       setLoader(true);
       const data = await GetGlobalPricingDriverModel(
         GPD.globalPricingDriverKeyID,
-        true
+        true,
       );
       if (data?.data?.statusCode === 200) {
         setLoader(false);
@@ -235,7 +257,7 @@ function Predefined_Global_Pricing_Drivers() {
       try {
         const response = await GlobalPricingDriverChangeStatus(
           modelRequestData.globalPricingDriverKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (response) {
           setLoader(false);
@@ -246,7 +268,7 @@ function Predefined_Global_Pricing_Drivers() {
             ) {
               const servicePackageNames =
                 response?.data?.responseData.globalPricingDriverExistsInServices.map(
-                  (item) => item.serviceName
+                  (item) => item.serviceName,
                 );
               setModelRequestData({
                 ...modelRequestData,
@@ -256,21 +278,39 @@ function Predefined_Global_Pricing_Drivers() {
               });
               $("#" + "ConfirmModel").modal("hide");
               $("#" + "RecordsAvailablePopupModel").modal("show");
-              GetGlobalPricingDriverListData(currentPage, null, null, null, modelRequestData.addedFor);
+              GetGlobalPricingDriverListData(
+                currentPage,
+                null,
+                null,
+                null,
+                modelRequestData.addedFor,
+              );
             } else {
               setModelRequestData({
                 ...modelRequestData,
                 Action: null,
                 gloalPricingDriverKeyID: null,
               });
-              GetGlobalPricingDriverListData(currentPage, null, null, null, modelRequestData.addedFor);
+              GetGlobalPricingDriverListData(
+                currentPage,
+                null,
+                null,
+                null,
+                modelRequestData.addedFor,
+              );
               setOpenSuccessModal(true);
             }
           } else {
             setErrorMessage(response?.response?.data?.errorMessage);
             setOpenErrorModal(true);
           }
-          GetGlobalPricingDriverListData(currentPage, null, null, null, modelRequestData.addedFor);
+          GetGlobalPricingDriverListData(
+            currentPage,
+            null,
+            null,
+            null,
+            modelRequestData.addedFor,
+          );
         }
       } catch (error) {
         console.log(error);
@@ -279,7 +319,7 @@ function Predefined_Global_Pricing_Drivers() {
       try {
         const response = await DeleteGlobalPricingDriver(
           modelRequestData.globalPricingDriverKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (response) {
           setLoader(false);
@@ -290,7 +330,7 @@ function Predefined_Global_Pricing_Drivers() {
             ) {
               const servicePackageNames =
                 response?.data?.responseData.globalPricingDriverExistsInServices.map(
-                  (item) => item.serviceName
+                  (item) => item.serviceName,
                 );
               setModelRequestData({
                 ...modelRequestData,
@@ -300,16 +340,34 @@ function Predefined_Global_Pricing_Drivers() {
               });
               $("#" + "ConfirmModel").modal("hide");
               $("#" + "RecordsAvailablePopupModel").modal("show");
-              GetGlobalPricingDriverListData(currentPage, null, null, null, modelRequestData.addedFor);
+              GetGlobalPricingDriverListData(
+                currentPage,
+                null,
+                null,
+                null,
+                modelRequestData.addedFor,
+              );
             } else {
-              GetGlobalPricingDriverListData(currentPage, null, null, null, modelRequestData.addedFor);
+              GetGlobalPricingDriverListData(
+                currentPage,
+                null,
+                null,
+                null,
+                modelRequestData.addedFor,
+              );
               setOpenSuccessModal(true);
             }
           } else {
             setErrorMessage(response?.response?.data?.errorMessage);
             setOpenErrorModal(true);
           }
-          GetGlobalPricingDriverListData(currentPage, null, null, null, modelRequestData.addedFor);
+          GetGlobalPricingDriverListData(
+            currentPage,
+            null,
+            null,
+            null,
+            modelRequestData.addedFor,
+          );
         }
       } catch (error) {
         console.log(error);
@@ -317,26 +375,27 @@ function Predefined_Global_Pricing_Drivers() {
     }
   };
   // Copy
-  const CopyGlobalPricingDriverData = async() => {
-    if(!common.userKeyID) return;
-    try{
+  const CopyGlobalPricingDriverData = async () => {
+    if (!common.userKeyID) return;
+    try {
       setLoader(true);
-      const data = await CopyGlobalPricingDriver(modelRequestData.globalPricingDriverKeyID,common.userKeyID);
-      if(data?.data?.statusCode === 200) {
+      const data = await CopyGlobalPricingDriver(
+        modelRequestData.globalPricingDriverKeyID,
+        common.userKeyID,
+      );
+      if (data?.data?.statusCode === 200) {
         setLoader(false);
         setOpenSuccessModal(true);
         GetGlobalPricingDriverListData(currentPage);
-      }
-      else {
+      } else {
         setLoader(false);
         setErrorMessage(data?.data?.errorMessage);
         setOpenErrorModal(true);
       }
-    }
-    catch(error) {
+    } catch (error) {
       console.error(error);
     }
-  }
+  };
   // F] Pagination :
   const handlePageChange = async (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -358,7 +417,7 @@ function Predefined_Global_Pricing_Drivers() {
         searchKeyword,
         sortValue,
         GlobalDriverSortType,
-        modelRequestData.addedFor
+        modelRequestData.addedFor,
       );
     } else if (GlobalDriverSortType == "ProfessionType") {
       setPrimarySortDirection(sortValue);
@@ -372,7 +431,7 @@ function Predefined_Global_Pricing_Drivers() {
         searchKeyword,
         sortValue,
         GlobalDriverSortType,
-        modelRequestData.addedFor
+        modelRequestData.addedFor,
       );
     } else if (GlobalDriverSortType == "DriverTypeName") {
       setPrimarySortDirection(sortValue);
@@ -386,7 +445,7 @@ function Predefined_Global_Pricing_Drivers() {
         searchKeyword,
         sortValue,
         GlobalDriverSortType,
-        modelRequestData.addedFor
+        modelRequestData.addedFor,
       );
     }
   };
@@ -396,7 +455,13 @@ function Predefined_Global_Pricing_Drivers() {
     const searchKeywordValue = e.target.value;
     setSearchKeyword(searchKeywordValue);
     setCurrentPage(1);
-    GetGlobalPricingDriverListData(1, searchKeywordValue, null, null, modelRequestData.addedFor);
+    GetGlobalPricingDriverListData(
+      1,
+      searchKeywordValue,
+      null,
+      null,
+      modelRequestData.addedFor,
+    );
   };
 
   const handleClose = () => {
@@ -411,8 +476,8 @@ function Predefined_Global_Pricing_Drivers() {
       setActiveTab(tab);
       setModelRequestData({
         ...modelRequestData,
-        addedFor: null
-      })
+        addedFor: null,
+      });
       if (common.organisationKeyID !== null) {
         GetGlobalPricingDriverListData(1, null, null, null);
       }
@@ -459,614 +524,564 @@ function Predefined_Global_Pricing_Drivers() {
         setModelRequestData({
           ...modelRequestData,
           Action: null,
-          addedFor: "GlobalProspect"
+          addedFor: "GlobalProspect",
         });
       } catch (error) {
         setLoader(false);
         console.log(error);
         setErrorMessage(true);
-      }
-      finally {
+      } finally {
         setLoader(false);
       }
     }
   };
 
   //Design part :
+  const canAdd =
+    common.organisationKeyID !== null
+      ? userAccessData.Admin_Config_Global_Driver_CanAdd
+      : userAccessData.SuperAdmin_Config_Global_Driver_CanAdd;
+
+  const canEdit =
+    (userAccessData.Admin_Config_Global_Driver_CanEdit &&
+      common.organisationKeyID !== null) ||
+    (userAccessData.SuperAdmin_Config_Global_Driver_CanEdit &&
+      common.organisationKeyID === null);
+
+  const canDelete =
+    (userAccessData.Admin_Config_Global_Driver_CanDelete &&
+      common.organisationKeyID !== null) ||
+    (userAccessData.SuperAdmin_Config_Global_Driver_CanDelete &&
+      common.organisationKeyID === null);
+
+  const currentModuleName =
+    activeTab === "GlobalProspectDriver"
+      ? moduleNameGlobalProspect
+      : moduleName;
+
   return (
     <>
-   <div className="container-fluid">
-      {/* <div class="main-content"> */}
-        <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                          <div className="row">
-                            <div className="col-md-6 p-0 ">
-                  {/* <div class="page-title-cls">Global Pricing Drivers</div> */}
-                  <div class="container">
-              <ul className="nav nav-tabs" role="tablist">
-              {/* <div class="page-title-cls">Pricing Settings</div> */}
-              <li className="nav-item">
-                                <a
-                                  className={`nav-link tab_nav ${
-                                    activeTab === "GlobalPricingDriver" ? "active" : ""
-                                  }`}
-                                  data-bs-toggle="tab"
-                                  href="#GlobalPricingDriver"
-                                  role="tab"
-                                  aria-selected={activeTab === "GlobalPricingDriver"}
-                                  onClick={() => {
-                                    setActiveTab("GlobalPricingDriver");
-                                    // setSelectedRows([]);
-                                    TabHandle("GlobalPricingDriver");
-                                  }}
-                                >
-                                  <b>Global Pricing Drivers{" "}</b>
-                                </a>
-                              </li>
-                              {common.organisationKeyID !== null && 
-                               <li className="nav-item">
-                                  <a
-                                    className={`nav-link tab_nav ${
-                                      activeTab === "GlobalProspectDriver"
-                                        ? "active"
-                                        : ""
-                                    }`}
-                                    data-bs-toggle="tab"
-                                    href="#GlobalProspectDriver"
-                                    role="tab"
-                                    aria-selected={activeTab === "GlobalProspectDriver"}
-                                    onClick={() => {
-                                      setActiveTab("GlobalProspectDriver");
-                                      // setSelectedRows([]);
-                                      TabHandle("GlobalProspectDriver");
-                                    }}
-                                  >
-                                    <b>Global Prospect Variables{" "}</b>
-                                  </a>
-                                </li>
-                              }
-                        </ul>
+      <div className="global-driver-redesign">
+        <div className="global-driver-page">
+          {/* =========================
+              PAGE HEADER + TABS
+              ========================= */}
+          <div className="global-driver-page-header">
+            <div className="global-driver-heading-block">
+              <h1 className="global-driver-page-title">Drivers</h1>
+              <p className="global-driver-page-subtitle">
+                Manage global pricing drivers and prospect variables.
+              </p>
             </div>
-                </div>
-                <div className="col-auto ms-auto">
-                  <div className="d-flex justify-content-sm-end add-new-letter">
-                    {(common.organisationKeyID !== null
-                      ? userAccessData.Admin_Config_Global_Driver_CanAdd
-                      : userAccessData.SuperAdmin_Config_Global_Driver_CanAdd) && (
-                      <CommonButtonComponent
-                        title={getCrudButtonToolTipName(
-                          "Add",
-                          activeTab === "GlobalProspectDriver" ? moduleNameGlobalProspect : moduleName
-                        )}
-                        dataBsTarget="#GlobalPricingModel"
-                        data_bs_toggle="modal"
-                        AddBtn={() => {
-                          GlobalPricingDriverAddBtnClicked();
-                        }}
-                        name={getCrudButtonTextName(
-                          "Add",
-                          activeTab === "GlobalProspectDriver" ? moduleNameGlobalProspect : moduleName
-                        )}
-                      />
-                    )}
-                  </div>
-                </div>
-                </div>
-                </div>
+
+            {canAdd && (
+              <div className="global-driver-add-action">
+                <CommonButtonComponent
+                  title={getCrudButtonToolTipName("Add", currentModuleName)}
+                  dataBsTarget="#GlobalPricingModel"
+                  data_bs_toggle="modal"
+                  AddBtn={() => {
+                    GlobalPricingDriverAddBtnClicked();
+                  }}
+                  name={getCrudButtonTextName("Add", currentModuleName)}
+                />
               </div>
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
-                        <div class="search-box ms-2 width-searchbox">
-                          <div class="row">
-                            <div className="col-lg-12 col-md-12 col-sm-12 ">
-                              <div className="row align-items-center">
-                                <div className="col-3 mb-2">
-                                  <div class="search-box w-100 width-searchbox">
-                          <i class="ri-search-line search-icon"></i>
-                          <input
-                            type="text"
-                            value={searchKeyword}
-                            onChange={(e) => {
-                              handleSearch(e);
-                            }}
-                            className="form-control search"
-                            placeholder={
-                              isMobile
-                                ? "Search"
-                                : getPlaceholderTextName("Search", activeTab === "GlobalProspectDriver" ? moduleNameGlobalProspect : moduleName)
-                            }
-                          />
-                        </div>
-                        </div>
-                </div>
-                </div>
-                </div>
-                        </div>
-                        <table
-                          class="table align-middle table-nowrap"
-                          id="customerTable"
-                        >
-                          <thead class="table-light table-header-font">
-                            <tr className="head-row">
-                              <td
-                                className="tr-table-class text-white"
-                                style={{ width: "40%" }}
-                              >
-                                {activeTab === "GlobalPricingDriver"
-                                  ? "Driver Name " : "Variable Name "}
-                                {primarySortDirectionObj.DriverNameSort ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("DriverName");
-                                        handleSort("asc", "DriverName");
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primarySortDirectionObj.DriverNameSort ===
-                                  null ||
-                                  primarySortDirectionObj.DriverNameSort ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("DriverName");
-                                        handleSort(
-                                          primarySortDirectionObj.DriverNameSort ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "DriverName"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class text-white profession-type-column">
-                                {showProfessionType && (
-                                  <>
-                                    Profession Type{" "}
-                                    {primarySortDirectionObj.ProfessionTypeSort ===
-                                      "desc" && (
-                                        <i
-                                          onClick={() => {
-                                            setSortType("ProfessionType");
-                                            handleSort("asc", "ProfessionType");
-                                          }}
-                                          style={{ cursor: "pointer" }}
-                                          class="fas fa-sort-alpha-up ml-1"
-                                        ></i>
-                                      )}
-                                    {(primarySortDirectionObj.ProfessionTypeSort ===
-                                      null ||
-                                      primarySortDirectionObj.ProfessionTypeSort ===
-                                      "asc") && (
-                                        <i
-                                          onClick={() => {
-                                            setSortType("ProfessionType");
-                                            handleSort(
-                                              primarySortDirectionObj.ProfessionTypeSort ===
-                                                null
-                                                ? "asc"
-                                                : "desc",
-                                              "ProfessionType"
-                                            );
-                                          }}
-                                          style={{ cursor: "pointer" }}
-                                          class="fas fa-sort-alpha-down ml-1"
-                                        ></i>
-                                      )}
-                                  </>
-                                )}
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Type{" "}
-                                {primarySortDirectionObj.TypeSort ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("DriverTypeName");
-                                        handleSort("asc", "DriverTypeName");
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primarySortDirectionObj.TypeSort === null ||
-                                  primarySortDirectionObj.TypeSort ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("DriverTypeName");
-                                        handleSort(
-                                          primarySortDirectionObj.TypeSort ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "DriverTypeName"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Status
-                              </td>
-                              <td className="tr-table-class text-white">
-                                {((userAccessData.Admin_Config_Global_Driver_CanEdit &&
-                                  common.organisationKeyID !== null) ||
-                                  (userAccessData.SuperAdmin_Config_Global_Driver_CanEdit &&
-                                    common.organisationKeyID === null) ||
-                                  (userAccessData.Admin_Config_Global_Driver_CanDelete &&
-                                    common.organisationKeyID !== null) ||
-                                  (userAccessData.SuperAdmin_Config_Global_Driver_CanDelete &&
-                                    common.organisationKeyID === null)) && (
-                                    <>Action</>
-                                  )}
-                              </td>
-                            </tr>
-                          </thead>
-                          <tbody class="list form-check-all">
-                            {globalPricingDriverList
-                              .slice(
-                                0,
-                                isMobile ? isMobileRecords : desktopRecords
-                              )
-                              .map((PricingDriver) => {
-                                return (
-                                  <tr class="table_new ">
-                                    <td className="table-content-font">
-                                      {/* {PricingDriver.driverName} */}
-                                      {PricingDriver.notifySAChanges !== null && common.organisationKeyID !== null && (
-                                        <>
-                                          <Tooltip
-                                            title="View System Administrator Changes"
-
-                                          >
-                                            <span onClick={() =>
-
-                                              GlobalPricingDriverEditBtnClicked(
-                                                PricingDriver, "editPredefined"
-                                              )
-                                            }
-                                              className="UpdateConfigValue"
-                                            // data-bs-toggle="modal"
-
-                                            // data-bs-target="#GlobalPricingModel"
-                                            ><i class="fa fa-regular fa-bell"></i></span>
-                                          </Tooltip>
-                                        </>
-                                      )}
-                                      {isMobile ? (
-                                        <>
-                                          {PricingDriver.driverName.length > 20
-                                            ? PricingDriver.driverName
-                                              .substring(0, 20)
-                                              .replace(/\b\w/g, (l) =>
-                                                l.toUpperCase()
-                                              ) + "..."
-                                            : PricingDriver.driverName
-                                              .substring(0, 20)
-                                              .replace(/\b\w/g, (l) =>
-                                                l.toUpperCase()
-                                              )}
-                                        </>
-                                      ) : (
-                                        <>
-                                          {PricingDriver.driverName.length >
-                                            71 ? (
-                                            <Tooltip
-                                              title={PricingDriver.driverName}
-                                            >
-                                              {PricingDriver.driverName
-                                                .substring(0, 71)
-                                                .replace(/\b\w/g, (l) =>
-                                                  l.toUpperCase()
-                                                ) + "..."}
-                                            </Tooltip>
-                                          ) : (
-                                            <>
-                                              {PricingDriver.driverName
-                                                .replace(/\b\w/g, (l) =>
-                                                  l.toUpperCase()
-                                                )}
-                                            </>
-                                          )}
-                                        </>
-                                      )}
-
-                                    </td>
-
-                                    <td className="table-content-font">
-                                      {showProfessionType &&
-                                        PricingDriver.professionTypeNames}
-                                    </td>
-
-                                    <td className="table-content-font">
-                                      {" "}
-                                      {PricingDriver.driverType}
-                                    </td>
-                                    <td
-                                      style={{
-                                        verticalAlign:
-                                          PricingDriver.addedFor !==
-                                            "Predefined-NOB" &&
-                                            PricingDriver.addedFor !==
-                                            "Predefined-PT"
-                                            ? ""
-                                            : "middle",
-                                      }}
-                                      className="Switch"
-                                    >
-                                      <div
-                                        style={{
-                                          alignItems: "none",
-                                          marginLeft:
-                                            ((userAccessData.Admin_Config_Global_Driver_CanEdit &&
-                                              common.organisationKeyID !==
-                                              null) ||
-                                              (userAccessData.SuperAdmin_Config_Global_Driver_CanEdit &&
-                                                common.organisationKeyID ===
-                                                null)) &&
-                                              ((userAccessData.Admin_Config_Global_Driver_CanDelete &&
-                                                common.organisationKeyID !==
-                                                null) ||
-                                                (userAccessData.SuperAdmin_Config_Global_Driver_CanDelete &&
-                                                  common.organisationKeyID ===
-                                                  null))
-                                              ? ""
-                                              : "10px",
-                                        }}
-                                        class="d-flex gap-2 "
-                                      >
-                                        <div style={{ width: "50px" }}>
-                                          {" "}
-                                          {PricingDriver.statusName}
-                                        </div>
-                                        {((userAccessData.Admin_Config_Global_Driver_CanDelete &&
-                                          common.organisationKeyID !== null) ||
-                                          (userAccessData.SuperAdmin_Config_Global_Driver_CanDelete &&
-                                            common.organisationKeyID ===
-                                            null)) &&
-                                          PricingDriver.addedFor !==
-                                          "Predefined-NOB" &&
-                                          PricingDriver.addedFor !==
-                                          "Predefined-PT" && (
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "Change Status"
-                                              )}
-                                            >
-                                              <FormGroup>
-                                                <FormControlLabel
-                                                  control={
-                                                    <Android12Switch
-                                                      onClick={() =>
-                                                        setModelRequestData({
-                                                          ...modelRequestData,
-                                                          status:
-                                                            PricingDriver.statusName,
-                                                          globalPricingDriverKeyID:
-                                                            PricingDriver.globalPricingDriverKeyID,
-                                                          userKeyID:
-                                                            common.userKeyID,
-                                                          Action: "Status",
-                                                        })
-                                                      }
-                                                      checked={
-                                                        PricingDriver.statusName ===
-                                                        "Active"
-                                                      }
-                                                      data-bs-toggle="modal"
-                                                      data-bs-target="#ConfirmModel"
-                                                    />
-                                                  }
-                                                />
-                                              </FormGroup>
-                                            </Tooltip>
-                                          )}
-                                      </div>
-                                    </td>
-
-                                    <td className="table-content-font">
-                                      <div class="d-flex gap-2">
-                                      <Tooltip
-                                          title={getCrudButtonToolTipName(
-                                            "Copy",
-                                            moduleName
-                                          )}
-                                        >
-                                          <div class="copy">
-                                            <button
-                                              class="btn btn-sm btn-success edit-item-btn edit"
-                                              data-bs-toggle="modal"
-                                              data-bs-target="#ConfirmModel"
-                                              onClick={() =>
-                                                setModelRequestData({
-                                                  ...modelRequestData,
-                                                  Action: "Copy",
-                                                  driverName: PricingDriver.driverName,
-                                                  globalPricingDriverKeyID: PricingDriver.globalPricingDriverKeyID,
-                                                  userKeyID: common.userKeyID
-                                                })
-                                              }
-                                            >
-                                              <i class="fa-solid fa-copy"></i>
-                                            </button>
-                                          </div>
-                                        </Tooltip>
-                                        {((userAccessData.Admin_Config_Global_Driver_CanEdit &&
-                                          common.organisationKeyID !== null) ||
-                                          (userAccessData.SuperAdmin_Config_Global_Driver_CanEdit &&
-                                            common.organisationKeyID ===
-                                            null)) && (
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "Update",
-                                                moduleName
-                                              )}
-                                            >
-                                              <div class="edit">
-                                                <button
-                                                  onClick={() =>
-                                                    GlobalPricingDriverEditBtnClicked(
-                                                      PricingDriver
-                                                    )
-                                                  }
-                                                  class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
-                                                  data-bs-toggle="modal"
-                                                  data-bs-target="#GlobalPricingModel"
-                                                >
-                                                  <i class="ri-pencil-fill"></i>
-                                                </button>
-                                              </div>
-                                            </Tooltip>
-                                          )}
-                                        {((userAccessData.Admin_Config_Global_Driver_CanDelete &&
-                                          common.organisationKeyID !== null) ||
-                                          (userAccessData.SuperAdmin_Config_Global_Driver_CanDelete &&
-                                            common.organisationKeyID ===
-                                            null)) &&
-                                          PricingDriver.addedFor !==
-                                          "Predefined-NOB" &&
-                                          PricingDriver.addedFor !==
-                                          "Predefined-PT" && (
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "Delete",
-                                                moduleName
-                                              )}
-                                            >
-                                              <div class="remove">
-                                                <button
-                                                  class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                                  data-bs-toggle="modal"
-                                                  data-bs-target="#ConfirmModel"
-                                                  onClick={() =>
-                                                    setModelRequestData({
-                                                      ...modelRequestData,
-                                                      globalPricingDriverKeyID:
-                                                        PricingDriver.globalPricingDriverKeyID,
-                                                      driverName:
-                                                        PricingDriver.driverName,
-                                                      userKeyID:
-                                                        common.userKeyID,
-                                                      Action: "Delete",
-                                                    })
-                                                  }
-                                                >
-                                                  <i class="ri-delete-bin-5-fill"></i>
-                                                </button>
-                                              </div>
-                                            </Tooltip>
-                                          )}
-                                      </div>
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                          </tbody>
-                        </table>
-                        {totalRecords <= 0 && (
-                          <NoResultFoundModel
-                            name={activeTab === "GlobalProspectDriver" ? moduleNameGlobalProspect : moduleName}
-                            totalRecords={totalRecords}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  {listCount > pageSize && (
-                    <PaginationComponent
-                      totalCount={listCount}
-                      totalPages={totalPage}
-                      currentPage={currentPage}
-                      onPageChange={handlePageChange}
-                    />
-                  )}
-                  </div>
-                  {/* end card  */}
-                </div>
-                {/* end col */}
-              </div>
-              {/* end col  */}
-            </div>
-            {/* end row */}
-
-            <ErrorModel
-              ErrorModel={openErrorModal}
-              handleClose={handleClose}
-              ErrorMessage={formattedErrorMessage}
-            />
-            {/* Confirm Modal  */}
-            <ConfirmModel
-              openErrorModal={openErrorModal}
-              openSuccessModal={openSuccessModal}
-              modelRequestData={modelRequestData}
-              UpdatedStatus={modelRequestData.Action === "Delete" || modelRequestData.Action === "Status" ? GlobalPricingDriverChangeStatusDataAndDeleteData : CopyGlobalPricingDriverData}
-            />
-
-            <RecordsAvailablePopupModel
-              handleClose={handleClose}
-              openErrorModal={openErrorModal}
-              openSuccessModal={openSuccessModal}
-              modelRequestData={modelRequestData}
-              UpdatedStatus={GlobalPricingDriverChangeStatusDataAndDeleteData}
-            />
-
-            {/* Success Modal  */}
-            <SuccessModal
-              handleClose={handleClose}
-              setOpenSuccessModal={setOpenSuccessModal}
-              openSuccessModal={openSuccessModal}
-              modelAction={modelRequestData.Action}
-              message={`${
-                modelRequestData.Action === "Delete"
-                  ? `${moduleName} ${modelRequestData.driverName}`
-                  : modelRequestData.Action === "Copy"
-                  ? `Copy of ${modelRequestData.driverName} has been created successfully!`
-                  : "Status has been changed successfully!"
-              }`}
-            />
-            {/* Model */}
-            <Suspense>
-            <Global_Pricing_Driver_model
-              class="modal fade"
-              id="GlobalPricingModel"
-              tabIndex="-1"
-              aria_labelledby="exampleModalLabel"
-              aria_hidden="true"
-              setIsAddUpdateActionDone={setIsAddUpdateActionDone}
-              modelRequestData={modelRequestData}
-            />
-            </Suspense>
+            )}
           </div>
+
+          <div className="global-driver-tabs" role="tablist">
+            <button
+              type="button"
+              className={`global-driver-tab ${
+                activeTab === "GlobalPricingDriver" ? "is-active" : ""
+              }`}
+              role="tab"
+              aria-selected={activeTab === "GlobalPricingDriver"}
+              onClick={() => {
+                setActiveTab("GlobalPricingDriver");
+                TabHandle("GlobalPricingDriver");
+              }}
+            >
+              {/* <i className="ri-line-chart-line"></i> */}
+              <span>Global Pricing Drivers</span>
+            </button>
+
+            {common.organisationKeyID !== null && (
+              <button
+                type="button"
+                className={`global-driver-tab ${
+                  activeTab === "GlobalProspectDriver" ? "is-active" : ""
+                }`}
+                role="tab"
+                aria-selected={activeTab === "GlobalProspectDriver"}
+                onClick={() => {
+                  setActiveTab("GlobalProspectDriver");
+                  TabHandle("GlobalProspectDriver");
+                }}
+              >
+                {/* <i className="ri-user-settings-line"></i> */}
+                <span>Global Prospect Variables</span>
+              </button>
+            )}
+          </div>
+
+          {/* =========================
+              LIST CARD
+              ========================= */}
+          <section className="global-driver-list-card">
+            <div className="global-driver-toolbar">
+              <div className="global-driver-search-wrap">
+                <i className="ri-search-line global-driver-search-icon"></i>
+
+                <input
+                  type="text"
+                  value={searchKeyword || ""}
+                  onChange={handleSearch}
+                  className="global-driver-search-input"
+                  placeholder={
+                    isMobile
+                      ? "Search"
+                      : getPlaceholderTextName("Search", currentModuleName)
+                  }
+                />
+              </div>
+
+              <div className="global-driver-toolbar-meta">
+                {/* <span className="global-driver-current-view">
+                  {activeTab === "GlobalProspectDriver"
+                    ? "Prospect Variables"
+                    : "Pricing Drivers"}
+                </span> */}
+
+                {/* {listCount > 0 && (
+                  <span className="global-driver-record-count">
+                    {listCount} {listCount === 1 ? "record" : "records"}
+                  </span>
+                )} */}
+              </div>
+            </div>
+
+            <div className="global-driver-table-wrap">
+              <table
+                className={`global-driver-table ${
+                  !showProfessionType
+                    ? "global-driver-table--no-profession"
+                    : ""
+                }`}
+                id="customerTable"
+              >
+                <thead>
+                  <tr>
+                    <th>
+                      <button
+                        type="button"
+                        className="global-driver-sort-button"
+                        onClick={() => {
+                          setSortType("DriverName");
+                          handleSort(
+                            primarySortDirectionObj.DriverNameSort === null
+                              ? "asc"
+                              : primarySortDirectionObj.DriverNameSort === "asc"
+                                ? "desc"
+                                : "asc",
+                            "DriverName",
+                          );
+                        }}
+                      >
+                        <span>
+                          {activeTab === "GlobalPricingDriver"
+                            ? "Driver Name"
+                            : "Variable Name"}
+                        </span>
+
+                        <i
+                          className={
+                            primarySortDirectionObj.DriverNameSort === "desc"
+                              ? "ri-arrow-up-line"
+                              : "ri-arrow-down-line"
+                          }
+                        ></i>
+                      </button>
+                    </th>
+
+                    {showProfessionType && (
+                      <th>
+                        <button
+                          type="button"
+                          className="global-driver-sort-button"
+                          onClick={() => {
+                            setSortType("ProfessionType");
+                            handleSort(
+                              primarySortDirectionObj.ProfessionTypeSort ===
+                                null
+                                ? "asc"
+                                : primarySortDirectionObj.ProfessionTypeSort ===
+                                    "asc"
+                                  ? "desc"
+                                  : "asc",
+                              "ProfessionType",
+                            );
+                          }}
+                        >
+                          <span>Profession Type</span>
+
+                          <i
+                            className={
+                              primarySortDirectionObj.ProfessionTypeSort ===
+                              "desc"
+                                ? "ri-arrow-up-line"
+                                : "ri-arrow-down-line"
+                            }
+                          ></i>
+                        </button>
+                      </th>
+                    )}
+
+                    <th>
+                      <button
+                        type="button"
+                        className="global-driver-sort-button"
+                        onClick={() => {
+                          setSortType("DriverTypeName");
+                          handleSort(
+                            primarySortDirectionObj.TypeSort === null
+                              ? "asc"
+                              : primarySortDirectionObj.TypeSort === "asc"
+                                ? "desc"
+                                : "asc",
+                            "DriverTypeName",
+                          );
+                        }}
+                      >
+                        <span>Type</span>
+
+                        <i
+                          className={
+                            primarySortDirectionObj.TypeSort === "desc"
+                              ? "ri-arrow-up-line"
+                              : "ri-arrow-down-line"
+                          }
+                        ></i>
+                      </button>
+                    </th>
+
+                    <th>Status</th>
+
+                    <th className="global-driver-actions-heading">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {globalPricingDriverList
+                    .slice(0, isMobile ? isMobileRecords : desktopRecords)
+                    .map((PricingDriver) => {
+                      const driverName =
+                        PricingDriver.driverName?.replace(/\b\w/g, (l) =>
+                          l.toUpperCase(),
+                        ) || "-";
+
+                      const statusClass = (PricingDriver.statusName || "")
+                        .toLowerCase()
+                        .replace(/\s+/g, "-");
+
+                      const isProtectedDriver =
+                        PricingDriver.addedFor === "Predefined-NOB" ||
+                        PricingDriver.addedFor === "Predefined-PT";
+
+                      return (
+                        <tr
+                          className="global-driver-table-row"
+                          key={
+                            PricingDriver.globalPricingDriverKeyID ||
+                            PricingDriver.driverName
+                          }
+                        >
+                          <td>
+                            <div className="global-driver-name-cell">
+                              {/* <span className="global-driver-icon">
+                                <i
+                                  className={
+                                    activeTab === "GlobalProspectDriver"
+                                      ? "ri-user-settings-line"
+                                      : "ri-line-chart-line"
+                                  }
+                                ></i>
+                              </span> */}
+
+                              <div className="global-driver-name-copy">
+                                <div className="global-driver-name-line">
+                                  {PricingDriver.notifySAChanges !== null &&
+                                    common.organisationKeyID !== null && (
+                                      <Tooltip title="View System Administrator Changes">
+                                        <button
+                                          type="button"
+                                          className="global-driver-notification-button"
+                                          onClick={() =>
+                                            GlobalPricingDriverEditBtnClicked(
+                                              PricingDriver,
+                                              "editPredefined",
+                                            )
+                                          }
+                                        >
+                                          <i className="ri-notification-3-line"></i>
+                                        </button>
+                                      </Tooltip>
+                                    )}
+
+                                  <Tooltip
+                                    title={
+                                      driverName.length > 55
+                                        ? PricingDriver.driverName
+                                        : ""
+                                    }
+                                  >
+                                    <span className="global-driver-primary-text">
+                                      {isMobile && driverName.length > 24
+                                        ? `${driverName.substring(0, 24)}...`
+                                        : !isMobile && driverName.length > 55
+                                          ? `${driverName.substring(0, 55)}...`
+                                          : driverName}
+                                    </span>
+                                  </Tooltip>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          {showProfessionType && (
+                            <td>
+                              <span
+                                className="global-driver-profession-chip"
+                                title={PricingDriver.professionTypeNames}
+                              >
+                                {PricingDriver.professionTypeNames || "-"}
+                              </span>
+                            </td>
+                          )}
+
+                          <td>
+                            <span className="global-driver-type-badge">
+                              {PricingDriver.driverType || "-"}
+                            </span>
+                          </td>
+
+                          <td>
+                            <div className="global-driver-status-control">
+                              <span
+                                className={`global-driver-status-badge global-driver-status-badge--${statusClass}`}
+                              >
+                                <span className="global-driver-status-dot"></span>
+                                {PricingDriver.statusName || "-"}
+                              </span>
+
+                              {canDelete && !isProtectedDriver && (
+                                <Tooltip
+                                  title={getCrudButtonToolTipName(
+                                    "Change Status",
+                                  )}
+                                >
+                                  <FormGroup>
+                                    <FormControlLabel
+                                      className="global-driver-switch-label"
+                                      control={
+                                        <Android12Switch
+                                          onClick={() =>
+                                            setModelRequestData({
+                                              ...modelRequestData,
+                                              status: PricingDriver.statusName,
+                                              globalPricingDriverKeyID:
+                                                PricingDriver.globalPricingDriverKeyID,
+                                              userKeyID: common.userKeyID,
+                                              Action: "Status",
+                                            })
+                                          }
+                                          checked={
+                                            PricingDriver.statusName ===
+                                            "Active"
+                                          }
+                                          data-bs-toggle="modal"
+                                          data-bs-target="#ConfirmModel"
+                                        />
+                                      }
+                                    />
+                                  </FormGroup>
+                                </Tooltip>
+                              )}
+
+                              {isProtectedDriver && (
+                                <span className="global-driver-system-badge">
+                                  System
+                                </span>
+                              )}
+                            </div>
+                          </td>
+
+                          <td className="global-driver-actions-cell">
+                            <div className="global-driver-row-actions">
+                              <Tooltip
+                                title={getCrudButtonToolTipName(
+                                  "Copy",
+                                  moduleName,
+                                )}
+                              >
+                                <button
+                                  type="button"
+                                  className="global-driver-action-button global-driver-action-button--copy"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#ConfirmModel"
+                                  onClick={() =>
+                                    setModelRequestData({
+                                      ...modelRequestData,
+                                      Action: "Copy",
+                                      driverName: PricingDriver.driverName,
+                                      globalPricingDriverKeyID:
+                                        PricingDriver.globalPricingDriverKeyID,
+                                      userKeyID: common.userKeyID,
+                                    })
+                                  }
+                                >
+                                  <i className="ri-file-copy-line"></i>
+                                </button>
+                              </Tooltip>
+
+                              {canEdit && (
+                                <Tooltip
+                                  title={getCrudButtonToolTipName(
+                                    "Update",
+                                    moduleName,
+                                  )}
+                                >
+                                  <button
+                                    type="button"
+                                    className="global-driver-action-button global-driver-action-button--edit"
+                                    onClick={() =>
+                                      GlobalPricingDriverEditBtnClicked(
+                                        PricingDriver,
+                                      )
+                                    }
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#GlobalPricingModel"
+                                  >
+                                    <i className="ri-pencil-line"></i>
+                                  </button>
+                                </Tooltip>
+                              )}
+
+                              {canDelete && !isProtectedDriver && (
+                                <Tooltip
+                                  title={getCrudButtonToolTipName(
+                                    "Delete",
+                                    moduleName,
+                                  )}
+                                >
+                                  <button
+                                    type="button"
+                                    className="global-driver-action-button global-driver-action-button--delete"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#ConfirmModel"
+                                    onClick={() =>
+                                      setModelRequestData({
+                                        ...modelRequestData,
+                                        globalPricingDriverKeyID:
+                                          PricingDriver.globalPricingDriverKeyID,
+                                        driverName: PricingDriver.driverName,
+                                        userKeyID: common.userKeyID,
+                                        Action: "Delete",
+                                      })
+                                    }
+                                  >
+                                    <i className="ri-delete-bin-line"></i>
+                                  </button>
+                                </Tooltip>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+
+              {totalRecords <= 0 && (
+                <div className="global-driver-empty-state">
+                  <NoResultFoundModel
+                    name={currentModuleName}
+                    totalRecords={totalRecords}
+                  />
+                </div>
+              )}
+            </div>
+
+            {listCount > pageSize && (
+              <div className="global-driver-pagination-wrap">
+                <PaginationComponent
+                  totalCount={listCount}
+                  totalPages={totalPage}
+                  currentPage={currentPage}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
+          </section>
         </div>
-        {/* container-fluid  */}
+
+        {/* =========================
+            EXISTING FUNCTIONAL MODALS
+            ========================= */}
+        <ErrorModel
+          ErrorModel={openErrorModal}
+          handleClose={handleClose}
+          ErrorMessage={formattedErrorMessage}
+        />
+
+        <ConfirmModel
+          openErrorModal={openErrorModal}
+          openSuccessModal={openSuccessModal}
+          modelRequestData={modelRequestData}
+          UpdatedStatus={
+            modelRequestData.Action === "Delete" ||
+            modelRequestData.Action === "Status"
+              ? GlobalPricingDriverChangeStatusDataAndDeleteData
+              : CopyGlobalPricingDriverData
+          }
+        />
+
+        <RecordsAvailablePopupModel
+          handleClose={handleClose}
+          openErrorModal={openErrorModal}
+          openSuccessModal={openSuccessModal}
+          modelRequestData={modelRequestData}
+          UpdatedStatus={GlobalPricingDriverChangeStatusDataAndDeleteData}
+        />
+
+        <SuccessModal
+          handleClose={handleClose}
+          setOpenSuccessModal={setOpenSuccessModal}
+          openSuccessModal={openSuccessModal}
+          modelAction={modelRequestData.Action}
+          message={`${
+            modelRequestData.Action === "Delete"
+              ? `${moduleName} ${modelRequestData.driverName}`
+              : modelRequestData.Action === "Copy"
+                ? `Copy of ${modelRequestData.driverName} has been created successfully!`
+                : "Status has been changed successfully!"
+          }`}
+        />
+
+        <Suspense fallback={null}>
+          <Global_Pricing_Driver_model
+            class="modal fade"
+            id="GlobalPricingModel"
+            tabIndex="-1"
+            aria_labelledby="exampleModalLabel"
+            aria_hidden="true"
+            setIsAddUpdateActionDone={setIsAddUpdateActionDone}
+            modelRequestData={modelRequestData}
+          />
+        </Suspense>
       </div>
-      {/* End Page-content */}
-    </div>
-    </div>
-    </div>
-    </div>
-    <Footer />
+
+      <Footer />
     </>
   );
 }
