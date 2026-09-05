@@ -1,0 +1,822 @@
+/* =========================================================
+   TERMS & CONDITIONS LIST
+   Matches Prospect / Users / Templates redesign language
+   UI ONLY
+   ========================================================= */
+
+.tnc-list-redesign {
+  --tnc-bg: #f7f9fc;
+  --tnc-card: #ffffff;
+  --tnc-heading: #14243a;
+  --tnc-text: #334258;
+  --tnc-muted: #778295;
+  --tnc-border: #dce4ed;
+  --tnc-border-soft: #e7edf3;
+  --tnc-navy: #0f1b33;
+  --tnc-cyan: #14b5d1;
+  --tnc-cyan-hover: #0da5c1;
+
+  width: 100%;
+  min-height: 100%;
+  background: var(--tnc-bg);
+  color: var(--tnc-text);
+}
+
+.tnc-list-redesign,
+.tnc-list-redesign * {
+  box-sizing: border-box;
+}
+
+.tnc-list-page {
+  width: calc(100% - 36px);
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 24px 0 32px;
+}
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.tnc-list-page-header {
+  width: 100%;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  padding-left: 15px;
+
+  border-bottom: 1px solid #e2e8ef;
+}
+
+.tnc-list-page-title {
+  margin: 0;
+
+  color: var(--tnc-heading);
+
+  font-family: "Sarabun", sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.tnc-list-page-subtitle {
+  margin: 6px 0 0;
+
+  color: var(--tnc-muted);
+
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* =========================================================
+   LIST CARD
+   ========================================================= */
+
+.tnc-list-card {
+  width: 100%;
+  margin-left: 15px;
+
+  overflow: hidden;
+
+  border: 1px solid var(--tnc-border);
+  border-radius: 12px;
+
+  background: var(--tnc-card);
+
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.04),
+    0 10px 28px rgba(15, 23, 42, 0.025);
+}
+
+/* =========================================================
+   TOOLBAR — independent from table overflow
+   ========================================================= */
+
+.tnc-list-toolbar {
+  width: 100%;
+  min-height: 72px;
+  padding: 14px 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  border-bottom: 1px solid var(--tnc-border);
+
+  background: #ffffff;
+}
+
+.tnc-list-search-wrap {
+  position: relative;
+
+  width: 340px;
+  max-width: 340px;
+  min-width: 240px;
+
+  flex: 0 1 340px;
+}
+
+.tnc-list-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  z-index: 2;
+
+  transform: translateY(-50%);
+
+  color: #657286;
+  font-size: 18px;
+
+  pointer-events: none;
+}
+
+.tnc-list-search-input {
+  width: 100%;
+  height: 42px;
+
+  padding: 9px 13px 9px 40px;
+
+  border: 1px solid #d4dde7;
+  border-radius: 8px;
+
+  outline: none;
+
+  background: #ffffff;
+  color: #28374c;
+
+  font-size: 12.5px;
+
+  box-shadow: none;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.tnc-list-search-input::placeholder {
+  color: #939eae;
+}
+
+.tnc-list-search-input:focus {
+  border-color: #7bcfdf;
+
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08);
+}
+
+.tnc-list-toolbar-right {
+  min-width: max-content;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+}
+
+.tnc-list-record-count {
+  color: #7c8797;
+
+  font-size: 10.5px;
+  font-weight: 500;
+
+  white-space: nowrap;
+}
+
+.tnc-list-add-action .btn,
+.tnc-list-add-action .create-item-btn {
+  min-height: 42px !important;
+  height: 42px !important;
+
+  margin: 0 !important;
+  padding: 0 15px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border: 1px solid var(--tnc-cyan) !important;
+  border-radius: 8px !important;
+
+  background: var(--tnc-cyan) !important;
+  color: #ffffff !important;
+
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+
+  white-space: nowrap;
+
+  box-shadow: none !important;
+}
+
+.tnc-list-add-action .btn:hover,
+.tnc-list-add-action .create-item-btn:hover {
+  border-color: var(--tnc-cyan-hover) !important;
+  background: var(--tnc-cyan-hover) !important;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.tnc-list-table-scroll {
+  width: 100%;
+
+  overflow-x: auto;
+  overflow-y: visible;
+
+  scrollbar-width: thin;
+  scrollbar-color: #c9d1dc transparent;
+}
+
+.tnc-list-table-scroll::-webkit-scrollbar {
+  height: 7px;
+}
+
+.tnc-list-table-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #c9d1dc;
+}
+
+.tnc-list-table-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tnc-list-table {
+  width: 100%;
+  min-width: 1080px;
+
+  margin: 0;
+
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.tnc-list-table thead th {
+  height: 52px;
+
+  padding: 0 14px;
+
+  border: 0;
+  border-bottom: 1px solid #1d2940;
+
+  background: var(--tnc-navy);
+  color: #ffffff;
+
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tnc-list-table tbody td {
+  height: 68px;
+
+  padding: 10px 14px;
+
+  border-bottom: 1px solid var(--tnc-border-soft);
+
+  background: #ffffff;
+  color: var(--tnc-text);
+
+  font-size: 11.5px;
+  vertical-align: middle;
+}
+
+.tnc-list-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.tnc-list-table tbody tr:hover td {
+  background: #fbfdff;
+}
+
+/* Default column layout when profession/business are visible */
+.tnc-list-table th:nth-child(1),
+.tnc-list-table td:nth-child(1) {
+  width: 25%;
+}
+
+.tnc-list-table th:nth-child(2),
+.tnc-list-table td:nth-child(2) {
+  width: 18%;
+}
+
+.tnc-list-table th:nth-child(3),
+.tnc-list-table td:nth-child(3) {
+  width: 16%;
+}
+
+.tnc-list-table th:nth-child(4),
+.tnc-list-table td:nth-child(4) {
+  width: 13%;
+}
+
+.tnc-list-table th:nth-child(5),
+.tnc-list-table td:nth-child(5) {
+  width: 11%;
+}
+
+.tnc-list-table th:nth-child(6),
+.tnc-list-table td:nth-child(6) {
+  width: 10%;
+}
+
+.tnc-list-table th:nth-child(7),
+.tnc-list-table td:nth-child(7) {
+  width: 7%;
+  min-width: 120px;
+}
+
+/* Most common admin layout:
+   Name / Template Type / Is Default / Status / Actions */
+@media (min-width: 1100px) {
+  .tnc-list-table {
+    min-width: 0;
+  }
+
+  .tnc-list-table--no-profession.tnc-list-table--no-business th:nth-child(1),
+  .tnc-list-table--no-profession.tnc-list-table--no-business td:nth-child(1) {
+    width: 36%;
+  }
+
+  .tnc-list-table--no-profession.tnc-list-table--no-business th:nth-child(2),
+  .tnc-list-table--no-profession.tnc-list-table--no-business td:nth-child(2) {
+    width: 19%;
+  }
+
+  .tnc-list-table--no-profession.tnc-list-table--no-business th:nth-child(3),
+  .tnc-list-table--no-profession.tnc-list-table--no-business td:nth-child(3) {
+    width: 15%;
+  }
+
+  .tnc-list-table--no-profession.tnc-list-table--no-business th:nth-child(4),
+  .tnc-list-table--no-profession.tnc-list-table--no-business td:nth-child(4) {
+    width: 15%;
+  }
+
+  .tnc-list-table--no-profession.tnc-list-table--no-business th:nth-child(5),
+  .tnc-list-table--no-profession.tnc-list-table--no-business td:nth-child(5) {
+    width: 15%;
+    min-width: 0;
+  }
+
+  .tnc-list-table-scroll {
+    overflow-x: hidden;
+  }
+}
+
+/* =========================================================
+   SORT
+   ========================================================= */
+
+.tnc-list-sort-button {
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  border: 0;
+
+  background: transparent;
+  color: inherit;
+
+  font: inherit;
+  text-transform: inherit;
+
+  cursor: pointer;
+}
+
+.tnc-list-sort-button i {
+  color: #c4cedd;
+  font-size: 13px;
+}
+
+.tnc-list-sort-button:hover i {
+  color: #ffffff;
+}
+
+/* =========================================================
+   NAME
+   ========================================================= */
+
+.tnc-list-name-cell {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tnc-list-name-icon {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #e9f7fa;
+  color: #087f98;
+
+  font-size: 16px;
+}
+
+.tnc-list-name-content,
+.tnc-list-name-line {
+  min-width: 0;
+}
+
+.tnc-list-name-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tnc-list-name {
+  min-width: 0;
+
+  display: block;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #20314a;
+
+  font-weight: 600;
+}
+
+.tnc-list-notification-button {
+  width: 27px;
+  height: 27px;
+  flex: 0 0 27px;
+
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #f0d493;
+  border-radius: 6px;
+
+  background: #fff8e8;
+  color: #b67a12;
+
+  font-size: 13px;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   CHIPS / BADGES
+   ========================================================= */
+
+.tnc-list-profession-chip,
+.tnc-list-business-chip,
+.tnc-list-type-badge {
+  max-width: 100%;
+  min-height: 27px;
+  padding: 0 9px;
+
+  display: inline-flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tnc-list-profession-chip {
+  background: #eaf2ff;
+  color: #536176;
+}
+
+.tnc-list-business-chip {
+  background: #f1f5f9;
+  color: #566477;
+}
+
+.tnc-list-type-badge {
+  background: #f1efff;
+  color: #665ca6;
+}
+
+.tnc-list-default-badge,
+.tnc-list-status-badge {
+  min-width: 46px;
+  min-height: 26px;
+  padding: 0 8px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  font-size: 9.5px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.tnc-list-default-badge.is-default,
+.tnc-list-status-badge.is-active {
+  background: #eaf8f3;
+  color: #18845f;
+}
+
+.tnc-list-default-badge.is-not-default {
+  background: #f2f4f7;
+  color: #697586;
+}
+
+.tnc-list-status-badge.is-inactive {
+  background: #fff0f2;
+  color: #cf4052;
+}
+
+/* =========================================================
+   STATUS / SWITCH
+   ========================================================= */
+
+.tnc-list-status-control {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tnc-list-switch-label {
+  margin: 0 !important;
+}
+
+.tnc-list-status-control .MuiFormGroup-root {
+  width: auto !important;
+  min-width: 0 !important;
+}
+
+.tnc-list-status-control .MuiFormControlLabel-root {
+  min-width: 0 !important;
+}
+
+.tnc-list-status-control .MuiSwitch-root {
+  margin-left: -4px !important;
+  margin-right: -7px !important;
+
+  transform: scale(0.82);
+  transform-origin: center;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.tnc-list-actions-heading,
+.tnc-list-actions-cell {
+  text-align: center !important;
+}
+
+.tnc-list-row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+
+  white-space: nowrap;
+}
+
+.tnc-list-action-button {
+  width: 31px;
+  height: 31px;
+  flex: 0 0 31px;
+
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #d8e0e9;
+  border-radius: 6px;
+
+  background: #ffffff;
+  color: #596679;
+
+  font-size: 13px;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.tnc-list-action-button--copy:hover {
+  border-color: #c4d2e7;
+  background: #f3f7fd;
+  color: #4f6f9d;
+}
+
+.tnc-list-action-button--edit:hover {
+  border-color: #a9deea;
+  background: #eefafd;
+  color: #0788a2;
+}
+
+.tnc-list-action-button--delete:hover {
+  border-color: #f0c2c8;
+  background: #fff2f3;
+  color: #d14455;
+}
+
+/* =========================================================
+   EMPTY / PAGINATION
+   ========================================================= */
+
+.tnc-list-empty-state {
+  min-height: 250px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-top: 1px solid var(--tnc-border-soft);
+
+  background: #ffffff;
+}
+
+.tnc-list-pagination {
+  position: relative;
+
+  width: 100%;
+  min-height: 60px;
+  padding: 10px 14px;
+
+  border-top: 1px solid var(--tnc-border);
+
+  background: #ffffff;
+}
+
+.tnc-list-pagination .fixed-bottom {
+  position: static !important;
+
+  inset: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.tnc-list-pagination .fixed-bottom > .row,
+.tnc-list-pagination .row {
+  margin: 0 !important;
+}
+
+.tnc-list-pagination .pagination {
+  margin: 0 !important;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.tnc-list-pagination .mb-4 {
+  margin-bottom: 0 !important;
+}
+
+/* =========================================================
+   FOOTER FLOW
+   ========================================================= */
+
+.tnc-list-footer-wrap,
+.tnc-list-footer-wrap footer,
+.tnc-list-footer-wrap .footer,
+.tnc-list-footer-wrap .fixed-bottom {
+  position: static !important;
+
+  inset: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+}
+
+.tnc-list-footer-wrap {
+  display: block;
+  clear: both;
+
+  background: var(--tnc-bg, #f7f9fc);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 991px) {
+  .tnc-list-page {
+    width: calc(100% - 28px);
+  }
+
+  .tnc-list-table {
+    min-width: 980px;
+  }
+
+  .tnc-list-table-scroll {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .tnc-list-page {
+    width: calc(100% - 20px);
+    padding-top: 18px;
+  }
+
+  .tnc-list-page-title {
+    font-size: 24px;
+  }
+
+  .tnc-list-toolbar {
+    padding: 12px;
+
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .tnc-list-search-wrap {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+
+    flex: 1 1 100%;
+  }
+
+  .tnc-list-toolbar-right {
+    width: 100%;
+
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .tnc-list-record-count {
+    display: none;
+  }
+
+  .tnc-list-add-action,
+  .tnc-list-add-action .btn,
+  .tnc-list-add-action .create-item-btn {
+    width: 100% !important;
+  }
+
+  .tnc-list-table {
+    min-width: 900px;
+  }
+}
+
+/* =========================================================
+   TERMS & CONDITIONS V2 — PAGE / SIDEBAR SPACING
+   Adds breathing room between the sidebar and page content.
+   ========================================================= */
+
+.tnc-list-redesign {
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+}
+
+.tnc-list-redesign .tnc-list-page {
+  width: 100% !important;
+  max-width: 1500px !important;
+  margin: 0 auto !important;
+}
+
+/* Slightly reduce the spacing on smaller screens */
+@media (max-width: 991px) {
+  .tnc-list-redesign {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .tnc-list-redesign {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}

@@ -1,6 +1,7 @@
 /* global $ */
 import React, { useContext, useEffect, useState } from "react";
 import "./termAndCondition.css";
+import "./termAndCondition-redesign.css";
 import { useNavigate } from "react-router";
 import CommonButtonComponent from "../../../components/CommonButtonComponent";
 import ConfirmModel from "../../../components/ConfirmationBox";
@@ -10,7 +11,7 @@ import {
   TermsAndConditionsChangeStatus,
   GetChangeIsDefaultStatus,
   GetTermsAndConditionsModel,
-  CopyTermsAndConditions
+  CopyTermsAndConditions,
 } from "../../../redux/Services/Config/TermAndConditionApi";
 import PaginationComponent from "../../../components/PaginationModel";
 import Android12Switch from "../../../components/AndroidSwitch";
@@ -57,7 +58,7 @@ function Term_and_Condition() {
   const [errorMessage, setErrorMessage] = useState("");
   const [isAddUpdateActionDone, setIsAddUpdateActionDone] = useState(false);
   const [currentPage, setCurrentPage] = useState(
-    common.currentPage === "" ? 1 : common.currentPage
+    common.currentPage === "" ? 1 : common.currentPage,
   );
   const [sortType, setSortType] = useState(null);
   const [primarySortDirection, setPrimarySortDirection] = useState(null);
@@ -88,7 +89,7 @@ function Term_and_Condition() {
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
   const dispatch = useDispatch();
   const [showProfessionType, setShowProfessionType] = useState(
-    common.organisationKeyID === null || common.professionTypeLists.length > 1
+    common.organisationKeyID === null || common.professionTypeLists.length > 1,
   );
   const formattedErrorMessage = handleErrorMessage(errorMessage);
 
@@ -100,7 +101,7 @@ function Term_and_Condition() {
     dispatch(
       updateState({
         currentPage: "",
-      })
+      }),
     );
   }, []);
 
@@ -145,7 +146,7 @@ function Term_and_Condition() {
     i,
     searchKeywordValue,
     sortValue,
-    TemplateSort
+    TemplateSort,
   ) => {
     setLoader(true);
     const pageNoList = i - 1;
@@ -181,7 +182,7 @@ function Term_and_Condition() {
                 newPaneNo,
                 searchKeywordValue,
                 sortValue,
-                TemplateSort
+                TemplateSort,
               );
               setCurrentPage(pageNoList);
               return;
@@ -198,7 +199,7 @@ function Term_and_Condition() {
                 i,
                 searchKeywordValue,
                 sortValue,
-                TemplateSort
+                TemplateSort,
               );
             }, 2000);
           } else {
@@ -212,27 +213,28 @@ function Term_and_Condition() {
       console.log(error);
     }
   };
- // Copy TnC data
- const CopyTermsAndConditionsTemplateData = async() => {
-  if(!common.userKeyID) return;
-  try {
-    setLoader(true);
-    const data = await CopyTermsAndConditions(modelRequestData.templateKeyID,common.userKeyID);
-    if(data?.data?.statusCode === 200) {
-      setLoader(false);
-      setOpenSuccessModal(true);
-      GetTermsAndConditionsListData(currentPage);
+  // Copy TnC data
+  const CopyTermsAndConditionsTemplateData = async () => {
+    if (!common.userKeyID) return;
+    try {
+      setLoader(true);
+      const data = await CopyTermsAndConditions(
+        modelRequestData.templateKeyID,
+        common.userKeyID,
+      );
+      if (data?.data?.statusCode === 200) {
+        setLoader(false);
+        setOpenSuccessModal(true);
+        GetTermsAndConditionsListData(currentPage);
+      } else {
+        setLoader(false);
+        setErrorMessage(data?.data?.errorMessage);
+        setOpenErrorModal(true);
+      }
+    } catch (error) {
+      console.error(error);
     }
-    else {
-      setLoader(false);
-      setErrorMessage(data?.data?.errorMessage);
-      setOpenErrorModal(true);
-    }
-  }
-  catch(error) {
-    console.error(error);
-  }
-}
+  };
   // Update Function Modal
   // 2) On Click Template Status Button
   const TermsAndConditionsChangeStatusDataAndDeleteData = async () => {
@@ -242,7 +244,7 @@ function Term_and_Condition() {
         try {
           const Data = await TermsAndConditionsChangeStatus(
             modelRequestData.templateKeyID,
-            modelRequestData.userKeyID
+            modelRequestData.userKeyID,
           );
           if (Data) {
             setLoader(false);
@@ -252,7 +254,7 @@ function Term_and_Condition() {
               ) {
                 const servicePackageNames =
                   Data?.data?.responseData.templateExistsInModule.map(
-                    (item) => item.templateName
+                    (item) => item.templateName,
                   );
                 const moduleNames =
                   Data?.data?.responseData.templateExistsInModule
@@ -275,32 +277,32 @@ function Term_and_Condition() {
               let ErrorMessage = Data?.response?.data?.errorMessage;
               if (
                 ErrorMessage.includes(
-                  "At least one template should be defaulted."
+                  "At least one template should be defaulted.",
                 ) &&
                 common.organisationKeyID === null
               ) {
                 setErrorMessage(
-                  ` Status cannot be changed to InActive. This template is marked as default for profession type ${modelRequestData.professionTypeNames} and business type ${modelRequestData.BusinessTypeName}.`
+                  ` Status cannot be changed to InActive. This template is marked as default for profession type ${modelRequestData.professionTypeNames} and business type ${modelRequestData.BusinessTypeName}.`,
                 );
                 setOpenErrorModal(true);
               } else if (
                 ErrorMessage.includes(
-                  "At least one template should be defaulted."
+                  "At least one template should be defaulted.",
                 ) &&
                 showProfessionType &&
                 common.organisationKeyID !== null
               ) {
                 setErrorMessage(
-                  ` Status cannot be changed to InActive. This template is marked as default for profession type  ${modelRequestData.professionTypeNames}.`
+                  ` Status cannot be changed to InActive. This template is marked as default for profession type  ${modelRequestData.professionTypeNames}.`,
                 );
                 setOpenErrorModal(true);
               } else if (
                 ErrorMessage.includes(
-                  "At least one template should be defaulted."
+                  "At least one template should be defaulted.",
                 )
               ) {
                 setErrorMessage(
-                  ` Status cannot be changed to InActive. This template is marked as default.`
+                  ` Status cannot be changed to InActive. This template is marked as default.`,
                 );
                 setOpenErrorModal(true);
               } else {
@@ -319,7 +321,7 @@ function Term_and_Condition() {
             common.organisationKeyID,
             modelRequestData.templateKeyID,
             modelRequestData.isDefault,
-            common.userKeyID
+            common.userKeyID,
           );
           if (Data) {
             setLoader(false);
@@ -329,32 +331,32 @@ function Term_and_Condition() {
               let ErrorMessage = Data?.response?.data?.errorMessage;
               if (
                 ErrorMessage.includes(
-                  "At least one template should be defaulted."
+                  "At least one template should be defaulted.",
                 ) &&
                 common.organisationKeyID === null
               ) {
                 setErrorMessage(
-                  `This template is the only template of profession type ${modelRequestData.professionTypeNames} and business type ${modelRequestData.BusinessTypeName}  marked as default. At least one template must be defaulted.`
+                  `This template is the only template of profession type ${modelRequestData.professionTypeNames} and business type ${modelRequestData.BusinessTypeName}  marked as default. At least one template must be defaulted.`,
                 );
                 setOpenErrorModal(true);
               } else if (
                 ErrorMessage.includes(
-                  "At least one template should be defaulted."
+                  "At least one template should be defaulted.",
                 ) &&
                 showProfessionType &&
                 common.organisationKeyID !== null
               ) {
                 setErrorMessage(
-                  `This template is the only template of profession type ${modelRequestData.professionTypeNames} marked as default. At least one template must be defaulted.`
+                  `This template is the only template of profession type ${modelRequestData.professionTypeNames} marked as default. At least one template must be defaulted.`,
                 );
                 setOpenErrorModal(true);
               } else if (
                 ErrorMessage.includes(
-                  "At least one template should be defaulted."
+                  "At least one template should be defaulted.",
                 )
               ) {
                 setErrorMessage(
-                  `This template is the only template  marked as default. At least one template must be defaulted.`
+                  `This template is the only template  marked as default. At least one template must be defaulted.`,
                 );
                 setOpenErrorModal(true);
               } else {
@@ -372,7 +374,7 @@ function Term_and_Condition() {
       try {
         const Data = await TermsAndConditionsDelete(
           modelRequestData.templateKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -380,7 +382,7 @@ function Term_and_Condition() {
             if (Data?.data?.responseData.templateExistsInModule.length !== 0) {
               const servicePackageNames =
                 Data?.data?.responseData.templateExistsInModule.map(
-                  (item) => item.templateName
+                  (item) => item.templateName,
                 );
               setModelRequestData({
                 ...modelRequestData,
@@ -421,12 +423,11 @@ function Term_and_Condition() {
 
   // 2) On Click Template Edit Button
   const TemplateEditBtnClicked = async (Template, type) => {
-
     if (type === "editPredefined") {
       setLoader(true);
       const data = await GetTermsAndConditionsModel(
         Template.templateKeyID,
-        true
+        true,
       );
       if (data?.data?.statusCode === 200) {
         setLoader(false);
@@ -446,13 +447,13 @@ function Term_and_Condition() {
       dispatch(
         updateState({
           currentPage: currentPage,
-        })
+        }),
       );
       setModelRequestData({
         ...modelRequestData,
         TemplateID: Template.templateID,
         templateKeyID: Template.templateKeyID,
-        Action: "Update"
+        Action: "Update",
       });
     }
   };
@@ -521,628 +522,540 @@ function Term_and_Condition() {
     setOpenErrorModal(false);
   };
 
+  const canAdd =
+    (userAccessData.Admin_Config_TnC_CanAdd &&
+      common.organisationKeyID !== null) ||
+    (userAccessData.SuperAdmin_Config_TnC_CanAdd &&
+      common.organisationKeyID === null);
+
+  const canEdit =
+    (userAccessData.Admin_Config_TnC_CanEdit &&
+      common.organisationKeyID !== null) ||
+    (userAccessData.SuperAdmin_Config_TnC_CanEdit &&
+      common.organisationKeyID === null);
+
+  const canDelete =
+    (userAccessData.Admin_Config_TnC_CanDelete &&
+      common.organisationKeyID !== null) ||
+    (userAccessData.SuperAdmin_Config_TnC_CanDelete &&
+      common.organisationKeyID === null);
+
+  const showBusinessType =
+    common.roleTypeId === USER_ROLE_TYPE.SuperAdmin &&
+    common.organisationKeyID === null;
+
   return (
     <>
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
-        <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                          <div className="row">
-                            <div className="col-md-12 p-0 ">
-                  <div class="page-title-cls">Terms & Conditions</div>
-                </div>
-                  </div>
-                </div>
-              </div>
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
-                        <div class="search-box ms-2 width-searchbox">
-                          <div class="row">
-                            <div className="col-lg-12 col-md-12 col-sm-12 ">
-                              <div className="row align-items-center">
-                                <div className="col-3 mb-2">
-                                  <div class="search-box w-100 width-searchbox">
-                          <i class="ri-search-line search-icon"></i>
-                          <input
-                            type="text"
-                            value={searchKeyword}
-                            onChange={(e) => {
-                              handleSearch(e);
-                            }}
-                            className="form-control search"
-                            placeholder={
-                              isMobile
-                                ? "Search"
-                                : getPlaceholderTextName("Search", moduleName)
-                            }
-                          />
-                        </div>
-                        </div>
-                          <div className="col-auto ms-auto">
-                  <div className="d-flex justify-content-sm-end add-new-btn">
-                    {((userAccessData.Admin_Config_TnC_CanAdd &&
-                      common.organisationKeyID !== null) ||
-                      (userAccessData.SuperAdmin_Config_TnC_CanAdd &&
-                        common.organisationKeyID === null)) && (
-                        <CommonButtonComponent
-                          title={getCrudButtonToolTipName("Add", moduleName)}
-                          name={getCrudButtonTextName("Add", moduleName)}
-                          AddBtn={() => TemplateAddBtnClicked()}
-                        />
-                      )}
-                  </div>
-                </div>
-                </div>
-                </div>
-                </div>
-                        </div>
-                        <table
-                          class="table align-middle table-nowrap"
-                          id="customerTable"
-                        >
-                          <thead class="table-light table-header-font">
-                            <tr className="head-row">
-                              <td
-                                className="tr-table-class text-white"
-                                style={{ width: "35%" }}
-                              >
-                                Name
-                                {primarySortDirectionObj.templateNameSort ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("TemplateName");
-                                        handleSort("asc", "TemplateName");
-                                      }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primarySortDirectionObj.templateNameSort ===
-                                  null ||
-                                  primarySortDirectionObj.templateNameSort ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("TemplateName");
-                                        handleSort(
-                                          primarySortDirectionObj.templateNameSort ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "TemplateName"
-                                        );
-                                      }}
-                                      class="fas fa-sort-alpha-down  ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class text-white profession-type-column">
-                                {showProfessionType && (
-                                  <>
-                                    Profession Type
-                                    {primarySortDirectionObj.ProfessionType ===
-                                      "desc" && (
-                                        <i
-                                          onClick={() => {
-                                            setSortType("ProfessionType");
-                                            handleSort("asc", "ProfessionType");
-                                          }}
-                                          class="fas fa-sort-alpha-up ml-1"
-                                        ></i>
-                                      )}
-                                    {(primarySortDirectionObj.ProfessionType ===
-                                      null ||
-                                      primarySortDirectionObj.ProfessionType ===
-                                      "asc") && (
-                                        <i
-                                          onClick={() => {
-                                            setSortType("ProfessionType");
-                                            handleSort(
-                                              primarySortDirectionObj.ProfessionType ===
-                                                null
-                                                ? "asc"
-                                                : "desc",
-                                              "ProfessionType"
-                                            );
-                                          }}
-                                          class="fas fa-sort-alpha-down  ml-1"
-                                        ></i>
-                                      )}
-                                  </>
-                                )}
-                              </td>
-                              {common.roleTypeId ===
-                                USER_ROLE_TYPE.SuperAdmin &&
-                                common.organisationKeyID === null ? (
-                                <td className="tr-table-class text-white profession-type-column">
-                                  Business Type
-                                  {primarySortDirectionObj.BusinessType ===
-                                    "desc" && (
-                                      <i
-                                        onClick={() => {
-                                          setSortType("BusinessType");
-                                          handleSort("asc", "BusinessType");
-                                        }}
-                                        class="fas fa-sort-alpha-up ml-1"
-                                      ></i>
-                                    )}
-                                  {(primarySortDirectionObj.BusinessType ===
-                                    null ||
-                                    primarySortDirectionObj.BusinessType ===
-                                    "asc") && (
-                                      <i
-                                        onClick={() => {
-                                          setSortType("BusinessType");
-                                          handleSort(
-                                            primarySortDirectionObj.BusinessType ===
-                                              null
-                                              ? "asc"
-                                              : "desc",
-                                            "BusinessType"
-                                          );
-                                        }}
-                                        class="fas fa-sort-alpha-down  ml-1"
-                                      ></i>
-                                    )}
-                                </td>
-                              ) : (
-                                <td className="tr-table-class text-white profession-type-column">
-                                  <span className="invisible">
-                                    Business Type
-                                    {primarySortDirectionObj.BusinessType ===
-                                      "desc" && (
-                                        <i
-                                          onClick={() => {
-                                            setSortType("BusinessType");
-                                            handleSort("asc", "BusinessType");
-                                          }}
-                                          class="fas fa-sort-alpha-up ml-1"
-                                        ></i>
-                                      )}
-                                    {(primarySortDirectionObj.BusinessType ===
-                                      null ||
-                                      primarySortDirectionObj.BusinessType ===
-                                      "asc") && (
-                                        <i
-                                          onClick={() => {
-                                            setSortType("BusinessType");
-                                            handleSort(
-                                              primarySortDirectionObj.BusinessType ===
-                                                null
-                                                ? "asc"
-                                                : "desc",
-                                              "BusinessType"
-                                            );
-                                          }}
-                                          class="fas fa-sort-alpha-down  ml-1"
-                                        ></i>
-                                      )}
-                                  </span>
-                                </td>
-                              )}
-                              <td className="tr-table-class text-white isDefault-td">
-                                Template Type
-                                {primarySortDirectionObj.TemplateTypeSort ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("TemplateType");
-                                        handleSort("asc", "TemplateType");
-                                      }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primarySortDirectionObj.TemplateTypeSort ===
-                                  null ||
-                                  primarySortDirectionObj.TemplateTypeSort ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("TemplateType");
-                                        handleSort(
-                                          primarySortDirectionObj.TemplateTypeSort ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "TemplateType"
-                                        );
-                                      }}
-                                      class="fas fa-sort-alpha-down  ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Is Default
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Status
-                              </td>
-                              <td className="tr-table-class text-white">
-                                {((userAccessData.Admin_Config_TnC_CanEdit &&
-                                  common.organisationKeyID !== null) ||
-                                  (userAccessData.SuperAdmin_Config_TnC_CanEdit &&
-                                    common.organisationKeyID === null) ||
-                                  (userAccessData.Admin_Config_TnC_CanDelete &&
-                                    common.organisationKeyID !== null) ||
-                                  (userAccessData.SuperAdmin_Config_TnC_CanDelete &&
-                                    common.organisationKeyID === null)) && (
-                                    <>Action</>
-                                  )}
-                              </td>
-                            </tr>
-                          </thead>
-                          <tbody class="list form-check-all">
-                            {TermAndConditionList.slice(
-                              0,
-                              isMobile ? isMobileRecords : desktopRecords
-                            ).map((Template) => {
-                              return (
-                                <tr class="table_new table-content-font">
-                                  <td>
-                                    {Template.notifySAChanges !== null && common.organisationKeyID !== null && (
-                                      <>
-                                        <Tooltip
-                                          title="View System Administrator Changes"
-
-                                        >
-                                          <span onClick={() =>
-                                            TemplateEditBtnClicked(
-                                              Template, "editPredefined"
-                                            )
-                                          }
-                                            className="UpdateConfigValue"
-                                          // data-bs-toggle="modal"
-
-                                          // data-bs-target="#addUpdateModal"
-                                          ><i class="fa fa-regular fa-bell"></i></span>
-                                        </Tooltip>
-                                      </>
-                                    )}
-                                    {isMobile ? (
-                                      <>
-                                        {Template.templateName.length > 20
-                                          ? Template.templateName
-                                            .substring(0, 20)
-                                            .replace(/\b\w/g, (l) =>
-                                              l.toUpperCase()
-                                            ) + "..."
-                                          : Template.templateName
-                                            .replace(/\b\w/g, (l) =>
-                                              l.toUpperCase()
-                                            )}
-                                      </>
-                                    ) : (
-                                      <>
-                                        {Template.templateName.length > 50 ? (
-                                          <Tooltip
-                                            title={Template.templateName}
-                                          >
-                                            {Template.templateName
-                                              .substring(0, 50)
-                                              .replace(/\b\w/g, (l) =>
-                                                l.toUpperCase()
-                                              ) + "..."}
-                                          </Tooltip>
-                                        ) : (
-                                          <>
-                                            {Template.templateName
-                                              .replace(/\b\w/g, (l) =>
-                                                l.toUpperCase()
-                                              )}
-                                          </>
-                                        )}
-                                      </>
-                                    )}
-
-                                  </td>
-
-                                  <td>
-                                    {" "}
-                                    {showProfessionType &&
-                                      Template.professionTypeNames}
-                                  </td>
-
-                                  {common.roleTypeId ===
-                                    USER_ROLE_TYPE.SuperAdmin &&
-                                    common.organisationKeyID === null ? (
-                                    <td>{Template.orgBusinessType}</td>
-                                  ) : (
-                                    <td>&nbsp;</td>
-                                  )}
-                                  <td className="isDefault-td">
-                                    {Template.templateType}
-                                  </td>
-                                  <td className="Switch">
-                                    <div
-                                      style={{
-                                        alignItems: "none",
-                                        marginLeft:
-                                          ((userAccessData.Admin_Config_TnC_CanEdit &&
-                                            common.organisationKeyID !==
-                                            null) ||
-                                            (userAccessData.SuperAdmin_Config_TnC_CanEdit &&
-                                              common.organisationKeyID ===
-                                              null)) &&
-                                            ((userAccessData.Admin_Config_TnC_CanDelete &&
-                                              common.organisationKeyID !==
-                                              null) ||
-                                              (userAccessData.SuperAdmin_Config_TnC_CanDelete &&
-                                                common.organisationKeyID ===
-                                                null))
-                                            ? ""
-                                            : "10px",
-                                      }}
-                                      class="d-flex gap-2 "
-                                    >
-                                      <div style={{ width: "20px" }}>
-                                        {" "}
-                                        {Template.isDefaultName}
-                                      </div>
-                                      {((userAccessData.Admin_Config_TnC_CanDelete &&
-                                        common.organisationKeyID !== null) ||
-                                        (userAccessData.SuperAdmin_Config_TnC_CanDelete &&
-                                          common.organisationKeyID ===
-                                          null)) && (
-                                          <Tooltip
-                                            title={getCrudButtonToolTipName(
-                                              "Change Is Default"
-                                            )}
-                                          >
-                                            <FormGroup>
-                                              <FormControlLabel
-                                                control={
-                                                  <Android12Switch
-                                                    onClick={() =>
-                                                      setModelRequestData({
-                                                        ...modelRequestData,
-                                                        professionTypeNames:
-                                                          Template.professionTypeNames,
-                                                        BusinessTypeName:
-                                                          Template.orgBusinessType,
-                                                        status:
-                                                          Template.isDefaultName,
-                                                        templateKeyID:
-                                                          Template.templateKeyID,
-                                                        StatusType: "IsDefault",
-                                                        isDefault:
-                                                          Template.isDefaultName ===
-                                                            "Yes"
-                                                            ? false
-                                                            : true,
-                                                        Action: "Status",
-                                                      })
-                                                    }
-                                                    checked={
-                                                      Template.isDefaultName ===
-                                                      "Yes"
-                                                    }
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#ConfirmModel"
-                                                  />
-                                                }
-                                              />
-                                            </FormGroup>
-                                          </Tooltip>
-                                        )}
-                                    </div>
-                                  </td>
-                                  <td className="Switch">
-                                    <div
-                                      style={{
-                                        alignItems: "none",
-                                        marginLeft:
-                                          ((userAccessData.Admin_Config_TnC_CanEdit &&
-                                            common.organisationKeyID !==
-                                            null) ||
-                                            (userAccessData.SuperAdmin_Config_TnC_CanEdit &&
-                                              common.organisationKeyID ===
-                                              null)) &&
-                                            ((userAccessData.Admin_Config_TnC_CanDelete &&
-                                              common.organisationKeyID !==
-                                              null) ||
-                                              (userAccessData.SuperAdmin_Config_TnC_CanDelete &&
-                                                common.organisationKeyID ===
-                                                null))
-                                            ? ""
-                                            : "10px",
-                                      }}
-                                      class="d-flex gap-2 "
-                                    >
-                                      <div style={{ width: "40px" }}>
-                                        {" "}
-                                        {Template.statusName}
-                                      </div>
-                                      {((userAccessData.Admin_Config_TnC_CanDelete &&
-                                        common.organisationKeyID !== null) ||
-                                        (userAccessData.SuperAdmin_Config_TnC_CanDelete &&
-                                          common.organisationKeyID ===
-                                          null)) && (
-                                          <Tooltip
-                                            title={getCrudButtonToolTipName(
-                                              "Change Status"
-                                            )}
-                                          >
-                                            <FormGroup style={{ width: "55px" }}>
-                                              <FormControlLabel
-                                                control={
-                                                  <Android12Switch
-                                                    onClick={() =>
-                                                      setModelRequestData({
-                                                        ...modelRequestData,
-                                                        professionTypeNames:
-                                                          Template.professionTypeNames,
-                                                        BusinessTypeName:
-                                                          Template.orgBusinessType,
-                                                        status:
-                                                          Template.statusName,
-                                                        templateKeyID:
-                                                          Template.templateKeyID,
-                                                        userKeyID:
-                                                          common.userKeyID,
-                                                        StatusType: null,
-                                                        Action: "Status",
-                                                      })
-                                                    }
-                                                    checked={
-                                                      Template.statusName ===
-                                                      "Active"
-                                                    }
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#ConfirmModel"
-                                                  />
-                                                }
-                                              />
-                                            </FormGroup>
-                                          </Tooltip>
-                                        )}
-                                    </div>
-                                  </td>
-                                  <td>
-                                    <div class="d-flex gap-2">
-                                    <Tooltip
-                                        title={getCrudButtonToolTipName(
-                                          "Copy",
-                                          moduleName
-                                        )}
-                                      >
-                                        <div class="copy">
-                                          <button
-                                            class="btn btn-sm btn-success edit-item-btn edit"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#ConfirmModel"
-                                            onClick={() =>
-                                              setModelRequestData({
-                                                ...modelRequestData,
-                                                Action: "Copy",
-                                                templateName: Template.templateName,
-                                                templateKeyID: Template.templateKeyID,
-                                                userKeyID: common.userKeyID
-                                              })
-                                            }
-                                          >
-                                            
-                                            <i class="fa-solid fa-copy"></i>
-                                            
-                                          </button>
-                                        </div>
-                                      </Tooltip>
-                                      {((userAccessData.Admin_Config_TnC_CanEdit &&
-                                        common.organisationKeyID !== null) ||
-                                        (userAccessData.SuperAdmin_Config_TnC_CanEdit &&
-                                          common.organisationKeyID ===
-                                          null)) && (
-                                          <Tooltip
-                                            title={getCrudButtonToolTipName(
-                                              "Update",
-                                              moduleName
-                                            )}
-                                          >
-                                            <div class="edit">
-                                              <button
-                                                onClick={() =>
-                                                  TemplateEditBtnClicked(Template)
-                                                }
-                                                class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
-                                              >
-                                                <i class="ri-pencil-fill"></i>
-                                              </button>
-                                            </div>
-                                          </Tooltip>
-                                        )}
-                                      {((userAccessData.Admin_Config_TnC_CanDelete &&
-                                        common.organisationKeyID !== null) ||
-                                        (userAccessData.SuperAdmin_Config_TnC_CanDelete &&
-                                          common.organisationKeyID ===
-                                          null)) && (
-                                          <Tooltip
-                                            title={getCrudButtonToolTipName(
-                                              "Delete",
-                                              moduleName
-                                            )}
-                                          >
-                                            <div class="remove">
-                                              <button
-                                                onClick={() =>
-                                                  setModelRequestData({
-                                                    ...modelRequestData,
-                                                    templateKeyID:
-                                                      Template.templateKeyID,
-                                                    templateName:
-                                                      Template.templateName,
-                                                    userKeyID: common.userKeyID,
-                                                    Action: "Delete",
-                                                  })
-                                                }
-                                                class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#ConfirmModel"
-                                              >
-                                                <i class="ri-delete-bin-5-fill"></i>
-                                              </button>
-                                            </div>
-                                          </Tooltip>
-                                        )}
-                                    </div>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                        {totalRecords <= 0 && (
-                          <NoResultFoundModel
-                            name={moduleName}
-                            totalRecords={totalRecords}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  {listCount > pageSize && (
-                    <PaginationComponent
-                      totalCount={listCount}
-                      totalPages={totalPage}
-                      currentPage={currentPage}
-                      onPageChange={handlePageChange}
-                    />
-                  )}
-                  {/* end card  */}
-                </div>
-                {/* end col */}
-              </div>
-              {/* end col  */}
+      <div className="tnc-list-redesign">
+        <div className="tnc-list-page">
+          {/* =========================
+              PAGE HEADER
+              ========================= */}
+          <div className="tnc-list-page-header">
+            <div>
+              <h1 className="tnc-list-page-title">Terms &amp; Conditions</h1>
+              <p className="tnc-list-page-subtitle">
+                Manage reusable terms and conditions.
+              </p>
             </div>
-            {/* end row */}
           </div>
-          {/* container-fluid  */}
+
+          {/* =========================
+              LIST CARD
+              ========================= */}
+          <section className="tnc-list-card">
+            {/* Toolbar is deliberately outside the scrollable table area */}
+            <div className="tnc-list-toolbar">
+              <div className="tnc-list-search-wrap">
+                <i className="ri-search-line tnc-list-search-icon"></i>
+
+                <input
+                  type="text"
+                  value={searchKeyword}
+                  onChange={handleSearch}
+                  className="tnc-list-search-input"
+                  placeholder={
+                    isMobile
+                      ? "Search"
+                      : getPlaceholderTextName("Search", moduleName)
+                  }
+                />
+              </div>
+
+              <div className="tnc-list-toolbar-right">
+                {/* {listCount > 0 && (
+                  <span className="tnc-list-record-count">
+                    {listCount}{" "}
+                    {listCount === 1
+                      ? "terms & conditions"
+                      : "terms & conditions"}
+                  </span>
+                )} */}
+
+                {canAdd && (
+                  <div className="tnc-list-add-action">
+                    <CommonButtonComponent
+                      title={getCrudButtonToolTipName("Add", moduleName)}
+                      name={getCrudButtonTextName("Add", moduleName)}
+                      AddBtn={TemplateAddBtnClicked}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Only the table area can horizontally scroll */}
+            <div className="tnc-list-table-scroll">
+              <table
+                className={`tnc-list-table ${
+                  !showProfessionType ? "tnc-list-table--no-profession" : ""
+                } ${!showBusinessType ? "tnc-list-table--no-business" : ""}`}
+                id="customerTable"
+              >
+                <thead>
+                  <tr>
+                    <th>
+                      <button
+                        type="button"
+                        className="tnc-list-sort-button"
+                        onClick={() => {
+                          setSortType("TemplateName");
+                          handleSort(
+                            primarySortDirectionObj.templateNameSort === null
+                              ? "asc"
+                              : primarySortDirectionObj.templateNameSort ===
+                                  "asc"
+                                ? "desc"
+                                : "asc",
+                            "TemplateName",
+                          );
+                        }}
+                      >
+                        <span>Name</span>
+                        <i
+                          className={
+                            primarySortDirectionObj.templateNameSort === "desc"
+                              ? "ri-arrow-up-line"
+                              : "ri-arrow-down-line"
+                          }
+                        ></i>
+                      </button>
+                    </th>
+
+                    {showProfessionType && (
+                      <th>
+                        <button
+                          type="button"
+                          className="tnc-list-sort-button"
+                          onClick={() => {
+                            setSortType("ProfessionType");
+                            handleSort(
+                              primarySortDirectionObj.ProfessionType === null
+                                ? "asc"
+                                : primarySortDirectionObj.ProfessionType ===
+                                    "asc"
+                                  ? "desc"
+                                  : "asc",
+                              "ProfessionType",
+                            );
+                          }}
+                        >
+                          <span>Profession Type</span>
+                          <i
+                            className={
+                              primarySortDirectionObj.ProfessionType === "desc"
+                                ? "ri-arrow-up-line"
+                                : "ri-arrow-down-line"
+                            }
+                          ></i>
+                        </button>
+                      </th>
+                    )}
+
+                    {showBusinessType && (
+                      <th>
+                        <button
+                          type="button"
+                          className="tnc-list-sort-button"
+                          onClick={() => {
+                            setSortType("BusinessType");
+                            handleSort(
+                              primarySortDirectionObj.BusinessType === null
+                                ? "asc"
+                                : primarySortDirectionObj.BusinessType === "asc"
+                                  ? "desc"
+                                  : "asc",
+                              "BusinessType",
+                            );
+                          }}
+                        >
+                          <span>Business Type</span>
+                          <i
+                            className={
+                              primarySortDirectionObj.BusinessType === "desc"
+                                ? "ri-arrow-up-line"
+                                : "ri-arrow-down-line"
+                            }
+                          ></i>
+                        </button>
+                      </th>
+                    )}
+
+                    <th>
+                      <button
+                        type="button"
+                        className="tnc-list-sort-button"
+                        onClick={() => {
+                          setSortType("TemplateType");
+                          handleSort(
+                            primarySortDirectionObj.TemplateTypeSort === null
+                              ? "asc"
+                              : primarySortDirectionObj.TemplateTypeSort ===
+                                  "asc"
+                                ? "desc"
+                                : "asc",
+                            "TemplateType",
+                          );
+                        }}
+                      >
+                        <span>Template Type</span>
+                        <i
+                          className={
+                            primarySortDirectionObj.TemplateTypeSort === "desc"
+                              ? "ri-arrow-up-line"
+                              : "ri-arrow-down-line"
+                          }
+                        ></i>
+                      </button>
+                    </th>
+
+                    <th>Is Default</th>
+                    <th>Status</th>
+                    <th className="tnc-list-actions-heading">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {TermAndConditionList.slice(
+                    0,
+                    isMobile ? isMobileRecords : desktopRecords,
+                  ).map((Template) => {
+                    const templateName =
+                      Template.templateName?.replace(/\b\w/g, (l) =>
+                        l.toUpperCase(),
+                      ) || "-";
+
+                    return (
+                      <tr
+                        className="tnc-list-row"
+                        key={Template.templateKeyID || Template.templateName}
+                      >
+                        <td>
+                          <div className="tnc-list-name-cell">
+                            <span className="tnc-list-name-icon">
+                              <i className="ri-file-list-3-line"></i>
+                            </span>
+
+                            <div className="tnc-list-name-content">
+                              <div className="tnc-list-name-line">
+                                {Template.notifySAChanges !== null &&
+                                  common.organisationKeyID !== null && (
+                                    <Tooltip title="View System Administrator Changes">
+                                      <button
+                                        type="button"
+                                        className="tnc-list-notification-button"
+                                        onClick={() =>
+                                          TemplateEditBtnClicked(
+                                            Template,
+                                            "editPredefined",
+                                          )
+                                        }
+                                      >
+                                        <i className="ri-notification-3-line"></i>
+                                      </button>
+                                    </Tooltip>
+                                  )}
+
+                                <Tooltip
+                                  title={
+                                    templateName.length > 50
+                                      ? Template.templateName
+                                      : ""
+                                  }
+                                >
+                                  <span className="tnc-list-name">
+                                    {isMobile && templateName.length > 22
+                                      ? `${templateName.substring(0, 22)}...`
+                                      : !isMobile && templateName.length > 50
+                                        ? `${templateName.substring(0, 50)}...`
+                                        : templateName}
+                                  </span>
+                                </Tooltip>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+
+                        {showProfessionType && (
+                          <td>
+                            <span
+                              className="tnc-list-profession-chip"
+                              title={Template.professionTypeNames}
+                            >
+                              {Template.professionTypeNames || "-"}
+                            </span>
+                          </td>
+                        )}
+
+                        {showBusinessType && (
+                          <td>
+                            <span
+                              className="tnc-list-business-chip"
+                              title={Template.orgBusinessType}
+                            >
+                              {Template.orgBusinessType || "-"}
+                            </span>
+                          </td>
+                        )}
+
+                        <td>
+                          <span className="tnc-list-type-badge">
+                            {Template.templateType || "-"}
+                          </span>
+                        </td>
+
+                        <td>
+                          <div className="tnc-list-status-control">
+                            <span
+                              className={`tnc-list-default-badge ${
+                                Template.isDefaultName === "Yes"
+                                  ? "is-default"
+                                  : "is-not-default"
+                              }`}
+                            >
+                              {Template.isDefaultName || "-"}
+                            </span>
+
+                            {canDelete && (
+                              <Tooltip
+                                title={getCrudButtonToolTipName(
+                                  "Change Is Default",
+                                )}
+                              >
+                                <FormGroup>
+                                  <FormControlLabel
+                                    className="tnc-list-switch-label"
+                                    control={
+                                      <Android12Switch
+                                        onClick={() =>
+                                          setModelRequestData({
+                                            ...modelRequestData,
+                                            professionTypeNames:
+                                              Template.professionTypeNames,
+                                            BusinessTypeName:
+                                              Template.orgBusinessType,
+                                            status: Template.isDefaultName,
+                                            templateKeyID:
+                                              Template.templateKeyID,
+                                            StatusType: "IsDefault",
+                                            isDefault:
+                                              Template.isDefaultName === "Yes"
+                                                ? false
+                                                : true,
+                                            Action: "Status",
+                                          })
+                                        }
+                                        checked={
+                                          Template.isDefaultName === "Yes"
+                                        }
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#ConfirmModel"
+                                      />
+                                    }
+                                  />
+                                </FormGroup>
+                              </Tooltip>
+                            )}
+                          </div>
+                        </td>
+
+                        <td>
+                          <div className="tnc-list-status-control">
+                            <span
+                              className={`tnc-list-status-badge ${
+                                Template.statusName === "Active"
+                                  ? "is-active"
+                                  : "is-inactive"
+                              }`}
+                            >
+                              {Template.statusName || "-"}
+                            </span>
+
+                            {canDelete && (
+                              <Tooltip
+                                title={getCrudButtonToolTipName(
+                                  "Change Status",
+                                )}
+                              >
+                                <FormGroup>
+                                  <FormControlLabel
+                                    className="tnc-list-switch-label"
+                                    control={
+                                      <Android12Switch
+                                        onClick={() =>
+                                          setModelRequestData({
+                                            ...modelRequestData,
+                                            professionTypeNames:
+                                              Template.professionTypeNames,
+                                            BusinessTypeName:
+                                              Template.orgBusinessType,
+                                            status: Template.statusName,
+                                            templateKeyID:
+                                              Template.templateKeyID,
+                                            userKeyID: common.userKeyID,
+                                            StatusType: null,
+                                            Action: "Status",
+                                          })
+                                        }
+                                        checked={
+                                          Template.statusName === "Active"
+                                        }
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#ConfirmModel"
+                                      />
+                                    }
+                                  />
+                                </FormGroup>
+                              </Tooltip>
+                            )}
+                          </div>
+                        </td>
+
+                        <td className="tnc-list-actions-cell">
+                          <div className="tnc-list-row-actions">
+                            {/* Copy remains available exactly as in the original list */}
+                            <Tooltip
+                              title={getCrudButtonToolTipName(
+                                "Copy",
+                                moduleName,
+                              )}
+                            >
+                              <button
+                                type="button"
+                                className="tnc-list-action-button tnc-list-action-button--copy"
+                                data-bs-toggle="modal"
+                                data-bs-target="#ConfirmModel"
+                                onClick={() =>
+                                  setModelRequestData({
+                                    ...modelRequestData,
+                                    Action: "Copy",
+                                    templateName: Template.templateName,
+                                    templateKeyID: Template.templateKeyID,
+                                    userKeyID: common.userKeyID,
+                                  })
+                                }
+                              >
+                                <i className="ri-file-copy-line"></i>
+                              </button>
+                            </Tooltip>
+
+                            {canEdit && (
+                              <Tooltip
+                                title={getCrudButtonToolTipName(
+                                  "Update",
+                                  moduleName,
+                                )}
+                              >
+                                <button
+                                  type="button"
+                                  className="tnc-list-action-button tnc-list-action-button--edit"
+                                  onClick={() =>
+                                    TemplateEditBtnClicked(Template)
+                                  }
+                                >
+                                  <i className="ri-pencil-line"></i>
+                                </button>
+                              </Tooltip>
+                            )}
+
+                            {canDelete && (
+                              <Tooltip
+                                title={getCrudButtonToolTipName(
+                                  "Delete",
+                                  moduleName,
+                                )}
+                              >
+                                <button
+                                  type="button"
+                                  className="tnc-list-action-button tnc-list-action-button--delete"
+                                  onClick={() =>
+                                    setModelRequestData({
+                                      ...modelRequestData,
+                                      templateKeyID: Template.templateKeyID,
+                                      templateName: Template.templateName,
+                                      userKeyID: common.userKeyID,
+                                      Action: "Delete",
+                                    })
+                                  }
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#ConfirmModel"
+                                >
+                                  <i className="ri-delete-bin-line"></i>
+                                </button>
+                              </Tooltip>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {totalRecords <= 0 && (
+              <div className="tnc-list-empty-state">
+                <NoResultFoundModel
+                  name={moduleName}
+                  totalRecords={totalRecords}
+                />
+              </div>
+            )}
+
+            {listCount > pageSize && (
+              <div className="tnc-list-pagination">
+                <PaginationComponent
+                  totalCount={listCount}
+                  totalPages={totalPage}
+                  currentPage={currentPage}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
+          </section>
         </div>
 
+        {/* =========================
+            EXISTING FUNCTIONAL MODALS
+            ========================= */}
         <ErrorModel
           ErrorModel={openErrorModal}
           handleClose={handleClose}
           ErrorMessage={formattedErrorMessage}
         />
-        {/* Confirm Modal  */}
+
         <ConfirmModel
           openErrorModal={openErrorModal}
           openSuccessModal={openSuccessModal}
           modelRequestData={modelRequestData}
-          UpdatedStatus = {modelRequestData.Action === "Delete" || modelRequestData.Action === "Status" ? TermsAndConditionsChangeStatusDataAndDeleteData : CopyTermsAndConditionsTemplateData}
+          UpdatedStatus={
+            modelRequestData.Action === "Delete" ||
+            modelRequestData.Action === "Status"
+              ? TermsAndConditionsChangeStatusDataAndDeleteData
+              : CopyTermsAndConditionsTemplateData
+          }
         />
+
         <RecordsAvailablePopupModel
           handleClose={handleClose}
           openErrorModal={openErrorModal}
@@ -1151,7 +1064,6 @@ function Term_and_Condition() {
           UpdatedStatus={TermsAndConditionsChangeStatusDataAndDeleteData}
         />
 
-        {/* Success Modal  */}
         <SuccessModal
           handleClose={handleClose}
           setOpenSuccessModal={setOpenSuccessModal}
@@ -1161,31 +1073,24 @@ function Term_and_Condition() {
             modelRequestData.Action === "Delete"
               ? `${moduleName} ${modelRequestData.templateName}`
               : modelRequestData.Action === "Copy"
-              ? `Copy of ${modelRequestData.templateName} has been created successfully!`
-              : "Status has been changed successfully!"
+                ? `Copy of ${modelRequestData.templateName} has been created successfully!`
+                : "Status has been changed successfully!"
           }`}
         />
-        {/* End Page-content */}
 
-        
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="btn btn-danger btn-icon"
+          id="back-to-top"
+        >
+          <i className="ri-arrow-up-line"></i>
+        </button>
       </div>
-      </div>
-            </div>
-          </div>
-          <div>
-          </div>
 
-      {/* start back-to-top */}
-      <button
-        onclick="topFunction()"
-        class="btn btn-danger btn-icon"
-        id="back-to-top"
-      >
-        <i class="ri-arrow-up-line"></i>
-      </button>
-      {/* end back-to-top */}
-    </div>
-    <Footer />
+      <div className="tnc-list-footer-wrap">
+        <Footer />
+      </div>
     </>
   );
 }
