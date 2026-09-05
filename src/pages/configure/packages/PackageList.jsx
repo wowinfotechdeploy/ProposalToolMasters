@@ -1,6 +1,7 @@
 /* global $ */
 import React, { useContext, useEffect, useState } from "react";
 import "./Package.css";
+import "./Package-redesign.css";
 import CommonButtonComponent from "../../../components/CommonButtonComponent";
 import { useNavigate } from "react-router";
 import Android12Switch from "../../../components/AndroidSwitch";
@@ -58,7 +59,7 @@ const Predefined_Package = () => {
   const [isFilterApply, setIsFilterApply] = useState(false);
   const [isAddUpdateActionDone, setIAddUpdateActionDone] = useState(false);
   const [currentPage, setCurrentPage] = useState(
-    common.currentPage === "" ? 1 : common.currentPage
+    common.currentPage === "" ? 1 : common.currentPage,
   );
   const [openErrorModal, setOpenErrorModal] = useState(false);
   const [modelRequestData, setModelRequestData] = useState({
@@ -73,7 +74,7 @@ const Predefined_Package = () => {
   const [primarySortDirection, setPrimarySortDirection] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [showProfessionType, setShowProfessionType] = useState(
-    common.organisationKeyID === null || common.professionTypeLists.length > 1
+    common.organisationKeyID === null || common.professionTypeLists.length > 1,
   );
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
   const isCurrentPage =
@@ -87,7 +88,7 @@ const Predefined_Package = () => {
     dispatch(
       updateState({
         currentPage: "",
-      })
+      }),
     );
   }, []);
 
@@ -126,7 +127,7 @@ const Predefined_Package = () => {
     searchKeywordValue,
     sortValue,
     businessNatureId,
-    businessTypeId
+    businessTypeId,
   ) => {
     setLoader(true);
     const pageNoList = i - 1;
@@ -190,7 +191,7 @@ const Predefined_Package = () => {
       try {
         const Data = await ServicePackageChangeStatus(
           modelRequestData.servicePackageKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -200,7 +201,7 @@ const Predefined_Package = () => {
             ) {
               const servicePackageNames =
                 Data?.data?.responseData.servicePackageExistsInQuotes.map(
-                  (item) => item.quoteName
+                  (item) => item.quoteName,
                 );
               setModelRequestData({
                 ...modelRequestData,
@@ -228,7 +229,7 @@ const Predefined_Package = () => {
       try {
         const Data = await ServicePackageDelete(
           modelRequestData.servicePackageKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -238,7 +239,7 @@ const Predefined_Package = () => {
             ) {
               const servicePackageNames =
                 Data?.data?.responseData.servicePackageExistsInQuotes.map(
-                  (item) => item.serviceName
+                  (item) => item.serviceName,
                 );
               setModelRequestData({
                 ...modelRequestData,
@@ -266,7 +267,7 @@ const Predefined_Package = () => {
       try {
         const CopyPackageData = await CopyPackage(
           modelRequestData.servicePackageKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (CopyPackageData.data.statusCode === 200) {
           setLoader(false);
@@ -298,7 +299,7 @@ const Predefined_Package = () => {
       setLoader(true);
       const data = await GetServicePackageModel(
         Package.servicePackageKeyID,
-        true
+        true,
       );
       if (data?.data?.statusCode === 200) {
         setLoader(false);
@@ -320,7 +321,7 @@ const Predefined_Package = () => {
       dispatch(
         updateState({
           currentPage: currentPage,
-        })
+        }),
       );
       setModelRequestData({
         ...modelRequestData,
@@ -361,7 +362,7 @@ const Predefined_Package = () => {
         searchKeyword,
         primarySortDirection,
         businessNatureID,
-        prospectType
+        prospectType,
       );
     }
     setOpenSuccessModal(false);
@@ -382,7 +383,7 @@ const Predefined_Package = () => {
       searchKeyword,
       primarySortDirection,
       businessNatureID,
-      prospectType
+      prospectType,
     );
   };
   const ClearFilter = () => {
@@ -392,485 +393,457 @@ const Predefined_Package = () => {
     GetPackageListData(1, searchKeyword, primarySortDirection, null, null);
   };
 
+  const canAdd =
+    (userAccessData.Admin_Config_ServicePackage_CanAdd &&
+      common.organisationKeyID !== null) ||
+    (userAccessData.SuperAdmin_Config_ServicePackage_CanAdd &&
+      common.organisationKeyID === null);
+
+  const canEdit =
+    (userAccessData.Admin_Config_ServicePackage_CanEdit &&
+      common.organisationKeyID !== null) ||
+    (userAccessData.SuperAdmin_Config_ServicePackage_CanEdit &&
+      common.organisationKeyID === null);
+
+  const canDelete =
+    (userAccessData.Admin_Config_ServicePackage_CanDelete &&
+      common.organisationKeyID !== null) ||
+    (userAccessData.SuperAdmin_Config_ServicePackage_CanDelete &&
+      common.organisationKeyID === null);
+
   return (
     <>
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
-        <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                          <div className="row">
-                            <div className="col-md-6 p-0 ">
-                  <div class="page-title-cls">Package</div>
-                  </div>
-                  <div className="col-auto ms-auto">
-                                  <div className="d-flex justify-content-sm-end add-new-btn">
-                                    {((userAccessData.Admin_Config_ServicePackage_CanAdd &&
-                                      common.organisationKeyID !== null) ||
-                                      (userAccessData.SuperAdmin_Config_ServicePackage_CanAdd &&
-                                        common.organisationKeyID === null)) && (
-                                        <CommonButtonComponent
-                                          title={getCrudButtonToolTipName("Add", moduleName)}
-                                          name={getCrudButtonTextName("Add", moduleName)}
-                                          AddBtn={() => PackageAddBtnClicked()}
-                                        />
-                                      )}
-                                  </div>
-                                </div>
-                  </div>
-                </div>
+      <div className="package-redesign">
+        <div className="package-page">
+          {/* =========================
+              PAGE HEADER
+              ========================= */}
+          <div className="package-page-header">
+            <div>
+              <h1 className="package-page-title">Packages</h1>
+              <p className="package-page-subtitle">Manage package pricings.</p>
+            </div>
+
+            {canAdd && (
+              <div className="package-add-action">
+                <CommonButtonComponent
+                  title={getCrudButtonToolTipName("Add", moduleName)}
+                  name={getCrudButtonTextName("Add", moduleName)}
+                  AddBtn={() => PackageAddBtnClicked()}
+                />
               </div>
-          <div class="" id="tablesections">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
-                        <div class="search-box ms-2 width-searchbox">
-                          <div className="row">
-                            <div className="col-lg-12 col-md-12 col-sm-12 ">
-                              <div className="row align-items-center">
-                                <div className="col-3 mb-2">
-                                  <div class="search-box w-100 width-searchbox">
-                                    <i class="ri-search-line search-icon"></i>
-                                    <input
-                                      type="text"
-                                      value={searchKeyword}
-                                      onChange={(e) => {
-                                        handleSearch(e);
-                                      }}
-                                      className="form-control search"
-                                      placeholder={
-                                        isMobile
-                                          ? "Search"
-                                          : getPlaceholderTextName(
-                                            "Search",
-                                            moduleName
-                                          )
-                                      }
-                                    />
-                                  </div>
-                                </div>
-                                <div className="col-6 d-flex align-items-start justify-content-start">
-                                  <Tooltip
-                                    title={getCrudButtonToolTipName(
-                                      "Filter",
-                                      moduleName
-                                    )}
-                                  >
-                                    <div>
+            )}
+          </div>
+
+          {/* =========================
+              LIST CARD
+              ========================= */}
+          <section className="package-list-card">
+            {/* Toolbar */}
+            <div className="package-toolbar">
+              <div className="package-search-wrap">
+                <i className="ri-search-line package-search-icon"></i>
+
+                <input
+                  type="text"
+                  value={searchKeyword}
+                  onChange={handleSearch}
+                  className="package-search-input"
+                  placeholder={
+                    isMobile
+                      ? "Search"
+                      : getPlaceholderTextName("Search", moduleName)
+                  }
+                />
+              </div>
+
+              <div className="package-toolbar-actions">
+                <Tooltip title={getCrudButtonToolTipName("Filter", moduleName)}>
+                  <button
+                    type="button"
+                    className={`package-filter-button ${
+                      isFilterApply ? "package-filter-button--active" : ""
+                    }`}
+                    data-bs-toggle="modal"
+                    data-bs-target="#FilterModel"
+                  >
+                    <i className="ri-filter-3-line"></i>
+                    <span>Filter</span>
+
+                    {isFilterApply && (
+                      <span className="package-filter-active-dot"></span>
+                    )}
+                  </button>
+                </Tooltip>
+
+                {isFilterApply && (
+                  <Tooltip title="Clear Filter">
+                    <button
+                      type="button"
+                      className="package-clear-filter-button"
+                      onClick={ClearFilter}
+                    >
+                      <i className="ri-close-line"></i>
+                      <span>Clear Filter</span>
+                    </button>
+                  </Tooltip>
+                )}
+
+                {/* <span className="package-record-count">
+                  {listCount > 0
+                    ? `${listCount} ${listCount === 1 ? "package" : "packages"}`
+                    : ""}
+                </span> */}
+              </div>
+            </div>
+
+            {/* Table */}
+            <div className="package-table-wrap">
+              <table
+                className={`package-table ${
+                  !showProfessionType ? "package-table--no-profession" : ""
+                }`}
+                id="customerTable"
+              >
+                <thead>
+                  <tr>
+                    <th>
+                      <button
+                        type="button"
+                        className="package-sort-button"
+                        onClick={() =>
+                          handleSort(
+                            primarySortDirection === null
+                              ? "asc"
+                              : primarySortDirection === "asc"
+                                ? "desc"
+                                : "asc",
+                          )
+                        }
+                      >
+                        <span>Name</span>
+
+                        <i
+                          className={
+                            primarySortDirection === "desc"
+                              ? "ri-arrow-up-line"
+                              : "ri-arrow-down-line"
+                          }
+                        ></i>
+                      </button>
+                    </th>
+
+                    {showProfessionType && <th>Profession Type</th>}
+
+                    <th>Original Price</th>
+                    <th>Default Price</th>
+                    <th>Minimum Price</th>
+                    <th>Status</th>
+
+                    <th className="package-actions-heading">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {PackagesList?.slice(
+                    0,
+                    isMobile ? isMobileRecords : desktopRecords,
+                  ).map((Package) => {
+                    const packageName =
+                      Package.servicePackageName?.replace(/\b\w/g, (l) =>
+                        l.toUpperCase(),
+                      ) || "-";
+
+                    const statusClass = (Package.statusName || "")
+                      .toLowerCase()
+                      .replace(/\s+/g, "-");
+
+                    return (
+                      <tr
+                        className="package-table-row"
+                        key={
+                          Package.servicePackageKeyID ||
+                          Package.servicePackageName
+                        }
+                      >
+                        <td>
+                          <div className="package-name-cell">
+                            {/* <span className="package-icon">
+                              <i className="ri-box-3-line"></i>
+                            </span> */}
+
+                            <div className="package-name-copy">
+                              <div className="package-name-line">
+                                {Package.notifySAChanges !== null &&
+                                  common.organisationKeyID !== null && (
+                                    <Tooltip title="View System Administrator Changes">
                                       <button
-                                        className={
-                                          isFilterApply
-                                            ? "btn btn-md btn-success create-item-btn filter me-2"
-                                            : "btn btn-md btn-success create-item-btn-apply filter me-2"
+                                        type="button"
+                                        className="package-notification-button"
+                                        onClick={() =>
+                                          PackageEditBtnClicked(
+                                            Package,
+                                            "editPredefined",
+                                          )
                                         }
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#FilterModel"
                                       >
-                                        {/* <i class="ri-pencil-fill"></i> */}
-
-                                        <i
-                                          className={
-                                            isFilterApply
-                                              ? "ri-filter-fill align-bottom "
-                                              : "ri-filter-fill align-bottom Filter-apply-color"
-                                          }
-                                        ></i>
+                                        <i className="ri-notification-3-line"></i>
                                       </button>
-                                    </div>
-                                  </Tooltip>
+                                    </Tooltip>
+                                  )}
 
-                                  <div className="col-9">
-                                    {isFilterApply ? (
-                                      <Tooltip title={"Clear Filter"}>
-                                        <div>
-                                          <button
-                                            className="btn btn-md btn-success create-Filter-item-btn text-nowrap"
-                                            onClick={ClearFilter} // Corrected from onclick to onClick
-                                          >
-                                            <span>Clear Filter</span>
-                                          </button>
-                                        </div>
-                                      </Tooltip>
-                                    ) : (
-                                      ""
-                                    )}
-                                  </div>
-                                </div>
+                                {Package.needToUpdate && (
+                                  <span
+                                    className="package-update-marker"
+                                    title="Update required"
+                                  >
+                                    *
+                                  </span>
+                                )}
+
+                                <Tooltip
+                                  title={
+                                    packageName.length > 45
+                                      ? Package.servicePackageName
+                                      : ""
+                                  }
+                                >
+                                  <span className="package-primary-text">
+                                    {isMobile && packageName.length > 22
+                                      ? `${packageName.substring(0, 22)}...`
+                                      : !isMobile && packageName.length > 45
+                                        ? `${packageName.substring(0, 45)}...`
+                                        : packageName}
+                                  </span>
+                                </Tooltip>
                               </div>
                             </div>
                           </div>
-                        </div>
-                        <table
-                          class="table align-middle table-nowrap"
-                          id="customerTable"
-                        >
-                          <thead class="table-light table-header-font">
-                            <tr className="head-row">
-                              <td
-                                className="tr-table-class text-white"
-                                style={{ width: "20%" }}
-                              >
-                                Name{" "}
-                                {primarySortDirection === "desc" && (
-                                  <i
-                                    onClick={() => {
-                                      handleSort("asc");
-                                    }}
-                                    class="fas fa-sort-alpha-up ml-1"
-                                  ></i>
-                                )}
-                                {(primarySortDirection === null ||
-                                  primarySortDirection === "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        handleSort(
-                                          primarySortDirection === null
-                                            ? "asc"
-                                            : "desc"
-                                        );
-                                      }}
-                                      class="fas fa-sort-alpha-down  ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class text-white profession-type-column">
-                                {showProfessionType && <>Profession Type</>}
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Original Price
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Default Price
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Minimum Price
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Status
-                              </td>
-                              <td className="tr-table-class text-white">
-                                {((userAccessData.Admin_Config_ServicePackage_CanEdit &&
-                                  common.organisationKeyID !== null) ||
-                                  (userAccessData.SuperAdmin_Config_ServicePackage_CanEdit &&
-                                    common.organisationKeyID === null) ||
-                                  (userAccessData.Admin_Config_ServicePackage_CanDelete &&
-                                    common.organisationKeyID !== null) ||
-                                  (userAccessData.SuperAdmin_Config_ServicePackage_CanDelete &&
-                                    common.organisationKeyID === null)) && (
-                                    <>Action</>
-                                  )}
-                              </td>
-                            </tr>
-                          </thead>
-                          <tbody class="list form-check-all">
-                            {PackagesList?.slice(
-                              0,
-                              isMobile ? isMobileRecords : desktopRecords
-                            ).map((Package) => {
-                              return (
-                                <tr class="table_new table-content-font">
-                                  <td className="table-content-font">
-                                    {Package.notifySAChanges !== null && common.organisationKeyID !== null && (
-                                      <>
-                                        <Tooltip
-                                          title="View System Administrator Changes"
+                        </td>
 
-                                        >
-                                          <span onClick={() =>
-                                            PackageEditBtnClicked(Package, "editPredefined")
-
-                                          } className="UpdateConfigValue" ><i class="fa fa-regular fa-bell"></i></span>
-                                        </Tooltip>
-                                      </>
-                                    )}
-                                    {Package.needToUpdate && (
-                                      <span class="text-danger">*</span>
-                                    )}
-
-                                    {isMobile ? (
-                                      <>
-                                        {Package.servicePackageName.length > 20
-                                          ? Package.servicePackageName
-                                            .substring(0, 20)
-                                            .replace(/\b\w/g, (l) =>
-                                              l.toUpperCase()
-                                            ) + "..."
-                                          : Package.servicePackageName
-                                            .substring(0, 20)
-                                            .replace(/\b\w/g, (l) =>
-                                              l.toUpperCase()
-                                            )}
-                                      </>
-                                    ) : (
-                                      <>
-                                        {Package.servicePackageName.length >
-                                          35 ? (
-                                          !showProfessionType ? (
-                                            <Tooltip
-                                              title={Package.servicePackageName}
-                                            >
-                                              {Package.servicePackageName
-                                                .substring(0, 80)
-                                                .replace(/\b\w/g, (l) =>
-                                                  l.toUpperCase()
-                                                ) + "..."}
-                                            </Tooltip>
-                                          ) : (
-                                            <Tooltip
-                                              title={Package.servicePackageName}
-                                            >
-                                              {Package.servicePackageName
-                                                .substring(0, 35)
-                                                .replace(/\b\w/g, (l) =>
-                                                  l.toUpperCase()
-                                                ) + "..."}
-                                            </Tooltip>
-                                          )
-                                        ) : (
-                                          <>
-                                            {Package.servicePackageName
-                                              .replace(/\b\w/g, (l) =>
-                                                l.toUpperCase()
-                                              )}
-                                          </>
-                                        )}
-                                      </>
-                                    )}
-
-                                  </td>
-                                  <td className="table-content-font">
-                                    {showProfessionType &&
-                                      Package.professionTypeNames}
-                                  </td>
-                                  <td className="table-content-font">
-                                    <div>
-                                      Recurring:{" "}
-                                      <b> {Package.recurringOriginalPrice}</b>
-                                    </div>
-                                    <div>
-                                      One Off:{" "}
-                                      <b> {Package.oneOffOriginalPrice}</b>
-                                    </div>
-                                  </td>
-                                  <td className="table-content-font">
-                                    <div>
-                                      Recurring:{" "}
-                                      <b> {Package.recurringDefaultPrice}</b>
-                                    </div>
-                                    <div>
-                                      One Off:{" "}
-                                      <b> {Package.oneOffDefaultPrice}</b>
-                                    </div>
-                                  </td>
-                                  <td className="table-content-font">
-                                    <div>
-                                      Recurring:{" "}
-                                      <b> {Package.recurringMinPrice}</b>
-                                    </div>
-                                    <div>
-                                      One Off: <b> {Package.oneOffMinPrice}</b>
-                                    </div>
-                                  </td>
-                                  <td className="Switch table-content-font">
-                                    <div
-                                      style={{ alignItems: "none" }}
-                                      class="d-flex gap-2 "
-                                    >
-                                      <div style={{ width: "50px" }}>
-                                        {" "}
-                                        {Package.statusName}
-                                      </div>
-                                      {((userAccessData.Admin_Config_ServicePackage_CanDelete &&
-                                        common.organisationKeyID !== null) ||
-                                        (userAccessData.SuperAdmin_Config_ServicePackage_CanDelete &&
-                                          common.organisationKeyID ===
-                                          null)) && (
-                                          <Tooltip
-                                            title={getCrudButtonToolTipName(
-                                              "Change Status"
-                                            )}
-                                          >
-                                            <FormGroup>
-                                              <FormControlLabel
-                                                control={
-                                                  <Android12Switch
-                                                    onClick={() =>
-                                                      setModelRequestData({
-                                                        ...modelRequestData,
-                                                        servicePackageKeyID:
-                                                          Package.servicePackageKeyID,
-                                                        status:
-                                                          Package.statusName,
-                                                        Action: "Status",
-                                                        userKeyID:
-                                                          common.userKeyID,
-                                                      })
-                                                    }
-                                                    checked={
-                                                      Package.statusName ===
-                                                      "Active"
-                                                    }
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#ConfirmModel"
-                                                  />
-                                                }
-                                              />
-                                            </FormGroup>
-                                          </Tooltip>
-                                        )}
-                                    </div>
-                                  </td>
-                                  <td className="table-content-font">
-                                    <div class="d-flex gap-2">
-                                      <Tooltip
-                                        title={getCrudButtonToolTipName(
-                                          "Copy",
-                                          moduleName
-                                        )}
-                                      >
-                                        <div class="edit">
-                                          <button
-                                            onClick={() =>
-                                              setModelRequestData({
-                                                ...modelRequestData,
-                                                servicePackageKeyID:
-                                                  Package.servicePackageKeyID,
-                                                servicePackageName:
-                                                  Package.servicePackageName,
-                                                userKeyID: common.userKeyID,
-                                                Action: "Copy",
-                                              })
-                                            }
-                                            class="btn btn-sm btn-success edit-item-btn edit"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#ConfirmModel"
-                                          >
-                                            <i class="fa-solid fa-copy"></i>
-                                          </button>
-                                        </div>
-                                      </Tooltip>
-                                      {((userAccessData.Admin_Config_ServicePackage_CanEdit &&
-                                        common.organisationKeyID !== null) ||
-                                        (userAccessData.SuperAdmin_Config_ServicePackage_CanEdit &&
-                                          common.organisationKeyID ===
-                                          null)) && (
-                                          <Tooltip
-                                            title={getCrudButtonToolTipName(
-                                              "Update",
-                                              moduleName
-                                            )}
-                                          >
-                                            <div class="edit">
-                                              <button
-                                                onClick={() =>
-                                                  PackageEditBtnClicked(Package)
-                                                }
-                                                class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
-                                              >
-                                                <i class="ri-pencil-fill"></i>
-                                              </button>
-                                            </div>
-                                          </Tooltip>
-                                        )}
-
-                                      {((userAccessData.Admin_Config_ServicePackage_CanDelete &&
-                                        common.organisationKeyID !== null) ||
-                                        (userAccessData.SuperAdmin_Config_ServicePackage_CanDelete &&
-                                          common.organisationKeyID ===
-                                          null)) && (
-                                          <Tooltip
-                                            title={getCrudButtonToolTipName(
-                                              "Delete",
-                                              moduleName
-                                            )}
-                                          >
-                                            <div class="remove">
-                                              <button
-                                                onClick={() =>
-                                                  setModelRequestData({
-                                                    ...modelRequestData,
-                                                    servicePackageKeyID:
-                                                      Package.servicePackageKeyID,
-                                                    servicePackageName:
-                                                      Package.servicePackageName,
-                                                    userKeyID: common.userKeyID,
-                                                    Action: "Delete",
-                                                  })
-                                                }
-                                                class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#ConfirmModel"
-                                              >
-                                                <i class="ri-delete-bin-5-fill"></i>
-                                              </button>
-                                            </div>
-                                          </Tooltip>
-                                        )}
-
-                                    </div>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                        {totalRecords <= 0 && (
-                          <NoResultFoundModel
-                            name={moduleName}
-                            totalRecords={totalRecords}
-                          />
+                        {showProfessionType && (
+                          <td>
+                            <span
+                              className="package-profession-chip"
+                              title={Package.professionTypeNames}
+                            >
+                              {Package.professionTypeNames || "-"}
+                            </span>
+                          </td>
                         )}
-                      </div>
-                    </div>
-                  </div>
-                  {listCount > Number(pageSize) - 1 && (
-                    <PaginationComponent
-                      totalCount={listCount}
-                      totalPages={
-                        isMobile
-                          ? Math.ceil(listCount / isMobileRecords)
-                          : Math.ceil(listCount / (desktopRecords - 1))
-                      }
-                      currentPage={currentPage}
-                      onPageChange={handlePageChange}
-                    />
-                  )}
-                  {/* end card  */}
+
+                        <td>
+                          <div className="package-price-stack">
+                            <div>
+                              <span>Recurring</span>
+                              <strong>{Package.recurringOriginalPrice}</strong>
+                            </div>
+
+                            <div>
+                              <span>One Off</span>
+                              <strong>{Package.oneOffOriginalPrice}</strong>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td>
+                          <div className="package-price-stack">
+                            <div>
+                              <span>Recurring</span>
+                              <strong>{Package.recurringDefaultPrice}</strong>
+                            </div>
+
+                            <div>
+                              <span>One Off</span>
+                              <strong>{Package.oneOffDefaultPrice}</strong>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td>
+                          <div className="package-price-stack">
+                            <div>
+                              <span>Recurring</span>
+                              <strong>{Package.recurringMinPrice}</strong>
+                            </div>
+
+                            <div>
+                              <span>One Off</span>
+                              <strong>{Package.oneOffMinPrice}</strong>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td>
+                          <div className="package-status-control">
+                            <span
+                              className={`package-status-badge package-status-badge--${statusClass}`}
+                            >
+                              <span className="package-status-dot"></span>
+                              {Package.statusName || "-"}
+                            </span>
+
+                            {canDelete && (
+                              <Tooltip
+                                title={getCrudButtonToolTipName(
+                                  "Change Status",
+                                )}
+                              >
+                                <FormGroup>
+                                  <FormControlLabel
+                                    className="package-switch-label"
+                                    control={
+                                      <Android12Switch
+                                        onClick={() =>
+                                          setModelRequestData({
+                                            ...modelRequestData,
+                                            servicePackageKeyID:
+                                              Package.servicePackageKeyID,
+                                            status: Package.statusName,
+                                            Action: "Status",
+                                            userKeyID: common.userKeyID,
+                                          })
+                                        }
+                                        checked={
+                                          Package.statusName === "Active"
+                                        }
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#ConfirmModel"
+                                      />
+                                    }
+                                  />
+                                </FormGroup>
+                              </Tooltip>
+                            )}
+                          </div>
+                        </td>
+
+                        <td className="package-actions-cell">
+                          <div className="package-row-actions">
+                            <Tooltip
+                              title={getCrudButtonToolTipName(
+                                "Copy",
+                                moduleName,
+                              )}
+                            >
+                              <button
+                                type="button"
+                                className="package-action-button package-action-button--copy"
+                                data-bs-toggle="modal"
+                                data-bs-target="#ConfirmModel"
+                                onClick={() =>
+                                  setModelRequestData({
+                                    ...modelRequestData,
+                                    servicePackageKeyID:
+                                      Package.servicePackageKeyID,
+                                    servicePackageName:
+                                      Package.servicePackageName,
+                                    userKeyID: common.userKeyID,
+                                    Action: "Copy",
+                                  })
+                                }
+                              >
+                                <i className="ri-file-copy-line"></i>
+                              </button>
+                            </Tooltip>
+
+                            {canEdit && (
+                              <Tooltip
+                                title={getCrudButtonToolTipName(
+                                  "Update",
+                                  moduleName,
+                                )}
+                              >
+                                <button
+                                  type="button"
+                                  className="package-action-button package-action-button--edit"
+                                  onClick={() => PackageEditBtnClicked(Package)}
+                                >
+                                  <i className="ri-pencil-line"></i>
+                                </button>
+                              </Tooltip>
+                            )}
+
+                            {canDelete && (
+                              <Tooltip
+                                title={getCrudButtonToolTipName(
+                                  "Delete",
+                                  moduleName,
+                                )}
+                              >
+                                <button
+                                  type="button"
+                                  className="package-action-button package-action-button--delete"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#ConfirmModel"
+                                  onClick={() =>
+                                    setModelRequestData({
+                                      ...modelRequestData,
+                                      servicePackageKeyID:
+                                        Package.servicePackageKeyID,
+                                      servicePackageName:
+                                        Package.servicePackageName,
+                                      userKeyID: common.userKeyID,
+                                      Action: "Delete",
+                                    })
+                                  }
+                                >
+                                  <i className="ri-delete-bin-line"></i>
+                                </button>
+                              </Tooltip>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+
+              {totalRecords <= 0 && (
+                <div className="package-empty-state">
+                  <NoResultFoundModel
+                    name={moduleName}
+                    totalRecords={totalRecords}
+                  />
                 </div>
-                {/* end col */}
-              </div>
-              {/* end col  */}
+              )}
             </div>
-            
-            {/* end row */}
-          </div>
-          {/* container-fluid  */}
+
+            {/* Pagination */}
+            {listCount > Number(pageSize) - 1 && (
+              <div className="package-pagination-wrap">
+                <PaginationComponent
+                  totalCount={listCount}
+                  totalPages={
+                    isMobile
+                      ? Math.ceil(listCount / isMobileRecords)
+                      : Math.ceil(listCount / (desktopRecords - 1))
+                  }
+                  currentPage={currentPage}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
+          </section>
         </div>
+
+        {/* =========================
+            EXISTING FUNCTIONAL MODALS
+            ========================= */}
         <ErrorModel
           ErrorModel={openErrorModal}
           handleClose={handleClose}
-          // ErrorMessage={errorMessage==='Please inActive this record first.'?'Please change the status to InActive first.':errorMessage}
-
           ErrorMessage={formattedErrorMessage}
         />
-        {/* Confirm Modal  */}
+
         <ConfirmModel
           openErrorModal={openErrorModal}
           openSuccessModal={openSuccessModal}
           modelRequestData={modelRequestData}
           UpdatedStatus={PackageChangeStatusDataAndDeleteData}
         />
+
         <RecordsAvailablePopupModel
           handleClose={handleClose}
           openErrorModal={openErrorModal}
@@ -878,19 +851,21 @@ const Predefined_Package = () => {
           modelRequestData={modelRequestData}
           UpdatedStatus={PackageChangeStatusDataAndDeleteData}
         />
-        {/* Success Modal  */}
+
         <SuccessModal
           handleClose={handleClose}
           setOpenSuccessModal={setOpenSuccessModal}
           openSuccessModal={openSuccessModal}
           modelAction={modelRequestData.Action}
-          message={modelRequestData.Action === "Copy"
-            ? `The Copy of ${modelRequestData.servicePackageName} has been created successfully!` : modelRequestData.Action === "Delete"
-              ? `${moduleName} ${modelRequestData.servicePackageName}`
-              : "Status has been changed successfully!"
+          message={
+            modelRequestData.Action === "Copy"
+              ? `The Copy of ${modelRequestData.servicePackageName} has been created successfully!`
+              : modelRequestData.Action === "Delete"
+                ? `${moduleName} ${modelRequestData.servicePackageName}`
+                : "Status has been changed successfully!"
           }
         />
-        {/* End Page-content */}
+
         <FilterModel
           class="modal fade"
           id="FilterModel"
@@ -906,23 +881,17 @@ const Predefined_Package = () => {
           prospectType={prospectType}
           setProspectType={setProspectType}
         />
-      </div>
-      </div>
-      </div>
-      </div>
+
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="btn btn-danger btn-icon"
+          id="back-to-top"
+        >
+          <i className="ri-arrow-up-line"></i>
+        </button>
       </div>
 
-      {/* start back-to-top */}
-      <button
-        onclick="topFunction()"
-        class="btn btn-danger btn-icon"
-        id="back-to-top"
-      >
-        <i class="ri-arrow-up-line"></i>
-      </button>
-      {/* end back-to-top */}
-    </div>
-    <Footer />
+      <Footer />
     </>
   );
 };
