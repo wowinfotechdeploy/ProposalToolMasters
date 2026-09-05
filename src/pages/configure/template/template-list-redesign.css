@@ -1,0 +1,1728 @@
+/* =========================================================
+   TEMPLATE LIST
+   Matches Prospect / Users / Global Constants list language
+   Scoped UI redesign only
+   ========================================================= */
+
+.template-list-redesign {
+  --tl-bg: #f7f9fc;
+  --tl-card: #ffffff;
+  --tl-heading: #14243a;
+  --tl-text: #334258;
+  --tl-muted: #778295;
+  --tl-border: #dce4ed;
+  --tl-border-soft: #e7edf3;
+  --tl-navy: #0f1b33;
+  --tl-cyan: #14b5d1;
+  --tl-cyan-hover: #0da5c1;
+
+  width: 100%;
+  padding: 0 !important;
+  background: var(--tl-bg);
+  color: var(--tl-text);
+}
+
+.template-list-redesign,
+.template-list-redesign * {
+  box-sizing: border-box;
+}
+
+/* Page heading */
+.template-list-page-header {
+  width: calc(100% - 48px);
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 30px 0 18px;
+
+  border-bottom: 1px solid #e2e8ef;
+}
+
+.template-list-page-title {
+  margin: 0;
+  color: var(--tl-heading);
+  font-family: "Sarabun", sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.template-list-page-subtitle {
+  margin: 6px 0 0;
+  color: var(--tl-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* Remove legacy page/card visual noise */
+.template-list-redesign .template-list-page-content {
+  width: calc(100% - 48px);
+  max-width: 1500px;
+  margin: 22px auto 40px !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.template-list-redesign .template-list-page-content > div,
+.template-list-redesign .template-list-page-content .row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.template-list-redesign .template-list-shell {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.template-list-redesign .template-list-shell-body {
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+/* =========================================================
+   TABS
+   ========================================================= */
+
+.template-list-tabs-wrap {
+  padding: 0 18px !important;
+  border: 1px solid var(--tl-border) !important;
+  border-bottom: 0 !important;
+  border-radius: 12px 12px 0 0;
+  background: #ffffff !important;
+}
+
+.template-list-tabs {
+  min-height: 62px;
+  align-items: flex-end;
+  gap: 20px;
+  border-bottom: 0 !important;
+}
+
+.template-list-tabs .nav-item {
+  margin: 0 !important;
+}
+
+.template-list-tabs .nav-link {
+  position: relative;
+  min-height: 62px;
+  padding: 0 4px !important;
+
+  display: inline-flex;
+  align-items: center;
+
+  border: 0 !important;
+  background: transparent !important;
+  color: #697587 !important;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.template-list-tabs .nav-link::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  border-radius: 2px 2px 0 0;
+  background: transparent;
+}
+
+.template-list-tabs .nav-link:hover {
+  color: #27364b !important;
+}
+
+.template-list-tabs .nav-link.active {
+  color: #14243a !important;
+}
+
+.template-list-tabs .nav-link.active::after {
+  background: var(--tl-cyan);
+}
+
+/* =========================================================
+   LIST CARD / TOOLBAR
+   ========================================================= */
+
+.template-list-table-card {
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+
+  border: 1px solid var(--tl-border);
+  border-radius: 0 0 12px 12px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 2px 7px rgba(15, 23, 42, 0.035),
+    0 8px 22px rgba(15, 23, 42, 0.02);
+}
+
+.template-list-toolbar {
+  min-height: 82px;
+  margin: 0 !important;
+  padding: 14px 18px !important;
+
+  align-items: center;
+
+  border-bottom: 1px solid var(--tl-border);
+  background: #ffffff;
+}
+
+.template-list-toolbar > [class*="col-"] {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.template-list-search-box {
+  position: relative;
+  width: min(100%, 400px) !important;
+  max-width: 400px !important;
+}
+
+.template-list-search-box .search-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  z-index: 2;
+  transform: translateY(-50%);
+  color: #536174 !important;
+  font-size: 19px;
+}
+
+.template-list-search-box .form-control {
+  width: 100% !important;
+  height: 44px !important;
+  padding: 9px 14px 9px 42px !important;
+
+  border: 1px solid #d3dde8 !important;
+  border-radius: 8px !important;
+
+  background: #ffffff !important;
+  color: #27364b !important;
+
+  font-size: 13px !important;
+  box-shadow: none !important;
+}
+
+.template-list-search-box .form-control:focus {
+  border-color: #7bcfdf !important;
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08) !important;
+}
+
+.template-list-search-box .form-control::placeholder {
+  color: #8994a5;
+}
+
+/* Filter */
+.template-list-redesign .filter {
+  width: 42px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border: 1px solid #d6e0ea !important;
+  border-radius: 8px !important;
+
+  background: #ffffff !important;
+  color: #536174 !important;
+
+  box-shadow: none !important;
+}
+
+.template-list-redesign .filter:hover,
+.template-list-redesign .create-item-btn.filter {
+  border-color: #9fdbe6 !important;
+  background: #eefafd !important;
+  color: #087f98 !important;
+}
+
+.template-list-redesign .create-Filter-item-btn {
+  min-height: 42px !important;
+  padding: 0 13px !important;
+
+  border: 1px solid #d6e0ea !important;
+  border-radius: 8px !important;
+
+  background: #ffffff !important;
+  color: #5c687a !important;
+
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+}
+
+/* Add */
+.template-list-add-action .btn,
+.template-list-add-action .create-item-btn {
+  min-height: 44px !important;
+  padding: 0 18px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border: 1px solid var(--tl-cyan) !important;
+  border-radius: 8px !important;
+
+  background: var(--tl-cyan) !important;
+  color: #ffffff !important;
+
+  font-size: 12px !important;
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+}
+
+.template-list-add-action .btn:hover,
+.template-list-add-action .create-item-btn:hover {
+  border-color: var(--tl-cyan-hover) !important;
+  background: var(--tl-cyan-hover) !important;
+}
+
+/* =========================================================
+   TABLES
+   ========================================================= */
+
+.template-list-table-card .tab-pane {
+  margin: 0 !important;
+}
+
+.template-list-table {
+  width: 100%;
+  min-width: 1050px;
+  margin: 0 !important;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.template-list-table-head td,
+.template-list-table-head th {
+  height: 54px !important;
+  padding: 0 16px !important;
+
+  border: 0 !important;
+  border-bottom: 1px solid #1d2940 !important;
+
+  background: var(--tl-navy) !important;
+  color: #ffffff !important;
+
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  vertical-align: middle !important;
+  white-space: nowrap;
+}
+
+.template-list-table-head i {
+  margin-left: 7px;
+  color: #c4cedd;
+  cursor: pointer;
+}
+
+.template-list-row td {
+  min-height: 70px;
+  padding: 13px 16px !important;
+
+  border-bottom: 1px solid var(--tl-border-soft) !important;
+
+  background: #ffffff;
+  color: #344258 !important;
+
+  font-size: 12px !important;
+  vertical-align: middle !important;
+}
+
+.template-list-row:hover td {
+  background: #fbfdff;
+}
+
+.template-list-table tbody tr:last-child td {
+  border-bottom: 0 !important;
+}
+
+/* Name / notification */
+.template-list-redesign .UpdateConfigValue {
+  width: 27px;
+  height: 27px;
+  margin-right: 7px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #f0d493;
+  border-radius: 6px;
+
+  background: #fff8e8;
+  color: #b67a12;
+
+  cursor: pointer;
+}
+
+/* Profession / type text */
+.template-list-table td:nth-child(2) {
+  color: #566579 !important;
+}
+
+/* Document link */
+.template-list-pdf-table a[target="_blank"] {
+  min-height: 30px;
+  padding: 0 10px;
+
+  display: inline-flex;
+  align-items: center;
+
+  border-radius: 999px;
+
+  background: #eef7fb;
+  color: #087f98 !important;
+
+  font-size: 10.5px;
+  font-weight: 600;
+  text-decoration: none !important;
+}
+
+.template-list-pdf-table a[target="_blank"]:hover {
+  background: #e2f4f8;
+}
+
+/* Status/default text beside switch */
+.template-list-redesign td.Switch > .d-flex {
+  align-items: center !important;
+  gap: 8px !important;
+  margin-left: 0 !important;
+}
+
+.template-list-redesign td.Switch > .d-flex > div:first-child {
+  width: auto !important;
+  min-width: 48px;
+  min-height: 27px;
+  padding: 0 9px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  background: #eef2f5;
+  color: #5f6c7d;
+
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.template-list-redesign td.Switch .MuiFormControlLabel-root {
+  margin: 0 !important;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.template-list-row td:last-child > .d-flex {
+  align-items: center;
+  gap: 7px !important;
+}
+
+.template-list-redesign .edit-item-btn,
+.template-list-redesign .remove-item-btn,
+.template-list-redesign .actionButtonsStyle {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  padding: 0 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border: 1px solid #d8e0e9 !important;
+  border-radius: 7px !important;
+
+  background: #ffffff !important;
+  color: #596679 !important;
+
+  font-size: 14px !important;
+
+  box-shadow: none !important;
+}
+
+.template-list-redesign .copy .edit-item-btn:hover {
+  border-color: #c4d2e7 !important;
+  background: #f3f7fd !important;
+  color: #4f6f9d !important;
+}
+
+.template-list-redesign .edit .edit-item-btn:hover {
+  border-color: #a9deea !important;
+  background: #eefafd !important;
+  color: #0788a2 !important;
+}
+
+.template-list-redesign .remove .remove-item-btn:hover {
+  border-color: #f0c2c8 !important;
+  background: #fff2f3 !important;
+  color: #d14455 !important;
+}
+
+/* =========================================================
+   EMPTY / PAGINATION
+   ========================================================= */
+
+.template-list-redesign .template-list-pagination {
+  min-height: 64px;
+  padding: 13px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  border-top: 1px solid var(--tl-border);
+  background: #ffffff;
+}
+
+.template-list-pagination .fixed-bottom {
+  position: static !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.template-list-pagination .fixed-bottom > .row,
+.template-list-pagination .row {
+  margin: 0 !important;
+}
+
+.template-list-pagination .pagination {
+  margin: 0 !important;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.template-list-pagination .mb-4 {
+  margin-bottom: 0 !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 991px) {
+  .template-list-page-header,
+  .template-list-redesign .template-list-page-content {
+    width: calc(100% - 32px);
+  }
+}
+
+@media (max-width: 767px) {
+  .template-list-page-header,
+  .template-list-redesign .template-list-page-content {
+    width: calc(100% - 20px);
+  }
+
+  .template-list-page-title {
+    font-size: 24px;
+  }
+
+  .template-list-tabs-wrap {
+    padding: 0 12px !important;
+    overflow-x: auto;
+  }
+
+  .template-list-tabs {
+    width: max-content;
+  }
+
+  .template-list-tabs .nav-link {
+    white-space: nowrap;
+  }
+
+  .template-list-toolbar {
+    padding: 12px !important;
+  }
+
+  .template-list-toolbar > [class*="col-"] {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .template-list-toolbar > [class*="col-"]:last-child {
+    margin-top: 10px;
+  }
+
+  .template-list-search-box {
+    max-width: none !important;
+  }
+
+  .template-list-add-action {
+    width: 100%;
+  }
+
+  .template-list-add-action .btn,
+  .template-list-add-action .create-item-btn {
+    width: 100% !important;
+  }
+
+  .template-list-pagination {
+    padding: 13px 12px !important;
+  }
+}
+
+/* =========================================================
+   TEMPLATE LIST V2 FIXES
+   Fixes spacing, table clipping, footer overlap and column layout
+   ========================================================= */
+
+/* Remove old 3rem gap and nested Bootstrap padding */
+.template-list-redesign .template-list-customer-section {
+  margin-top: 0 !important;
+}
+
+.template-list-redesign .template-list-page-content {
+  margin-top: 18px !important;
+}
+
+.template-list-redesign .template-list-inner-card-body {
+  padding: 0 !important;
+}
+
+.template-list-redesign .template-list-table-card {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Tabs + list should read as one continuous card */
+.template-list-redesign .template-list-tabs-wrap {
+  width: 100%;
+}
+
+.template-list-redesign .template-list-table-card {
+  border-top: 1px solid var(--tl-border);
+}
+
+/* Keep toolbar compact and aligned */
+.template-list-redesign .template-list-toolbar {
+  min-height: 78px;
+  padding: 12px 20px !important;
+}
+
+.template-list-redesign .template-list-toolbar .d-flex.justify-content-start {
+  align-items: center;
+}
+
+/* Filter icon should use the same neutral/cyan palette */
+.template-list-redesign .filter i,
+.template-list-redesign .Filter-apply-color {
+  color: #536174 !important;
+}
+
+.template-list-redesign .create-item-btn.filter i {
+  color: #087f98 !important;
+}
+
+/* =========================================================
+   MAIN TEMPLATES TABLE — prevent hidden columns wasting width
+   ========================================================= */
+
+.template-list-redesign .template-list-main-table {
+  min-width: 980px;
+  table-layout: fixed;
+}
+
+/* Profession is DOM column 2 */
+.template-list-redesign
+  .template-list-main-table--no-profession
+  thead
+  td:nth-child(2),
+.template-list-redesign
+  .template-list-main-table--no-profession
+  tbody
+  td:nth-child(2) {
+  display: none !important;
+}
+
+/* Business type is DOM column 3 */
+.template-list-redesign
+  .template-list-main-table--no-business
+  thead
+  td:nth-child(3),
+.template-list-redesign
+  .template-list-main-table--no-business
+  tbody
+  td:nth-child(3) {
+  display: none !important;
+}
+
+/* Default admin view: Name / Type / Prospect / Default / Status / Actions */
+.template-list-redesign
+  .template-list-main-table--no-profession.template-list-main-table--no-business
+  thead
+  td:nth-child(1),
+.template-list-redesign
+  .template-list-main-table--no-profession.template-list-main-table--no-business
+  tbody
+  td:nth-child(1) {
+  width: 30% !important;
+}
+
+.template-list-redesign
+  .template-list-main-table--no-profession.template-list-main-table--no-business
+  thead
+  td:nth-child(4),
+.template-list-redesign
+  .template-list-main-table--no-profession.template-list-main-table--no-business
+  tbody
+  td:nth-child(4) {
+  width: 14% !important;
+}
+
+.template-list-redesign
+  .template-list-main-table--no-profession.template-list-main-table--no-business
+  thead
+  td:nth-child(5),
+.template-list-redesign
+  .template-list-main-table--no-profession.template-list-main-table--no-business
+  tbody
+  td:nth-child(5) {
+  width: 25% !important;
+}
+
+.template-list-redesign
+  .template-list-main-table--no-profession.template-list-main-table--no-business
+  thead
+  td:nth-child(6),
+.template-list-redesign
+  .template-list-main-table--no-profession.template-list-main-table--no-business
+  tbody
+  td:nth-child(6) {
+  width: 11% !important;
+}
+
+.template-list-redesign
+  .template-list-main-table--no-profession.template-list-main-table--no-business
+  thead
+  td:nth-child(7),
+.template-list-redesign
+  .template-list-main-table--no-profession.template-list-main-table--no-business
+  tbody
+  td:nth-child(7) {
+  width: 11% !important;
+}
+
+.template-list-redesign
+  .template-list-main-table--no-profession.template-list-main-table--no-business
+  thead
+  td:nth-child(8),
+.template-list-redesign
+  .template-list-main-table--no-profession.template-list-main-table--no-business
+  tbody
+  td:nth-child(8) {
+  width: 9% !important;
+  min-width: 126px;
+}
+
+/* When profession/business are visible, use balanced widths */
+.template-list-redesign
+  .template-list-main-table:not(.template-list-main-table--no-profession)
+  thead
+  td:nth-child(1),
+.template-list-redesign
+  .template-list-main-table:not(.template-list-main-table--no-profession)
+  tbody
+  td:nth-child(1) {
+  min-width: 190px;
+}
+
+.template-list-redesign .template-list-main-table thead td:last-child,
+.template-list-redesign .template-list-main-table tbody td:last-child {
+  min-width: 126px;
+}
+
+/* =========================================================
+   HEADER / FOOTER TABLE
+   ========================================================= */
+
+.template-list-redesign .template-list-hf-table {
+  min-width: 820px;
+  table-layout: fixed;
+}
+
+.template-list-redesign
+  .template-list-hf-table--no-profession
+  thead
+  td:nth-child(2),
+.template-list-redesign
+  .template-list-hf-table--no-profession
+  tbody
+  td:nth-child(2) {
+  display: none !important;
+}
+
+.template-list-redesign .template-list-hf-table thead td:first-child,
+.template-list-redesign .template-list-hf-table tbody td:first-child {
+  width: 42% !important;
+}
+
+.template-list-redesign .template-list-hf-table thead td:last-child,
+.template-list-redesign .template-list-hf-table tbody td:last-child {
+  width: 15% !important;
+  min-width: 120px;
+}
+
+/* =========================================================
+   PDF TABLE
+   ========================================================= */
+
+.template-list-redesign .template-list-pdf-table {
+  min-width: 760px;
+  table-layout: fixed;
+}
+
+.template-list-redesign .template-list-pdf-table thead td:nth-child(1),
+.template-list-redesign .template-list-pdf-table tbody td:nth-child(1) {
+  width: 48% !important;
+}
+
+.template-list-redesign .template-list-pdf-table thead td:nth-child(2),
+.template-list-redesign .template-list-pdf-table tbody td:nth-child(2) {
+  width: 20% !important;
+}
+
+.template-list-redesign .template-list-pdf-table thead td:nth-child(3),
+.template-list-redesign .template-list-pdf-table tbody td:nth-child(3) {
+  width: 17% !important;
+}
+
+.template-list-redesign .template-list-pdf-table thead td:nth-child(4),
+.template-list-redesign .template-list-pdf-table tbody td:nth-child(4) {
+  width: 15% !important;
+  min-width: 125px;
+}
+
+/* =========================================================
+   STATUS / DEFAULT PILLS
+   ========================================================= */
+
+.template-list-default-badge,
+.template-list-status-badge {
+  min-width: 52px;
+  min-height: 28px;
+  padding: 0 10px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.template-list-default-badge.is-default {
+  background: #eaf8f3;
+  color: #18845f;
+}
+
+.template-list-default-badge.is-not-default {
+  background: #f2f4f7;
+  color: #697586;
+}
+
+.template-list-status-badge.is-active {
+  background: #eaf8f3;
+  color: #18845f;
+}
+
+.template-list-status-badge.is-inactive {
+  background: #fff0f2;
+  color: #cf4052;
+}
+
+.template-list-redesign td.Switch > .d-flex > .template-list-status-badge,
+.template-list-redesign td.Switch > .d-flex > .template-list-default-badge {
+  width: auto !important;
+  min-width: 52px !important;
+  padding: 0 10px !important;
+}
+
+/* =========================================================
+   DOCUMENT / ACTIONS
+   ========================================================= */
+
+.template-list-document-link {
+  min-height: 30px;
+  padding: 0 10px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  border-radius: 999px;
+
+  background: #eef7fb;
+  color: #087f98 !important;
+
+  font-size: 10.5px;
+  font-weight: 600;
+  text-decoration: none !important;
+}
+
+.template-list-document-link:hover {
+  background: #e2f4f8;
+}
+
+.template-list-actions-cell {
+  text-align: center;
+}
+
+.template-list-row-actions {
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  flex-wrap: nowrap !important;
+}
+
+/* =========================================================
+   FOOTER FLOW — don't let global footer cover table rows
+   ========================================================= */
+
+.template-list-redesign {
+  min-height: auto !important;
+  overflow: visible !important;
+}
+
+.template-list-redesign + footer,
+.template-list-redesign ~ footer,
+.template-list-redesign + .footer,
+.template-list-redesign ~ .footer {
+  position: static !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  width: 100% !important;
+  margin-top: 0 !important;
+}
+
+.template-list-redesign .template-list-table-card {
+  margin-bottom: 0 !important;
+}
+
+/* Give the end of the page natural breathing room */
+.template-list-redesign .template-list-page-content {
+  padding-bottom: 20px !important;
+}
+
+/* Avoid clipping action buttons at the right edge */
+.template-list-redesign .table-responsive.template-list-table-card {
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+}
+
+@media (max-width: 767px) {
+  .template-list-redesign .template-list-page-content {
+    margin-top: 12px !important;
+  }
+
+  .template-list-redesign .template-list-main-table {
+    min-width: 900px;
+  }
+
+  .template-list-redesign .template-list-toolbar {
+    gap: 10px;
+  }
+}
+
+/* =========================================================
+   TEMPLATE LIST V3
+   Screenshot-driven refinements
+   ========================================================= */
+
+/* ---------- overall composition ---------- */
+
+.template-list-redesign .template-list-page-content {
+  width: calc(100% - 36px) !important;
+  max-width: 1500px;
+  margin: 18px auto 28px !important;
+  padding-bottom: 0 !important;
+}
+
+.template-list-page-header {
+  width: calc(100% - 36px) !important;
+  max-width: 1500px;
+  padding-top: 24px !important;
+  padding-bottom: 16px !important;
+  padding-left: 15px !important;
+}
+
+.template-list-redesign .template-list-tabs-wrap {
+  border-radius: 12px 12px 0 0 !important;
+  border-bottom: 1px solid var(--tl-border) !important;
+}
+
+.template-list-redesign .template-list-table-card {
+  border-top: 0 !important;
+  border-radius: 0 0 12px 12px !important;
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.04),
+    0 10px 28px rgba(15, 23, 42, 0.025) !important;
+}
+
+/* ---------- toolbar ---------- */
+
+.template-list-redesign .template-list-toolbar {
+  min-height: 74px !important;
+  padding: 10px 14px !important;
+}
+
+.template-list-redesign .template-list-search-box {
+  width: min(100%, 360px) !important;
+  max-width: 360px !important;
+}
+
+.template-list-redesign .template-list-search-box .form-control {
+  height: 42px !important;
+}
+
+.template-list-toolbar-right {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+}
+
+.template-list-toolbar-meta {
+  display: flex;
+  align-items: center;
+}
+
+.template-list-toolbar-meta > span {
+  color: #7c8797;
+  font-size: 10.5px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.template-list-redesign .template-list-add-action .btn,
+.template-list-redesign .template-list-add-action .create-item-btn {
+  min-height: 42px !important;
+  padding: 0 15px !important;
+  font-size: 11.5px !important;
+}
+
+/* ---------- fit desktop table into the card: no ugly bottom scrollbar ---------- */
+
+@media (min-width: 992px) {
+  .template-list-redesign .template-list-table-card {
+    overflow-x: hidden !important;
+  }
+
+  .template-list-redesign .template-list-main-table,
+  .template-list-redesign .template-list-pdf-table,
+  .template-list-redesign .template-list-hf-table {
+    min-width: 0 !important;
+    width: 100% !important;
+    table-layout: fixed !important;
+  }
+
+  /* Most common admin layout:
+     Name / Type / Prospect Type / Is Default / Status / Action */
+  .template-list-redesign
+    .template-list-main-table--no-profession.template-list-main-table--no-business
+    thead
+    td:nth-child(1),
+  .template-list-redesign
+    .template-list-main-table--no-profession.template-list-main-table--no-business
+    tbody
+    td:nth-child(1) {
+    width: 27% !important;
+  }
+
+  .template-list-redesign
+    .template-list-main-table--no-profession.template-list-main-table--no-business
+    thead
+    td:nth-child(4),
+  .template-list-redesign
+    .template-list-main-table--no-profession.template-list-main-table--no-business
+    tbody
+    td:nth-child(4) {
+    width: 13% !important;
+  }
+
+  .template-list-redesign
+    .template-list-main-table--no-profession.template-list-main-table--no-business
+    thead
+    td:nth-child(5),
+  .template-list-redesign
+    .template-list-main-table--no-profession.template-list-main-table--no-business
+    tbody
+    td:nth-child(5) {
+    width: 25% !important;
+  }
+
+  .template-list-redesign
+    .template-list-main-table--no-profession.template-list-main-table--no-business
+    thead
+    td:nth-child(6),
+  .template-list-redesign
+    .template-list-main-table--no-profession.template-list-main-table--no-business
+    tbody
+    td:nth-child(6) {
+    width: 12% !important;
+  }
+
+  .template-list-redesign
+    .template-list-main-table--no-profession.template-list-main-table--no-business
+    thead
+    td:nth-child(7),
+  .template-list-redesign
+    .template-list-main-table--no-profession.template-list-main-table--no-business
+    tbody
+    td:nth-child(7) {
+    width: 12% !important;
+  }
+
+  .template-list-redesign
+    .template-list-main-table--no-profession.template-list-main-table--no-business
+    thead
+    td:nth-child(8),
+  .template-list-redesign
+    .template-list-main-table--no-profession.template-list-main-table--no-business
+    tbody
+    td:nth-child(8) {
+    width: 11% !important;
+    min-width: 0 !important;
+  }
+
+  /* PDF */
+  .template-list-redesign .template-list-pdf-table thead td:nth-child(1),
+  .template-list-redesign .template-list-pdf-table tbody td:nth-child(1) {
+    width: 50% !important;
+  }
+
+  .template-list-redesign .template-list-pdf-table thead td:nth-child(2),
+  .template-list-redesign .template-list-pdf-table tbody td:nth-child(2) {
+    width: 18% !important;
+  }
+
+  .template-list-redesign .template-list-pdf-table thead td:nth-child(3),
+  .template-list-redesign .template-list-pdf-table tbody td:nth-child(3) {
+    width: 17% !important;
+  }
+
+  .template-list-redesign .template-list-pdf-table thead td:nth-child(4),
+  .template-list-redesign .template-list-pdf-table tbody td:nth-child(4) {
+    width: 15% !important;
+    min-width: 0 !important;
+  }
+}
+
+/* ---------- table density / typography ---------- */
+
+.template-list-redesign .template-list-table-head td,
+.template-list-redesign .template-list-table-head th {
+  height: 50px !important;
+  padding: 0 12px !important;
+  font-size: 10px !important;
+}
+
+.template-list-redesign .template-list-row td {
+  height: 66px !important;
+  min-height: 66px !important;
+  padding: 10px 12px !important;
+  font-size: 11.5px !important;
+}
+
+.template-list-name-column {
+  color: #20314a !important;
+  font-weight: 600 !important;
+}
+
+.template-list-type-column {
+  color: #526176 !important;
+  font-weight: 500;
+}
+
+.template-list-prospect-column {
+  color: #526176 !important;
+  white-space: normal !important;
+  line-height: 1.35 !important;
+  overflow-wrap: anywhere;
+}
+
+/* stop Bootstrap table-nowrap from stretching the whole table */
+.template-list-redesign .template-list-main-table tbody td,
+.template-list-redesign .template-list-main-table thead td {
+  white-space: normal;
+}
+
+.template-list-redesign .template-list-main-table thead td {
+  white-space: nowrap;
+}
+
+/* ---------- compact switch/status areas ---------- */
+
+.template-list-redesign td.Switch > .d-flex {
+  width: 100%;
+  min-width: 0;
+  justify-content: flex-start;
+  gap: 4px !important;
+}
+
+.template-list-redesign td.Switch .MuiFormGroup-root {
+  width: auto !important;
+  min-width: 0 !important;
+}
+
+.template-list-redesign td.Switch .MuiFormControlLabel-root {
+  min-width: 0 !important;
+}
+
+.template-list-redesign td.Switch .MuiSwitch-root {
+  margin-left: -4px !important;
+  margin-right: -7px !important;
+  transform: scale(0.82);
+  transform-origin: center;
+}
+
+.template-list-default-badge,
+.template-list-status-badge {
+  min-width: 45px !important;
+  min-height: 25px !important;
+  padding: 0 8px !important;
+  font-size: 9.5px !important;
+}
+
+/* ---------- compact, fully visible actions ---------- */
+
+.template-list-actions-cell {
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+}
+
+.template-list-row-actions {
+  width: 100%;
+  min-width: 0 !important;
+  justify-content: center !important;
+  gap: 5px !important;
+}
+
+.template-list-redesign .edit-item-btn,
+.template-list-redesign .remove-item-btn,
+.template-list-redesign .actionButtonsStyle {
+  width: 31px !important;
+  height: 31px !important;
+  min-width: 31px !important;
+  min-height: 31px !important;
+  flex: 0 0 31px !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+}
+
+/* ---------- pagination and real footer flow ---------- */
+
+.template-list-redesign .template-list-pagination {
+  min-height: 58px !important;
+  padding: 10px 12px !important;
+  border-top: 1px solid var(--tl-border);
+  background: #fff;
+}
+
+/* Footer is now explicitly wrapped, so override any shared fixed/sticky rule. */
+.template-list-footer-wrap,
+.template-list-footer-wrap footer,
+.template-list-footer-wrap .footer,
+.template-list-footer-wrap .fixed-bottom {
+  position: static !important;
+  inset: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+.template-list-footer-wrap {
+  display: block;
+  clear: both;
+  background: #f7f9fc;
+}
+
+.template-list-footer-wrap .footer {
+  min-height: 52px;
+}
+
+/* card must never hide pagination or actions */
+.template-list-redesign .template-list-table-card {
+  overflow-y: visible !important;
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 991px) {
+  .template-list-redesign .template-list-table-card {
+    overflow-x: auto !important;
+  }
+
+  .template-list-redesign .template-list-main-table {
+    min-width: 880px !important;
+  }
+
+  .template-list-toolbar-right {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 767px) {
+  .template-list-page-header,
+  .template-list-redesign .template-list-page-content {
+    width: calc(100% - 20px) !important;
+  }
+
+  .template-list-toolbar-right {
+    width: 100%;
+    margin-top: 8px;
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .template-list-toolbar-meta {
+    justify-content: flex-start;
+  }
+}
+
+/* =========================================================
+   TEMPLATE LIST V4 — TOOLBAR / SEARCH FIX
+   The toolbar is intentionally NOT a Bootstrap row and is NOT
+   inside a .table-responsive element anymore.
+   ========================================================= */
+
+.template-list-redesign .template-list-table-card {
+  width: 100% !important;
+  max-width: 100% !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  overflow: visible !important;
+
+  border: 1px solid var(--tl-border) !important;
+  border-top: 0 !important;
+  border-radius: 0 0 12px 12px !important;
+
+  background: #ffffff !important;
+}
+
+/* ---------- Clean toolbar ---------- */
+
+.template-list-redesign .template-list-toolbar {
+  width: 100%;
+  min-height: 72px !important;
+
+  margin: 0 !important;
+  padding: 14px 18px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+
+  border-bottom: 1px solid var(--tl-border) !important;
+
+  background: #ffffff !important;
+}
+
+.template-list-toolbar-left {
+  min-width: 0;
+  flex: 1 1 auto;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.template-list-toolbar-right {
+  min-width: max-content;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* ---------- Search ---------- */
+
+.template-list-redesign .template-list-search-box {
+  position: relative;
+
+  width: 340px !important;
+  max-width: 340px !important;
+  min-width: 240px !important;
+
+  flex: 0 1 340px;
+}
+
+.template-list-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  z-index: 2;
+
+  transform: translateY(-50%);
+
+  color: #657286;
+  font-size: 18px;
+
+  pointer-events: none;
+}
+
+.template-list-search-input {
+  width: 100%;
+  height: 42px;
+
+  padding: 9px 13px 9px 40px;
+
+  border: 1px solid #d4dde7;
+  border-radius: 8px;
+
+  outline: none;
+
+  background: #ffffff;
+  color: #28374c;
+
+  font-size: 12.5px;
+  line-height: 1.2;
+
+  box-shadow: none;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.template-list-search-input::placeholder {
+  color: #939eae;
+}
+
+.template-list-search-input:focus {
+  border-color: #7bcfdf;
+
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08);
+}
+
+/* ---------- Filter ---------- */
+
+.template-list-filter-btn {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #d4dde7;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #59677a;
+
+  font-size: 16px;
+
+  cursor: pointer;
+
+  box-shadow: none;
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.template-list-filter-btn:hover,
+.template-list-filter-btn--active {
+  border-color: #9bd8e4;
+
+  background: #eefafd;
+  color: #087f98;
+}
+
+.template-list-clear-filter-btn {
+  height: 42px;
+  padding: 0 13px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  border: 1px solid #d4dde7;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #5f6d80;
+
+  font-size: 11.5px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.template-list-clear-filter-btn:hover {
+  background: #f7f9fb;
+  color: #2f3e53;
+}
+
+/* ---------- Add button ---------- */
+
+.template-list-redesign .template-list-add-action {
+  display: flex;
+  align-items: center;
+}
+
+.template-list-redesign .template-list-add-action .btn,
+.template-list-redesign .template-list-add-action .create-item-btn {
+  min-height: 42px !important;
+  height: 42px !important;
+
+  margin: 0 !important;
+  padding: 0 15px !important;
+
+  border-radius: 8px !important;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   TABLE OVERFLOW BELONGS TO TABLE AREA ONLY
+   ========================================================= */
+
+.template-list-redesign .template-list-data-pane {
+  width: 100%;
+
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+
+  scrollbar-width: thin;
+  scrollbar-color: #c9d1dc transparent;
+}
+
+.template-list-redesign .template-list-data-pane::-webkit-scrollbar {
+  height: 7px;
+}
+
+.template-list-redesign .template-list-data-pane::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #c9d1dc;
+}
+
+.template-list-redesign .template-list-data-pane::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Desktop tables must fit without generating a scrollbar. */
+@media (min-width: 1100px) {
+  .template-list-redesign .template-list-main-table,
+  .template-list-redesign .template-list-pdf-table,
+  .template-list-redesign .template-list-hf-table {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed !important;
+  }
+
+  .template-list-redesign .template-list-data-pane {
+    overflow-x: hidden !important;
+  }
+}
+
+/* Remove old Bootstrap search/filter rules from influencing V4 */
+.template-list-redesign .template-list-toolbar .search-box,
+.template-list-redesign .template-list-toolbar .width-searchbox,
+.template-list-redesign .template-list-toolbar #w-100 {
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+.template-list-redesign .template-list-toolbar .filter,
+.template-list-redesign .template-list-toolbar .create-item-btn-apply,
+.template-list-redesign .template-list-toolbar .create-Filter-item-btn {
+  all: revert;
+}
+
+/* =========================================================
+   FOOTER / PAGINATION FLOW
+   ========================================================= */
+
+.template-list-redesign .template-list-pagination {
+  position: relative !important;
+
+  width: 100%;
+
+  min-height: 60px !important;
+  padding: 10px 14px !important;
+
+  border-top: 1px solid var(--tl-border);
+
+  background: #ffffff;
+}
+
+.template-list-redesign .template-list-pagination .fixed-bottom {
+  position: static !important;
+
+  inset: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.template-list-footer-wrap,
+.template-list-footer-wrap footer,
+.template-list-footer-wrap .footer,
+.template-list-footer-wrap .fixed-bottom {
+  position: static !important;
+
+  inset: auto !important;
+
+  width: 100% !important;
+
+  margin: 0 !important;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 767px) {
+  .template-list-redesign .template-list-toolbar {
+    padding: 12px !important;
+
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
+
+  .template-list-toolbar-left,
+  .template-list-toolbar-right {
+    width: 100%;
+  }
+
+  .template-list-toolbar-left {
+    flex-wrap: wrap;
+  }
+
+  .template-list-redesign .template-list-search-box {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+
+    flex: 1 1 100%;
+  }
+
+  .template-list-redesign .template-list-add-action,
+  .template-list-redesign .template-list-add-action .btn,
+  .template-list-redesign .template-list-add-action .create-item-btn {
+    width: 100% !important;
+  }
+
+  .template-list-clear-filter-btn {
+    flex: 1;
+  }
+}
+
+/* =========================================================
+   TEMPLATE LIST V5 — MATCH TABS + LIST WIDTH
+   The list was narrower because it sits inside a Bootstrap
+   .row > .col-lg-12, which adds horizontal gutter padding.
+   ========================================================= */
+
+.template-list-redesign .template-list-customer-section {
+  width: 100% !important;
+}
+
+/* Tabs card */
+.template-list-redesign
+  .template-list-customer-section
+  > .template-list-tabs-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Remove the Bootstrap gutter around the list section */
+.template-list-redesign .template-list-customer-section > div:nth-of-type(2) {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.template-list-redesign
+  .template-list-customer-section
+  > div:nth-of-type(2)
+  > .row {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.template-list-redesign
+  .template-list-customer-section
+  > div:nth-of-type(2)
+  > .row
+  > .col-lg-12 {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Make inner list shell/card exactly follow the tabs width */
+.template-list-redesign .template-list-customer-section .template-list-shell,
+.template-list-redesign
+  .template-list-customer-section
+  .template-list-inner-card-body,
+.template-list-redesign
+  .template-list-customer-section
+  .template-list-table-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Tabs + list visually form one exact-width component */
+.template-list-redesign .template-list-tabs-wrap {
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.template-list-redesign .template-list-table-card {
+  border-radius: 0 0 12px 12px !important;
+}

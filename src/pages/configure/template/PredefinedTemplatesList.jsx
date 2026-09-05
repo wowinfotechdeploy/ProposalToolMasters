@@ -1,6 +1,7 @@
 /* global $ */
 import React, { useContext, useEffect, useState } from "react";
 import "./template.css";
+import "./template-list-redesign.css";
 import { useNavigate, useLocation } from "react-router";
 import CommonButtonComponent from "../../../components/CommonButtonComponent";
 import ConfirmModel from "../../../components/ConfirmationBox";
@@ -1152,21 +1153,37 @@ function Predefined_Templates() {
 
   return (
     <>
-      <div className="container-fluid">
+      <div className="container-fluid template-list-redesign">
+        <div className="template-list-page-header">
+          <div>
+            <h1 className="template-list-page-title">Templates</h1>
+            <p className="template-list-page-subtitle">
+              Manage templates, supporting documents, and header/footer
+              configurations.
+            </p>
+          </div>
+        </div>
+
         {/* <div class="main-content"> */}
-        <div class="services page-background">
+        <div className="services page-background template-list-page-content">
           <div class="">
             <div class="row">
               <div class="col-lg-12">
-                <div class="card">
+                <div className="card template-list-shell">
                   {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
+                  <div className="card-body mb-2 template-list-shell-body">
+                    <div
+                      id="customerList"
+                      className="template-list-customer-section"
+                    >
+                      <div className="bg-light border-bottom px-2 template-list-tabs-wrap">
                         {/* <div className="container"> */}
                         <div className="row">
                           <div className="col-md-12 ">
-                            <ul className="nav nav-tabs" role="tablist">
+                            <ul
+                              className="nav nav-tabs template-list-tabs"
+                              role="tablist"
+                            >
                               <li className="nav-item">
                                 <a
                                   className={`nav-link tab_nav ${
@@ -1228,27 +1245,76 @@ function Predefined_Templates() {
                       <div class="">
                         <div class="row">
                           <div class="col-lg-12">
-                            <div class="card">
+                            <div className="card template-list-shell">
                               {/* end card header  */}
-                              <div class="card-body">
+                              <div className="card-body template-list-inner-card-body">
                                 <div id="customerList">
-                                  <div class="row g-4 mb-3"></div>
-                                  <div class="table-responsive table-card mt-2 mb-3 table-padding">
-                                    <div className="row pt-3 pb-2">
-                                      <div class="col-md-6 col-lg-6 col-7  mb-2">
+                                  <div className="template-list-table-card">
+                                    <div className="template-list-toolbar">
+                                      <div className="template-list-toolbar-left">
+                                        {activeTab === "Templates" && (
+                                          <>
+                                            <div className="template-list-search-box">
+                                              <i className="ri-search-line template-list-search-icon"></i>
+                                              <input
+                                                type="text"
+                                                value={searchKeyword}
+                                                onChange={handleSearch}
+                                                className="template-list-search-input"
+                                                placeholder={
+                                                  isMobile
+                                                    ? "Search"
+                                                    : getPlaceholderTextName(
+                                                        "Search",
+                                                        moduleName,
+                                                      )
+                                                }
+                                              />
+                                            </div>
+
+                                            <Tooltip
+                                              title={getCrudButtonToolTipName(
+                                                "Filter",
+                                                moduleName,
+                                              )}
+                                            >
+                                              <button
+                                                type="button"
+                                                className={`template-list-filter-btn ${
+                                                  isFilterApply
+                                                    ? "template-list-filter-btn--active"
+                                                    : ""
+                                                }`}
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#FilterModel"
+                                              >
+                                                <i className="ri-filter-3-line"></i>
+                                              </button>
+                                            </Tooltip>
+
+                                            {isFilterApply && (
+                                              <Tooltip title="Clear Filter">
+                                                <button
+                                                  type="button"
+                                                  className="template-list-clear-filter-btn"
+                                                  onClick={ClearFilter}
+                                                >
+                                                  <i className="ri-close-line"></i>
+                                                  <span>Clear Filter</span>
+                                                </button>
+                                              </Tooltip>
+                                            )}
+                                          </>
+                                        )}
+
                                         {activeTab === "Templates PDF" && (
-                                          <div
-                                            class="search-box col-md-5 col-8 width-searchbox "
-                                            style={{}}
-                                          >
-                                            <i className="ri-search-line search-icon"></i>
+                                          <div className="template-list-search-box">
+                                            <i className="ri-search-line template-list-search-icon"></i>
                                             <input
                                               type="text"
                                               value={searchKeywordForPDF}
-                                              onChange={(e) => {
-                                                handleSearchForPdf(e);
-                                              }}
-                                              className="form-control w-100 search"
+                                              onChange={handleSearchForPdf}
+                                              className="template-list-search-input"
                                               placeholder={
                                                 isMobile
                                                   ? "Search"
@@ -1261,166 +1327,48 @@ function Predefined_Templates() {
                                           </div>
                                         )}
 
-                                        {activeTab === "Templates" && (
-                                          <div className="d-flex justify-content-start">
-                                            <div
-                                              class="search-box  width-searchbox "
-                                              id="w-100"
-                                              style={{ marginRight: "10px" }}
-                                            >
-                                              <i className="ri-search-line search-icon"></i>
-                                              <input
-                                                type="text"
-                                                value={searchKeyword}
-                                                onChange={(e) => {
-                                                  handleSearch(e);
-                                                }}
-                                                className="form-control search"
-                                                placeholder={
-                                                  isMobile
-                                                    ? "Search"
-                                                    : getPlaceholderTextName(
-                                                        "Search",
-                                                        moduleName,
-                                                      )
-                                                }
-                                              />
-                                            </div>
-                                            <div className=" d-flex align-items-start justify-content-start ">
-                                              <Tooltip
-                                                title={getCrudButtonToolTipName(
-                                                  "Filter",
-                                                  moduleName,
-                                                )}
-                                              >
-                                                <div>
-                                                  <button
-                                                    className={
-                                                      isFilterApply
-                                                        ? "btn btn-md btn-success create-item-btn filter me-2"
-                                                        : "btn btn-md btn-success create-item-btn-apply filter me-2"
-                                                    }
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#FilterModel"
-                                                  >
-                                                    <i
-                                                      className={
-                                                        isFilterApply
-                                                          ? "ri-filter-fill align-bottom "
-                                                          : "ri-filter-fill align-bottom Filter-apply-color"
-                                                      }
-                                                    ></i>
-                                                  </button>
-                                                </div>
-                                              </Tooltip>
-                                              <div className="col-9">
-                                                {isFilterApply ? (
-                                                  <Tooltip
-                                                    title={"Clear Filter"}
-                                                  >
-                                                    <div>
-                                                      <button
-                                                        className="btn btn-md btn-success create-Filter-item-btn text-nowrap"
-                                                        onClick={ClearFilter} // Corrected from onclick to onClick
-                                                      >
-                                                        <span>
-                                                          Clear Filter
-                                                        </span>
-                                                      </button>
-                                                    </div>
-                                                  </Tooltip>
-                                                ) : (
-                                                  ""
-                                                )}
-                                              </div>
-                                            </div>
-                                          </div>
-                                        )}
                                         {activeTab === "Header and Footer" && (
-                                          <div className="d-flex justify-content-start">
-                                            <div
-                                              class="search-box  width-searchbox "
-                                              id="w-100"
-                                              style={{ marginRight: "10px" }}
-                                            >
-                                              <i className="ri-search-line search-icon"></i>
-                                              <input
-                                                type="text"
-                                                value={searchKeywordHF}
-                                                onChange={(e) => {
-                                                  handleSearchForHF(e);
-                                                }}
-                                                className="form-control search"
-                                                placeholder={
-                                                  isMobile
-                                                    ? "Search"
-                                                    : getPlaceholderTextName(
-                                                        "Search",
-                                                        moduleNameForHeaderFooter,
-                                                      )
-                                                }
-                                              />
-                                            </div>
-                                            {/* <div className=" d-flex align-items-start justify-content-start ">
-                                  <Tooltip
-                                    title={getCrudButtonToolTipName(
-                                      "Filter",
-                                      moduleNameForHeaderFooter
-                                    )}
-                                  >
-                                    <div>
-                                      <button
-                                        className={
-                                          isFilterApply
-                                            ? "btn btn-md btn-success create-item-btn filter me-2"
-                                            : "btn btn-md btn-success create-item-btn-apply filter me-2"
-                                        }
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#FilterModel"
-                                      >
-                                        <i
-                                          className={
-                                            isFilterApply
-                                              ? "ri-filter-fill align-bottom "
-                                              : "ri-filter-fill align-bottom Filter-apply-color"
-                                          }
-                                        ></i>
-                                      </button>
-                                    </div>
-                                  </Tooltip>
-                                  <div className="col-9">
-                                    {isFilterApply ? (
-                                      <Tooltip title={"Clear Filter"}>
-                                        <div>
-                                          <button
-                                            className="btn btn-md btn-success create-Filter-item-btn text-nowrap"
-                                            onClick={ClearFilter} // Corrected from onclick to onClick
-                                          >
-                                            <span>Clear Filter</span>
-                                          </button>
-                                        </div>
-                                      </Tooltip>
-                                    ) : (
-                                      ""
-                                    )}
-                                  </div>
-                                </div> */}
+                                          <div className="template-list-search-box">
+                                            <i className="ri-search-line template-list-search-icon"></i>
+                                            <input
+                                              type="text"
+                                              value={searchKeywordHF}
+                                              onChange={handleSearchForHF}
+                                              className="template-list-search-input"
+                                              placeholder={
+                                                isMobile
+                                                  ? "Search"
+                                                  : getPlaceholderTextName(
+                                                      "Search",
+                                                      moduleNameForHeaderFooter,
+                                                    )
+                                              }
+                                            />
                                           </div>
                                         )}
                                       </div>
 
-                                      <div class="col-lg-6 col-md-6 col-5  mb-2">
+                                      <div className="template-list-toolbar-right">
                                         {((userAccessData.Admin_Config_Template_CanAdd &&
                                           common.organisationKeyID !== null) ||
                                           (userAccessData.SuperAdmin_Config_Template_CanAdd &&
                                             common.organisationKeyID ===
                                               null)) && (
-                                          <div className="d-flex justify-content-sm-end add-new-btn">
-                                            {/* <div
-                                className={`tab-pane ${activeTab === "Templates PDF" ? "active" : ""
-                                  }`}
-                                id="base-justified-home"
-                              > */}
+                                          <div className="template-list-add-action">
+                                            {activeTab === "Templates" && (
+                                              <CommonButtonComponent
+                                                title={getCrudButtonToolTipName(
+                                                  "Add",
+                                                  moduleName,
+                                                )}
+                                                name={getCrudButtonTextName(
+                                                  "Add",
+                                                  moduleName,
+                                                )}
+                                                AddBtn={TemplateAddBtnClicked}
+                                              />
+                                            )}
+
                                             {activeTab === "Templates PDF" && (
                                               <CommonButtonComponent
                                                 title={getCrudButtonToolTipName(
@@ -1436,27 +1384,7 @@ function Predefined_Templates() {
                                                 }
                                               />
                                             )}
-                                            {/* </div> */}
-                                            {/* <div
-                                className={`tab-pane ${activeTab === "Templates" ? "active" : ""
-                                  }`}
-                                id="base-justified-home"
-                              > */}
-                                            {activeTab === "Templates" && (
-                                              <CommonButtonComponent
-                                                title={getCrudButtonToolTipName(
-                                                  "Add",
-                                                  moduleName,
-                                                )}
-                                                name={getCrudButtonTextName(
-                                                  "Add",
-                                                  moduleName,
-                                                )}
-                                                AddBtn={() =>
-                                                  TemplateAddBtnClicked()
-                                                }
-                                              />
-                                            )}
+
                                             {activeTab ===
                                               "Header and Footer" && (
                                               <CommonButtonComponent
@@ -1468,12 +1396,11 @@ function Predefined_Templates() {
                                                   "Add",
                                                   moduleNameForHeaderFooter,
                                                 )}
-                                                AddBtn={() =>
-                                                  TemplateHeaderFooterAddBtnClicked()
+                                                AddBtn={
+                                                  TemplateHeaderFooterAddBtnClicked
                                                 }
                                               />
                                             )}
-                                            {/* </div> */}
                                           </div>
                                         )}
                                       </div>
@@ -1481,7 +1408,7 @@ function Predefined_Templates() {
 
                                     {/* Table Of Template and Template Pdf */}
                                     <div
-                                      className={`tab-pane ${
+                                      className={`tab-pane template-list-data-pane ${
                                         activeTab === "Templates PDF"
                                           ? "active"
                                           : ""
@@ -1490,10 +1417,10 @@ function Predefined_Templates() {
                                     >
                                       {activeTab === "Templates PDF" && (
                                         <table
-                                          class="table align-middle table-nowrap"
+                                          className="table align-middle table-nowrap template-list-table template-list-pdf-table"
                                           id="customerTable"
                                         >
-                                          <thead class="table-light table-header-font">
+                                          <thead className="table-light table-header-font template-list-table-head">
                                             <tr className="head-row">
                                               <td
                                                 className="tr-table-class text-white"
@@ -1537,7 +1464,7 @@ function Predefined_Templates() {
                                                 )}
                                               </td>
 
-                                              <td className="tr-table-class text-white isDefault-td">
+                                              <td className="tr-table-class text-white">
                                                 Document
                                               </td>
 
@@ -1545,22 +1472,11 @@ function Predefined_Templates() {
                                                 Status
                                               </td>
                                               <td className="tr-table-class text-white">
-                                                {((userAccessData.Admin_Config_Template_CanEdit &&
-                                                  common.organisationKeyID !==
-                                                    null) ||
-                                                  (userAccessData.SuperAdmin_Config_Template_CanEdit &&
-                                                    common.organisationKeyID ===
-                                                      null) ||
-                                                  (userAccessData.Admin_Config_Template_CanDelete &&
-                                                    common.organisationKeyID !==
-                                                      null) ||
-                                                  (userAccessData.SuperAdmin_Config_Template_CanDelete &&
-                                                    common.organisationKeyID ===
-                                                      null)) && <>Action</>}
+                                                Action
                                               </td>
                                             </tr>
                                           </thead>
-                                          <tbody class="list form-check-all">
+                                          <tbody className="list form-check-all">
                                             {TemplatePdfList.slice(
                                               0,
                                               isMobile
@@ -1568,7 +1484,7 @@ function Predefined_Templates() {
                                                 : desktopRecords,
                                             ).map((Template) => {
                                               return (
-                                                <tr class="table_new table-content-font">
+                                                <tr className="table_new table-content-font template-list-row">
                                                   <td>
                                                     {Template.notifySAChanges !==
                                                       null &&
@@ -1588,7 +1504,7 @@ function Predefined_Templates() {
 
                                                               // data-bs-target="#addUpdateModal"
                                                             >
-                                                              <i class="fa fa-regular fa-bell"></i>
+                                                              <i className="fa fa-regular fa-bell"></i>
                                                             </span>
                                                           </Tooltip>
                                                         </>
@@ -1633,6 +1549,8 @@ function Predefined_Templates() {
                                                       // href="https://teststaging.outbooks.com/api/quote/preview-pdf/b8c4365d-d32a-40ef-9835-f90800aa476b"
                                                       href={Template.pdf}
                                                       target="_blank"
+                                                      rel="noreferrer"
+                                                      className="template-list-document-link"
                                                     >
                                                       {" "}
                                                       View Document
@@ -1661,14 +1579,16 @@ function Predefined_Templates() {
                                                       }}
                                                       class="d-flex gap-2 "
                                                     >
-                                                      <div
-                                                        style={{
-                                                          width: "40px",
-                                                        }}
+                                                      <span
+                                                        className={`template-list-status-badge ${
+                                                          Template.statusName ===
+                                                          "Active"
+                                                            ? "is-active"
+                                                            : "is-inactive"
+                                                        }`}
                                                       >
-                                                        {" "}
                                                         {Template.statusName}
-                                                      </div>
+                                                      </span>
                                                       {((userAccessData.Admin_Config_Template_CanDelete &&
                                                         common.organisationKeyID !==
                                                           null) ||
@@ -1725,8 +1645,8 @@ function Predefined_Templates() {
                                                       )}
                                                     </div>
                                                   </td>
-                                                  <td>
-                                                    <div class="d-flex gap-2">
+                                                  <td className="template-list-actions-cell">
+                                                    <div className="d-flex gap-2 template-list-row-actions">
                                                       <Tooltip
                                                         title={getCrudButtonToolTipName(
                                                           "Copy",
@@ -1754,7 +1674,7 @@ function Predefined_Templates() {
                                                               )
                                                             }
                                                           >
-                                                            <i class="fa-solid fa-copy"></i>
+                                                            <i className="fa-solid fa-copy"></i>
                                                           </button>
                                                         </div>
                                                       </Tooltip>
@@ -1779,7 +1699,7 @@ function Predefined_Templates() {
                                                               }
                                                               class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
                                                             >
-                                                              <i class="ri-pencil-fill"></i>
+                                                              <i className="ri-pencil-fill"></i>
                                                             </button>
                                                           </div>
                                                         </Tooltip>
@@ -1819,7 +1739,7 @@ function Predefined_Templates() {
                                                               data-bs-toggle="modal"
                                                               data-bs-target="#ConfirmModel"
                                                             >
-                                                              <i class="ri-delete-bin-5-fill"></i>
+                                                              <i className="ri-delete-bin-5-fill"></i>
                                                             </button>
                                                           </div>
                                                         </Tooltip>
@@ -1834,7 +1754,7 @@ function Predefined_Templates() {
                                       )}
                                     </div>
                                     <div
-                                      className={`tab-pane ${
+                                      className={`tab-pane template-list-data-pane ${
                                         activeTab === "Templates"
                                           ? "active"
                                           : ""
@@ -1843,10 +1763,22 @@ function Predefined_Templates() {
                                     >
                                       {activeTab === "Templates" && (
                                         <table
-                                          class="table align-middle table-nowrap"
+                                          className={`table align-middle table-nowrap template-list-table template-list-main-table ${
+                                            !showProfessionType
+                                              ? "template-list-main-table--no-profession"
+                                              : ""
+                                          } ${
+                                            !(
+                                              common.roleTypeId ===
+                                                USER_ROLE_TYPE.SuperAdmin &&
+                                              common.organisationKeyID === null
+                                            )
+                                              ? "template-list-main-table--no-business"
+                                              : ""
+                                          }`}
                                           id="customerTable"
                                         >
-                                          <thead class="table-light table-header-font">
+                                          <thead className="table-light table-header-font template-list-table-head">
                                             <tr className="head-row">
                                               <td
                                                 className="tr-table-class text-white"
@@ -2075,22 +2007,11 @@ function Predefined_Templates() {
                                                 Status
                                               </td>
                                               <td className="tr-table-class text-white">
-                                                {((userAccessData.Admin_Config_Template_CanEdit &&
-                                                  common.organisationKeyID !==
-                                                    null) ||
-                                                  (userAccessData.SuperAdmin_Config_Template_CanEdit &&
-                                                    common.organisationKeyID ===
-                                                      null) ||
-                                                  (userAccessData.Admin_Config_Template_CanDelete &&
-                                                    common.organisationKeyID !==
-                                                      null) ||
-                                                  (userAccessData.SuperAdmin_Config_Template_CanDelete &&
-                                                    common.organisationKeyID ===
-                                                      null)) && <>Action</>}
+                                                Action
                                               </td>
                                             </tr>
                                           </thead>
-                                          <tbody class="list form-check-all">
+                                          <tbody className="list form-check-all">
                                             {TemplateList.slice(
                                               0,
                                               isMobile
@@ -2098,8 +2019,8 @@ function Predefined_Templates() {
                                                 : desktopRecords,
                                             ).map((Template) => {
                                               return (
-                                                <tr class="table_new table-content-font">
-                                                  <td className="table_new table-content-font">
+                                                <tr className="table_new table-content-font template-list-row">
+                                                  <td className="table_new table-content-font template-list-name-column">
                                                     {Template.notifySAChanges !==
                                                       null &&
                                                       common.organisationKeyID !==
@@ -2118,7 +2039,7 @@ function Predefined_Templates() {
 
                                                               // data-bs-target="#addUpdateModal"
                                                             >
-                                                              <i class="fa fa-regular fa-bell"></i>
+                                                              <i className="fa fa-regular fa-bell"></i>
                                                             </span>
                                                           </Tooltip>
                                                         </>
@@ -2194,7 +2115,7 @@ function Predefined_Templates() {
                                                     )}
                                                   </td>
 
-                                                  <td className="table-content-font">
+                                                  <td className="table-content-font template-list-profession-column">
                                                     {showProfessionType &&
                                                       Template.professionTypeNames}
                                                   </td>
@@ -2208,13 +2129,13 @@ function Predefined_Templates() {
                                                   ) : (
                                                     <td>&nbsp;</td>
                                                   )}
-                                                  <td>
+                                                  <td className="template-list-type-column">
                                                     {Template.templateType ==
                                                     "Contract"
                                                       ? `${EngagementName}`
                                                       : `${proposalName}`}
                                                   </td>
-                                                  <td>
+                                                  <td className="template-list-prospect-column">
                                                     {
                                                       Template.clientBusinessType
                                                     }
@@ -2241,14 +2162,14 @@ function Predefined_Templates() {
                                                       }}
                                                       class="d-flex gap-2 "
                                                     >
-                                                      <div
-                                                        style={{
-                                                          width: "20px",
-                                                        }}
-                                                      >
-                                                        {" "}
-                                                        {Template.isDefaultName}
-                                                      </div>
+                                                      {/* <span
+                                                        className={`template-list-default-badge ${
+                                                          Template.isDefaultName ===
+                                                          "Yes"
+                                                            ? "is-default"
+                                                            : "is-not-default"
+                                                        }`}
+                                                      ></span> */}
                                                       {((userAccessData.Admin_Config_Template_CanDelete &&
                                                         common.organisationKeyID !==
                                                           null) ||
@@ -2324,14 +2245,14 @@ function Predefined_Templates() {
                                                       }}
                                                       class="d-flex gap-2 "
                                                     >
-                                                      <div
-                                                        style={{
-                                                          width: "40px",
-                                                        }}
-                                                      >
-                                                        {" "}
-                                                        {Template.statusName}
-                                                      </div>
+                                                      {/* <span
+                                                        className={`template-list-status-badge ${
+                                                          Template.statusName ===
+                                                          "Active"
+                                                            ? "is-active"
+                                                            : "is-inactive"
+                                                        }`}
+                                                      ></span> */}
                                                       {((userAccessData.Admin_Config_Template_CanDelete &&
                                                         common.organisationKeyID !==
                                                           null) ||
@@ -2383,8 +2304,8 @@ function Predefined_Templates() {
                                                       )}
                                                     </div>
                                                   </td>
-                                                  <td>
-                                                    <div class="d-flex gap-2">
+                                                  <td className="template-list-actions-cell">
+                                                    <div className="d-flex gap-2 template-list-row-actions">
                                                       <Tooltip
                                                         title={getCrudButtonToolTipName(
                                                           "Copy",
@@ -2412,7 +2333,7 @@ function Predefined_Templates() {
                                                               )
                                                             }
                                                           >
-                                                            <i class="fa-solid fa-copy"></i>
+                                                            <i className="fa-solid fa-copy"></i>
                                                           </button>
                                                         </div>
                                                       </Tooltip>
@@ -2437,7 +2358,7 @@ function Predefined_Templates() {
                                                               }
                                                               class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
                                                             >
-                                                              <i class="ri-pencil-fill"></i>
+                                                              <i className="ri-pencil-fill"></i>
                                                             </button>
                                                           </div>
                                                         </Tooltip>
@@ -2475,7 +2396,7 @@ function Predefined_Templates() {
                                                               data-bs-toggle="modal"
                                                               data-bs-target="#ConfirmModel"
                                                             >
-                                                              <i class="ri-delete-bin-5-fill"></i>
+                                                              <i className="ri-delete-bin-5-fill"></i>
                                                             </button>
                                                           </div>
                                                         </Tooltip>
@@ -2490,7 +2411,7 @@ function Predefined_Templates() {
                                       )}
                                     </div>
                                     <div
-                                      className={`tab-pane ${
+                                      className={`tab-pane template-list-data-pane ${
                                         activeTab === "Header and Footer"
                                           ? "active"
                                           : ""
@@ -2499,10 +2420,14 @@ function Predefined_Templates() {
                                     >
                                       {activeTab === "Header and Footer" && (
                                         <table
-                                          class="table align-middle table-nowrap"
+                                          className={`table align-middle table-nowrap template-list-table template-list-hf-table ${
+                                            !showProfessionType
+                                              ? "template-list-hf-table--no-profession"
+                                              : ""
+                                          }`}
                                           id="customerTable"
                                         >
-                                          <thead class="table-light table-header-font">
+                                          <thead className="table-light table-header-font template-list-table-head">
                                             <tr className="head-row">
                                               <td
                                                 className="tr-table-class text-white"
@@ -2758,7 +2683,7 @@ function Predefined_Templates() {
                                               </td>
                                             </tr>
                                           </thead>
-                                          <tbody class="list form-check-all">
+                                          <tbody className="list form-check-all">
                                             {TemplateHeaderFooterList.slice(
                                               0,
                                               isMobile
@@ -2766,8 +2691,8 @@ function Predefined_Templates() {
                                                 : desktopRecords,
                                             ).map((Template) => {
                                               return (
-                                                <tr class="table_new table-content-font">
-                                                  <td className="table_new table-content-font">
+                                                <tr className="table_new table-content-font template-list-row">
+                                                  <td className="table_new table-content-font template-list-name-column">
                                                     {/* {Template.notifySAChanges !== null && common.organisationKeyID !== null && (
                                           <>
                                             <Tooltip
@@ -2783,7 +2708,7 @@ function Predefined_Templates() {
                                               // data-bs-toggle="modal"
 
                                               // data-bs-target="#addUpdateModal"
-                                              ><i class="fa fa-regular fa-bell"></i></span>
+                                              ><i className="fa fa-regular fa-bell"></i></span>
                                             </Tooltip>
                                           </>
                                         )} */}
@@ -2869,14 +2794,10 @@ function Predefined_Templates() {
                                                   </td>
 
                                                   <td className="table-content-font">
-                                                    {/* {showProfessionType &&
-                                          Template.professionTypeNames} */}
-                                                    <td>
-                                                      {Template.templateTypeID ===
-                                                      41
-                                                        ? "Custom Template"
-                                                        : ""}
-                                                    </td>
+                                                    {Template.templateTypeID ===
+                                                    41
+                                                      ? "Custom Template"
+                                                      : ""}
                                                   </td>
                                                   {/* {common.roleTypeId ===
                                         USER_ROLE_TYPE.SuperAdmin &&
@@ -2982,16 +2903,17 @@ function Predefined_Templates() {
                                                       }}
                                                       class="d-flex gap-2 "
                                                     >
-                                                      <div
-                                                        style={{
-                                                          width: "40px",
-                                                        }}
+                                                      <span
+                                                        className={`template-list-status-badge ${
+                                                          Template.status === 1
+                                                            ? "is-active"
+                                                            : "is-inactive"
+                                                        }`}
                                                       >
-                                                        {" "}
                                                         {Template.status === 1
                                                           ? "Active"
                                                           : "Inactive"}
-                                                      </div>
+                                                      </span>
                                                       {userAccessData.Admin_Config_Template_CanDelete &&
                                                         common.organisationKeyID !==
                                                           null && (
@@ -3036,8 +2958,8 @@ function Predefined_Templates() {
                                                         )}
                                                     </div>
                                                   </td>
-                                                  <td>
-                                                    <div class="d-flex gap-2">
+                                                  <td className="template-list-actions-cell">
+                                                    <div className="d-flex gap-2 template-list-row-actions">
                                                       {userAccessData.Admin_Config_Template_CanEdit &&
                                                         common.organisationKeyID !==
                                                           null && (
@@ -3057,7 +2979,7 @@ function Predefined_Templates() {
                                                                 }
                                                                 class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
                                                               >
-                                                                <i class="ri-pencil-fill"></i>
+                                                                <i className="ri-pencil-fill"></i>
                                                               </button>
                                                             </div>
                                                           </Tooltip>
@@ -3092,7 +3014,7 @@ function Predefined_Templates() {
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#ConfirmModel"
                                                               >
-                                                                <i class="ri-delete-bin-5-fill"></i>
+                                                                <i className="ri-delete-bin-5-fill"></i>
                                                               </button>
                                                             </div>
                                                           </Tooltip>
@@ -3140,7 +3062,7 @@ function Predefined_Templates() {
                                 </div>
 
                                 {activeTab === "Templates" && (
-                                  <div>
+                                  <div className="template-list-pagination">
                                     {listCount > Number(pageSize) && (
                                       <PaginationComponent
                                         totalCount={listCount}
@@ -3160,7 +3082,7 @@ function Predefined_Templates() {
                                   </div>
                                 )}
                                 {activeTab === "Templates PDF" && (
-                                  <div>
+                                  <div className="template-list-pagination">
                                     {pdfListCount > pageSize && (
                                       <PaginationComponent
                                         totalCount={pdfListCount}
@@ -3172,7 +3094,7 @@ function Predefined_Templates() {
                                   </div>
                                 )}
                                 {activeTab === "Header and Footer" && (
-                                  <div>
+                                  <div className="template-list-pagination">
                                     {HeaderFooterListCount > pageSize && (
                                       <PaginationComponent
                                         totalCount={HeaderFooterListCount}
@@ -3359,15 +3281,19 @@ function Predefined_Templates() {
 
         {/* start back-to-top */}
         <button
-          onclick="topFunction()"
-          class="btn btn-danger btn-icon"
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="btn btn-danger btn-icon"
           id="back-to-top"
         >
-          <i class="ri-arrow-up-line"></i>
+          <i className="ri-arrow-up-line"></i>
         </button>
         {/* end back-to-top */}
       </div>
-      <Footer />
+
+      <div className="template-list-footer-wrap">
+        <Footer />
+      </div>
     </>
   );
 }
