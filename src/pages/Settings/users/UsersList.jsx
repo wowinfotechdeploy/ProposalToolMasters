@@ -365,11 +365,11 @@ const UsersList = () => {
                 />
               </div>
 
-              <div className="users-list-count">
+              {/* <div className="users-list-count">
                 {listCount > 0
                   ? `${listCount} ${listCount === 1 ? "user" : "users"}`
                   : ""}
-              </div>
+              </div> */}
             </div>
 
             {/* Table */}

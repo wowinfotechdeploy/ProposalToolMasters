@@ -1,6 +1,7 @@
 /* global $ */
 import React, { useContext, useEffect, useState, useRef } from "react";
 import "./UsersStyle.css";
+import "./UsersModal-redesign.css";
 import {
   AddUpdateUser,
   GetUserModel,
@@ -131,13 +132,13 @@ function UsersModel(props) {
           });
 
           const UserRoleTypeLookupListFilter = userRole.filter(
-            (userRoleType) => userRoleType.roleTypeId === ModelData.roleTypeID
+            (userRoleType) => userRoleType.roleTypeId === ModelData.roleTypeID,
           );
           const UserRoleTypeLookupList = UserRoleTypeLookupListFilter?.map(
             (userRoleType) => ({
               value: userRoleType.roleTypeId,
               label: userRoleType.roleName,
-            })
+            }),
           );
 
           setRole(UserRoleTypeLookupList);
@@ -191,8 +192,8 @@ function UsersModel(props) {
       Action: props.modelRequestData.Action,
       organisationKeyID:
         props.modelRequestData.organisationKeyID === undefined ||
-          props.modelRequestData.organisationKeyID === null ||
-          props.modelRequestData.organisationKeyID === ""
+        props.modelRequestData.organisationKeyID === null ||
+        props.modelRequestData.organisationKeyID === ""
           ? common.organisationKeyID
           : props.modelRequestData.organisationKeyID,
       userKeyID: common.userKeyID,
@@ -254,10 +255,10 @@ function UsersModel(props) {
 
   //Design part :
   return (
-    <div>
+    <div className="users-modal-redesign">
       <div
         style={{ display: openSuccessModal && "none" }}
-        class={props.class}
+        className={props.class}
         id={props.id}
         ref={modalRef}
         tabIndex={props.tabIndex}
@@ -266,112 +267,164 @@ function UsersModel(props) {
         data-bs-backdrop="static"
         data-bs-keyboard="false"
       >
-        <div class="modal-dialog modal-md modal-dialog-centered">
-          <div class="modal-content">
-            {/*Heading Start */}
-            <div class="modal-header bg-light p-3">
-              <h5 class="modal-title" id="exampleModalLabel">
-                {modelAction === "Add"
-                  ? getCrudPopUpTitleName("Invite", moduleName)
-                  : getCrudPopUpTitleName("Update", moduleName)}
-              </h5>
-              {/* Close Button Start */}
+        <div className="modal-dialog modal-md modal-dialog-centered users-modal-dialog">
+          <div className="modal-content users-modal-content">
+            {/* =========================
+                HEADER
+                ========================= */}
+            <div className="modal-header users-modal-header">
+              <div className="users-modal-heading">
+                <span className="users-modal-heading-icon">
+                  <i
+                    className={
+                      modelAction === "Add"
+                        ? "ri-user-add-line"
+                        : "ri-user-settings-line"
+                    }
+                  ></i>
+                </span>
+
+                <div className="users-modal-heading-copy">
+                  <h5 className="modal-title" id="exampleModalLabel">
+                    {modelAction === "Add"
+                      ? getCrudPopUpTitleName("Invite", moduleName)
+                      : getCrudPopUpTitleName("Update", moduleName)}
+                  </h5>
+
+                  <p>
+                    {modelAction === "Add"
+                      ? "Invite a user and assign the appropriate access role."
+                      : "Review the user account and update the assigned role."}
+                  </p>
+                </div>
+              </div>
+
               <button
                 type="button"
-                class="btn-close"
+                className="btn-close users-modal-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
                 onClick={SetInitialModelData}
                 id="close-modal"
-              >
-                {/* Close Button End */}
-              </button>
+              ></button>
             </div>
-            {/*Heading End */}
-            {/*Modal body Start */}
 
-            <div class="modal-body">
-              <div class="p-3">
+            {/* =========================
+                BODY
+                ========================= */}
+            <div className="modal-body users-modal-body">
+              <div className="users-modal-form">
                 {props.modelRequestData.Action === null && (
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
+                  <div className="users-modal-field-grid">
+                    <div className="users-modal-field">
                       <label
                         htmlFor="UserFirstNameField"
-                        class="fieldset-label required"
+                        className="users-modal-label"
                       >
-                        First Name<span className="text-danger">*</span>
+                        First Name
+                        <span className="users-modal-required">*</span>
                       </label>
-                      <input
-                        style={{ padding: "5px" }}
-                        type="text"
-                        id="UserFirstNameField"
-                        className="input-text"
-                        placeholder="First Name"
-                        value={userObj.firstName}
-                        onChange={(e) => {
-                          const inputValue = e.target.value;
-                          const trimmedValue = inputValue.replace(/^\s+/g, "");
-                          // Check if the trimmed value contains any spaces
-                          if (
-                            trimmedValue.includes(" ") ||
-                            /^\d/.test(trimmedValue)
-                          ) {
-                            return; // Don't update state if there are spaces
-                          }
 
-                          // Ensure the first character is capitalized
-                          const capitalizedValue =
-                            trimmedValue.charAt(0).toUpperCase() +
-                            trimmedValue.slice(1);
+                      <div className="users-modal-input-wrap">
+                        <i className="ri-user-line users-modal-input-icon"></i>
 
-                          setUserObj({
-                            ...userObj,
-                            firstName: capitalizedValue,
-                          });
-                        }}
-                        maxLength={30}
-                      />
+                        <input
+                          type="text"
+                          id="UserFirstNameField"
+                          className="input-text users-modal-input users-modal-input--with-icon"
+                          placeholder="Enter first name"
+                          value={userObj.firstName}
+                          onChange={(e) => {
+                            const inputValue = e.target.value;
+                            const trimmedValue = inputValue.replace(
+                              /^\s+/g,
+                              "",
+                            );
+                            // Check if the trimmed value contains any spaces
+                            if (
+                              trimmedValue.includes(" ") ||
+                              /^\d/.test(trimmedValue)
+                            ) {
+                              return; // Don't update state if there are spaces
+                            }
+
+                            // Ensure the first character is capitalized
+                            const capitalizedValue =
+                              trimmedValue.charAt(0).toUpperCase() +
+                              trimmedValue.slice(1);
+
+                            setUserObj({
+                              ...userObj,
+                              firstName: capitalizedValue,
+                            });
+                          }}
+                          maxLength={30}
+                        />
+                      </div>
+
+                      <div className="users-modal-field-meta">
+                        <span>{userObj.firstName?.length || 0}/30</span>
+                      </div>
+
                       {RequireErrorMessage && userObj.firstName === "" ? (
-                        <label className="validation">{ERROR_MESSAGES}</label>
+                        <label className="validation users-modal-validation">
+                          {ERROR_MESSAGES}
+                        </label>
                       ) : (
                         ""
                       )}
                     </div>
-                    <div className="col-md-6 mb-3">
+
+                    <div className="users-modal-field">
                       <label
                         htmlFor="UserLastNameField"
-                        class="fieldset-label required"
+                        className="users-modal-label"
                       >
-                        Last Name<span className="text-danger">*</span>
+                        Last Name
+                        <span className="users-modal-required">*</span>
                       </label>
-                      <input
-                        style={{ padding: "5px" }}
-                        type="text"
-                        id="UserLastNameField"
-                        class="input-text"
-                        placeholder="Last Name"
-                        value={userObj.lastName}
-                        onChange={(e) => {
-                          const inputValue = e.target.value;
-                          const trimmedValue = inputValue.replace(/^\s+/g, "");
-                          if (
-                            trimmedValue.includes(" ") ||
-                            /^\d/.test(trimmedValue)
-                          ) {
-                            return;
-                          }
-                          const capitalizedValue =
-                            trimmedValue.charAt(0).toUpperCase() +
-                            trimmedValue.slice(1);
-                          setUserObj({
-                            ...userObj,
-                            lastName: capitalizedValue,
-                          });
-                        }}
-                        maxLength={30}
-                      />
+
+                      <div className="users-modal-input-wrap">
+                        <i className="ri-user-line users-modal-input-icon"></i>
+
+                        <input
+                          type="text"
+                          id="UserLastNameField"
+                          className="input-text users-modal-input users-modal-input--with-icon"
+                          placeholder="Enter last name"
+                          value={userObj.lastName}
+                          onChange={(e) => {
+                            const inputValue = e.target.value;
+                            const trimmedValue = inputValue.replace(
+                              /^\s+/g,
+                              "",
+                            );
+                            if (
+                              trimmedValue.includes(" ") ||
+                              /^\d/.test(trimmedValue)
+                            ) {
+                              return;
+                            }
+                            const capitalizedValue =
+                              trimmedValue.charAt(0).toUpperCase() +
+                              trimmedValue.slice(1);
+                            setUserObj({
+                              ...userObj,
+                              lastName: capitalizedValue,
+                            });
+                          }}
+                          maxLength={30}
+                        />
+                      </div>
+
+                      <div className="users-modal-field-meta">
+                        <span>{userObj.lastName?.length || 0}/30</span>
+                      </div>
+
                       {RequireErrorMessage && userObj.lastName === "" ? (
-                        <label className="validation">{ERROR_MESSAGES}</label>
+                        <label className="validation users-modal-validation">
+                          {ERROR_MESSAGES}
+                        </label>
                       ) : (
                         ""
                       )}
@@ -379,45 +432,59 @@ function UsersModel(props) {
                   </div>
                 )}
 
-                <div className="row">
-                  <div className="col-md-6 mb-3">
+                <div className="users-modal-field-grid">
+                  <div className="users-modal-field">
                     <label
                       htmlFor="UserEmailField"
-                      class="fieldset-label required"
+                      className="users-modal-label"
                     >
-                      Email<span className="text-danger">*</span>
+                      Email
+                      <span className="users-modal-required">*</span>
                     </label>
-                    <input
-                      style={{ padding: "5px" }}
-                      type="email"
-                      disabled={
-                        props.modelRequestData.Action === null ? false : true
-                      }
-                      id="UserEmailField"
-                      className="input-text"
-                      placeholder="Email"
-                      value={userObj.email}
-                      onChange={(e) => {
-                        setErrorMessage("");
-                        // Convert the entered text to lowercase
-                        const enteredValue = e.target.value.toLowerCase();
 
-                        // Check for consecutive dots
-                        if (enteredValue.includes("..")) {
-                          // If consecutive dots found, do not update the state
-                          return;
+                    <div className="users-modal-input-wrap">
+                      <i className="ri-mail-line users-modal-input-icon"></i>
+
+                      <input
+                        type="email"
+                        disabled={
+                          props.modelRequestData.Action === null ? false : true
                         }
+                        id="UserEmailField"
+                        className="input-text users-modal-input users-modal-input--with-icon"
+                        placeholder="Enter email address"
+                        value={userObj.email}
+                        onChange={(e) => {
+                          setErrorMessage("");
+                          // Convert the entered text to lowercase
+                          const enteredValue = e.target.value.toLowerCase();
 
-                        // Update the state with the entered value
-                        setUserObj({ ...userObj, email: enteredValue });
-                      }}
-                      maxLength={50}
-                    />
+                          // Check for consecutive dots
+                          if (enteredValue.includes("..")) {
+                            // If consecutive dots found, do not update the state
+                            return;
+                          }
+
+                          // Update the state with the entered value
+                          setUserObj({ ...userObj, email: enteredValue });
+                        }}
+                        maxLength={50}
+                      />
+                    </div>
+
+                    {props.modelRequestData.Action !== null && (
+                      <div className="users-modal-field-help">
+                        Email cannot be changed while updating this user.
+                      </div>
+                    )}
+
                     {RequireErrorMessage && userObj.email === "" ? (
-                      <label className="validation">{ERROR_MESSAGES}</label>
+                      <label className="validation users-modal-validation">
+                        {ERROR_MESSAGES}
+                      </label>
                     ) : !validateEmail(userObj.email) &&
                       userObj.email !== "" ? (
-                      <label className="validation">
+                      <label className="validation users-modal-validation">
                         Please enter a valid email address.
                       </label>
                     ) : (
@@ -425,67 +492,81 @@ function UsersModel(props) {
                     )}
                   </div>
 
-                  <div className="col-md-6 mb-3">
+                  <div className="users-modal-field">
                     <label
                       htmlFor="UserUserRoleField"
-                      class="fieldset-label required"
+                      className="users-modal-label"
                     >
-                      User Role<span className="text-danger">*</span>
+                      User Role
+                      <span className="users-modal-required">*</span>
                     </label>
-                    <div className="input-group">
-                      <Select
-                        className="user-role-select"
-                        // id="customerName-field"
-                        value={role}
-                        onChange={HandleSelectChange}
-                        options={UserRoleTypeLookupList}
-                        placeholder="Select..."
-                      // className="form-select placeholderStyle h-40"
-                      />
-                    </div>
-                    <div>
-                      {RequireErrorMessage &&
-                        (userObj.roleTypeID === undefined ||
-                          userObj.roleTypeID === null ||
-                          userObj.roleTypeID === "") ? (
-                        <label className="validation">{ERROR_MESSAGES}</label>
-                      ) : (
-                        ""
-                      )}
-                    </div>
+
+                    <Select
+                      className="user-role-select users-modal-select"
+                      classNamePrefix="users-role-select"
+                      value={role}
+                      onChange={HandleSelectChange}
+                      options={UserRoleTypeLookupList}
+                      placeholder="Select user role"
+                    />
+
+                    {RequireErrorMessage &&
+                    (userObj.roleTypeID === undefined ||
+                      userObj.roleTypeID === null ||
+                      userObj.roleTypeID === "") ? (
+                      <label className="validation users-modal-validation">
+                        {ERROR_MESSAGES}
+                      </label>
+                    ) : (
+                      ""
+                    )}
                   </div>
                 </div>
 
-                <label
-                  style={{ display: "flex", justifyContent: "center" }}
-                  className="validation"
-                >
-                  {errorMessage === "You cannot invite yourself"
-                    ? "Oops! it looks like you're trying to invite yourself. Invite someone else."
-                    : errorMessage}
-                </label>
+                {errorMessage && (
+                  <div className="users-modal-api-error">
+                    <i className="ri-error-warning-line"></i>
+
+                    <span>
+                      {errorMessage === "You cannot invite yourself"
+                        ? "Oops! it looks like you're trying to invite yourself. Invite someone else."
+                        : errorMessage}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
-            <div class="modal-footer">
-              <div class="hstack gap-2 justify-content-end">
+            {/* =========================
+                FOOTER
+                ========================= */}
+            <div className="modal-footer users-modal-footer">
+              <div className="users-modal-actions">
                 <button
                   type="button"
-                  class="btn btn-md btn-light"
+                  className="btn btn-md btn-light users-modal-cancel-btn"
                   data-bs-dismiss="modal"
                   onClick={() => SetInitialModelData()}
                 >
-                  <span> {getCrudButtonTextName("Cancel")}</span>
+                  <span>{getCrudButtonTextName("Cancel")}</span>
                 </button>
+
                 <button
                   type="submit"
-                  class="btn btn-md btn-success create-item-btn"
+                  className="btn btn-md btn-success create-item-btn users-modal-submit-btn"
                   onClick={() => {
                     UserAddUpdateBtnClicked();
                   }}
                 >
+                  <i
+                    className={
+                      modelAction === "Add"
+                        ? "ri-send-plane-line"
+                        : "ri-check-line"
+                    }
+                  ></i>
+
                   <span>
-                    {" "}
                     {modelAction === "Add"
                       ? getCrudButtonTextName("Invite", moduleName)
                       : getCrudButtonTextName("Update", moduleName)}
@@ -493,7 +574,6 @@ function UsersModel(props) {
                 </button>
               </div>
             </div>
-            {/*Footer body button End */}
 
             <SuccessModal
               handleClose={HandleClose}
