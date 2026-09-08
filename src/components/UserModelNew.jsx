@@ -5,6 +5,7 @@ import React, { useContext, useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Row, Col } from "reactstrap";
 import "../../src/Auth/registration/Registration.css";
+import "./UserProfileModal.css";
 import { CountryName, CountryCode } from "../redux/Services/CountryApi";
 import { UpdateUser } from "../redux/Services/Auth/RegistrationApi";
 import Select from "react-select";
@@ -27,7 +28,6 @@ const UserModelNew = (props) => {
     createdByID: null,
     country: null,
     UserKeyID: null,
-
   });
   // Declare State
 
@@ -51,7 +51,7 @@ const UserModelNew = (props) => {
       ) {
         // call here
         GetSocialLoginModelData(props.UserKeyID);
-        GetRoleTypeLookupListData()
+        GetRoleTypeLookupListData();
         GetCountryCodeData();
         GetCountryNameData();
         setOpen(true);
@@ -154,10 +154,11 @@ const UserModelNew = (props) => {
     value: userRoleType.roleTypeId,
     label: userRoleType.roleName,
   }));
-  const userRoleValue = UserRoleTypeLookupList.find((item) => item.value == socialObj.roleTypeID_ForUpdate)
+  const userRoleValue = UserRoleTypeLookupList.find(
+    (item) => item.value == socialObj.roleTypeID_ForUpdate,
+  );
   const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
   const phoneNumberRegex = /^\d{10,15}$/; // Allow between 10 and 15 digits
-
 
   const RegistrationAddUpdateBtnClicked = () => {
     let hasError = false;
@@ -182,9 +183,7 @@ const UserModelNew = (props) => {
       socialObj.roleTypeID_ForUpdate === undefined
     ) {
       hasError = true;
-
     }
-
 
     if (hasError) {
       setRequireErrorMessage(true);
@@ -193,7 +192,6 @@ const UserModelNew = (props) => {
       setRequireErrorMessage("");
       setErrorMessage("");
     }
-
 
     // Preparing Object For Add Update and if any modification then it will done here
     const ApiRequest_ParamsObj = {
@@ -205,7 +203,7 @@ const UserModelNew = (props) => {
       countryCodeID: socialObj.phoneCode,
       countryID: socialObj.country,
       phoneNumber: socialObj?.phone,
-      roleTypeID_ForUpdate: socialObj.roleTypeID_ForUpdate
+      roleTypeID_ForUpdate: socialObj.roleTypeID_ForUpdate,
     };
     $("#" + props.id).modal("hide");
 
@@ -223,7 +221,7 @@ const UserModelNew = (props) => {
             updateState({
               mobileNo: socialObj?.phone,
               name: socialObj.firstName,
-            })
+            }),
           );
 
           setLoader(false);
@@ -251,7 +249,7 @@ const UserModelNew = (props) => {
     dispatch(
       updateState({
         isPasswordSet: true,
-      })
+      }),
     );
   };
   const handleClose = () => {
@@ -273,19 +271,17 @@ const UserModelNew = (props) => {
         data-bs-backdrop="static"
         data-bs-keyboard="false"
       >
-        <div class="modal-dialog modal-md modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header bg-light p-3">
-              <h5 class="modal-title">Update User Profile</h5>
+        <div class="modal-dialog modal-md modal-dialog-centered upm-dialog">
+          <div class="modal-content upm-content">
+            {/* HEADER */}
+            <div class="modal-header upm-header">
+              <div className="upm-header-text">
+                <h5 class="modal-title upm-title">Update User Profile</h5>
+              </div>
 
               {common?.mobileNo !== undefined && common?.mobileNo !== null && (
                 <button
-                  style={{
-                    position: "absolute",
-                    right: "1.3rem",
-                    border: "none",
-                    background: "transparent",
-                  }}
+                  className="upm-close"
                   aria-label="Close"
                   onClick={() => {
                     props.setShowUserModal(false);
@@ -297,15 +293,16 @@ const UserModelNew = (props) => {
               )}
             </div>
 
-            <div class={`modal-body create-practice-height scrollbar`}>
-              <div className="mb-2">
-                <label className="form-label">
-                  First Name <span className="text-danger">*</span>
-                </label>
-                <div className="input-group">
+            {/* BODY */}
+            <div class={`modal-body create-practice-height scrollbar upm-body`}>
+              <div className="upm-grid">
+                <div className="upm-field">
+                  <label className="upm-label">
+                    First Name <span className="text-danger">*</span>
+                  </label>
                   <input
                     type="text"
-                    className="input-text"
+                    className="input-text upm-input"
                     placeholder="Enter first name"
                     value={socialObj.firstName}
                     onChange={(e) => {
@@ -325,72 +322,65 @@ const UserModelNew = (props) => {
                       });
                     }}
                   />
-                </div>
-                {requireErrorMessage &&
+                  {requireErrorMessage &&
                   (socialObj.firstName === undefined ||
                     socialObj.firstName === "") ? (
-                  <label className="validation">{ERROR_MESSAGES}</label>
-                ) : (
-                  ""
-                )}
-              </div>
-
-              <div className="mt-2">
-                <div className="mb-2">
-                  <label className="form-label">
-                    Last Name <span className="text-danger">*</span>
-                  </label>
-                  <div className="input-group">
-                    <input
-                      type="text"
-                      className="input-text"
-                      placeholder="Enter last name"
-                      value={socialObj.lastName}
-                      onChange={(e) => {
-                        const inputValue = e.target.value;
-                        const trimmedValue = inputValue
-                          .replace(/\s+/g, "")
-                          .slice(0, 30); // Remove all spaces
-                        if (/\d/.test(trimmedValue)) {
-                          return;
-                        }
-                        const capitalizedValue =
-                          trimmedValue.charAt(0).toUpperCase() +
-                          trimmedValue.slice(1);
-                        setSocialObj({
-                          ...socialObj,
-                          lastName: capitalizedValue,
-                        });
-                      }}
-                    />
-                  </div>
-                  {requireErrorMessage &&
-                    (socialObj.lastName === undefined ||
-                      socialObj.lastName === "") ? (
-                    <label className="validation">{ERROR_MESSAGES}</label>
+                    <label className="validation upm-validation">
+                      {ERROR_MESSAGES}
+                    </label>
                   ) : (
                     ""
                   )}
                 </div>
 
-                <div className="mt-2">
-                  <div className="mb-2">
-                    <label className="form-label">
-                      Email <span className="text-danger">* </span>
-                      {props.Edit ? (
-                        <span
-                          style={{ fontSize: "10px" }}
-                        >{`(If you want to change your email, please contact the admin.)`}</span>
-                      ) : (
-                        ""
-                      )}
+                <div className="upm-field">
+                  <label className="upm-label">
+                    Last Name <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="input-text upm-input"
+                    placeholder="Enter last name"
+                    value={socialObj.lastName}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      const trimmedValue = inputValue
+                        .replace(/\s+/g, "")
+                        .slice(0, 30); // Remove all spaces
+                      if (/\d/.test(trimmedValue)) {
+                        return;
+                      }
+                      const capitalizedValue =
+                        trimmedValue.charAt(0).toUpperCase() +
+                        trimmedValue.slice(1);
+                      setSocialObj({
+                        ...socialObj,
+                        lastName: capitalizedValue,
+                      });
+                    }}
+                  />
+                  {requireErrorMessage &&
+                  (socialObj.lastName === undefined ||
+                    socialObj.lastName === "") ? (
+                    <label className="validation upm-validation">
+                      {ERROR_MESSAGES}
                     </label>
-                    {props.Edit ? (
+                  ) : (
+                    ""
+                  )}
+                </div>
+
+                <div className="upm-field upm-field-full">
+                  <label className="upm-label">
+                    Email Address <span className="text-danger">*</span>
+                  </label>
+                  {props.Edit ? (
+                    <>
                       <Tooltip title="If you want to change your email, please contact the admin.">
-                        <div className="input-group">
+                        <div className="upm-input-wrap">
                           <input
                             type="text"
-                            className="input-text"
+                            className="input-text upm-input upm-input-locked"
                             placeholder="Enter email address"
                             onChange={(e) =>
                               setSocialObj({
@@ -401,170 +391,199 @@ const UserModelNew = (props) => {
                             disabled={props.Edit}
                             value={socialObj.email}
                           />
+                          <i className="bi bi-lock-fill upm-input-lock"></i>
                         </div>
                       </Tooltip>
-                    ) : (
-                      <div className="input-group">
-                        <input
-                          type="text"
-                          className="input-text"
-                          placeholder="Enter email address"
-                          onChange={(e) => {
-                            const trimmedValue = e.target.value.trim();
-                            if (!trimmedValue.startsWith(" ")) {
-                              setSocialObj({
-                                ...socialObj,
-                                email: trimmedValue,
-                              });
-                            }
-                          }}
-                          disabled={props.Edit}
-                          value={socialObj.email}
-                        />
-                      </div>
-                    )}
-
-                    {requireErrorMessage ? (
-                      socialObj.email === undefined ||
-                        socialObj.email === "" ? (
-                        <label className="validation">{ERROR_MESSAGES}</label>
-                      ) : !emailRegex.test(socialObj.email) ? (
-                        <label className="validation">
-                          Enter a valid email.
-                        </label>
-                      ) : null
-                    ) : null}
-                  </div>
-                </div>
-                <div className="mt-2">
-                  <div className="mb-2">
-                    <label htmlFor="useremail" className="form-label">
-                      Phone <span className="text-danger">*</span>
-                    </label>
-                    <div className="phone-input-div">
-                      <Select
-                        style={{ padding: "5px", width: "20%" }}
-                        class="phone-input-country-code"
-                        options={CountryCodeOption}
-                        value={CountryCodeOption?.filter(
-                          (i) => i.value === socialObj.phoneCode
-                        )}
-                        onChange={(selectedOption) => {
+                      <span className="upm-hint">
+                        If you want to change your email, please contact the
+                        admin.
+                      </span>
+                    </>
+                  ) : (
+                    <input
+                      type="text"
+                      className="input-text upm-input"
+                      placeholder="Enter email address"
+                      onChange={(e) => {
+                        const trimmedValue = e.target.value.trim();
+                        if (!trimmedValue.startsWith(" ")) {
                           setSocialObj({
                             ...socialObj,
-                            phoneCode: selectedOption.value,
+                            email: trimmedValue,
+                          });
+                        }
+                      }}
+                      disabled={props.Edit}
+                      value={socialObj.email}
+                    />
+                  )}
+
+                  {requireErrorMessage ? (
+                    socialObj.email === undefined || socialObj.email === "" ? (
+                      <label className="validation upm-validation">
+                        {ERROR_MESSAGES}
+                      </label>
+                    ) : !emailRegex.test(socialObj.email) ? (
+                      <label className="validation upm-validation">
+                        Enter a valid email.
+                      </label>
+                    ) : null
+                  ) : null}
+                </div>
+
+                <div className="upm-field upm-field-full">
+                  <label htmlFor="useremail" className="upm-label">
+                    Phone Number <span className="text-danger">*</span>
+                  </label>
+                  <div className="phone-input-div upm-phone">
+                    <Select
+                      className="phone-input-country-code upm-select"
+                      options={CountryCodeOption}
+                      value={CountryCodeOption?.filter(
+                        (i) => i.value === socialObj.phoneCode,
+                      )}
+                      onChange={(selectedOption) => {
+                        setSocialObj({
+                          ...socialObj,
+                          phoneCode: selectedOption.value,
+                        });
+                      }}
+                    />
+                    <div className="phone-input-number-div">
+                      <input
+                        className="input-text upm-input"
+                        type="text"
+                        placeholder="Enter phone number"
+                        value={socialObj.phone}
+                        onChange={(e) => {
+                          const sanitizedInput = e.target.value
+                            .replace(/[^0-9]/g, "")
+                            .slice(0, 15);
+                          setSocialObj({
+                            ...socialObj,
+                            phone: sanitizedInput,
                           });
                         }}
                       />
-                      <div className="phone-input-number-div">
-                        <input
-                          style={{ width: "100%" }}
-                          className="input-text"
-                          type="text"
-                          placeholder="Enter phone number"
-                          value={socialObj.phone}
-                          onChange={(e) => {
-                            const sanitizedInput = e.target.value
-                              .replace(/[^0-9]/g, "")
-                              .slice(0, 15);
-                            setSocialObj({
-                              ...socialObj,
-                              phone: sanitizedInput,
-                            });
-                          }}
-                        />
-                      </div>
                     </div>
-                    {requireErrorMessage &&
-                      (socialObj.phoneCode === "" ||
-                        socialObj.phoneCode === null ||
-                        socialObj.phone === "" ||
-                        socialObj.phone === null) ? (
-                      <label className="validation">{ERROR_MESSAGES}</label>
-                    ) : requireErrorMessage &&
-                      !isValidPhoneNumber(socialObj.phone) ? (
-                      <label className="validation">
-                        {" "}
-                        Invalid phone number{" "}
-                      </label>
-                    ) : (
-                      ""
-                    )}
                   </div>
+                  {requireErrorMessage &&
+                  (socialObj.phoneCode === "" ||
+                    socialObj.phoneCode === null ||
+                    socialObj.phone === "" ||
+                    socialObj.phone === null) ? (
+                    <label className="validation upm-validation">
+                      {ERROR_MESSAGES}
+                    </label>
+                  ) : requireErrorMessage &&
+                    !isValidPhoneNumber(socialObj.phone) ? (
+                    <label className="validation upm-validation">
+                      {" "}
+                      Invalid phone number{" "}
+                    </label>
+                  ) : (
+                    ""
+                  )}
                 </div>
-                <div className="mt-2">
-                  <div className="mb-2">
-                    <label className="form-label">
-                      Country <span className="text-danger">*</span>
+
+                <div
+                  className={
+                    props.Edit ? "upm-field upm-field-full" : "upm-field"
+                  }
+                >
+                  <label className="upm-label">
+                    Country <span className="text-danger">*</span>
+                  </label>
+
+                  <Select
+                    className="upm-select"
+                    id="customerName-field"
+                    options={CountryNameOption.slice(2)}
+                    value={CountryNameOption?.filter(
+                      (i) => i.value === socialObj.country,
+                    )}
+                    onChange={(country) => {
+                      setSocialObj({ ...socialObj, country: country.value });
+                    }}
+                    menuPlacement={"auto"}
+                  />
+                  {requireErrorMessage &&
+                  (socialObj.country === "" || socialObj.country === null) ? (
+                    <label className="validation upm-validation">
+                      {ERROR_MESSAGES}
+                    </label>
+                  ) : (
+                    ""
+                  )}
+                </div>
+
+                {!props.Edit && (
+                  <div className="upm-field">
+                    <label className="upm-label">
+                      User Role <span className="text-danger">*</span>
                     </label>
 
                     <Select
-                      style={{ padding: "5px", width: "100%" }}
-                      class="input-text"
-                      id="customerName-field"
-                      options={CountryNameOption.slice(2)}
-                      value={CountryNameOption?.filter(
-                        (i) => i.value === socialObj.country
-                      )}
-                      onChange={(country) => {
-                        setSocialObj({ ...socialObj, country: country.value });
+                      className="user-role-select upm-select"
+                      // id="customerName-field"
+                      value={userRoleValue}
+                      onChange={(roleTypeID_ForUpdate) => {
+                        setSocialObj({
+                          ...socialObj,
+                          roleTypeID_ForUpdate: roleTypeID_ForUpdate.value,
+                        });
                       }}
+                      options={UserRoleTypeLookupList}
+                      placeholder="Select..."
                       menuPlacement={"auto"}
+                      // className="form-select placeholderStyle h-40"
                     />
                     {requireErrorMessage &&
-                      (socialObj.country === "" || socialObj.country === null) ? (
-                      <label className="validation">{ERROR_MESSAGES}</label>
+                    (socialObj.roleTypeID_ForUpdate === "" ||
+                      socialObj.roleTypeID_ForUpdate === null ||
+                      socialObj.roleTypeID_ForUpdate === undefined) ? (
+                      <label className="validation upm-validation">
+                        {ERROR_MESSAGES}
+                      </label>
                     ) : (
                       ""
                     )}
                   </div>
-                  {!props.Edit &&
-                    <div className="mb-2">
-                      <label className="form-label">
-                        User Role <span className="text-danger">*</span>
-                      </label>
-
-                      <Select
-                        className="user-role-select"
-                        // id="customerName-field"
-                        value={userRoleValue}
-                        onChange={(roleTypeID_ForUpdate) => {
-                          setSocialObj({ ...socialObj, roleTypeID_ForUpdate: roleTypeID_ForUpdate.value });
-                        }}
-                        options={UserRoleTypeLookupList}
-                        placeholder="Select..."
-                      // className="form-select placeholderStyle h-40"
-                      />
-                      {requireErrorMessage &&
-                        (socialObj.roleTypeID_ForUpdate === "" || socialObj.roleTypeID_ForUpdate === null || socialObj.roleTypeID_ForUpdate === undefined) ? (
-                        <label className="validation">{ERROR_MESSAGES}</label>
-                      ) : (
-                        ""
-                      )}
-                    </div>
-                  }
-                  <label
-                    className="validation  "
-                    style={{ textAlign: "center", display: "block" }}
-                  >
-                    {errorMessage}
-                  </label>
-                </div>
-
+                )}
               </div>
+
+              {errorMessage ? (
+                <label className="validation upm-form-error">
+                  {errorMessage}
+                </label>
+              ) : (
+                ""
+              )}
             </div>
-            <div class="modal-footer">
-              <div className="text-center w-100">
+
+            {/* FOOTER */}
+            <div class="modal-footer upm-footer">
+              {common?.mobileNo !== undefined && common?.mobileNo !== null && (
                 <button
-                  style={{ width: "100%", paddingTop: "5px" }}
-                  className="btn btn-md btn-primary create-item-btn"
+                  type="button"
+                  className="upm-btn upm-btn-ghost"
                   onClick={() => {
-                    RegistrationAddUpdateBtnClicked();
+                    props.setShowUserModal(false);
+                    handleClose();
                   }}
                 >
-                  <span>Update Profile </span>
+                  <span>Cancel</span>
                 </button>
-              </div>
+              )}
+
+              <button
+                className="btn btn-md btn-primary create-item-btn upm-btn upm-btn-primary"
+                onClick={() => {
+                  RegistrationAddUpdateBtnClicked();
+                }}
+              >
+                <span>Update Profile</span>
+              </button>
             </div>
           </div>
           <SuccessModal
