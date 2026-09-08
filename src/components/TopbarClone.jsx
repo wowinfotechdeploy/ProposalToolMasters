@@ -3627,11 +3627,15 @@ const TopbarClone = () => {
                   aria-haspopup="true"
                   aria-expanded="false"
                 >
-                  <img
-                    className="figma-profile-image"
-                    src={profile}
-                    alt={common.name || "Profile"}
-                  />
+                  <div className="figma-profile-avatar-wrap">
+                    <img
+                      className="figma-profile-image"
+                      src={profile}
+                      alt={common.name || "Profile"}
+                    />
+
+                    <span className="figma-profile-online-dot"></span>
+                  </div>
 
                   <span className="figma-profile-copy">
                     <span className="figma-profile-name">
@@ -3647,52 +3651,91 @@ const TopbarClone = () => {
                           : "Administrator")}
                     </span>
                   </span>
+
+                  <i className="ri-arrow-up-s-line figma-profile-chevron"></i>
                 </button>
               </Tooltip>
 
               {/* Profile Dropdown */}
-              <div className="dropdown-menu figma-profile-dropdown">
+              <div className="dropdown-menu dropdown-menu-end figma-profile-dropdown">
+                {/* Header */}
+                <div className="fpd-header">
+                  <div className="fpd-header-avatar-wrap">
+                    <span className="fpd-avatar">
+                      {common.name?.charAt(0)?.toUpperCase()}
+                    </span>
+
+                    <span className="fpd-status-dot"></span>
+                  </div>
+
+                  <div className="fpd-header-text">
+                    <span className="fpd-greeting">Signed in as</span>
+
+                    <strong className="fpd-name">
+                      {common.name?.length > 22
+                        ? `${common.name.slice(0, 22)}...`
+                        : common.name}
+                    </strong>
+
+                    <span className="fpd-role-badge">
+                      {common.roleName ||
+                        (common.roleTypeId === USER_ROLE_TYPE.SuperAdmin
+                          ? "Super Administrator"
+                          : "Administrator")}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="fpd-divider"></div>
+
+                {/* ACCOUNT */}
+                <div className="fpd-section-label">Account</div>
+
                 <a
-                  className="dropdown-item"
+                  className="dropdown-item fpd-item"
                   onClick={() => setShowUserModal(true)}
                   data-bs-toggle="modal"
                   data-bs-target="#TopbarUserProfileEdit"
                   style={{ cursor: "pointer" }}
                 >
-                  <span className="align-middle">
-                    Hello{" "}
-                    <strong className="FontW">
-                      {common.name?.length > 15
-                        ? ` ${common.name.slice(0, 15)}....`
-                        : ` ${common.name}`}
-                    </strong>
-                    <hr />
+                  <span className="fpd-icon-box">
+                    <i className="bi bi-person"></i>
                   </span>
 
-                  <i className="bi bi-person me-2"></i>
+                  <span className="fpd-item-copy">
+                    <strong>My Profile</strong>
+                    <small>Manage personal information</small>
+                  </span>
 
-                  <span className="align-middle">My Profile</span>
+                  <i className="ri-arrow-right-s-line fpd-item-arrow"></i>
                 </a>
 
                 <a
-                  className="dropdown-item appearance-btn"
+                  className="dropdown-item fpd-item appearance-btn"
                   style={{ cursor: "pointer" }}
                 >
-                  <i className="bi bi-gear-fill text-muted fs-16 align-middle me-2"></i>
+                  <span className="fpd-icon-box">
+                    <i className="bi bi-palette"></i>
+                  </span>
 
-                  <span className="align-middle">
+                  <span className="fpd-item-copy">
                     {["right"].map((anchor) => (
                       <React.Fragment key={anchor}>
                         <Button
+                          className="fpd-appearance-button"
                           style={{
-                            textTransform: "capitalize",
+                            textTransform: "none",
                             padding: 0,
                             minWidth: "auto",
                             color: "inherit",
+                            justifyContent: "flex-start",
                           }}
                           onClick={ToggleDrawer(anchor, true)}
                         >
-                          Appearance
+                          <span>
+                            <strong>Appearance</strong>
+                            <small>Customize application theme</small>
+                          </span>
                         </Button>
 
                         <Drawer anchor={anchor} open={state[anchor]}>
@@ -3701,46 +3744,83 @@ const TopbarClone = () => {
                       </React.Fragment>
                     ))}
                   </span>
+
+                  <i className="ri-arrow-right-s-line fpd-item-arrow"></i>
                 </a>
 
+                <div className="fpd-divider fpd-divider-small"></div>
+
+                {/* SECURITY */}
+                <div className="fpd-section-label">Security & Session</div>
+
                 <a
-                  className="dropdown-item"
+                  className="dropdown-item fpd-item"
                   data-bs-toggle="modal"
                   data-bs-target="#ResetPasswordModal"
                   style={{ cursor: "pointer" }}
                 >
-                  <i className="mdi mdi-key-star text-muted fs-16 align-middle me-2"></i>
-
-                  <span className="align-middle">
-                    {common.isPasswordSet ? "Reset Password" : "Set Password"}
+                  <span className="fpd-icon-box">
+                    <i className="mdi mdi-key-star"></i>
                   </span>
+
+                  <span className="fpd-item-copy">
+                    <strong>
+                      {common.isPasswordSet ? "Reset Password" : "Set Password"}
+                    </strong>
+
+                    <small>Manage your account password</small>
+                  </span>
+
+                  <i className="ri-arrow-right-s-line fpd-item-arrow"></i>
                 </a>
 
                 <a
-                  className="dropdown-item"
+                  className="dropdown-item fpd-item"
                   onClick={handleOpenSessionModel}
                   style={{ cursor: "pointer" }}
                 >
-                  <i className="mdi mdi-clock-outline text-muted fs-16 align-middle me-2"></i>
+                  <span className="fpd-icon-box">
+                    <i className="mdi mdi-clock-outline"></i>
+                  </span>
 
-                  <span className="align-middle">Set Session Timeout</span>
+                  <span className="fpd-item-copy">
+                    <strong>Session Timeout</strong>
+                    <small>Configure automatic sign out</small>
+                  </span>
+
+                  <i className="ri-arrow-right-s-line fpd-item-arrow"></i>
                 </a>
 
-                <Link to="/security" className="dropdown-item">
-                  <i className="fas fa-lock text-muted fs-14 align-middle me-2"></i>
+                <Link to="/security" className="dropdown-item fpd-item">
+                  <span className="fpd-icon-box">
+                    <i className="fas fa-lock"></i>
+                  </span>
 
-                  <span className="align-middle">Security</span>
+                  <span className="fpd-item-copy">
+                    <strong>Security</strong>
+                    <small>Review security settings</small>
+                  </span>
+
+                  <i className="ri-arrow-right-s-line fpd-item-arrow"></i>
                 </Link>
 
+                <div className="fpd-divider"></div>
+
+                {/* LOGOUT */}
                 <a
-                  className="dropdown-item"
+                  className="dropdown-item fpd-item fpd-item-danger"
                   data-bs-toggle="modal"
                   data-bs-target="#logoutModal"
                   style={{ cursor: "pointer" }}
                 >
-                  <i className="mdi mdi-logout text-muted fs-16 align-middle me-2"></i>
+                  <span className="fpd-icon-box fpd-icon-box-danger">
+                    <i className="mdi mdi-logout"></i>
+                  </span>
 
-                  <span className="align-middle">Logout</span>
+                  <span className="fpd-item-copy">
+                    <strong>Logout</strong>
+                    <small>Sign out of your account</small>
+                  </span>
                 </a>
               </div>
             </div>
