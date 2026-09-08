@@ -18,3 +18,99 @@
   transform: translateY(-1px); /* subtle lift */
   box-shadow: 0 2px 6px rgba(99, 102, 241, 0.15);
 }
+
+/* =========================================================
+   XERO - MINIMAL UI UPDATE
+   Only:
+   1) spacing from sidebar
+   2) auth/disconnect button colours
+   ========================================================= */
+
+/* Add breathing room between the sidebar edge and the page content */
+.xero-auth-page {
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+
+/* Keep the header aligned after adding the page spacing */
+.xero-auth-header {
+  width: 100%;
+}
+
+/* Do not style anything inside the shared confirmation modal.
+   Only style buttons rendered directly by AuthButton (up to one wrapper deep). */
+.xero-auth-actions > button,
+.xero-auth-actions > .btn,
+.xero-auth-actions > div > button,
+.xero-auth-actions > div > .btn {
+  min-height: 40px !important;
+  padding: 0 16px !important;
+
+  border-radius: 7px !important;
+
+  font-size: 12px !important;
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+}
+
+/* Primary / Authenticate button */
+.xero-auth-actions > .btn-primary,
+.xero-auth-actions > .btn-outline-primary,
+.xero-auth-actions > div > .btn-primary,
+.xero-auth-actions > div > .btn-outline-primary {
+  border-color: #14b5d1 !important;
+  background: #14b5d1 !important;
+  color: #ffffff !important;
+}
+
+.xero-auth-actions > .btn-primary:hover,
+.xero-auth-actions > .btn-outline-primary:hover,
+.xero-auth-actions > div > .btn-primary:hover,
+.xero-auth-actions > div > .btn-outline-primary:hover {
+  border-color: #0da5c1 !important;
+  background: #0da5c1 !important;
+  color: #ffffff !important;
+}
+
+/* Disconnect button */
+.xero-auth-actions > .btn-danger,
+.xero-auth-actions > .btn-outline-danger,
+.xero-auth-actions > div > .btn-danger,
+.xero-auth-actions > div > .btn-outline-danger {
+  border-color: #dc3545 !important;
+  background: #ffffff !important;
+  color: #dc3545 !important;
+}
+
+.xero-auth-actions > .btn-danger:hover,
+.xero-auth-actions > .btn-outline-danger:hover,
+.xero-auth-actions > div > .btn-danger:hover,
+.xero-auth-actions > div > .btn-outline-danger:hover {
+  border-color: #c72f3d !important;
+  background: #fff1f2 !important;
+  color: #c72f3d !important;
+}
+
+/* If the shared AuthButton renders plain buttons without Bootstrap variants,
+   use the standard primary/danger order without touching modal buttons. */
+.xero-auth-actions > button:first-of-type,
+.xero-auth-actions > div > button:first-of-type {
+  border-color: #14b5d1 !important;
+  background: #14b5d1 !important;
+  color: #ffffff !important;
+}
+
+.xero-auth-actions > button:last-of-type:not(:first-of-type),
+.xero-auth-actions > div > button:last-of-type:not(:first-of-type) {
+  border-color: #dc3545 !important;
+  background: #ffffff !important;
+  color: #dc3545 !important;
+}
+
+@media (max-width: 767px) {
+  .xero-auth-page {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+}

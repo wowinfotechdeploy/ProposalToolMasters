@@ -108,22 +108,24 @@ function XeroAuthentication() {
   };
 
   return (
-    <div className="container-fluid py-4">
+    <div className="container-fluid py-4 xero-auth-page">
       {/* HEADER */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="d-flex justify-content-between align-items-center mb-4 xero-auth-header">
         <h4 className="fw-semibold mb-0" style={{ color: "#111827" }}>
           Xero Driver Mapping
         </h4>
 
-        <AuthButton
-          onAuthenticate={handleAuthenticate}
-          onDisconnect={handleDisconnect}
-          activePlatform={activePlatform}
-          activeBtn={activePlatform == "Xero" ? true : false}
-          moduleName="Xero"
-          tooltipLabel="Authenticate Xero"
-          key={getActivePlatform()}
-        />
+        <div className="xero-auth-actions">
+          <AuthButton
+            onAuthenticate={handleAuthenticate}
+            onDisconnect={handleDisconnect}
+            activePlatform={activePlatform}
+            activeBtn={activePlatform == "Xero" ? true : false}
+            moduleName="Xero"
+            tooltipLabel="Authenticate Xero"
+            key={getActivePlatform()}
+          />
+        </div>
       </div>
 
       {/* MAPPING */}
