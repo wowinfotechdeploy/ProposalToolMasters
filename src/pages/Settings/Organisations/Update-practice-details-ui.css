@@ -1,0 +1,664 @@
+/* ============================================================
+   Update Practice Details — UI only
+   ============================================================ */
+
+.pd-page {
+  --pd-bg: #f6f8fb;
+  --pd-surface: #ffffff;
+  --pd-border: #e5eaf0;
+  --pd-border-soft: #eef2f7;
+  --pd-ink: #0f172a;
+  --pd-ink-2: #334155;
+  --pd-muted: #64748b;
+  --pd-accent: #06b6d4;
+  --pd-accent-dark: #0596ad;
+  --pd-accent-soft: #e7f8fb;
+  --pd-danger: #dc2626;
+  --pd-radius: 14px;
+  --pd-radius-sm: 9px;
+
+  background: var(--pd-bg);
+  min-height: 100%;
+  padding: 26px 24px 40px;
+  color: var(--pd-ink);
+}
+
+/* ---------------- Page header ---------------- */
+.pd-page-head {
+  max-width: 1080px;
+  margin: 0 auto 22px;
+}
+
+.pd-page-title {
+  margin: 0 0 5px;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--pd-ink);
+}
+
+.pd-page-subtitle {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--pd-muted);
+}
+
+.pd-content {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+/* ---------------- Section card ---------------- */
+.pd-card {
+  background: var(--pd-surface);
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius);
+  margin-bottom: 22px;
+  overflow: visible;
+}
+
+.pd-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px 24px;
+  background: #fbfcfe;
+  border-bottom: 1px solid var(--pd-border-soft);
+  border-radius: var(--pd-radius) var(--pd-radius) 0 0;
+}
+
+.pd-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--pd-accent-soft);
+  color: #0e7490;
+  flex-shrink: 0;
+}
+
+.pd-card-title {
+  margin: 0 0 3px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--pd-ink);
+}
+
+.pd-card-subtitle {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--pd-muted);
+}
+
+.pd-card-body {
+  padding: 22px 24px 24px;
+}
+
+/* ---------------- Grid + fields ---------------- */
+.pd-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 20px;
+}
+
+.pd-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  position: relative;
+}
+
+.pd-field-full {
+  grid-column: 1 / -1;
+}
+
+.pd-label {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--pd-ink-2);
+}
+
+.pd-req {
+  color: var(--pd-danger);
+  margin-left: 3px;
+}
+
+.pd-validation {
+  display: block;
+  margin-top: 2px;
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+.pd-validation-block {
+  margin-bottom: 10px;
+}
+
+.pd-hint {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--pd-muted);
+}
+
+/* ---------------- Inputs ---------------- */
+.pd-page .pd-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius-sm);
+  background: #ffffff;
+  font-size: 13.5px;
+  color: var(--pd-ink);
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.pd-page .pd-input::placeholder {
+  color: #a3adbb;
+}
+
+.pd-page .pd-input:focus {
+  border-color: var(--pd-accent);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.12);
+}
+
+.pd-page .pd-input:disabled,
+.pd-page input.pd-input:read-only {
+  background: #f4f6f9;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.pd-input-clickable {
+  cursor: pointer;
+}
+
+/* ---------------- react-select ---------------- */
+.pd-page .pd-select {
+  width: 100%;
+}
+
+.pd-page .pd-select [class$="-control"] {
+  min-height: 42px;
+  border-radius: var(--pd-radius-sm);
+  border-color: var(--pd-border);
+  background: #ffffff;
+  box-shadow: none;
+  font-size: 13.5px;
+}
+
+.pd-page .pd-select [class$="-control"]:hover {
+  border-color: #cbd5e1;
+}
+
+.pd-page .pd-select [class$="-control"]:focus-within {
+  border-color: var(--pd-accent);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.12);
+}
+
+.pd-page .pd-select [class$="-placeholder"] {
+  color: #a3adbb;
+}
+
+.pd-page .pd-select [class$="-indicatorSeparator"] {
+  display: none;
+}
+
+.pd-page .pd-select [class$="-menu"] {
+  border-radius: var(--pd-radius-sm);
+  border: 1px solid var(--pd-border);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
+  overflow: hidden;
+  z-index: 30;
+}
+
+/* ---------------- Phone group ---------------- */
+.pd-page .pd-phone {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+}
+
+.pd-page .pd-phone .pd-select,
+.pd-page .pd-phone > .css-b62m3t-container {
+  flex: 0 0 108px;
+  width: 108px !important;
+  min-width: 108px;
+}
+
+.pd-page .pd-phone .phone-input-number-div {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ---------------- Date picker ---------------- */
+.pd-page .pd-datepicker .react-date-picker {
+  width: 100%;
+}
+
+.pd-page .pd-datepicker .react-date-picker__wrapper {
+  height: 42px;
+  padding: 0 10px;
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius-sm);
+  background: #ffffff;
+  font-size: 13.5px;
+}
+
+.pd-page
+  .pd-datepicker
+  .react-date-picker--disabled
+  .react-date-picker__wrapper {
+  background: #f4f6f9;
+}
+
+/* ---------------- Company search dropdown ---------------- */
+.pd-field-search {
+  position: relative;
+}
+
+.pd-field-search .autocomplete-input-div {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  margin-left: 0;
+  margin-top: 4px;
+  border-radius: var(--pd-radius-sm);
+  border-color: var(--pd-border);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
+  z-index: 25;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.pd-field-search .searchList {
+  padding: 0;
+  margin: 0;
+}
+
+/* ---------------- Toggle panel ---------------- */
+.pd-toggle-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius-sm);
+  background: #fbfcfe;
+}
+
+.pd-toggle-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+  min-width: 0;
+}
+
+.pd-toggle-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--pd-ink);
+}
+
+.pd-toggle-desc {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--pd-muted);
+}
+
+.pd-toggle-panel .MuiFormGroup-root,
+.pd-toggle-panel .MuiFormControlLabel-root {
+  margin: 0;
+}
+
+/* ---------------- Note ---------------- */
+.pd-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px 15px;
+  margin-bottom: 20px;
+  border: 1px solid #cdeef5;
+  border-left: 3px solid var(--pd-accent);
+  border-radius: var(--pd-radius-sm);
+  background: #f2fbfd;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--pd-ink-2);
+}
+
+.pd-note-icon {
+  color: var(--pd-accent);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ---------------- Upload / media ---------------- */
+.pd-upload-box {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 18px;
+  border: 1px dashed #cbd5e1;
+  border-radius: var(--pd-radius-sm);
+  background: #fbfcfe;
+}
+
+.pd-media-box {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px;
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius-sm);
+  background: #fbfcfe;
+}
+
+.pd-media-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 180px;
+  height: 110px;
+  border: 1px solid var(--pd-border);
+  border-radius: 8px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.pd-media-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* ---------------- Colour picker ---------------- */
+.pd-color-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pd-page .pd-color-swatch {
+  width: 52px;
+  height: 42px;
+  min-width: 52px;
+  padding: 0 !important;
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius-sm);
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  overflow: hidden;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* The actual colour is painted by these inner pseudo-elements */
+.pd-page .pd-color-swatch::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+}
+
+.pd-page .pd-color-swatch::-webkit-color-swatch {
+  border: none;
+  border-radius: 0;
+}
+
+.pd-page .pd-color-swatch::-moz-color-swatch {
+  border: none;
+  border-radius: 0;
+}
+
+.pd-page .pd-color-swatch:focus-visible {
+  outline: 2px solid rgba(6, 182, 212, 0.4);
+  outline-offset: 2px;
+}
+
+.pd-color-hex {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  color: var(--pd-ink-2);
+  background: #eef2f7;
+  border-radius: 6px;
+  padding: 6px 10px;
+  text-transform: uppercase;
+}
+
+/* ---------------- Officer / partner sub-cards ---------------- */
+.pd-subcard {
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius-sm);
+  background: #fcfdfe;
+  padding: 16px 18px 18px;
+  margin-bottom: 16px;
+}
+
+.pd-subcard:last-of-type {
+  margin-bottom: 0;
+}
+
+.pd-subcard-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--pd-border-soft);
+}
+
+.pd-subcard-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--pd-ink);
+}
+
+.pd-subcard-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.pd-signatory {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pd-signatory .isAuthorized {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.pd-add-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+/* ---------------- Buttons ---------------- */
+.pd-page .pd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: var(--pd-radius-sm);
+  border: 1px solid transparent;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  width: auto;
+  float: none;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.pd-page .pd-btn-outline {
+  background: #ffffff;
+  border-color: var(--pd-accent);
+  color: #0e7490;
+}
+
+.pd-page .pd-btn-outline:hover {
+  background: var(--pd-accent-soft);
+  border-color: var(--pd-accent);
+  color: #0e7490;
+}
+
+.pd-page .pd-btn-primary {
+  background: var(--pd-accent);
+  border-color: var(--pd-accent);
+  color: #ffffff;
+  box-shadow: 0 6px 14px rgba(6, 182, 212, 0.24);
+}
+
+.pd-page .pd-btn-primary:hover {
+  background: var(--pd-accent-dark);
+  border-color: var(--pd-accent-dark);
+  color: #ffffff;
+}
+
+.pd-page .pd-btn-danger {
+  height: 36px;
+  padding: 0 14px;
+  background: #ffffff;
+  border-color: #f0b4b4;
+  color: var(--pd-danger);
+  font-size: 12.5px;
+}
+
+.pd-page .pd-btn-danger:hover {
+  background: #fff1f2;
+  border-color: var(--pd-danger);
+  color: #b91c1c;
+}
+
+/* ---------------- Footer ---------------- */
+.pd-footer-error {
+  display: block;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.pd-footer-bar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius);
+  margin-bottom: 8px;
+  z-index: 15;
+}
+
+.pd-page {
+  padding-bottom: 96px; /* replaces the 40px in the shorthand */
+}
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 768px) {
+  .pd-page {
+    padding: 18px 14px 32px;
+  }
+
+  .pd-page-title {
+    font-size: 21px;
+  }
+
+  .pd-card-head,
+  .pd-card-body {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .pd-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pd-toggle-panel {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .pd-subcard-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pd-media-preview {
+    width: 100%;
+  }
+
+  .pd-footer-bar {
+    justify-content: stretch;
+  }
+
+  .pd-page .pd-footer-bar .pd-btn {
+    width: 100%;
+  }
+}
+
+/* ---------------- Date picker popup ---------------- */
+
+/* The field must not clip or trap the popup */
+.pd-page .pd-datepicker {
+  position: relative;
+  z-index: 60;
+}
+
+/* Lift the calendar above later cards and the sticky footer bar */
+.pd-page .react-date-picker__calendar {
+  z-index: 1000 !important;
+}
+
+.pd-page .react-date-picker__calendar--closed {
+  display: none;
+}
+
+/* Open upward: override react-fit's inline top/bottom */
+.pd-page .react-date-picker__calendar--open {
+  top: auto !important;
+  bottom: 100% !important;
+  margin-bottom: 6px;
+}
+
+/* Popup surface styling to match the cards */
+.pd-page .react-date-picker__calendar .react-calendar {
+  border: 1px solid var(--pd-border);
+  border-radius: var(--pd-radius-sm);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+  overflow: hidden;
+  font-size: 13px;
+}

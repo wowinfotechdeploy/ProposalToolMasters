@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
 import "../../configure/packages/Package.css";
 import "./Update-practice-details.css";
+import "./Update-practice-details-ui.css";
 import { GetBusinessTypeLookupList } from "../../../redux/Services/Master/BusinessTypeLookupListApi";
 import { ERROR_MESSAGES } from "../../../components/GlobalMessage";
 import Upload_image_modal from "../../../components/UpdateImageModel/Upload_image_modal";
@@ -11,6 +12,18 @@ import Utils from "../../../Middleware/Utils";
 import Select from "react-select";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { styled } from "@mui/material/styles";
+import {
+  Building2,
+  PenLine,
+  Layers,
+  User,
+  Users,
+  Briefcase,
+  Plus,
+  Trash2,
+  Info,
+  Save,
+} from "lucide-react";
 import {
   GetCompanyDetails,
   GetCompanyList,
@@ -86,7 +99,7 @@ const Update_Practice_Details = () => {
   const [modelAction, setModelAction] = useState("Update");
   const [isChecked, setIsChecked] = useState(false);
   const [addressUpdatedDatetime, setAddressUpdatedDatetime] = useState(
-    Date.now()
+    Date.now(),
   );
   const today = new Date();
   const minDate = new Date(1970, 0, 1);
@@ -482,7 +495,7 @@ const Update_Practice_Details = () => {
   const GetOrganisationInformationModelData = async () => {
     setLoader(true);
     const response = await GetOrganisationInformationModel(
-      common.organisationKeyID
+      common.organisationKeyID,
     );
     if (response) {
       if (response?.data?.statusCode === 200) {
@@ -577,7 +590,7 @@ const Update_Practice_Details = () => {
         let officerArray = [];
         ModelData.officersList.forEach((item) => {
           const PhoneSelectedValue = CountryList.find(
-            (countryCode) => item.countryCodeID == countryCode.value
+            (countryCode) => item.countryCodeID == countryCode.value,
           );
 
           let officerObj = {
@@ -641,7 +654,7 @@ const Update_Practice_Details = () => {
 
         setCompanyForm(companyObj);
         const fullAddress = concatenateFullAddress(
-          ModelData.companyDetails?.companyAddress
+          ModelData.companyDetails?.companyAddress,
         );
         setConcatenatedRegisterAddress(fullAddress);
         let CorrespondenceOrResidentialAddress = [];
@@ -653,7 +666,7 @@ const Update_Practice_Details = () => {
               officersFullAddress: fullAddressConcatenation,
             };
             CorrespondenceOrResidentialAddress.push(
-              CorrespondenceOrResidentialAddressObj
+              CorrespondenceOrResidentialAddressObj,
             );
           } else {
             CorrespondenceOrResidentialAddress.push({
@@ -664,7 +677,7 @@ const Update_Practice_Details = () => {
         setConcatenatedResidentialAddress(CorrespondenceOrResidentialAddress);
         if (ModelData.organisationAddress) {
           const fullAddress = concatenateFullAddress(
-            ModelData.organisationAddress
+            ModelData.organisationAddress,
           );
           setConcatenatedTradingAddress(fullAddress);
         }
@@ -718,9 +731,9 @@ const Update_Practice_Details = () => {
     const addPart = (part) => (part ? `${part}, ` : "");
 
     let concatenatedAddress = `${addPart(
-      address?.addressLine1?.replace(",", " ")
+      address?.addressLine1?.replace(",", " "),
     )}${addPart(address?.addressLine2)}${addPart(address?.locality)}${addPart(
-      address?.region
+      address?.region,
     )}${addPart(address?.country || address?.countryName)}${
       address?.postcode || ""
     }`;
@@ -759,7 +772,7 @@ const Update_Practice_Details = () => {
       basicInfo.businessTypeID === CLIENT_TYPES.Company
     ) {
       authorizedRecords = officersForm.filter(
-        (item) => item.isAuthorisedSignatory === true
+        (item) => item.isAuthorisedSignatory === true,
       );
       setAuthorityCount(authorizedRecords.length);
     }
@@ -1257,7 +1270,7 @@ const Update_Practice_Details = () => {
             Signature.set("file", basicInfo.signatoryImage); // Append the file itself
             uploadSignatureResponse = await AddUpdateSignature(
               ModuleKeyID,
-              Signature
+              Signature,
             );
           }
           if (basicInfo.signatoryImage === null) {
@@ -1325,7 +1338,7 @@ const Update_Practice_Details = () => {
         const CompanyDetails = data?.data?.responseData;
         const address = CompanyDetails.registered_office_address;
         const selected_Country = countryLookupList.filter(
-          (c) => c.countryName == address.country
+          (c) => c.countryName == address.country,
         )[0];
         const company_Address = {
           addressId: companyForm?.companyAddress.addressId,
@@ -1396,7 +1409,7 @@ const Update_Practice_Details = () => {
             officersFullAddress: null,
           };
           CorrespondenceOrResidentialAddress.push(
-            CorrespondenceOrResidentialAddressObj
+            CorrespondenceOrResidentialAddressObj,
           );
         } else {
           CompanyOfficer.forEach((officer) => {
@@ -1412,7 +1425,7 @@ const Update_Practice_Details = () => {
               officerLastName = officerLastName?.substring(0, 29);
             }
             const selected_Country = countryLookupList.filter(
-              (c) => c.countryName == officer?.address.country
+              (c) => c.countryName == officer?.address.country,
             )[0];
 
             let officerAddress = {
@@ -1457,7 +1470,7 @@ const Update_Practice_Details = () => {
               officersFullAddress: fullAddressConcatenation,
             };
             CorrespondenceOrResidentialAddress.push(
-              CorrespondenceOrResidentialAddressObj
+              CorrespondenceOrResidentialAddressObj,
             );
           });
         }
@@ -1645,10 +1658,10 @@ const Update_Practice_Details = () => {
   };
 
   const VATRegFilter = Utils.VAT_Registered.find(
-    (item) => otherInfo.VATReg == item.value
+    (item) => otherInfo.VATReg == item.value,
   );
   const ContactFilter = countryCodes.find(
-    (item) => otherInfo.countryCodeID == item.value
+    (item) => otherInfo.countryCodeID == item.value,
   );
 
   const handleImageUpload = (image) => {
@@ -1698,7 +1711,7 @@ const Update_Practice_Details = () => {
     dispatch(
       updateState({
         enableEL: otherInfo.enableEL,
-      })
+      }),
     );
     navigate("/");
     window.location.reload(true);
@@ -1722,7 +1735,7 @@ const Update_Practice_Details = () => {
     for (let i = 0; i < officersForm.length; i++) {
       // Find the country code based on the countryCodeID in officersForm
       let phoneValue = countryCodes.find(
-        (item) => officersForm[i]?.countryCodeID === item.value
+        (item) => officersForm[i]?.countryCodeID === item.value,
       );
 
       // If a matching country code is found, add it to the value array
@@ -1742,11 +1755,11 @@ const Update_Practice_Details = () => {
   };
 
   const currencyFilter = currencyType.find(
-    (item) => otherInfo.preferredCurrency == item.value
+    (item) => otherInfo.preferredCurrency == item.value,
   );
 
   const IncorporatedValue = incorporatedInList.filter(
-    (item) => companyForm?.incInID == item.value
+    (item) => companyForm?.incInID == item.value,
   );
 
   function formatDate(dateString) {
@@ -1797,2584 +1810,2116 @@ const Update_Practice_Details = () => {
 
   return (
     <>
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
-        <div class="services page-background">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                        <div className="container">
-                          <div className="row">
-                            <div className="col-md-12 p-0 ">
-                <div class="page-title-cls">Update Practice Details</div>
+      <div className="pd-page">
+        {/* ================= PAGE HEADER ================= */}
+        <div className="pd-page-head">
+          <h1 className="pd-page-title">Update Practice Details</h1>
+          <p className="pd-page-subtitle">
+            Manage your organization profile, branding, electronic signature,
+            taxation and practice information.
+          </p>
+        </div>
+
+        <div className="pd-content">
+          {/* ================= BASIC INFORMATION ================= */}
+          <section className="pd-card" id="BasicInformation">
+            <div className="pd-card-head">
+              <span className="pd-card-icon">
+                <Building2 size={18} />
+              </span>
+              <div>
+                <h2 className="pd-card-title">Basic Information</h2>
+                <p className="pd-card-subtitle">
+                  Configure your business information.
+                </p>
               </div>
             </div>
-            </div>
-            </div>
-            </div>
-            </div>
-            </div>
-            </div>
-          {/* </div> */}
-          <div class="container mt-5 col-xl-8">
-            <div class="row mb-100">
-              <div class="col-lg-12 slider-scroll">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body practice-detail Update-Scroll-res mt-0">
-                    <div class="row">
-                      <div class="col-xl-12 col-lg-12">
-                        <div class=" pricing-box p-4  mt-0">
-                          <div class="row" id="BasicInformation">
-                            <div class="col-lg-12">
-                              <div class="row mb-3">
-                                <div className="page-title-cls mb-3">
-                                  Basic Information
-                                </div>
-                                <div class="col-lg-12">
-                                  <div class="row">
-                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                      <label class="form-label">
-                                        Profession Type
-                                        <span style={{ color: "#ec4561" }}>
-                                          *
-                                        </span>
-                                      </label>
-                                    </div>
-                                    <div className="col-md-9 col-sm-12 ">
-                                      <input
-                                        disabled
-                                        // style={{ padding: "5px" }}
-                                        class="input-text"
-                                        placeholder="Profession Type"
-                                        value={professionTypeValue}
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="col-lg-12">
-                                <div class="row mb-3" id="BusinessType">
-                                  <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                    <label class="form-label">
-                                      Business Type
-                                      <span class="text-danger">*</span>
-                                    </label>
-                                  </div>
-                                  <div class="col-md-9 col-sm-12">
-                                    <input
-                                      type="text"
-                                      className="input-text"
-                                      disabled
-                                      // style={{ padding: "5px" }}
-                                      class="input-text"
-                                      placeholder="Business Type"
-                                      value={basicInfo.businessTypeName}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            {(basicInfo.businessTypeID ===
-                              CLIENT_TYPES.Sole_Trader ||
-                              basicInfo.businessTypeID ===
-                                CLIENT_TYPES.Partnership) && (
-                              <>
-                                <div class="col-lg-12">
-                                  <div class="row mb-3" id="TradingName">
-                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                      <label class="form-label">
-                                        Trading Name
-                                        <span class="text-danger">*</span>
-                                      </label>
-                                    </div>
-                                    <div class="col-md-9 col-sm-12">
-                                      <input
-                                        maxLength={50}
-                                        type="text"
-                                        className="input-text"
-                                        placeholder="Trading Name"
-                                        value={basicInfo.tradingName}
-                                        onChange={(e) => {
-                                          const inputValue = e.target.value;
-                                          const trimmedValue =
-                                            inputValue.replace(/^\s+/g, "");
 
-                                          // Validation: Check if the trimmed value is either alphanumeric or only alphabet but not only numeric
-                                          const isValidName =
-                                            /^[a-zA-Z0-9\s,.!?"':;&()-_`]+(?:[a-zA-Z0-9\s,.!?"':;&()-_`]+)*$/.test(
-                                              trimmedValue
-                                            ) && !/^\d+$/.test(trimmedValue);
-
-                                          if (
-                                            isValidName ||
-                                            trimmedValue === ""
-                                          ) {
-                                            const capitalizedValue =
-                                              trimmedValue
-                                                .charAt(0)
-                                                .toUpperCase() +
-                                              trimmedValue.slice(1);
-                                            setBasicInfo({
-                                              ...basicInfo,
-                                              tradingName: capitalizedValue,
-                                            });
-                                          }
-                                        }}
-                                      />
-                                      {requireErrorMessage &&
-                                      (basicInfo.tradingName === "" ||
-                                        basicInfo.tradingName === null) ? (
-                                        <span className="validation">
-                                          {ERROR_MESSAGES}
-                                        </span>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="col-lg-12">
-                                  <div class="row mb-3" id="TradingDate">
-                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                      <label class="form-label">
-                                        Trading Start Date
-                                        <span class="text-danger">*</span>
-                                      </label>
-                                    </div>
-                                    <div className="col-md-9 col-sm-12">
-                                      {/* <div className="phone-input-div update-practice-phone"> */}
-                                      <DatePicker
-                                        minDate={minDate}
-                                        maxDate={maxDate}
-                                        format="dd/MM/y"
-                                        dayPlaceholder="dd"
-                                        monthPlaceholder="mm"
-                                        yearPlaceholder="yyyy"
-                                        value={basicInfo.tradingStartDate}
-                                        onChange={(e) => {
-                                          setDateValidation(false);
-                                          setBasicInfo({
-                                            ...basicInfo,
-                                            tradingStartDate: e,
-                                          });
-                                        }}
-                                      />
-                                      {DateValidation &&
-                                      (basicInfo.tradingStartDate !== "" ||
-                                        basicInfo.tradingStartDate !== null) ? (
-                                        <span className="validation">
-                                          Invalid Date
-                                        </span>
-                                      ) : (
-                                        ""
-                                      )}
-                                      {requireErrorMessage &&
-                                      (basicInfo.tradingStartDate === "" ||
-                                        basicInfo.tradingStartDate === null) ? (
-                                        <span className="validation">
-                                          {ERROR_MESSAGES}
-                                        </span>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="col-lg-12">
-                                  <div class="row mb-3" id="TradingAddress">
-                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                      <label class="form-label">
-                                        Trading Address
-                                        <span class="text-danger">*</span>
-                                      </label>
-                                    </div>
-                                    <div className="col-md-9 col-sm-12">
-                                      <div className="phone-input-div update-practice-phone">
-                                        <input
-                                          style={{
-                                            // padding: "5px",
-                                            cursor: "pointer",
-                                          }}
-                                          class="input-text"
-                                          placeholder="Trading Address"
-                                          value={concatenatedTradingAddress}
-                                          onMouseDown={(e) => {
-                                            e.preventDefault();
-
-                                            handleOpenTradingAddressPopup(e);
-                                          }}
-                                        />
-                                      </div>
-                                      {requireErrorMessage &&
-                                      (concatenatedTradingAddress === "" ||
-                                        concatenatedTradingAddress === null) ? (
-                                        <span className="validation">
-                                          {ERROR_MESSAGES}
-                                        </span>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              </>
-                            )}
-
-                            {(basicInfo.businessTypeID ===
-                              CLIENT_TYPES.Company ||
-                              basicInfo.businessTypeID ===
-                                CLIENT_TYPES.LLP) && (
-                              <>
-                                <div className="col-lg-12">
-                                  <div class="row mb-3" id="UpdateCompany">
-                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                      <label class="form-label">
-                                        Update Company
-                                      </label>
-                                    </div>
-                                    <div class="col-md-9 col-sm-12">
-                                      <input
-                                        style={{ padding: "5px" }}
-                                        class="input-text"
-                                        placeholder="Search Company"
-                                        onChange={handleCompanyInputChange}
-                                        onKeyDown={(e) => {
-                                          if (
-                                            e.key === " " &&
-                                            e.target.value === ""
-                                          ) {
-                                            e.preventDefault();
-                                          }
-                                        }}
-                                      />
-                                      {companies.length > 0 && (
-                                        <div className="autocomplete-input-div show">
-                                          <ul className="searchList">
-                                            {companies.map((i, index) => (
-                                              <li
-                                                key={index}
-                                                onClick={() =>
-                                                  handleCompanySelect(i)
-                                                }
-                                              >
-                                                {i.title}
-                                              </li>
-                                            ))}
-                                          </ul>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div class="row mb-3">
-                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                      <label class="form-label">
-                                        Company Name
-                                        <span class="text-danger">*</span>
-                                      </label>
-                                    </div>
-                                    <div class="col-md-9 col-sm-12">
-                                      <input
-                                        disabled
-                                        style={{ padding: "5px" }}
-                                        class="input-text"
-                                        placeholder="Company Name"
-                                        value={companyForm.companyName}
-                                        onChange={(e) =>
-                                          setCompanyForm({
-                                            ...companyForm,
-                                            companyName: e.target.value,
-                                          })
-                                        }
-                                      />
-                                      {requireErrorMessage &&
-                                      (companyForm.companyName === "" ||
-                                        companyForm.companyName === null) ? (
-                                        <span className="validation">
-                                          {ERROR_MESSAGES}
-                                        </span>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div class="row mb-3">
-                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                      <label class="form-label">
-                                        Entity Type
-                                        <span class="text-danger">*</span>
-                                      </label>
-                                    </div>
-                                    <div class="col-md-9 col-sm-12">
-                                      <input
-                                        disabled
-                                        style={{ padding: "5px" }}
-                                        class="input-text"
-                                        placeholder="Entity Type"
-                                        value={companyForm.companyType}
-                                        onChange={(e) =>
-                                          setCompanyForm({
-                                            ...companyForm,
-                                            companyType: e.target.value,
-                                          })
-                                        }
-                                      />
-                                      {requireErrorMessage &&
-                                      (companyForm.companyType === "" ||
-                                        companyForm.companyType === null) ? (
-                                        <span className="validation">
-                                          {ERROR_MESSAGES}
-                                        </span>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div class="row mb-3" id="CompanyNumber">
-                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                      <label class="form-label">
-                                        Company Number
-                                        <span class="text-danger">*</span>
-                                      </label>
-                                    </div>
-                                    <div class="col-md-9 col-sm-12">
-                                      <input
-                                        disabled
-                                        style={{ padding: "5px" }}
-                                        class="input-text"
-                                        placeholder="Company Number"
-                                        value={companyForm.companyNumber}
-                                        onChange={(e) =>
-                                          setCompanyForm({
-                                            ...companyForm,
-                                            companyNumber: e.target.value,
-                                          })
-                                        }
-                                      />
-                                      {requireErrorMessage &&
-                                      (companyForm.companyNumber === "" ||
-                                        companyForm.companyNumber === null) ? (
-                                        <span className="validation">
-                                          {ERROR_MESSAGES}
-                                        </span>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div class="row mb-3" id="CompanyAddress">
-                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                      <label class="form-label">
-                                        Registered Office Address
-                                      </label>
-                                    </div>
-                                    <div class="col-md-9 col-sm-12">
-                                      <input
-                                        disabled
-                                        style={{ padding: "5px" }}
-                                        class="input-text"
-                                        placeholder="Registered Office Address"
-                                        value={concatenatedRegisterAddress}
-                                        onChange={(e) =>
-                                          setBasicInfo({
-                                            ...basicInfo,
-                                            regOfficeAddress: e.target.value,
-                                          })
-                                        }
-                                      />
-                                    </div>
-                                  </div>
-                                  <div class="row mb-3">
-                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                      <label class="form-label">
-                                        Incorporation Date
-                                        <span class="text-danger">*</span>
-                                      </label>
-                                    </div>
-                                    <div class="col-md-9 col-sm-12">
-                                      <input
-                                        disabled
-                                        style={{ padding: "5px" }}
-                                        className="input-text"
-                                        placeholder="Incorporation Date"
-                                        value={formatDate(
-                                          companyForm.incorporationDate
-                                        )}
-                                        onChange={(e) =>
-                                          setCompanyForm({
-                                            ...companyForm,
-                                            incorporationDate: e.target.value,
-                                          })
-                                        }
-                                      />
-                                      {requireErrorMessage &&
-                                      (companyForm.incorporationDate === "" ||
-                                        companyForm.incorporationDate ===
-                                          null) ? (
-                                        <span className="validation">
-                                          {ERROR_MESSAGES}
-                                        </span>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div class="row mb-3" id="IncorporatedIn">
-                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                      <label class="form-label">
-                                        Incorporated In
-                                        <span class="text-danger">*</span>
-                                      </label>
-                                    </div>
-                                    <div class="col-md-9 col-sm-12">
-                                      <div className="input-group">
-                                        <Select
-                                          className="CurrencySelect"
-                                          options={incorporatedInList}
-                                          value={IncorporatedValue}
-                                          onChange={handleIncorporatedInChange}
-                                        />
-                                        {requireErrorMessage &&
-                                        (companyForm.incInID === 0 ||
-                                          companyForm.incInID === null ||
-                                          companyForm.incInID === "") ? (
-                                          <span className="validation">
-                                            {ERROR_MESSAGES}
-                                          </span>
-                                        ) : (
-                                          ""
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    {(basicInfo.businessTypeID === CLIENT_TYPES.Company ||
-                      basicInfo.businessTypeID === CLIENT_TYPES.LLP) && (
-                      <>
-                        <div
-                          class="row mb-4 trading-detail"
-                          id="TradingDetails"
-                        >
-                          <div class="col-xl-12 col-lg-12">
-                            <div class="card-1 pricing-box p-4 mt-0">
-                              <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                <p
-                                  class="office-name font-weight"
-                                  style={{ width: "auto" }}
-                                >
-                                  Trading Details
-                                </p>
-                              </div>
-                              <div class="row">
-                                <div class="col-lg-12">
-                                  <div class="row mb-3">
-                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                      <label class="form-label">
-                                        Trading Name
-                                        <span class="text-danger">*</span>
-                                      </label>
-                                    </div>
-                                    <div class="col-md-9 col-sm-12">
-                                      <input
-                                        maxLength={50}
-                                        type="text"
-                                        className="input-text"
-                                        placeholder="Trading Name"
-                                        value={basicInfo.tradingName}
-                                        onChange={(e) => {
-                                          const inputValue = e.target.value;
-                                          const trimmedValue =
-                                            inputValue.replace(/^\s+/g, "");
-
-                                          // Validation: Check if the trimmed value is either alphanumeric or only alphabet but not only numeric
-                                          const isValidName =
-                                            /^[a-zA-Z0-9\s,.!?"':;&()-_`]+(?:[a-zA-Z0-9\s,.!?"':;&()-_`]+)*$/.test(
-                                              trimmedValue
-                                            ) && !/^\d+$/.test(trimmedValue);
-
-                                          if (
-                                            isValidName ||
-                                            trimmedValue === ""
-                                          ) {
-                                            const capitalizedValue =
-                                              trimmedValue
-                                                .charAt(0)
-                                                .toUpperCase() +
-                                              trimmedValue.slice(1);
-                                            setBasicInfo({
-                                              ...basicInfo,
-                                              tradingName: capitalizedValue,
-                                            });
-                                          }
-                                        }}
-                                      />
-                                      {requireErrorMessage &&
-                                      (basicInfo.tradingName === "" ||
-                                        basicInfo.tradingName === null) ? (
-                                        <span className="validation">
-                                          {ERROR_MESSAGES}
-                                        </span>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="col-lg-12">
-                                  <div class="row mb-3">
-                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                      <label class="form-label">
-                                        Trading Start Date
-                                        <span class="text-danger">*</span>
-                                      </label>
-                                    </div>
-                                    <div class="col-md-9 col-sm-12">
-                                      <DatePicker
-                                        minDate={minDate}
-                                        maxDate={maxDate}
-                                        format="dd/MM/y"
-                                        dayPlaceholder="dd"
-                                        monthPlaceholder="mm"
-                                        yearPlaceholder="yyyy"
-                                        value={basicInfo.tradingStartDate}
-                                        onChange={(e) => {
-                                          setDateValidation(false);
-                                          setBasicInfo({
-                                            ...basicInfo,
-                                            tradingStartDate: e,
-                                          });
-                                        }}
-                                      />
-                                      {/* {DateValidation &&
-                                          (basicInfo.tradingStartDate !== "" ||
-                                            basicInfo.tradingStartDate !== null) ? (
-                                          <span className="validation">
-                                            Invalid Date
-                                          </span>
-                                        ) : (
-                                          ""
-                                        )} */}
-                                      {requireErrorMessage &&
-                                      (basicInfo.tradingStartDate === "" ||
-                                        basicInfo.tradingStartDate === null) ? (
-                                        <span className="validation">
-                                          {ERROR_MESSAGES}
-                                        </span>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="col-lg-12">
-                                  <div class="row mb-3">
-                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                      <label class="form-label">
-                                        Trading Address
-                                        <span class="text-danger">*</span>
-                                      </label>
-                                    </div>
-                                    <div class="col-md-9 col-sm-12">
-                                      <input
-                                        style={{
-                                          padding: "5px",
-                                          cursor: "pointer",
-                                        }}
-                                        class="input-text"
-                                        placeholder="Trading Address"
-                                        value={concatenatedTradingAddress}
-                                        onClick={(e) => {
-                                          handleOpenTradingAddressPopup(e);
-                                        }}
-                                      />
-                                      {requireErrorMessage &&
-                                      (concatenatedTradingAddress === "" ||
-                                        concatenatedTradingAddress === null) ? (
-                                        <span className="validation">
-                                          {ERROR_MESSAGES}
-                                        </span>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                    <div class="row mb-4" id="E-Signature">
-                      <div class="col-xl-12 col-lg-12">
-                        <div class="card-1 pricing-box p-4  mt-0">
-                          <div class="col-lg-6 col-md-6">
-                            <p
-                              class="office-name font-weight"
-                              style={{ width: "auto" }}
-                            >
-                              E Signature
-                            </p>
-                          </div>
-
-                          <div class="row">
-                            <div className="col-lg-12">
-                              <div class="row ">
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label" htmlFor="isEL">
-                                    {EngagementName}
-                                    {/* {otherInfo.enableEL == 1
-                                      ? `Disable ${EngagementName}`
-                                      : `Enable ${EngagementName}`}{" "} */}
-                                  </label>
-                                </div>
-                                <div
-                                  class="col-md-9 col-sm-9 col-lg-9"
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  <FormGroup>
-                                    <FormControlLabel
-                                      control={
-                                        <CustomWidthTooltip title="Enable/Disable EL">
-                                          <Android12Switch
-                                            id="isEL"
-                                            checked={otherInfo.enableEL === 1}
-                                            onClick={() =>
-                                              setOtherInfo({
-                                                ...otherInfo,
-                                                enableEL:
-                                                  otherInfo.enableEL === 1
-                                                    ? 0
-                                                    : 1,
-                                              })
-                                            }
-                                          />
-                                        </CustomWidthTooltip>
-                                      }
-                                    />
-                                    <div
-                                      style={{
-                                        marginTop: "-12px",
-                                        marginBottom: "10px",
-                                        textAlign: "justify",
-                                      }}
-                                      className="text-muted helpMessage"
-                                    >
-                                      <b>Note: </b>
-                                      {longText}
-                                    </div>
-                                  </FormGroup>
-
-                                  {/* <Tooltip  disableFocusListener> */}
-                                  {/* <CustomWidthTooltip title={longText}>
-        <i className="fas fa-info-circle" style={{ fontSize: '18px',marginBottom:'7px', color: 'black', cursor: 'pointer' }}></i>
-      </CustomWidthTooltip>
-    </Tooltip> */}
-                                  {/* <label sx={{ m: 1 }} style={{ marginLeft: '5px' }} >
-          
-                               
-                           </label> */}
-                                </div>
-                              </div>
-                            </div>
-                            <div class="col-lg-12">
-                              <div class="row mb-3">
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    Signatory Name
-                                    {((signature !== null &&
-                                      signature !== undefined &&
-                                      signature !== "") ||
-                                      (basicInfo.signatureImageUrl !== null &&
-                                        basicInfo.signatureImageUrl !==
-                                          undefined &&
-                                        basicInfo.signatureImageUrl !==
-                                          "")) && (
-                                      <span class="text-danger">*</span>
-                                    )}
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <input
-                                    type="text"
-                                    className="input-text"
-                                    placeholder="Signatory Name"
-                                    value={basicInfo.signatoryName}
-                                    onChange={(e) => {
-                                      if (
-                                        signature ||
-                                        basicInfo.signatureImageUrl
-                                      ) {
-                                        if (!e.target.value) {
-                                          setIsIsSignatoryAvailable(false);
-                                        } else {
-                                          setIsIsSignatoryAvailable(true);
-                                        }
-                                      } else {
-                                        if (e.target.value) {
-                                          setIsIsSignatoryAvailable(false);
-                                        } else {
-                                          setIsIsSignatoryAvailable(true);
-                                        }
-                                      }
-                                      setBasicInfo({
-                                        ...basicInfo,
-                                        signatoryName: e.target.value,
-                                      });
-                                    }}
-                                  />
-                                  {requireErrorMessage &&
-                                  ((signature !== null &&
-                                    signature !== undefined &&
-                                    signature !== "") ||
-                                    (basicInfo.signatureImageUrl !== "" &&
-                                      basicInfo.signatureImageUrl !==
-                                        undefined &&
-                                      basicInfo.signatureImageUrl !== null)) &&
-                                  (basicInfo.signatoryName === "" ||
-                                    basicInfo.signatoryName === null) ? (
-                                    <span className="validation">
-                                      {ERROR_MESSAGES}
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            <div class="col-lg-12">
-                              <div class="row mb-3">
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    Signature Image
-                                    {basicInfo.signatoryName !== null &&
-                                      basicInfo.signatoryName !== undefined &&
-                                      basicInfo.signatoryName !== "" && (
-                                        <span class="text-danger">*</span>
-                                      )}
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <div className="upload-image-preview-div"></div>
-                                  {signature || basicInfo.signatureImageUrl ? (
-                                    <div className="upload-image-preview-div">
-                                      {basicInfo.signatureImageUrl &&
-                                        basicInfo.signatureImageUrl !==
-                                          undefined && (
-                                          <img
-                                            src={basicInfo.signatureImageUrl}
-                                            style={{
-                                              height: "200px",
-                                              width: "200px",
-                                              objectFit: "contain",
-                                            }}
-                                            className="upload-image-preview"
-                                            alt="Selected Signature"
-                                          />
-                                        )}
-                                      {signature && (
-                                        <img
-                                          src={
-                                            signature === undefined
-                                              ? ""
-                                              : signature
-                                          }
-                                          style={{
-                                            height: "200px",
-                                            width: "200px",
-                                            objectFit: "contain",
-                                          }}
-                                          className="upload-image-preview"
-                                          alt="Selected Signature"
-                                        />
-                                      )}
-                                      <button
-                                        onClick={() => {
-                                          setSignature(null);
-                                          if (
-                                            basicInfo.signatoryName !== null &&
-                                            basicInfo.signatoryName !== "" &&
-                                            basicInfo.signatoryName !==
-                                              undefined
-                                          ) {
-                                            setIsIsSignatoryAvailable(false); // If either of them is falsy, set to false
-                                          } else {
-                                            setIsIsSignatoryAvailable(true); // Otherwise, set to true
-                                          }
-                                          setBasicInfo({
-                                            ...basicInfo,
-                                            signatoryImage: null,
-                                            signatureImageUrl: null,
-                                          });
-                                        }}
-                                        style={{
-                                          float: "right",
-                                          paddingTop: "5px",
-                                        }}
-                                        className="btn btn-sm btn-danger  remove-item-btn d-flex gap-1"
-                                      >
-                                        Remove
-                                      </button>
-                                      {/* <span
-                                        
-                                        className="remove-upload-image-preview"
-                                      >
-                                        <CancelIcon />
-                                      </span> */}
-                                    </div>
-                                  ) : (
-                                    <>
-                                      <button
-                                        onClick={() => {
-                                          setType("Signature");
-                                        }}
-                                        className="btn btn-md btn-primary create-item-btn"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#SignatureUploadModel"
-                                      >
-                                        <i class="bi bi-plus-circle margin-right"></i>
-                                        <span> Upload Signature</span>
-                                      </button>
-                                      <div className="text-muted helpMessage">
-                                        Supported file types are .jpg, .jpeg,
-                                        .png up to a file size of 2MB.
-                                      </div>
-                                      {requireErrorMessage &&
-                                      basicInfo.signatoryName !== null &&
-                                      basicInfo.signatoryName !== undefined &&
-                                      basicInfo.signatoryName !== "" &&
-                                      (signature === "" ||
-                                        signature === null) ? (
-                                        <span className="validation">
-                                          This field is required if you have
-                                          entered a value in the above
-                                          'Signatory Name' field. To proceed
-                                          without uploading a signature, please
-                                          remove the data from 'Signatory Name'
-                                          above.
-                                        </span>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <hr />
-                    <div class="row">
-                      <div class="col-xl-12 col-lg-12">
-                        <div class=" pricing-box p-4  mt-0">
-                          <div class="row">
-                            <div class="col-lg-12">
-                              <div class="row mb-3" id="WebSite">
-                                <div className="page-title-cls">
-                                  Other Information
-                                </div>
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">Website</label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <input
-                                    maxLength={100}
-                                    type="text"
-                                    className="input-text"
-                                    placeholder="www.example.com"
-                                    value={otherInfo.website}
-                                    onChange={(e) =>
-                                      setOtherInfo({
-                                        ...otherInfo,
-                                        website: e.target.value.trim(),
-                                      })
-                                    }
-                                  />
-                                  {requireErrorMessage &&
-                                    otherInfo.website !== null &&
-                                    otherInfo.website !== "" &&
-                                    otherInfo.website !== undefined &&
-                                    !isValidWebUrl(otherInfo.website) && (
-                                      <span className="validation">
-                                        {" "}
-                                        Invalid Url{" "}
-                                      </span>
-                                    )}
-                                </div>
-                              </div>
-                            </div>
-                            <div class="col-lg-12">
-                              <div class="row mb-3" id="Contact_Email">
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    Contact Email
-                                    <span class="text-danger">*</span>
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <input
-                                    type="text"
-                                    className="input-text"
-                                    placeholder="Email"
-                                    maxLength={50}
-                                    value={otherInfo.contactEmail}
-                                    onChange={(e) => {
-                                      // Get the entered value
-                                      const enteredValue = e.target.value
-                                        .trim()
-                                        .toLowerCase();
-
-                                      // Check for consecutive dots
-                                      if (enteredValue.includes("..")) {
-                                        // If consecutive dots found, remove the last dot
-                                        const correctedValue =
-                                          enteredValue.replace(/\.+/g, ".");
-                                        // Update the contact email in the state
-                                        setOtherInfo({
-                                          ...otherInfo,
-                                          contactEmail: correctedValue,
-                                        });
-                                        return;
-                                      }
-
-                                      // Update the contact email in the state
-                                      setOtherInfo({
-                                        ...otherInfo,
-                                        contactEmail: enteredValue,
-                                      });
-                                    }}
-                                  />
-                                  {requireErrorMessage &&
-                                    (otherInfo.contactEmail === null ||
-                                    otherInfo.contactEmail === "" ? (
-                                      <span className="validation">
-                                        {ERROR_MESSAGES}
-                                      </span>
-                                    ) : (
-                                      !isValidEmail(otherInfo.contactEmail) && (
-                                        <span className="validation">
-                                          Invalid email pattern
-                                        </span>
-                                      )
-                                    ))}
-                                </div>
-                              </div>
-                            </div>
-                            <div class="col-lg-12">
-                              <div class="row mb-3" id="Contact_Phone">
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    Contact Phone
-                                    <span class="text-danger">*</span>
-                                  </label>
-                                </div>
-                                <div className="col-md-9 col-sm-12">
-                                  <div className="phone-input-div CompanyInfo">
-                                    <Select
-                                      class="phone-input-country-code"
-                                      options={countryCodes}
-                                      value={
-                                        ContactFilter || {
-                                          value: 9,
-                                          label: "+44",
-                                        }
-                                      }
-                                      onChange={(e) => {
-                                        setOtherInfo({
-                                          ...otherInfo,
-                                          countryCodeID: e.value,
-                                        });
-                                      }}
-                                    />
-                                    <div className="phone-input-number-div">
-                                      <input
-                                        style={{ width: "100%" }}
-                                        className="input-text"
-                                        type="text"
-                                        placeholder="Phone"
-                                        value={otherInfo.contactPhone}
-                                        onChange={(e) => {
-                                          const sanitizedInput = e.target.value
-                                            .replace(/[^0-9]/g, "")
-                                            .slice(0, 15);
-                                          setOtherInfo({
-                                            ...otherInfo,
-                                            contactPhone: sanitizedInput,
-                                          });
-                                        }}
-                                      />
-                                    </div>
-                                  </div>
-                                  {requireErrorMessage &&
-                                  (otherInfo.countryCodeID === "" ||
-                                    otherInfo.countryCodeID === null ||
-                                    otherInfo.contactPhone === "" ||
-                                    otherInfo.contactPhone === null) ? (
-                                    <span className="validation">
-                                      {ERROR_MESSAGES}
-                                    </span>
-                                  ) : requireErrorMessage &&
-                                    !isValidPhoneNumber(
-                                      otherInfo.contactPhone
-                                    ) ? (
-                                    <span className="validation">
-                                      {" "}
-                                      Invalid phone number{" "}
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            <div class="col-lg-12">
-                              <div class="row mb-3">
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    {taxName} Registered
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <div className="input-group">
-                                    <Select
-                                      defaultValue="Select..."
-                                      className="CurrencySelect"
-                                      options={Utils.VAT_Registered}
-                                      value={VATRegFilter}
-                                      onChange={(e) => handleVATStatusChange(e)}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            {otherInfo.VATReg === 0 && (
-                              <>
-                                <div class="col-lg-12">
-                                  <div class="row mb-3">
-                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                      <label class="form-label">
-                                        {taxName} Number
-                                      </label>
-                                    </div>
-                                    <div class="col-md-9 col-sm-12">
-                                      <input
-                                        style={{ width: "100%" }}
-                                        className="input-text"
-                                        type="text"
-                                        placeholder={`${taxName} Number`}
-                                        value={otherInfo.vatNumber}
-                                        onChange={(e) => {
-                                          const sanitizedInput = e.target.value
-                                            .trimStart()
-                                            .slice(0, 12);
-                                          setOtherInfo({
-                                            ...otherInfo,
-                                            vatNumber:
-                                              sanitizedInput.toUpperCase(),
-                                          });
-                                        }}
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="col-lg-12">
-                                  <div className="row mb-3" id="Tax_Percentage">
-                                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                      <label className="form-label">
-                                        {taxName} Percentage
-                                      </label>
-                                    </div>
-                                    <div className="col-md-9 col-sm-12">
-                                      {/* <Slider
-                                      value={otherInfo.indirectTaxPercentage ?? 20}
-                                      step={0.1}
-                                      min={0}
-                                      max={100}
-                                      aria-label="Default"
-                                      valueLabelDisplay="auto"
-                                      onChange={(e, newValue) => {
-                                        setOtherInfo({
-                                          ...otherInfo,
-                                          indirectTaxPercentage: newValue,
-                                        });
-                                      }}
-                                    /> */}
-                                      <input
-                                        style={{ width: "100%" }}
-                                        className="input-text"
-                                        type="text"
-                                        value={
-                                          otherInfo.indirectTaxPercentage === 0
-                                            ? 20.0
-                                            : otherInfo.indirectTaxPercentage
-                                        }
-                                        onChange={handleChangeTaxPercentage}
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                                {requireErrorMessage &&
-                                  otherInfo.indirectTaxPercentage > 100 && (
-                                    <label className="text-danger text-center mt-1">
-                                      Percentage cannot exceed 100
-                                    </label>
-                                  )}
-                              </>
-                            )}
-                            {/* <div class="col-lg-12">
-                              <div class="row mb-3">
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    Currency
-                                    <span style={{ color: "red" }}>*</span>
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <input
-                                    disabled
-                                    type="text"
-                                    className="input-text"
-                                    placeholder="Currency"
-                                    value={currencyFilter?.label}
-                                  />
-                                  {requireErrorMessage &&
-                                    (otherInfo.preferredCurrency === "" ||
-                                      otherInfo.preferredCurrency === null) ? (
-                                    <span className="validation">
-                                      {ERROR_MESSAGES}
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                              </div>
-                            </div> */}
-                            <div class="col-md-3 col-sm-12 text-start text-md-end">
-                              <label class="form-label">
-                                Currency
-                                <span style={{ color: "red" }}>*</span>
-                              </label>
-                            </div>
-                            <div className="col-md-9 col-sm-12 mb-3">
-                              <div className="input-group">
-                                <Select
-                                  style={{ padding: "5px", width: "20%" }}
-                                  className="CurrencySelect"
-                                  options={currencyType}
-                                  value={currencyFilter}
-                                  // onChange={(e) => {
-                                  //   setOtherInfo({
-                                  //     ...otherInfo,
-                                  //     preferredCurrency: e.value,
-                                  //   });
-                                  // }}
-                                  onChange={handleCurrencyChange}
-                                />
-                              </div>
-                              {requireErrorMessage &&
-                              (otherInfo.preferredCurrency === "" ||
-                                otherInfo.preferredCurrency === null) ? (
-                                <span className="validation">
-                                  {ERROR_MESSAGES}
-                                </span>
-                              ) : (
-                                ""
-                              )}
-                            </div>
-                            <div class="col-lg-12">
-                              <div class="row mb-3">
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">Logo</label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  {otherInfo.logoUrl || CompanyLogo ? (
-                                    <div className="upload-image-preview-div">
-                                      {otherInfo.logoUrl && (
-                                        <img
-                                          src={otherInfo.logoUrl}
-                                          style={{
-                                            height: "200px",
-                                            width: "200px",
-                                            objectFit: "contain",
-                                          }}
-                                          className="upload-image-preview"
-                                          alt="Selected Signature"
-                                        />
-                                      )}
-                                      {CompanyLogo && (
-                                        <img
-                                          src={CompanyLogo}
-                                          style={{
-                                            height: "200px",
-                                            width: "200px",
-                                            objectFit: "contain",
-                                          }}
-                                          className="upload-image-preview"
-                                          alt="Selected Signature"
-                                        />
-                                      )}
-                                      <button
-                                        onClick={() => {
-                                          setOtherInfo({
-                                            ...otherInfo,
-                                            logo: null,
-                                            logoUrl: null,
-                                          });
-                                          setLogo(null);
-                                        }}
-                                        style={{
-                                          float: "right",
-                                          paddingTop: "5px",
-                                        }}
-                                        className="btn btn-sm btn-danger  remove-item-btn d-flex gap-1"
-                                      >
-                                        Remove
-                                      </button>
-                                      {/* <span
-                                        onClick={() => {
-                                          setOtherInfo({
-                                            ...otherInfo,
-                                            logo: null,
-                                            logoUrl: null,
-                                          });
-                                          setLogo(null);
-                                        }}
-                                        className="remove-upload-image-preview"
-                                      >
-                                        <CancelIcon />
-                                      </span> */}
-                                    </div>
-                                  ) : (
-                                    <>
-                                      <button
-                                        onClick={() => {
-                                          setType("Logo");
-                                        }}
-                                        className="btn btn-md btn-primary create-item-btn"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#LogoUploadModal"
-                                      >
-                                        <i className="bi bi-plus-circle margin-right"></i>
-                                        <span> Upload Logo</span>
-                                      </button>
-                                      <div className="text-muted helpMessage">
-                                        Supported file types are .jpg, .jpeg,
-                                        .png up to a file size of 2MB.
-                                      </div>
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            <div class="col-lg-12">
-                              <div class="row mb-3">
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">Brand Color</label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <input
-                                    type="color"
-                                    class="form-control height"
-                                    id="exampleColorInput contactNumber"
-                                    title="Choose your color"
-                                    value={otherInfo.brandColor}
-                                    onChange={(e) =>
-                                      setOtherInfo({
-                                        ...otherInfo,
-                                        brandColor: e.target.value,
-                                      })
-                                    }
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                            <div class="col-lg-12">
-                              <div class="row mb-3">
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    Business Tagline
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <input
-                                    maxLength={100}
-                                    type="text"
-                                    className="input-text"
-                                    placeholder="Business Tagline"
-                                    value={otherInfo.businessTagline}
-                                    onChange={(e) =>
-                                      setOtherInfo({
-                                        ...otherInfo,
-                                        businessTagline: e.target.value,
-                                      })
-                                    }
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-lg-12">
-                            <div class="row mb-3">
-                              <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                <label class="form-label">
-                                  Affiliated Accounting Body Name
-                                </label>
-                              </div>
-                              <div class="col-md-9 col-sm-12">
-                                <input
-                                  maxLength={100}
-                                  type="text"
-                                  className="input-text"
-                                  placeholder="Affiliated Accounting Body Name"
-                                  value={otherInfo.AffiliatedAcBodyName}
-                                  onChange={(e) =>
-                                    setOtherInfo({
-                                      ...otherInfo,
-                                      AffiliatedAcBodyName: e.target.value,
-                                    })
-                                  }
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          <div class="col-lg-12">
-                            <div class="row mb-3">
-                              <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                <label class="form-label">
-                                  Website of Affiliated Accounting Body
-                                </label>
-                              </div>
-                              <div class="col-md-9 col-sm-12">
-                                <input
-                                  maxLength={100}
-                                  type="text"
-                                  className="input-text"
-                                  placeholder="Website of Affiliated Accounting Body"
-                                  value={otherInfo.webOfAffiliatedAccount}
-                                  onChange={(e) =>
-                                    setOtherInfo({
-                                      ...otherInfo,
-                                      webOfAffiliatedAccount: e.target.value,
-                                    })
-                                  }
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          <hr />
-                        </div>
-                      </div>
-                    </div>
-                    {basicInfo.businessTypeID === CLIENT_TYPES.Sole_Trader && (
-                      <div className="fieldset-group" id="SoleTraderDetails">
-                        <label className="fieldset-group-label required">
-                          {basicInfo.businessTypeID ===
-                            CLIENT_TYPES.Sole_Trader && (
-                            <>Sole Trader Details</>
-                          )}{" "}
-                        </label>
-                        {officersForm?.map((i, index) => {
-                          return (
-                            <>
-                              <div className="row fieldset mt-4">
-                                <div className="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    First Name
-                                    <span style={{ color: "#ec4561" }}>*</span>
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <input
-                                    type="text"
-                                    style={{ padding: "5px" }}
-                                    id="customerName-field"
-                                    class="input-text"
-                                    placeholder="First Name"
-                                    value={officersForm[index].firstName}
-                                    onChange={(e) => {
-                                      const inputValue = e.target.value.trim();
-                                      // Reject input if it contains numeric characters
-                                      // Remove all spaces and dots
-                                      const cleanedValue = inputValue.replace(
-                                        /[.\s]/g,
-                                        ""
-                                      );
-                                      // Reject input if it starts with a digit
-                                      if (/\d/.test(cleanedValue)) {
-                                        return;
-                                      }
-                                      const capitalizedValue =
-                                        cleanedValue.charAt(0).toUpperCase() +
-                                        cleanedValue.slice(1);
-
-                                      OnOfficerChange(
-                                        index,
-                                        "firstName",
-                                        capitalizedValue
-                                      );
-                                    }}
-                                    maxLength={20}
-                                  />
-                                  {requireErrorMessage &&
-                                  (officersForm[index].firstName === null ||
-                                    officersForm[index].firstName === "") ? (
-                                    <span className="validation">
-                                      {ERROR_MESSAGES}
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                                <div className="mb-2"></div>
-
-                                <div className="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    Last Name
-                                    <span style={{ color: "#ec4561" }}>*</span>
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <input
-                                    type="text"
-                                    style={{ padding: "5px" }}
-                                    id="customerName-field"
-                                    class="input-text"
-                                    placeholder="Last Name"
-                                    value={
-                                      officersForm[index].lastName
-                                        ? officersForm[index].lastName
-                                            .charAt(0)
-                                            .toUpperCase() +
-                                          officersForm[index].lastName
-                                            .slice(1)
-                                            .toLowerCase()
-                                        : ""
-                                    }
-                                    onChange={(e) => {
-                                      const inputValue = e.target.value;
-
-                                      // Remove all spaces and dots
-                                      const cleanedValue = inputValue.replace(
-                                        /[.\s]/g,
-                                        ""
-                                      );
-
-                                      // Reject input if it starts with a digit
-                                      if (/\d/.test(cleanedValue)) {
-                                        return;
-                                      }
-
-                                      const capitalizedValue =
-                                        cleanedValue.charAt(0).toUpperCase() +
-                                        cleanedValue.slice(1);
-
-                                      OnOfficerChange(
-                                        index,
-                                        "lastName",
-                                        capitalizedValue
-                                      );
-                                    }}
-                                  />
-                                  {requireErrorMessage &&
-                                  (officersForm[index].lastName === null ||
-                                    officersForm[index].lastName === "") ? (
-                                    <span className="validation">
-                                      {ERROR_MESSAGES}
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                              </div>
-                              <div class="row fieldset">
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">Phone</label>
-                                  <span style={{ color: "#ec4561" }}>*</span>
-                                </div>
-                                <div class="col-md-9 col-sm-12 ">
-                                  <div className="phone-input-div CompanyInfo">
-                                    <Select
-                                      options={countryCodes}
-                                      value={
-                                        officersForm[index].phoneCountryCodeID
-                                      }
-                                      onChange={(e) => {
-                                        handleOfficerPhoneSelectedValue(
-                                          e,
-                                          index
-                                        );
-                                      }}
-                                    />
-                                    <div className="phone-input-number-div">
-                                      <input
-                                        style={{ width: "100%" }}
-                                        className="input-text"
-                                        type="text"
-                                        placeholder="Phone"
-                                        value={officersForm[index].phoneNo}
-                                        onChange={(e) => {
-                                          // Ensure that the input only contains numeric characters
-                                          const sanitizedInput = e.target.value
-                                            .replace(/[^0-9]/g, "")
-                                            .slice(0, 15);
-                                          OnOfficerChange(
-                                            index,
-                                            "phoneNo",
-                                            sanitizedInput
-                                          );
-                                        }}
-                                      />
-                                    </div>
-                                  </div>
-                                  {requireErrorMessage &&
-                                  (officersForm[index].phoneCountryCodeID ===
-                                    null ||
-                                    officersForm[index].phoneCountryCodeID ===
-                                      null ||
-                                    officersForm[index].phoneNo === null ||
-                                    officersForm[index].phoneNo === "") ? (
-                                    <span className="validation">
-                                      {ERROR_MESSAGES}
-                                    </span>
-                                  ) : requireErrorMessage &&
-                                    !isValidPhoneNumber(
-                                      officersForm[index].phoneNo
-                                    ) ? (
-                                    <span className="validation">
-                                      {" "}
-                                      Invalid phone number{" "}
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                                <div className="mb-2"></div>
-
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    Practice Email
-                                    <span className="text-danger">*</span>
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <input
-                                    type="text"
-                                    style={{ padding: "5px" }}
-                                    id="customerName-field"
-                                    class="input-text"
-                                    placeholder="Email"
-                                    maxLength={50}
-                                    value={officersForm[index].emailID}
-                                    onChange={(e) => {
-                                      // Get the entered value
-                                      const enteredValue = e.target.value
-                                        .trim()
-                                        .toLowerCase();
-
-                                      // Check for consecutive dots
-                                      if (enteredValue.includes("..")) {
-                                        // If consecutive dots found, remove the last dot
-                                        const correctedValue =
-                                          enteredValue.replace(/\.+/g, ".");
-                                        // Update the value in the parent component
-                                        OnOfficerChange(
-                                          index,
-                                          "emailID",
-                                          correctedValue
-                                        );
-                                        return;
-                                      }
-
-                                      // Update the value in the parent component
-                                      OnOfficerChange(
-                                        index,
-                                        "emailID",
-                                        enteredValue
-                                      );
-                                    }}
-                                  />
-                                  {requireErrorMessage &&
-                                    (officersForm[index].emailID === null ||
-                                    officersForm[index].emailID === "" ? (
-                                      <span className="validation">
-                                        {ERROR_MESSAGES}
-                                      </span>
-                                    ) : (
-                                      !isValidEmail(
-                                        officersForm[index].emailID
-                                      ) && (
-                                        <span className="validation">
-                                          Invalid email pattern
-                                        </span>
-                                      )
-                                    ))}
-                                </div>
-                              </div>
-                              <div class="row fieldset">
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    Practice Address
-                                    <span style={{ color: "#ec4561" }}>*</span>
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <input
-                                    className="input-text"
-                                    style={{
-                                      padding: "5px",
-                                      cursor: "pointer",
-                                    }}
-                                    type="text"
-                                    placeholder="Practice Address"
-                                    value={
-                                      concatenatedResidentialAddress[0]
-                                        ?.officersFullAddress
-                                    }
-                                    onMouseDown={(e) => {
-                                      e.preventDefault();
-                                      setAddressPopUpTitle("Practice Address");
-                                      handleOpenRegisterOfficeAddressPopup(
-                                        e,
-                                        index
-                                      );
-                                    }}
-                                    autoComplete="off"
-                                  />
-                                  {requireErrorMessage &&
-                                  (concatenatedResidentialAddress[index]
-                                    .officersFullAddress === null ||
-                                    concatenatedResidentialAddress[index]
-                                      .officersFullAddress === "") ? (
-                                    <span className="validation">
-                                      {ERROR_MESSAGES}
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                              </div>
-                            </>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {basicInfo.businessTypeID === CLIENT_TYPES.Partnership && (
-                      <div className="fieldset-group">
-                        <label className="fieldset-group-label required">
-                          {basicInfo.businessTypeID ===
-                            CLIENT_TYPES.Partnership && (
-                            <>Partnership Details</>
-                          )}{" "}
-                        </label>
-                        {officersForm?.map((i, index) => {
-                          return (
-                            <div
-                              className="fieldset-group"
-                              id={`Partner_${index}`}
-                            >
-                              <label class="fieldset-group-label">
-                                {" "}
-                                Partner {index + 1}{" "}
-                              </label>
-                              <label
-                                htmlFor=""
-                                className="fieldset-group-label-1 required"
-                              >
-                                {officersForm?.length === 1 ? null : (
-                                  <button
-                                    className="btn btn-sm btn-danger gap-1 delete-fieldset-group"
-                                    onClick={() => deleteOfficer(index)}
-                                  >
-                                    <i class="bi bi-trash3 "></i>
-                                    Delete Partner
-                                  </button>
-                                )}
-                              </label>
-                              <div
-                                style={{ alignItems: "center" }}
-                                className="align-right text-right mb-2"
-                              >
-                                <Switch
-                                  id="checkbox"
-                                  checked={
-                                    officersForm[index]?.isAuthorisedSignatory
-                                  }
-                                  onChange={(e) => handleSwitchToggle(e, index)}
-                                  color="primary"
-                                />
-                                <div
-                                  htmlFor="checkbox"
-                                  className="isAuthorized"
-                                >
-                                  Authorised Signatory
-                                </div>
-                              </div>
-                              {/* {officersForm.length === 0 && (
-                                <div className="row fieldset flex-center-div">
-                                  <div className="col-lg-12 text-right">
-                                    <span className="validation">
-                                      {" "}
-                                      At least 1 authorised partner is required.{" "}
-                                    </span>
-                                  </div>
-                                </div>
-                              )} */}
-                              {requireErrorMessage &&
-                                AuthorityCount === 0 &&
-                                authoritySignatorySignatory && (
-                                  <div className="row fieldset flex-center-div">
-                                    <div className="col-lg-12 text-right">
-                                      <span className="validation">
-                                        {" "}
-                                        At least 1 authorised partner is
-                                        required.{" "}
-                                      </span>
-                                    </div>
-                                  </div>
-                                )}
-
-                              <div className="row fieldset">
-                                <div className="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    First Name
-                                    <span style={{ color: "#ec4561" }}>*</span>
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <input
-                                    type="text"
-                                    style={{ padding: "5px" }}
-                                    id="customerName-field"
-                                    class="input-text"
-                                    placeholder="First Name"
-                                    value={officersForm[index]?.firstName}
-                                    onChange={(e) => {
-                                      let value = e.target.value;
-                                      // Remove any non-alphabetic characters
-                                      value = value.replace(/[0-9]/g, "");
-                                      // Capitalize the first letter and make the rest lowercase
-                                      const capitalizedValue =
-                                        value.charAt(0).toUpperCase() +
-                                        value.slice(1).toLowerCase();
-                                      OnOfficerChange(
-                                        index,
-                                        "firstName",
-                                        capitalizedValue
-                                      );
-                                    }}
-                                    maxLength={20}
-                                  />
-                                  {requireErrorMessage &&
-                                  (officersForm[index].firstName === null ||
-                                    officersForm[index].firstName === "") ? (
-                                    <span className="validation">
-                                      {ERROR_MESSAGES}
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                                <div className="mb-2"></div>
-                                <div className="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    Last Name
-                                    <span style={{ color: "#ec4561" }}>*</span>
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <input
-                                    type="text"
-                                    style={{ padding: "5px" }}
-                                    id="customerName-field"
-                                    class="input-text"
-                                    placeholder="Last Name"
-                                    value={
-                                      officersForm[index].lastName
-                                        ? officersForm[index].lastName
-                                            .charAt(0)
-                                            .toUpperCase() +
-                                          officersForm[index].lastName
-                                            .slice(1)
-                                            .toLowerCase()
-                                        : ""
-                                    }
-                                    onChange={(e) => {
-                                      let value = e.target.value;
-                                      // Remove any non-alphabetic characters
-                                      value = value.replace(/[0-9]/g, "");
-                                      // Capitalize the first letter and make the rest lowercase
-                                      const capitalizedValue =
-                                        value.charAt(0).toUpperCase() +
-                                        value.slice(1).toLowerCase();
-                                      OnOfficerChange(
-                                        index,
-                                        "lastName",
-                                        capitalizedValue
-                                      );
-                                    }}
-                                    maxLength={20}
-                                  />
-                                  {requireErrorMessage &&
-                                  (officersForm[index]?.lastName === null ||
-                                    officersForm[index]?.lastName === "") ? (
-                                    <span className="validation">
-                                      {ERROR_MESSAGES}
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                              </div>
-
-                              <div class="row fieldset">
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">Phone</label>
-                                  <span style={{ color: "#ec4561" }}>*</span>
-                                </div>
-                                <div className="col-md-9 col-sm-12 ">
-                                  <div className="phone-input-div">
-                                    <Select
-                                      class="phone-input-country-code"
-                                      options={countryCodes}
-                                      value={
-                                        officersForm[index].phoneCountryCodeID
-                                      }
-                                      onChange={(e) =>
-                                        handleOfficerPhoneSelectedValue(
-                                          e,
-                                          index
-                                        )
-                                      }
-                                    />
-                                    <div className="phone-input-number-div">
-                                      <input
-                                        style={{
-                                          width: "100%",
-                                          padding: "5px",
-                                          cursor: "pointer",
-                                        }}
-                                        className="input-text"
-                                        type="text"
-                                        placeholder="Phone"
-                                        value={officersForm[index].phoneNo}
-                                        onChange={(e) => {
-                                          // Ensure that the input only contains numeric characters
-                                          const sanitizedInput = e.target.value
-                                            .replace(/[^0-9]/g, "")
-                                            .slice(0, 15);
-                                          OnOfficerChange(
-                                            index,
-                                            "phoneNo",
-                                            sanitizedInput
-                                          );
-                                        }}
-                                      />
-                                    </div>
-                                  </div>
-                                  {requireErrorMessage &&
-                                  (officersForm[index].phoneCountryCodeID ===
-                                    null ||
-                                    officersForm[index].phoneCountryCodeID ===
-                                      null ||
-                                    officersForm[index].phoneNo === null ||
-                                    officersForm[index].phoneNo === "") ? (
-                                    <span className="validation">
-                                      {ERROR_MESSAGES}
-                                    </span>
-                                  ) : requireErrorMessage &&
-                                    !isValidPhoneNumber(
-                                      officersForm[index].phoneNo
-                                    ) ? (
-                                    <span className="validation">
-                                      {" "}
-                                      Invalid phone number{" "}
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                                <div className="mb-2"></div>
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    Email
-                                    <span className="text-danger">*</span>
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <input
-                                    style={{
-                                      padding: "5px",
-                                      cursor: "pointer",
-                                    }}
-                                    className="input-text"
-                                    type="email"
-                                    maxLength={50}
-                                    placeholder="Email"
-                                    value={officersForm[index]?.emailID}
-                                    onChange={(e) => {
-                                      // Get the entered value
-                                      const enteredValue = e.target.value
-                                        .trim()
-                                        .toLowerCase();
-
-                                      // Check for consecutive dots
-                                      if (enteredValue.includes("..")) {
-                                        // If consecutive dots found, remove the last dot
-                                        const correctedValue =
-                                          enteredValue.replace(/\.+/g, ".");
-                                        // Update the email address in the parent component
-                                        OnOfficerChange(
-                                          index,
-                                          "emailID",
-                                          correctedValue
-                                        );
-                                        return;
-                                      }
-
-                                      // Update the email address in the parent component
-                                      OnOfficerChange(
-                                        index,
-                                        "emailID",
-                                        enteredValue
-                                      );
-                                    }}
-                                  />
-                                  {requireErrorMessage &&
-                                    (officersForm[index].emailID === null ||
-                                    officersForm[index].emailID === "" ? (
-                                      <span className="validation">
-                                        {ERROR_MESSAGES}
-                                      </span>
-                                    ) : (
-                                      !isValidEmail(
-                                        officersForm[index].emailID
-                                      ) && (
-                                        <span className="validation">
-                                          Invalid email pattern
-                                        </span>
-                                      )
-                                    ))}
-                                </div>
-                              </div>
-                              <div class="row fieldset">
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    Residential Address
-                                    <span className="text-danger">*</span>
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <input
-                                    placeholder="Residential Address"
-                                    className="input-text"
-                                    style={{
-                                      padding: "5px",
-                                      cursor: "pointer",
-                                    }}
-                                    type="text"
-                                    value={
-                                      concatenatedResidentialAddress[index]
-                                        ?.officersFullAddress
-                                    }
-                                    onMouseDown={(e) => {
-                                      e.preventDefault();
-                                      setAddressPopUpTitle(
-                                        "Residential Address"
-                                      );
-                                      handleOpenRegisterOfficeAddressPopup(
-                                        e,
-                                        index
-                                      );
-                                    }}
-                                  />
-                                  {requireErrorMessage &&
-                                  (concatenatedResidentialAddress[index]
-                                    .officersFullAddress === null ||
-                                    concatenatedResidentialAddress[index]
-                                      .officersFullAddress === "") ? (
-                                    <span className="validation">
-                                      {ERROR_MESSAGES}
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-
-                        <div className="row fieldset">
-                          <div className="col-lg-12 text-right">
-                            <button
-                              className="btn btn-md btn-primary create-item-btn"
-                              onClick={addOfficer}
-                            >
-                              <i class="bi bi-plus-circle "></i>
-                              <span style={{ paddingLeft: "5px" }}>
-                                Add Partner
-                              </span>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {(basicInfo.businessTypeID === CLIENT_TYPES.Company ||
-                      basicInfo.businessTypeID === CLIENT_TYPES.LLP) && (
-                      <div>
-                        {officersForm?.map((i, index) => {
-                          return (
-                            <div
-                              className="fieldset-group"
-                              id={`Officers${index}`}
-                            >
-                              <label class="fieldset-group-label">
-                                {" "}
-                                Officer {index + 1}{" "}
-                              </label>
-                              <label
-                                htmlFor=""
-                                className="fieldset-group-label-1 required"
-                              >
-                                {officersForm?.length === 1 ? null : (
-                                  <button
-                                    className="btn btn-sm btn-danger gap-1 delete-fieldset-group"
-                                    onClick={() => deleteOfficer(index)}
-                                  >
-                                    <i class="bi bi-trash3 "></i>
-                                    Delete Officer
-                                  </button>
-                                )}
-                              </label>
-                              <div
-                                style={{ alignItems: "center" }}
-                                className="align-right text-right mb-2 "
-                              >
-                                <Switch
-                                  id="checkbox"
-                                  checked={
-                                    officersForm[index]?.isAuthorisedSignatory
-                                  }
-                                  onChange={(e) => handleSwitchToggle(e, index)}
-                                  color="primary"
-                                />
-                                <div
-                                  htmlFor="checkbox"
-                                  className="isAuthorized"
-                                >
-                                  Authorised Signatory
-                                </div>
-                              </div>
-                              {officersForm.length === 0 && (
-                                <div className="row fieldset flex-center-div">
-                                  <div className="col-lg-12 text-right">
-                                    <span className="validation">
-                                      {" "}
-                                      At least 1 authorised officer is required.{" "}
-                                    </span>
-                                  </div>
-                                </div>
-                              )}
-                              {requireErrorMessage &&
-                                AuthorityCount === 0 &&
-                                authoritySignatorySignatory && (
-                                  <div className="row fieldset flex-center-div">
-                                    <div className="col-lg-12 text-right">
-                                      <span className="validation">
-                                        {" "}
-                                        At least 1 authorised officer is
-                                        required.{" "}
-                                      </span>
-                                    </div>
-                                  </div>
-                                )}
-                              <div className="row fieldset">
-                                <div className="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    First Name
-                                    <span style={{ color: "#ec4561" }}>*</span>
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12 ">
-                                  <input
-                                    type="text"
-                                    style={{ padding: "5px" }}
-                                    id="customerName-field"
-                                    class="input-text"
-                                    placeholder="First Name"
-                                    value={officersForm[index]?.firstName}
-                                    onChange={(e) => {
-                                      const inputValue = e.target.value.trim();
-                                      // Reject input if it contains numeric characters
-                                      // Remove all spaces and dots
-                                      const cleanedValue = inputValue.replace(
-                                        /[.\s]/g,
-                                        ""
-                                      );
-
-                                      // Reject input if it starts with a digit
-                                      if (/\d/.test(cleanedValue)) {
-                                        return;
-                                      }
-                                      const capitalizedValue =
-                                        cleanedValue.charAt(0).toUpperCase() +
-                                        cleanedValue.slice(1);
-
-                                      OnOfficerChange(
-                                        index,
-                                        "firstName",
-                                        capitalizedValue
-                                      );
-                                    }}
-                                    maxLength={20}
-                                  />
-                                  {requireErrorMessage &&
-                                  (officersForm[index].firstName === null ||
-                                    officersForm[index].firstName === "") ? (
-                                    <span className="validation">
-                                      {ERROR_MESSAGES}
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                                <div className="mb-2"></div>
-
-                                <div className="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    Last Name
-                                    <span style={{ color: "#ec4561" }}>*</span>
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12 ">
-                                  <input
-                                    type="text"
-                                    style={{ padding: "5px" }}
-                                    id="customerName-field"
-                                    class="input-text"
-                                    placeholder="Last Name"
-                                    value={
-                                      officersForm[index].lastName
-                                        ? officersForm[index].lastName
-                                            .charAt(0)
-                                            .toUpperCase() +
-                                          officersForm[index].lastName
-                                            .slice(1)
-                                            .toLowerCase()
-                                        : ""
-                                    }
-                                    onChange={(e) => {
-                                      const inputValue = e.target.value;
-
-                                      // Remove all spaces and dots
-                                      const cleanedValue = inputValue.replace(
-                                        /[.\s]/g,
-                                        ""
-                                      );
-
-                                      // Reject input if it starts with a digit
-                                      if (/\d/.test(cleanedValue)) {
-                                        return;
-                                      }
-
-                                      const capitalizedValue =
-                                        cleanedValue.charAt(0).toUpperCase() +
-                                        cleanedValue.slice(1);
-
-                                      OnOfficerChange(
-                                        index,
-                                        "lastName",
-                                        capitalizedValue
-                                      );
-                                    }}
-                                    maxLength={20}
-                                  />
-                                  {requireErrorMessage &&
-                                  (officersForm[index].lastName === null ||
-                                    officersForm[index].lastName === "") ? (
-                                    <span className="validation">
-                                      {ERROR_MESSAGES}
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                              </div>
-                              <div className="row fieldset ">
-                                <div className="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    Role
-                                    <span style={{ color: "#ec4561" }}>*</span>
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12 ">
-                                  <input
-                                    maxLength={30}
-                                    type="text"
-                                    style={{ padding: "5px" }}
-                                    id="customerName-field"
-                                    class="input-text"
-                                    placeholder="Role"
-                                    value={officersForm[index]?.officerRole}
-                                    onChange={(e) =>
-                                      OnOfficerChange(
-                                        index,
-                                        "officerRole",
-                                        e.target.value.charAt(0).toUpperCase() +
-                                          e.target.value.slice(1).toLowerCase()
-                                      )
-                                    }
-                                  />
-                                  {requireErrorMessage &&
-                                  (officersForm[index].officerRole === null ||
-                                    officersForm[index].officerRole === "") ? (
-                                    <span className="validation">
-                                      {ERROR_MESSAGES}
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                                <div className="mb-2"></div>
-                                <div className="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label text-right">
-                                    Appointed On
-                                    <span style={{ color: "#ec4561" }}>*</span>
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <DatePicker
-                                    minDate={minDate}
-                                    maxDate={maxDate}
-                                    format="dd/MM/y"
-                                    dayPlaceholder="dd"
-                                    monthPlaceholder="mm"
-                                    yearPlaceholder="yyyy"
-                                    value={officersForm[index]?.appointedOn}
-                                    onChange={(e) =>
-                                      OnOfficerChange(index, "appointedOn", e)
-                                    }
-                                  />
-                                  {/* {InvalidAppointedOnDate &&
-                                      !isValidDate(
-                                        officersForm[index]?.appointedOn
-                                      ) ? (
-                                      <span className="validation">
-                                        Invalid Date
-                                      </span>
-                                    ) : null} */}
-                                  {requireErrorMessage &&
-                                  (officersForm[index]?.appointedOn === null ||
-                                    officersForm[index]?.appointedOn === "") ? (
-                                    <span className="validation">
-                                      {ERROR_MESSAGES}
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                              </div>
-                              <div class="row fieldset ">
-                                <div class="col-md-3 col-sm-12 text-start text-md-end ">
-                                  <label class="form-label">Phone</label>
-                                </div>
-                                <div className="col-md-9 col-sm-12 ">
-                                  <div className="phone-input-div">
-                                    <Select
-                                      class="phone-input-country-code"
-                                      options={countryCodes}
-                                      value={
-                                        officersForm[index].phoneCountryCodeID
-                                      }
-                                      onChange={(e) => {
-                                        handleOfficerPhoneSelectedValue(
-                                          e,
-                                          index
-                                        );
-                                      }}
-                                    />
-                                    <div className="phone-input-number-div">
-                                      <input
-                                        style={{ width: "100%" }}
-                                        className="input-text"
-                                        type="text"
-                                        placeholder="Phone"
-                                        value={
-                                          officersForm[index].phoneNo || ""
-                                        }
-                                        // onChange={(e) => {
-                                        //   // Ensure that the input only contains numeric characters
-                                        //   const sanitizedInput = e.target.value
-                                        //     .replace(/[^0-9]/g, "")
-                                        //     .slice(0, 15);
-                                        //   OnOfficerChange(
-                                        //     index,
-                                        //     "phoneNo",
-                                        //     sanitizedInput
-                                        //   );
-                                        // }}
-                                        onChange={(e) => {
-                                          // Ensure that the input only contains numeric characters
-                                          const sanitizedInput = e.target.value
-                                            .replace(/\[^0-9\]/g, "")
-                                            .slice(0, 15)
-                                            .trim();
-                                          const updatedPhoneNo =
-                                            sanitizedInput !== ""
-                                              ? sanitizedInput
-                                              : null;
-                                          OnOfficerChange(
-                                            index,
-                                            "phoneNo",
-                                            updatedPhoneNo
-                                          );
-                                        }}
-                                      />
-                                    </div>
-                                  </div>
-                                  {requireErrorMessage &&
-                                    officersForm[index].phoneNo !== null &&
-                                    officersForm[index].phoneNo !== "" &&
-                                    officersForm[index].phoneNo !== undefined &&
-                                    !isValidPhoneNumber(
-                                      officersForm[index].phoneNo
-                                    ) && (
-                                      <span className="validation">
-                                        {" "}
-                                        Invalid phone number{" "}
-                                      </span>
-                                    )}
-                                </div>
-                                <div className="mb-2"></div>
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="form-label">
-                                    Email
-                                    <span className="text-danger">*</span>
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <input
-                                    className="input-text"
-                                    type="email"
-                                    maxLength={50}
-                                    placeholder="Email"
-                                    value={officersForm[index]?.emailID}
-                                    onChange={(e) => {
-                                      // Get the entered value
-                                      const enteredValue = e.target.value
-                                        .trim()
-                                        .toLowerCase();
-
-                                      // Check for consecutive dots
-                                      if (enteredValue.includes("..")) {
-                                        // If consecutive dots found, remove the last dot
-                                        const correctedValue =
-                                          enteredValue.replace(/\.+/g, ".");
-                                        // Update the email address in the parent component
-                                        OnOfficerChange(
-                                          index,
-                                          "emailID",
-                                          correctedValue
-                                        );
-                                        return;
-                                      }
-
-                                      // Update the email address in the parent component
-                                      OnOfficerChange(
-                                        index,
-                                        "emailID",
-                                        enteredValue
-                                      );
-                                    }}
-                                  />
-                                  {requireErrorMessage &&
-                                    (officersForm[index].emailID === null ||
-                                    officersForm[index].emailID === "" ? (
-                                      <span className="validation">
-                                        {ERROR_MESSAGES}
-                                      </span>
-                                    ) : (
-                                      !isValidEmail(
-                                        officersForm[index].emailID
-                                      ) && (
-                                        <span className="validation">
-                                          Invalid email pattern
-                                        </span>
-                                      )
-                                    ))}
-                                </div>
-                              </div>
-                              <div class="row fieldset">
-                                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                                  <label class="address-label form-label required">
-                                    Correspondence Address
-                                    <span className="text-danger">*</span>
-                                  </label>
-                                </div>
-                                <div class="col-md-9 col-sm-12">
-                                  <input
-                                    placeholder="Correspondence Address"
-                                    className="input-text"
-                                    style={{
-                                      padding: "5px",
-                                      cursor: "pointer",
-                                    }}
-                                    type="text"
-                                    value={
-                                      concatenatedResidentialAddress[index]
-                                        ?.officersFullAddress
-                                    }
-                                    onMouseDown={(e) => {
-                                      e.preventDefault();
-                                      setAddressPopUpTitle(
-                                        "Correspondence Address"
-                                      );
-                                      handleOpenRegisterOfficeAddressPopup(
-                                        e,
-                                        index
-                                      );
-                                    }}
-                                    autoComplete="off"
-                                  />
-                                  {requireErrorMessage &&
-                                  (concatenatedResidentialAddress[index]
-                                    .officersFullAddress === null ||
-                                    concatenatedResidentialAddress[index]
-                                      .officersFullAddress === "") ? (
-                                    <span className="validation">
-                                      {ERROR_MESSAGES}
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-
-                        <div className="row fieldset">
-                          <div className="col-lg-12 text-right">
-                            <button
-                              className="btn btn-md btn-primary create-item-btn"
-                              onClick={addOfficer}
-                            >
-                              <i class="bi bi-plus-circle "></i>
-                              <span style={{ paddingLeft: "5px" }}>
-                                Add Officer
-                              </span>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  <span
-                    style={{ display: "flex", justifyContent: "center" }}
-                    className="validation"
-                  >
-                    {errorMessage}
-                  </span>
-                  <div class="separator"></div>
-                  <div className="col-lg-12 text-center mt-3">
-                    <button
-                      onClick={() => {
-                        AddUpdateClickedPracticeDetails();
-                      }}
-                      className="btn btn-md create-item-btn update-practice"
-                    >
-                      <span> Update Practice Details</span>
-                    </button>
-                  </div>
-                  </div>
-                  {/* end card  */}
+            <div className="pd-card-body">
+              <div className="pd-grid">
+                <div className="pd-field">
+                  <label className="pd-label">
+                    Profession Type<span className="pd-req">*</span>
+                  </label>
+                  <input
+                    disabled
+                    className="input-text pd-input"
+                    placeholder="Profession Type"
+                    value={professionTypeValue}
+                  />
                 </div>
-                {/* end col */}
+
+                <div className="pd-field" id="BusinessType">
+                  <label className="pd-label">
+                    Business Type<span className="pd-req">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    className="input-text pd-input"
+                    placeholder="Business Type"
+                    value={basicInfo.businessTypeName}
+                  />
+                </div>
+
+                {(basicInfo.businessTypeID === CLIENT_TYPES.Sole_Trader ||
+                  basicInfo.businessTypeID === CLIENT_TYPES.Partnership) && (
+                  <>
+                    <div className="pd-field pd-field-full" id="TradingName">
+                      <label className="pd-label">
+                        Trading Name<span className="pd-req">*</span>
+                      </label>
+                      <input
+                        maxLength={50}
+                        type="text"
+                        className="input-text pd-input"
+                        placeholder="Trading Name"
+                        value={basicInfo.tradingName}
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
+                          const trimmedValue = inputValue.replace(/^\s+/g, "");
+
+                          // Validation: Check if the trimmed value is either alphanumeric or only alphabet but not only numeric
+                          const isValidName =
+                            /^[a-zA-Z0-9\s,.!?"':;&()-_`]+(?:[a-zA-Z0-9\s,.!?"':;&()-_`]+)*$/.test(
+                              trimmedValue,
+                            ) && !/^\d+$/.test(trimmedValue);
+
+                          if (isValidName || trimmedValue === "") {
+                            const capitalizedValue =
+                              trimmedValue.charAt(0).toUpperCase() +
+                              trimmedValue.slice(1);
+                            setBasicInfo({
+                              ...basicInfo,
+                              tradingName: capitalizedValue,
+                            });
+                          }
+                        }}
+                      />
+                      {requireErrorMessage &&
+                      (basicInfo.tradingName === "" ||
+                        basicInfo.tradingName === null) ? (
+                        <span className="validation pd-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+
+                    <div className="pd-field" id="TradingDate">
+                      <label className="pd-label">
+                        Trading Start Date<span className="pd-req">*</span>
+                      </label>
+                      <div className="pd-datepicker">
+                        <DatePicker
+                          minDate={minDate}
+                          maxDate={maxDate}
+                          format="dd/MM/y"
+                          dayPlaceholder="dd"
+                          monthPlaceholder="mm"
+                          yearPlaceholder="yyyy"
+                          value={basicInfo.tradingStartDate}
+                          onChange={(e) => {
+                            setDateValidation(false);
+                            setBasicInfo({
+                              ...basicInfo,
+                              tradingStartDate: e,
+                            });
+                          }}
+                        />
+                      </div>
+                      {DateValidation &&
+                      (basicInfo.tradingStartDate !== "" ||
+                        basicInfo.tradingStartDate !== null) ? (
+                        <span className="validation pd-validation">
+                          Invalid Date
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                      {requireErrorMessage &&
+                      (basicInfo.tradingStartDate === "" ||
+                        basicInfo.tradingStartDate === null) ? (
+                        <span className="validation pd-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+
+                    <div className="pd-field pd-field-full" id="TradingAddress">
+                      <label className="pd-label">
+                        Trading Address<span className="pd-req">*</span>
+                      </label>
+                      <input
+                        className="input-text pd-input pd-input-clickable"
+                        placeholder="Trading Address"
+                        value={concatenatedTradingAddress}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+
+                          handleOpenTradingAddressPopup(e);
+                        }}
+                      />
+                      {requireErrorMessage &&
+                      (concatenatedTradingAddress === "" ||
+                        concatenatedTradingAddress === null) ? (
+                        <span className="validation pd-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  </>
+                )}
+
+                {(basicInfo.businessTypeID === CLIENT_TYPES.Company ||
+                  basicInfo.businessTypeID === CLIENT_TYPES.LLP) && (
+                  <>
+                    <div
+                      className="pd-field pd-field-full pd-field-search"
+                      id="UpdateCompany"
+                    >
+                      <label className="pd-label">Update Company</label>
+                      <input
+                        className="input-text pd-input"
+                        placeholder="Search Company"
+                        onChange={handleCompanyInputChange}
+                        onKeyDown={(e) => {
+                          if (e.key === " " && e.target.value === "") {
+                            e.preventDefault();
+                          }
+                        }}
+                      />
+                      {companies.length > 0 && (
+                        <div className="autocomplete-input-div show">
+                          <ul className="searchList">
+                            {companies.map((i, index) => (
+                              <li
+                                key={index}
+                                onClick={() => handleCompanySelect(i)}
+                              >
+                                {i.title}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pd-field">
+                      <label className="pd-label">
+                        Company Name<span className="pd-req">*</span>
+                      </label>
+                      <input
+                        disabled
+                        className="input-text pd-input"
+                        placeholder="Company Name"
+                        value={companyForm.companyName}
+                        onChange={(e) =>
+                          setCompanyForm({
+                            ...companyForm,
+                            companyName: e.target.value,
+                          })
+                        }
+                      />
+                      {requireErrorMessage &&
+                      (companyForm.companyName === "" ||
+                        companyForm.companyName === null) ? (
+                        <span className="validation pd-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+
+                    <div className="pd-field">
+                      <label className="pd-label">
+                        Entity Type<span className="pd-req">*</span>
+                      </label>
+                      <input
+                        disabled
+                        className="input-text pd-input"
+                        placeholder="Entity Type"
+                        value={companyForm.companyType}
+                        onChange={(e) =>
+                          setCompanyForm({
+                            ...companyForm,
+                            companyType: e.target.value,
+                          })
+                        }
+                      />
+                      {requireErrorMessage &&
+                      (companyForm.companyType === "" ||
+                        companyForm.companyType === null) ? (
+                        <span className="validation pd-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+
+                    <div className="pd-field" id="CompanyNumber">
+                      <label className="pd-label">
+                        Company Number<span className="pd-req">*</span>
+                      </label>
+                      <input
+                        disabled
+                        className="input-text pd-input"
+                        placeholder="Company Number"
+                        value={companyForm.companyNumber}
+                        onChange={(e) =>
+                          setCompanyForm({
+                            ...companyForm,
+                            companyNumber: e.target.value,
+                          })
+                        }
+                      />
+                      {requireErrorMessage &&
+                      (companyForm.companyNumber === "" ||
+                        companyForm.companyNumber === null) ? (
+                        <span className="validation pd-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+
+                    <div className="pd-field">
+                      <label className="pd-label">
+                        Incorporation Date<span className="pd-req">*</span>
+                      </label>
+                      <input
+                        disabled
+                        className="input-text pd-input"
+                        placeholder="Incorporation Date"
+                        value={formatDate(companyForm.incorporationDate)}
+                        onChange={(e) =>
+                          setCompanyForm({
+                            ...companyForm,
+                            incorporationDate: e.target.value,
+                          })
+                        }
+                      />
+                      {requireErrorMessage &&
+                      (companyForm.incorporationDate === "" ||
+                        companyForm.incorporationDate === null) ? (
+                        <span className="validation pd-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+
+                    <div className="pd-field pd-field-full" id="CompanyAddress">
+                      <label className="pd-label">
+                        Registered Office Address
+                      </label>
+                      <input
+                        disabled
+                        className="input-text pd-input"
+                        placeholder="Registered Office Address"
+                        value={concatenatedRegisterAddress}
+                        onChange={(e) =>
+                          setBasicInfo({
+                            ...basicInfo,
+                            regOfficeAddress: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+
+                    <div className="pd-field" id="IncorporatedIn">
+                      <label className="pd-label">
+                        Incorporated In<span className="pd-req">*</span>
+                      </label>
+                      <Select
+                        className="CurrencySelect pd-select"
+                        options={incorporatedInList}
+                        value={IncorporatedValue}
+                        onChange={handleIncorporatedInChange}
+                      />
+                      {requireErrorMessage &&
+                      (companyForm.incInID === 0 ||
+                        companyForm.incInID === null ||
+                        companyForm.incInID === "") ? (
+                        <span className="validation pd-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
-              {/* end col  */}
             </div>
-            {/* end row */}
+          </section>
 
-            {/* end modal  */}
+          {/* ================= TRADING DETAILS (Company / LLP) ================= */}
+          {(basicInfo.businessTypeID === CLIENT_TYPES.Company ||
+            basicInfo.businessTypeID === CLIENT_TYPES.LLP) && (
+            <section className="pd-card" id="TradingDetails">
+              <div className="pd-card-head">
+                <span className="pd-card-icon">
+                  <Briefcase size={18} />
+                </span>
+                <div>
+                  <h2 className="pd-card-title">Trading Details</h2>
+                  <p className="pd-card-subtitle">
+                    Trading name, start date and address of the practice.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pd-card-body">
+                <div className="pd-grid">
+                  <div className="pd-field pd-field-full">
+                    <label className="pd-label">
+                      Trading Name<span className="pd-req">*</span>
+                    </label>
+                    <input
+                      maxLength={50}
+                      type="text"
+                      className="input-text pd-input"
+                      placeholder="Trading Name"
+                      value={basicInfo.tradingName}
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
+                        const trimmedValue = inputValue.replace(/^\s+/g, "");
+
+                        // Validation: Check if the trimmed value is either alphanumeric or only alphabet but not only numeric
+                        const isValidName =
+                          /^[a-zA-Z0-9\s,.!?"':;&()-_`]+(?:[a-zA-Z0-9\s,.!?"':;&()-_`]+)*$/.test(
+                            trimmedValue,
+                          ) && !/^\d+$/.test(trimmedValue);
+
+                        if (isValidName || trimmedValue === "") {
+                          const capitalizedValue =
+                            trimmedValue.charAt(0).toUpperCase() +
+                            trimmedValue.slice(1);
+                          setBasicInfo({
+                            ...basicInfo,
+                            tradingName: capitalizedValue,
+                          });
+                        }
+                      }}
+                    />
+                    {requireErrorMessage &&
+                    (basicInfo.tradingName === "" ||
+                      basicInfo.tradingName === null) ? (
+                      <span className="validation pd-validation">
+                        {ERROR_MESSAGES}
+                      </span>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+
+                  <div className="pd-field">
+                    <label className="pd-label">
+                      Trading Start Date<span className="pd-req">*</span>
+                    </label>
+                    <div className="pd-datepicker">
+                      <DatePicker
+                        minDate={minDate}
+                        maxDate={maxDate}
+                        format="dd/MM/y"
+                        dayPlaceholder="dd"
+                        monthPlaceholder="mm"
+                        yearPlaceholder="yyyy"
+                        value={basicInfo.tradingStartDate}
+                        onChange={(e) => {
+                          setDateValidation(false);
+                          setBasicInfo({
+                            ...basicInfo,
+                            tradingStartDate: e,
+                          });
+                        }}
+                      />
+                    </div>
+                    {/* {DateValidation &&
+                        (basicInfo.tradingStartDate !== "" ||
+                          basicInfo.tradingStartDate !== null) ? (
+                        <span className="validation">
+                          Invalid Date
+                        </span>
+                      ) : (
+                        ""
+                      )} */}
+                    {requireErrorMessage &&
+                    (basicInfo.tradingStartDate === "" ||
+                      basicInfo.tradingStartDate === null) ? (
+                      <span className="validation pd-validation">
+                        {ERROR_MESSAGES}
+                      </span>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+
+                  <div className="pd-field pd-field-full">
+                    <label className="pd-label">
+                      Trading Address<span className="pd-req">*</span>
+                    </label>
+                    <input
+                      className="input-text pd-input pd-input-clickable"
+                      placeholder="Trading Address"
+                      value={concatenatedTradingAddress}
+                      onClick={(e) => {
+                        handleOpenTradingAddressPopup(e);
+                      }}
+                    />
+                    {requireErrorMessage &&
+                    (concatenatedTradingAddress === "" ||
+                      concatenatedTradingAddress === null) ? (
+                      <span className="validation pd-validation">
+                        {ERROR_MESSAGES}
+                      </span>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* ================= E SIGNATURE ================= */}
+          <section className="pd-card" id="E-Signature">
+            <div className="pd-card-head">
+              <span className="pd-card-icon">
+                <PenLine size={18} />
+              </span>
+              <div>
+                <h2 className="pd-card-title">Electronic Signature</h2>
+                <p className="pd-card-subtitle">
+                  Configure your {EngagementName.toLowerCase()} signature
+                  settings.
+                </p>
+              </div>
+            </div>
+
+            <div className="pd-card-body">
+              <div className="pd-toggle-panel">
+                <label className="pd-toggle-text" htmlFor="isEL">
+                  <span className="pd-toggle-title">{EngagementName}</span>
+                  <span className="pd-toggle-desc">
+                    Enable electronic signatures for{" "}
+                    {EngagementName.toLowerCase()} sent to clients.
+                  </span>
+                </label>
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <CustomWidthTooltip title="Enable/Disable EL">
+                        <Android12Switch
+                          id="isEL"
+                          checked={otherInfo.enableEL === 1}
+                          onClick={() =>
+                            setOtherInfo({
+                              ...otherInfo,
+                              enableEL: otherInfo.enableEL === 1 ? 0 : 1,
+                            })
+                          }
+                        />
+                      </CustomWidthTooltip>
+                    }
+                  />
+                </FormGroup>
+              </div>
+
+              <div className="pd-note">
+                <Info size={16} className="pd-note-icon" />
+                <div>
+                  <b>Note: </b>
+                  {longText}
+                </div>
+              </div>
+
+              <div className="pd-grid">
+                <div className="pd-field">
+                  <label className="pd-label">
+                    Signatory Name
+                    {((signature !== null &&
+                      signature !== undefined &&
+                      signature !== "") ||
+                      (basicInfo.signatureImageUrl !== null &&
+                        basicInfo.signatureImageUrl !== undefined &&
+                        basicInfo.signatureImageUrl !== "")) && (
+                      <span className="pd-req">*</span>
+                    )}
+                  </label>
+                  <input
+                    type="text"
+                    className="input-text pd-input"
+                    placeholder="Signatory Name"
+                    value={basicInfo.signatoryName}
+                    onChange={(e) => {
+                      if (signature || basicInfo.signatureImageUrl) {
+                        if (!e.target.value) {
+                          setIsIsSignatoryAvailable(false);
+                        } else {
+                          setIsIsSignatoryAvailable(true);
+                        }
+                      } else {
+                        if (e.target.value) {
+                          setIsIsSignatoryAvailable(false);
+                        } else {
+                          setIsIsSignatoryAvailable(true);
+                        }
+                      }
+                      setBasicInfo({
+                        ...basicInfo,
+                        signatoryName: e.target.value,
+                      });
+                    }}
+                  />
+                  {requireErrorMessage &&
+                  ((signature !== null &&
+                    signature !== undefined &&
+                    signature !== "") ||
+                    (basicInfo.signatureImageUrl !== "" &&
+                      basicInfo.signatureImageUrl !== undefined &&
+                      basicInfo.signatureImageUrl !== null)) &&
+                  (basicInfo.signatoryName === "" ||
+                    basicInfo.signatoryName === null) ? (
+                    <span className="validation pd-validation">
+                      {ERROR_MESSAGES}
+                    </span>
+                  ) : (
+                    ""
+                  )}
+                </div>
+
+                <div className="pd-field pd-field-full">
+                  <label className="pd-label">
+                    Signature Image
+                    {basicInfo.signatoryName !== null &&
+                      basicInfo.signatoryName !== undefined &&
+                      basicInfo.signatoryName !== "" && (
+                        <span className="pd-req">*</span>
+                      )}
+                  </label>
+                  {signature || basicInfo.signatureImageUrl ? (
+                    <div className="pd-media-box">
+                      <div className="pd-media-preview">
+                        {basicInfo.signatureImageUrl &&
+                          basicInfo.signatureImageUrl !== undefined && (
+                            <img
+                              src={basicInfo.signatureImageUrl}
+                              className="pd-media-img"
+                              alt="Selected Signature"
+                            />
+                          )}
+                        {signature && (
+                          <img
+                            src={signature === undefined ? "" : signature}
+                            className="pd-media-img"
+                            alt="Selected Signature"
+                          />
+                        )}
+                      </div>
+                      <button
+                        onClick={() => {
+                          setSignature(null);
+                          if (
+                            basicInfo.signatoryName !== null &&
+                            basicInfo.signatoryName !== "" &&
+                            basicInfo.signatoryName !== undefined
+                          ) {
+                            setIsIsSignatoryAvailable(false); // If either of them is falsy, set to false
+                          } else {
+                            setIsIsSignatoryAvailable(true); // Otherwise, set to true
+                          }
+                          setBasicInfo({
+                            ...basicInfo,
+                            signatoryImage: null,
+                            signatureImageUrl: null,
+                          });
+                        }}
+                        className="btn btn-sm btn-danger remove-item-btn pd-btn pd-btn-danger"
+                      >
+                        <Trash2 size={14} />
+                        <span>Remove</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="pd-upload-box">
+                        <button
+                          onClick={() => {
+                            setType("Signature");
+                          }}
+                          className="btn btn-md btn-primary create-item-btn pd-btn pd-btn-outline"
+                          data-bs-toggle="modal"
+                          data-bs-target="#SignatureUploadModel"
+                        >
+                          <Plus size={15} />
+                          <span>Upload Signature</span>
+                        </button>
+                        <span className="pd-hint">
+                          Supported file types are .jpg, .jpeg, .png up to a
+                          file size of 2MB.
+                        </span>
+                      </div>
+                      {requireErrorMessage &&
+                      basicInfo.signatoryName !== null &&
+                      basicInfo.signatoryName !== undefined &&
+                      basicInfo.signatoryName !== "" &&
+                      (signature === "" || signature === null) ? (
+                        <span className="validation pd-validation">
+                          This field is required if you have entered a value in
+                          the above 'Signatory Name' field. To proceed without
+                          uploading a signature, please remove the data from
+                          'Signatory Name' above.
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ================= OTHER INFORMATION ================= */}
+          <section className="pd-card">
+            <div className="pd-card-head">
+              <span className="pd-card-icon">
+                <Layers size={18} />
+              </span>
+              <div>
+                <h2 className="pd-card-title">Other Information</h2>
+                <p className="pd-card-subtitle">
+                  Configure branding and contact information.
+                </p>
+              </div>
+            </div>
+
+            <div className="pd-card-body">
+              <div className="pd-grid">
+                <div className="pd-field" id="WebSite">
+                  <label className="pd-label">Website</label>
+                  <input
+                    maxLength={100}
+                    type="text"
+                    className="input-text pd-input"
+                    placeholder="www.example.com"
+                    value={otherInfo.website}
+                    onChange={(e) =>
+                      setOtherInfo({
+                        ...otherInfo,
+                        website: e.target.value.trim(),
+                      })
+                    }
+                  />
+                  {requireErrorMessage &&
+                    otherInfo.website !== null &&
+                    otherInfo.website !== "" &&
+                    otherInfo.website !== undefined &&
+                    !isValidWebUrl(otherInfo.website) && (
+                      <span className="validation pd-validation">
+                        {" "}
+                        Invalid Url{" "}
+                      </span>
+                    )}
+                </div>
+
+                <div className="pd-field" id="Contact_Email">
+                  <label className="pd-label">
+                    Contact Email<span className="pd-req">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="input-text pd-input"
+                    placeholder="Email"
+                    maxLength={50}
+                    value={otherInfo.contactEmail}
+                    onChange={(e) => {
+                      // Get the entered value
+                      const enteredValue = e.target.value.trim().toLowerCase();
+
+                      // Check for consecutive dots
+                      if (enteredValue.includes("..")) {
+                        // If consecutive dots found, remove the last dot
+                        const correctedValue = enteredValue.replace(
+                          /\.+/g,
+                          ".",
+                        );
+                        // Update the contact email in the state
+                        setOtherInfo({
+                          ...otherInfo,
+                          contactEmail: correctedValue,
+                        });
+                        return;
+                      }
+
+                      // Update the contact email in the state
+                      setOtherInfo({
+                        ...otherInfo,
+                        contactEmail: enteredValue,
+                      });
+                    }}
+                  />
+                  {requireErrorMessage &&
+                    (otherInfo.contactEmail === null ||
+                    otherInfo.contactEmail === "" ? (
+                      <span className="validation pd-validation">
+                        {ERROR_MESSAGES}
+                      </span>
+                    ) : (
+                      !isValidEmail(otherInfo.contactEmail) && (
+                        <span className="validation pd-validation">
+                          Invalid email pattern
+                        </span>
+                      )
+                    ))}
+                </div>
+
+                <div className="pd-field" id="Contact_Phone">
+                  <label className="pd-label">
+                    Contact Phone<span className="pd-req">*</span>
+                  </label>
+                  <div className="phone-input-div CompanyInfo pd-phone">
+                    <Select
+                      className="phone-input-country-code pd-select"
+                      options={countryCodes}
+                      value={
+                        ContactFilter || {
+                          value: 9,
+                          label: "+44",
+                        }
+                      }
+                      onChange={(e) => {
+                        setOtherInfo({
+                          ...otherInfo,
+                          countryCodeID: e.value,
+                        });
+                      }}
+                    />
+                    <div className="phone-input-number-div">
+                      <input
+                        className="input-text pd-input"
+                        type="text"
+                        placeholder="Phone"
+                        value={otherInfo.contactPhone}
+                        onChange={(e) => {
+                          const sanitizedInput = e.target.value
+                            .replace(/[^0-9]/g, "")
+                            .slice(0, 15);
+                          setOtherInfo({
+                            ...otherInfo,
+                            contactPhone: sanitizedInput,
+                          });
+                        }}
+                      />
+                    </div>
+                  </div>
+                  {requireErrorMessage &&
+                  (otherInfo.countryCodeID === "" ||
+                    otherInfo.countryCodeID === null ||
+                    otherInfo.contactPhone === "" ||
+                    otherInfo.contactPhone === null) ? (
+                    <span className="validation pd-validation">
+                      {ERROR_MESSAGES}
+                    </span>
+                  ) : requireErrorMessage &&
+                    !isValidPhoneNumber(otherInfo.contactPhone) ? (
+                    <span className="validation pd-validation">
+                      {" "}
+                      Invalid phone number{" "}
+                    </span>
+                  ) : (
+                    ""
+                  )}
+                </div>
+
+                <div className="pd-field">
+                  <label className="pd-label">{taxName} Registered</label>
+                  <Select
+                    defaultValue="Select..."
+                    className="CurrencySelect pd-select"
+                    options={Utils.VAT_Registered}
+                    value={VATRegFilter}
+                    onChange={(e) => handleVATStatusChange(e)}
+                  />
+                </div>
+
+                {otherInfo.VATReg === 0 && (
+                  <>
+                    <div className="pd-field">
+                      <label className="pd-label">{taxName} Number</label>
+                      <input
+                        className="input-text pd-input"
+                        type="text"
+                        placeholder={`${taxName} Number`}
+                        value={otherInfo.vatNumber}
+                        onChange={(e) => {
+                          const sanitizedInput = e.target.value
+                            .trimStart()
+                            .slice(0, 12);
+                          setOtherInfo({
+                            ...otherInfo,
+                            vatNumber: sanitizedInput.toUpperCase(),
+                          });
+                        }}
+                      />
+                    </div>
+
+                    <div className="pd-field" id="Tax_Percentage">
+                      <label className="pd-label">
+                        {taxName} Percentage (%)
+                      </label>
+                      {/* <Slider
+                        value={otherInfo.indirectTaxPercentage ?? 20}
+                        step={0.1}
+                        min={0}
+                        max={100}
+                        aria-label="Default"
+                        valueLabelDisplay="auto"
+                        onChange={(e, newValue) => {
+                          setOtherInfo({
+                            ...otherInfo,
+                            indirectTaxPercentage: newValue,
+                          });
+                        }}
+                      /> */}
+                      <input
+                        className="input-text pd-input"
+                        type="text"
+                        value={
+                          otherInfo.indirectTaxPercentage === 0
+                            ? 20.0
+                            : otherInfo.indirectTaxPercentage
+                        }
+                        onChange={handleChangeTaxPercentage}
+                      />
+                    </div>
+
+                    {requireErrorMessage &&
+                      otherInfo.indirectTaxPercentage > 100 && (
+                        <div className="pd-field pd-field-full">
+                          <label className="text-danger pd-validation">
+                            Percentage cannot exceed 100
+                          </label>
+                        </div>
+                      )}
+                  </>
+                )}
+
+                <div className="pd-field">
+                  <label className="pd-label">
+                    Currency<span className="pd-req">*</span>
+                  </label>
+                  <Select
+                    className="CurrencySelect pd-select"
+                    options={currencyType}
+                    value={currencyFilter}
+                    // onChange={(e) => {
+                    //   setOtherInfo({
+                    //     ...otherInfo,
+                    //     preferredCurrency: e.value,
+                    //   });
+                    // }}
+                    onChange={handleCurrencyChange}
+                  />
+                  {requireErrorMessage &&
+                  (otherInfo.preferredCurrency === "" ||
+                    otherInfo.preferredCurrency === null) ? (
+                    <span className="validation pd-validation">
+                      {ERROR_MESSAGES}
+                    </span>
+                  ) : (
+                    ""
+                  )}
+                </div>
+
+                <div className="pd-field">
+                  <label className="pd-label">Brand Color</label>
+                  <div className="pd-color-row">
+                    <input
+                      type="color"
+                      className="form-control height pd-color-swatch"
+                      id="exampleColorInput contactNumber"
+                      title="Choose your color"
+                      value={otherInfo.brandColor}
+                      onChange={(e) =>
+                        setOtherInfo({
+                          ...otherInfo,
+                          brandColor: e.target.value,
+                        })
+                      }
+                    />
+                    <span className="pd-color-hex">{otherInfo.brandColor}</span>
+                  </div>
+                </div>
+
+                <div className="pd-field pd-field-full">
+                  <label className="pd-label">Company Logo</label>
+                  {otherInfo.logoUrl || CompanyLogo ? (
+                    <div className="pd-media-box">
+                      <div className="pd-media-preview">
+                        {otherInfo.logoUrl && (
+                          <img
+                            src={otherInfo.logoUrl}
+                            className="pd-media-img"
+                            alt="Selected Signature"
+                          />
+                        )}
+                        {CompanyLogo && (
+                          <img
+                            src={CompanyLogo}
+                            className="pd-media-img"
+                            alt="Selected Signature"
+                          />
+                        )}
+                      </div>
+                      <button
+                        onClick={() => {
+                          setOtherInfo({
+                            ...otherInfo,
+                            logo: null,
+                            logoUrl: null,
+                          });
+                          setLogo(null);
+                        }}
+                        className="btn btn-sm btn-danger remove-item-btn pd-btn pd-btn-danger"
+                      >
+                        <Trash2 size={14} />
+                        <span>Remove</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="pd-upload-box">
+                      <button
+                        onClick={() => {
+                          setType("Logo");
+                        }}
+                        className="btn btn-md btn-primary create-item-btn pd-btn pd-btn-outline"
+                        data-bs-toggle="modal"
+                        data-bs-target="#LogoUploadModal"
+                      >
+                        <Plus size={15} />
+                        <span>Upload Logo</span>
+                      </button>
+                      <span className="pd-hint">
+                        Supported file types are .jpg, .jpeg, .png up to a file
+                        size of 2MB.
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="pd-field pd-field-full">
+                  <label className="pd-label">Business Tagline</label>
+                  <input
+                    maxLength={100}
+                    type="text"
+                    className="input-text pd-input"
+                    placeholder="Business Tagline"
+                    value={otherInfo.businessTagline}
+                    onChange={(e) =>
+                      setOtherInfo({
+                        ...otherInfo,
+                        businessTagline: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="pd-field">
+                  <label className="pd-label">
+                    Affiliated Accounting Body Name
+                  </label>
+                  <input
+                    maxLength={100}
+                    type="text"
+                    className="input-text pd-input"
+                    placeholder="Affiliated Accounting Body Name"
+                    value={otherInfo.AffiliatedAcBodyName}
+                    onChange={(e) =>
+                      setOtherInfo({
+                        ...otherInfo,
+                        AffiliatedAcBodyName: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="pd-field">
+                  <label className="pd-label">
+                    Website of Affiliated Accounting Body
+                  </label>
+                  <input
+                    maxLength={100}
+                    type="text"
+                    className="input-text pd-input"
+                    placeholder="Website of Affiliated Accounting Body"
+                    value={otherInfo.webOfAffiliatedAccount}
+                    onChange={(e) =>
+                      setOtherInfo({
+                        ...otherInfo,
+                        webOfAffiliatedAccount: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ================= SOLE TRADER DETAILS ================= */}
+          {basicInfo.businessTypeID === CLIENT_TYPES.Sole_Trader && (
+            <section className="pd-card" id="SoleTraderDetails">
+              <div className="pd-card-head">
+                <span className="pd-card-icon">
+                  <User size={18} />
+                </span>
+                <div>
+                  <h2 className="pd-card-title">Sole Trader Details</h2>
+                  <p className="pd-card-subtitle">
+                    Business owner information.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pd-card-body">
+                {officersForm?.map((i, index) => {
+                  return (
+                    <div className="pd-grid" key={index}>
+                      <div className="pd-field">
+                        <label className="pd-label">
+                          First Name<span className="pd-req">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          id="customerName-field"
+                          className="input-text pd-input"
+                          placeholder="First Name"
+                          value={officersForm[index].firstName}
+                          onChange={(e) => {
+                            const inputValue = e.target.value.trim();
+                            // Reject input if it contains numeric characters
+                            // Remove all spaces and dots
+                            const cleanedValue = inputValue.replace(
+                              /[.\s]/g,
+                              "",
+                            );
+                            // Reject input if it starts with a digit
+                            if (/\d/.test(cleanedValue)) {
+                              return;
+                            }
+                            const capitalizedValue =
+                              cleanedValue.charAt(0).toUpperCase() +
+                              cleanedValue.slice(1);
+
+                            OnOfficerChange(
+                              index,
+                              "firstName",
+                              capitalizedValue,
+                            );
+                          }}
+                          maxLength={20}
+                        />
+                        {requireErrorMessage &&
+                        (officersForm[index].firstName === null ||
+                          officersForm[index].firstName === "") ? (
+                          <span className="validation pd-validation">
+                            {ERROR_MESSAGES}
+                          </span>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+
+                      <div className="pd-field">
+                        <label className="pd-label">
+                          Last Name<span className="pd-req">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          id="customerName-field"
+                          className="input-text pd-input"
+                          placeholder="Last Name"
+                          value={
+                            officersForm[index].lastName
+                              ? officersForm[index].lastName
+                                  .charAt(0)
+                                  .toUpperCase() +
+                                officersForm[index].lastName
+                                  .slice(1)
+                                  .toLowerCase()
+                              : ""
+                          }
+                          onChange={(e) => {
+                            const inputValue = e.target.value;
+
+                            // Remove all spaces and dots
+                            const cleanedValue = inputValue.replace(
+                              /[.\s]/g,
+                              "",
+                            );
+
+                            // Reject input if it starts with a digit
+                            if (/\d/.test(cleanedValue)) {
+                              return;
+                            }
+
+                            const capitalizedValue =
+                              cleanedValue.charAt(0).toUpperCase() +
+                              cleanedValue.slice(1);
+
+                            OnOfficerChange(
+                              index,
+                              "lastName",
+                              capitalizedValue,
+                            );
+                          }}
+                        />
+                        {requireErrorMessage &&
+                        (officersForm[index].lastName === null ||
+                          officersForm[index].lastName === "") ? (
+                          <span className="validation pd-validation">
+                            {ERROR_MESSAGES}
+                          </span>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+
+                      <div className="pd-field">
+                        <label className="pd-label">
+                          Phone<span className="pd-req">*</span>
+                        </label>
+                        <div className="phone-input-div CompanyInfo pd-phone">
+                          <Select
+                            className="pd-select"
+                            options={countryCodes}
+                            value={officersForm[index].phoneCountryCodeID}
+                            onChange={(e) => {
+                              handleOfficerPhoneSelectedValue(e, index);
+                            }}
+                          />
+                          <div className="phone-input-number-div">
+                            <input
+                              className="input-text pd-input"
+                              type="text"
+                              placeholder="Phone"
+                              value={officersForm[index].phoneNo}
+                              onChange={(e) => {
+                                // Ensure that the input only contains numeric characters
+                                const sanitizedInput = e.target.value
+                                  .replace(/[^0-9]/g, "")
+                                  .slice(0, 15);
+                                OnOfficerChange(
+                                  index,
+                                  "phoneNo",
+                                  sanitizedInput,
+                                );
+                              }}
+                            />
+                          </div>
+                        </div>
+                        {requireErrorMessage &&
+                        (officersForm[index].phoneCountryCodeID === null ||
+                          officersForm[index].phoneCountryCodeID === null ||
+                          officersForm[index].phoneNo === null ||
+                          officersForm[index].phoneNo === "") ? (
+                          <span className="validation pd-validation">
+                            {ERROR_MESSAGES}
+                          </span>
+                        ) : requireErrorMessage &&
+                          !isValidPhoneNumber(officersForm[index].phoneNo) ? (
+                          <span className="validation pd-validation">
+                            {" "}
+                            Invalid phone number{" "}
+                          </span>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+
+                      <div className="pd-field">
+                        <label className="pd-label">
+                          Practice Email<span className="pd-req">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          id="customerName-field"
+                          className="input-text pd-input"
+                          placeholder="Email"
+                          maxLength={50}
+                          value={officersForm[index].emailID}
+                          onChange={(e) => {
+                            // Get the entered value
+                            const enteredValue = e.target.value
+                              .trim()
+                              .toLowerCase();
+
+                            // Check for consecutive dots
+                            if (enteredValue.includes("..")) {
+                              // If consecutive dots found, remove the last dot
+                              const correctedValue = enteredValue.replace(
+                                /\.+/g,
+                                ".",
+                              );
+                              // Update the value in the parent component
+                              OnOfficerChange(index, "emailID", correctedValue);
+                              return;
+                            }
+
+                            // Update the value in the parent component
+                            OnOfficerChange(index, "emailID", enteredValue);
+                          }}
+                        />
+                        {requireErrorMessage &&
+                          (officersForm[index].emailID === null ||
+                          officersForm[index].emailID === "" ? (
+                            <span className="validation pd-validation">
+                              {ERROR_MESSAGES}
+                            </span>
+                          ) : (
+                            !isValidEmail(officersForm[index].emailID) && (
+                              <span className="validation pd-validation">
+                                Invalid email pattern
+                              </span>
+                            )
+                          ))}
+                      </div>
+
+                      <div className="pd-field pd-field-full">
+                        <label className="pd-label">
+                          Practice Address<span className="pd-req">*</span>
+                        </label>
+                        <input
+                          className="input-text pd-input pd-input-clickable"
+                          type="text"
+                          placeholder="Practice Address"
+                          value={
+                            concatenatedResidentialAddress[0]
+                              ?.officersFullAddress
+                          }
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            setAddressPopUpTitle("Practice Address");
+                            handleOpenRegisterOfficeAddressPopup(e, index);
+                          }}
+                          autoComplete="off"
+                        />
+                        {requireErrorMessage &&
+                        (concatenatedResidentialAddress[index]
+                          .officersFullAddress === null ||
+                          concatenatedResidentialAddress[index]
+                            .officersFullAddress === "") ? (
+                          <span className="validation pd-validation">
+                            {ERROR_MESSAGES}
+                          </span>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* ================= PARTNERSHIP DETAILS ================= */}
+          {basicInfo.businessTypeID === CLIENT_TYPES.Partnership && (
+            <section className="pd-card">
+              <div className="pd-card-head">
+                <span className="pd-card-icon">
+                  <Users size={18} />
+                </span>
+                <div>
+                  <h2 className="pd-card-title">Partnership Details</h2>
+                  <p className="pd-card-subtitle">
+                    Partner information and authorised signatories.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pd-card-body">
+                {officersForm?.map((i, index) => {
+                  return (
+                    <div
+                      className="pd-subcard"
+                      id={`Partner_${index}`}
+                      key={index}
+                    >
+                      <div className="pd-subcard-head">
+                        <span className="pd-subcard-title">
+                          Partner {index + 1}
+                        </span>
+                        <div className="pd-subcard-actions">
+                          <div className="pd-signatory">
+                            <Switch
+                              id="checkbox"
+                              checked={
+                                officersForm[index]?.isAuthorisedSignatory
+                              }
+                              onChange={(e) => handleSwitchToggle(e, index)}
+                              color="primary"
+                            />
+                            <div htmlFor="checkbox" className="isAuthorized">
+                              Authorised Signatory
+                            </div>
+                          </div>
+                          {officersForm?.length === 1 ? null : (
+                            <button
+                              className="btn btn-sm btn-danger pd-btn pd-btn-danger"
+                              onClick={() => deleteOfficer(index)}
+                            >
+                              <Trash2 size={14} />
+                              Delete Partner
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* {officersForm.length === 0 && (
+                        <div className="row fieldset flex-center-div">
+                          <div className="col-lg-12 text-right">
+                            <span className="validation">
+                              {" "}
+                              At least 1 authorised partner is required.{" "}
+                            </span>
+                          </div>
+                        </div>
+                      )} */}
+                      {requireErrorMessage &&
+                        AuthorityCount === 0 &&
+                        authoritySignatorySignatory && (
+                          <span className="validation pd-validation pd-validation-block">
+                            {" "}
+                            At least 1 authorised partner is required.{" "}
+                          </span>
+                        )}
+
+                      <div className="pd-grid">
+                        <div className="pd-field">
+                          <label className="pd-label">
+                            First Name<span className="pd-req">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            id="customerName-field"
+                            className="input-text pd-input"
+                            placeholder="First Name"
+                            value={officersForm[index]?.firstName}
+                            onChange={(e) => {
+                              let value = e.target.value;
+                              // Remove any non-alphabetic characters
+                              value = value.replace(/[0-9]/g, "");
+                              // Capitalize the first letter and make the rest lowercase
+                              const capitalizedValue =
+                                value.charAt(0).toUpperCase() +
+                                value.slice(1).toLowerCase();
+                              OnOfficerChange(
+                                index,
+                                "firstName",
+                                capitalizedValue,
+                              );
+                            }}
+                            maxLength={20}
+                          />
+                          {requireErrorMessage &&
+                          (officersForm[index].firstName === null ||
+                            officersForm[index].firstName === "") ? (
+                            <span className="validation pd-validation">
+                              {ERROR_MESSAGES}
+                            </span>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+
+                        <div className="pd-field">
+                          <label className="pd-label">
+                            Last Name<span className="pd-req">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            id="customerName-field"
+                            className="input-text pd-input"
+                            placeholder="Last Name"
+                            value={
+                              officersForm[index].lastName
+                                ? officersForm[index].lastName
+                                    .charAt(0)
+                                    .toUpperCase() +
+                                  officersForm[index].lastName
+                                    .slice(1)
+                                    .toLowerCase()
+                                : ""
+                            }
+                            onChange={(e) => {
+                              let value = e.target.value;
+                              // Remove any non-alphabetic characters
+                              value = value.replace(/[0-9]/g, "");
+                              // Capitalize the first letter and make the rest lowercase
+                              const capitalizedValue =
+                                value.charAt(0).toUpperCase() +
+                                value.slice(1).toLowerCase();
+                              OnOfficerChange(
+                                index,
+                                "lastName",
+                                capitalizedValue,
+                              );
+                            }}
+                            maxLength={20}
+                          />
+                          {requireErrorMessage &&
+                          (officersForm[index]?.lastName === null ||
+                            officersForm[index]?.lastName === "") ? (
+                            <span className="validation pd-validation">
+                              {ERROR_MESSAGES}
+                            </span>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+
+                        <div className="pd-field">
+                          <label className="pd-label">
+                            Phone<span className="pd-req">*</span>
+                          </label>
+                          <div className="phone-input-div pd-phone">
+                            <Select
+                              className="phone-input-country-code pd-select"
+                              options={countryCodes}
+                              value={officersForm[index].phoneCountryCodeID}
+                              onChange={(e) =>
+                                handleOfficerPhoneSelectedValue(e, index)
+                              }
+                            />
+                            <div className="phone-input-number-div">
+                              <input
+                                className="input-text pd-input"
+                                type="text"
+                                placeholder="Phone"
+                                value={officersForm[index].phoneNo}
+                                onChange={(e) => {
+                                  // Ensure that the input only contains numeric characters
+                                  const sanitizedInput = e.target.value
+                                    .replace(/[^0-9]/g, "")
+                                    .slice(0, 15);
+                                  OnOfficerChange(
+                                    index,
+                                    "phoneNo",
+                                    sanitizedInput,
+                                  );
+                                }}
+                              />
+                            </div>
+                          </div>
+                          {requireErrorMessage &&
+                          (officersForm[index].phoneCountryCodeID === null ||
+                            officersForm[index].phoneCountryCodeID === null ||
+                            officersForm[index].phoneNo === null ||
+                            officersForm[index].phoneNo === "") ? (
+                            <span className="validation pd-validation">
+                              {ERROR_MESSAGES}
+                            </span>
+                          ) : requireErrorMessage &&
+                            !isValidPhoneNumber(officersForm[index].phoneNo) ? (
+                            <span className="validation pd-validation">
+                              {" "}
+                              Invalid phone number{" "}
+                            </span>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+
+                        <div className="pd-field">
+                          <label className="pd-label">
+                            Email<span className="pd-req">*</span>
+                          </label>
+                          <input
+                            className="input-text pd-input"
+                            type="email"
+                            maxLength={50}
+                            placeholder="Email"
+                            value={officersForm[index]?.emailID}
+                            onChange={(e) => {
+                              // Get the entered value
+                              const enteredValue = e.target.value
+                                .trim()
+                                .toLowerCase();
+
+                              // Check for consecutive dots
+                              if (enteredValue.includes("..")) {
+                                // If consecutive dots found, remove the last dot
+                                const correctedValue = enteredValue.replace(
+                                  /\.+/g,
+                                  ".",
+                                );
+                                // Update the email address in the parent component
+                                OnOfficerChange(
+                                  index,
+                                  "emailID",
+                                  correctedValue,
+                                );
+                                return;
+                              }
+
+                              // Update the email address in the parent component
+                              OnOfficerChange(index, "emailID", enteredValue);
+                            }}
+                          />
+                          {requireErrorMessage &&
+                            (officersForm[index].emailID === null ||
+                            officersForm[index].emailID === "" ? (
+                              <span className="validation pd-validation">
+                                {ERROR_MESSAGES}
+                              </span>
+                            ) : (
+                              !isValidEmail(officersForm[index].emailID) && (
+                                <span className="validation pd-validation">
+                                  Invalid email pattern
+                                </span>
+                              )
+                            ))}
+                        </div>
+
+                        <div className="pd-field pd-field-full">
+                          <label className="pd-label">
+                            Residential Address<span className="pd-req">*</span>
+                          </label>
+                          <input
+                            placeholder="Residential Address"
+                            className="input-text pd-input pd-input-clickable"
+                            type="text"
+                            value={
+                              concatenatedResidentialAddress[index]
+                                ?.officersFullAddress
+                            }
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setAddressPopUpTitle("Residential Address");
+                              handleOpenRegisterOfficeAddressPopup(e, index);
+                            }}
+                          />
+                          {requireErrorMessage &&
+                          (concatenatedResidentialAddress[index]
+                            .officersFullAddress === null ||
+                            concatenatedResidentialAddress[index]
+                              .officersFullAddress === "") ? (
+                            <span className="validation pd-validation">
+                              {ERROR_MESSAGES}
+                            </span>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <div className="pd-add-row">
+                  <button
+                    className="btn btn-md btn-primary create-item-btn pd-btn pd-btn-outline"
+                    onClick={addOfficer}
+                  >
+                    <Plus size={15} />
+                    <span>Add Partner</span>
+                  </button>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* ================= OFFICERS (Company / LLP) ================= */}
+          {(basicInfo.businessTypeID === CLIENT_TYPES.Company ||
+            basicInfo.businessTypeID === CLIENT_TYPES.LLP) && (
+            <section className="pd-card">
+              <div className="pd-card-head">
+                <span className="pd-card-icon">
+                  <Users size={18} />
+                </span>
+                <div>
+                  <h2 className="pd-card-title">Officer Details</h2>
+                  <p className="pd-card-subtitle">
+                    Officer information and authorised signatories.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pd-card-body">
+                {officersForm?.map((i, index) => {
+                  return (
+                    <div
+                      className="pd-subcard"
+                      id={`Officers${index}`}
+                      key={index}
+                    >
+                      <div className="pd-subcard-head">
+                        <span className="pd-subcard-title">
+                          Officer {index + 1}
+                        </span>
+                        <div className="pd-subcard-actions">
+                          <div className="pd-signatory">
+                            <Switch
+                              id="checkbox"
+                              checked={
+                                officersForm[index]?.isAuthorisedSignatory
+                              }
+                              onChange={(e) => handleSwitchToggle(e, index)}
+                              color="primary"
+                            />
+                            <div htmlFor="checkbox" className="isAuthorized">
+                              Authorised Signatory
+                            </div>
+                          </div>
+                          {officersForm?.length === 1 ? null : (
+                            <button
+                              className="btn btn-sm btn-danger pd-btn pd-btn-danger"
+                              onClick={() => deleteOfficer(index)}
+                            >
+                              <Trash2 size={14} />
+                              Delete Officer
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {officersForm.length === 0 && (
+                        <span className="validation pd-validation pd-validation-block">
+                          {" "}
+                          At least 1 authorised officer is required.{" "}
+                        </span>
+                      )}
+                      {requireErrorMessage &&
+                        AuthorityCount === 0 &&
+                        authoritySignatorySignatory && (
+                          <span className="validation pd-validation pd-validation-block">
+                            {" "}
+                            At least 1 authorised officer is required.{" "}
+                          </span>
+                        )}
+
+                      <div className="pd-grid">
+                        <div className="pd-field">
+                          <label className="pd-label">
+                            First Name<span className="pd-req">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            id="customerName-field"
+                            className="input-text pd-input"
+                            placeholder="First Name"
+                            value={officersForm[index]?.firstName}
+                            onChange={(e) => {
+                              const inputValue = e.target.value.trim();
+                              // Reject input if it contains numeric characters
+                              // Remove all spaces and dots
+                              const cleanedValue = inputValue.replace(
+                                /[.\s]/g,
+                                "",
+                              );
+
+                              // Reject input if it starts with a digit
+                              if (/\d/.test(cleanedValue)) {
+                                return;
+                              }
+                              const capitalizedValue =
+                                cleanedValue.charAt(0).toUpperCase() +
+                                cleanedValue.slice(1);
+
+                              OnOfficerChange(
+                                index,
+                                "firstName",
+                                capitalizedValue,
+                              );
+                            }}
+                            maxLength={20}
+                          />
+                          {requireErrorMessage &&
+                          (officersForm[index].firstName === null ||
+                            officersForm[index].firstName === "") ? (
+                            <span className="validation pd-validation">
+                              {ERROR_MESSAGES}
+                            </span>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+
+                        <div className="pd-field">
+                          <label className="pd-label">
+                            Last Name<span className="pd-req">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            id="customerName-field"
+                            className="input-text pd-input"
+                            placeholder="Last Name"
+                            value={
+                              officersForm[index].lastName
+                                ? officersForm[index].lastName
+                                    .charAt(0)
+                                    .toUpperCase() +
+                                  officersForm[index].lastName
+                                    .slice(1)
+                                    .toLowerCase()
+                                : ""
+                            }
+                            onChange={(e) => {
+                              const inputValue = e.target.value;
+
+                              // Remove all spaces and dots
+                              const cleanedValue = inputValue.replace(
+                                /[.\s]/g,
+                                "",
+                              );
+
+                              // Reject input if it starts with a digit
+                              if (/\d/.test(cleanedValue)) {
+                                return;
+                              }
+
+                              const capitalizedValue =
+                                cleanedValue.charAt(0).toUpperCase() +
+                                cleanedValue.slice(1);
+
+                              OnOfficerChange(
+                                index,
+                                "lastName",
+                                capitalizedValue,
+                              );
+                            }}
+                            maxLength={20}
+                          />
+                          {requireErrorMessage &&
+                          (officersForm[index].lastName === null ||
+                            officersForm[index].lastName === "") ? (
+                            <span className="validation pd-validation">
+                              {ERROR_MESSAGES}
+                            </span>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+
+                        <div className="pd-field">
+                          <label className="pd-label">
+                            Role<span className="pd-req">*</span>
+                          </label>
+                          <input
+                            maxLength={30}
+                            type="text"
+                            id="customerName-field"
+                            className="input-text pd-input"
+                            placeholder="Role"
+                            value={officersForm[index]?.officerRole}
+                            onChange={(e) =>
+                              OnOfficerChange(
+                                index,
+                                "officerRole",
+                                e.target.value.charAt(0).toUpperCase() +
+                                  e.target.value.slice(1).toLowerCase(),
+                              )
+                            }
+                          />
+                          {requireErrorMessage &&
+                          (officersForm[index].officerRole === null ||
+                            officersForm[index].officerRole === "") ? (
+                            <span className="validation pd-validation">
+                              {ERROR_MESSAGES}
+                            </span>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+
+                        <div className="pd-field">
+                          <label className="pd-label">
+                            Appointed On<span className="pd-req">*</span>
+                          </label>
+                          <div className="pd-datepicker">
+                            <DatePicker
+                              minDate={minDate}
+                              maxDate={maxDate}
+                              format="dd/MM/y"
+                              dayPlaceholder="dd"
+                              monthPlaceholder="mm"
+                              yearPlaceholder="yyyy"
+                              value={officersForm[index]?.appointedOn}
+                              onChange={(e) =>
+                                OnOfficerChange(index, "appointedOn", e)
+                              }
+                            />
+                          </div>
+                          {/* {InvalidAppointedOnDate &&
+                              !isValidDate(
+                                officersForm[index]?.appointedOn
+                              ) ? (
+                              <span className="validation">
+                                Invalid Date
+                              </span>
+                            ) : null} */}
+                          {requireErrorMessage &&
+                          (officersForm[index]?.appointedOn === null ||
+                            officersForm[index]?.appointedOn === "") ? (
+                            <span className="validation pd-validation">
+                              {ERROR_MESSAGES}
+                            </span>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+
+                        <div className="pd-field">
+                          <label className="pd-label">Phone</label>
+                          <div className="phone-input-div pd-phone">
+                            <Select
+                              className="phone-input-country-code pd-select"
+                              options={countryCodes}
+                              value={officersForm[index].phoneCountryCodeID}
+                              onChange={(e) => {
+                                handleOfficerPhoneSelectedValue(e, index);
+                              }}
+                            />
+                            <div className="phone-input-number-div">
+                              <input
+                                className="input-text pd-input"
+                                type="text"
+                                placeholder="Phone"
+                                value={officersForm[index].phoneNo || ""}
+                                // onChange={(e) => {
+                                //   // Ensure that the input only contains numeric characters
+                                //   const sanitizedInput = e.target.value
+                                //     .replace(/[^0-9]/g, "")
+                                //     .slice(0, 15);
+                                //   OnOfficerChange(
+                                //     index,
+                                //     "phoneNo",
+                                //     sanitizedInput
+                                //   );
+                                // }}
+                                onChange={(e) => {
+                                  // Ensure that the input only contains numeric characters
+                                  const sanitizedInput = e.target.value
+                                    .replace(/\[^0-9\]/g, "")
+                                    .slice(0, 15)
+                                    .trim();
+                                  const updatedPhoneNo =
+                                    sanitizedInput !== ""
+                                      ? sanitizedInput
+                                      : null;
+                                  OnOfficerChange(
+                                    index,
+                                    "phoneNo",
+                                    updatedPhoneNo,
+                                  );
+                                }}
+                              />
+                            </div>
+                          </div>
+                          {requireErrorMessage &&
+                            officersForm[index].phoneNo !== null &&
+                            officersForm[index].phoneNo !== "" &&
+                            officersForm[index].phoneNo !== undefined &&
+                            !isValidPhoneNumber(
+                              officersForm[index].phoneNo,
+                            ) && (
+                              <span className="validation pd-validation">
+                                {" "}
+                                Invalid phone number{" "}
+                              </span>
+                            )}
+                        </div>
+
+                        <div className="pd-field">
+                          <label className="pd-label">
+                            Email<span className="pd-req">*</span>
+                          </label>
+                          <input
+                            className="input-text pd-input"
+                            type="email"
+                            maxLength={50}
+                            placeholder="Email"
+                            value={officersForm[index]?.emailID}
+                            onChange={(e) => {
+                              // Get the entered value
+                              const enteredValue = e.target.value
+                                .trim()
+                                .toLowerCase();
+
+                              // Check for consecutive dots
+                              if (enteredValue.includes("..")) {
+                                // If consecutive dots found, remove the last dot
+                                const correctedValue = enteredValue.replace(
+                                  /\.+/g,
+                                  ".",
+                                );
+                                // Update the email address in the parent component
+                                OnOfficerChange(
+                                  index,
+                                  "emailID",
+                                  correctedValue,
+                                );
+                                return;
+                              }
+
+                              // Update the email address in the parent component
+                              OnOfficerChange(index, "emailID", enteredValue);
+                            }}
+                          />
+                          {requireErrorMessage &&
+                            (officersForm[index].emailID === null ||
+                            officersForm[index].emailID === "" ? (
+                              <span className="validation pd-validation">
+                                {ERROR_MESSAGES}
+                              </span>
+                            ) : (
+                              !isValidEmail(officersForm[index].emailID) && (
+                                <span className="validation pd-validation">
+                                  Invalid email pattern
+                                </span>
+                              )
+                            ))}
+                        </div>
+
+                        <div className="pd-field pd-field-full">
+                          <label className="address-label pd-label">
+                            Correspondence Address
+                            <span className="pd-req">*</span>
+                          </label>
+                          <input
+                            placeholder="Correspondence Address"
+                            className="input-text pd-input pd-input-clickable"
+                            type="text"
+                            value={
+                              concatenatedResidentialAddress[index]
+                                ?.officersFullAddress
+                            }
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setAddressPopUpTitle("Correspondence Address");
+                              handleOpenRegisterOfficeAddressPopup(e, index);
+                            }}
+                            autoComplete="off"
+                          />
+                          {requireErrorMessage &&
+                          (concatenatedResidentialAddress[index]
+                            .officersFullAddress === null ||
+                            concatenatedResidentialAddress[index]
+                              .officersFullAddress === "") ? (
+                            <span className="validation pd-validation">
+                              {ERROR_MESSAGES}
+                            </span>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <div className="pd-add-row">
+                  <button
+                    className="btn btn-md btn-primary create-item-btn pd-btn pd-btn-outline"
+                    onClick={addOfficer}
+                  >
+                    <Plus size={15} />
+                    <span>Add Officer</span>
+                  </button>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* ================= FOOTER ACTIONS ================= */}
+          {errorMessage ? (
+            <span className="validation pd-footer-error">{errorMessage}</span>
+          ) : (
+            ""
+          )}
+
+          <div className="pd-footer-bar">
+            <button
+              onClick={() => {
+                AddUpdateClickedPracticeDetails();
+              }}
+              className="btn btn-md create-item-btn update-practice pd-btn pd-btn-primary"
+            >
+              <Save size={16} />
+              <span>Update Practice Details</span>
+            </button>
           </div>
-          {/* container-fluid  */}
-          <ConfirmModel
-            openErrorModal={openErrorModal}
-            openSuccessModal={openSuccessModal}
-            modelRequestData={modelRequestData}
-            UpdatedStatus={handleConfirmButton}
-            modelAction={modelAction}
-          />
-          <AddressModal
-            title={addressPopUpTitle}
-            fullAddress={fullAddress}
-            setFullAddress={setFullAddress}
-            openAddressPopUp={openAddressPopUp}
-            address={address}
-            handleAddressPopUpClose={handleAddressPopUpClose}
-            setAddress={setAddress}
-            setOpenAddressPopUp={setOpenAddressPopUp}
-            setAddressUpdatedDatetime={setAddressUpdatedDatetime}
-          />
-          <Upload_image_modal
-            class="modal fade"
-            id="SignatureUploadModel"
-            tabIndex="-1"
-            aria_hidden="true"
-            selectedImage={selectedImage}
-            setSelectedImage={setSelectedImage}
-            handleImageUpload={handleImageUpload}
-            setBasicInfo={setBasicInfo}
-            basicInfo={basicInfo}
-          />
-          <Upload_Logo_Modal
-            class="modal fade"
-            id="LogoUploadModal"
-            tabIndex="-1"
-            aria_hidden="true"
-            selectedImage={selectedImage}
-            setSelectedImage={setSelectedImage}
-            handleImageUpload={handleImageUpload}
-            setOtherInfo={setOtherInfo}
-            otherInfo={otherInfo}
-          />
-          <SuccessModal
-            handleClose={handleClose}
-            setDismissModal={setDismissModal}
-            setOpenSuccessModal={setOpenSuccessModal}
-            openSuccessModal={openSuccessModal}
-            modelAction={modelAction}
-            message={"Practice " + basicInfo.tradingName}
-          />
+        </div>
 
-          <InstructionModal
-            open={modalOpen}
-            handleClose={handleCloseModal}
-            instructions={instructions}
-            // alertMessage={alertMessage} // Pass alert message to InstructionModal
-          />
-        {/* End Page-content */}
-        </div>              
-        
+        <ConfirmModel
+          openErrorModal={openErrorModal}
+          openSuccessModal={openSuccessModal}
+          modelRequestData={modelRequestData}
+          UpdatedStatus={handleConfirmButton}
+          modelAction={modelAction}
+        />
+        <AddressModal
+          title={addressPopUpTitle}
+          fullAddress={fullAddress}
+          setFullAddress={setFullAddress}
+          openAddressPopUp={openAddressPopUp}
+          address={address}
+          handleAddressPopUpClose={handleAddressPopUpClose}
+          setAddress={setAddress}
+          setOpenAddressPopUp={setOpenAddressPopUp}
+          setAddressUpdatedDatetime={setAddressUpdatedDatetime}
+        />
+        <Upload_image_modal
+          class="modal fade"
+          id="SignatureUploadModel"
+          tabIndex="-1"
+          aria_hidden="true"
+          selectedImage={selectedImage}
+          setSelectedImage={setSelectedImage}
+          handleImageUpload={handleImageUpload}
+          setBasicInfo={setBasicInfo}
+          basicInfo={basicInfo}
+        />
+        <Upload_Logo_Modal
+          class="modal fade"
+          id="LogoUploadModal"
+          tabIndex="-1"
+          aria_hidden="true"
+          selectedImage={selectedImage}
+          setSelectedImage={setSelectedImage}
+          handleImageUpload={handleImageUpload}
+          setOtherInfo={setOtherInfo}
+          otherInfo={otherInfo}
+        />
+        <SuccessModal
+          handleClose={handleClose}
+          setDismissModal={setDismissModal}
+          setOpenSuccessModal={setOpenSuccessModal}
+          openSuccessModal={openSuccessModal}
+          modelAction={modelAction}
+          message={"Practice " + basicInfo.tradingName}
+        />
 
-      {/* end back-to-top */}
-    </div>
-    <Footer />
+        <InstructionModal
+          open={modalOpen}
+          handleClose={handleCloseModal}
+          instructions={instructions}
+          // alertMessage={alertMessage} // Pass alert message to InstructionModal
+        />
+      </div>
+      <Footer />
     </>
   );
 };

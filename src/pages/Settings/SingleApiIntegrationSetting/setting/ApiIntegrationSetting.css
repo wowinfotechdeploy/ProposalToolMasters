@@ -482,11 +482,38 @@
   width: 42px;
   height: 38px;
   min-width: 42px;
-  padding: 3px;
+  padding: 0 !important;
   border: 1px solid var(--api-border);
   border-radius: 8px;
-  background: #ffffff;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
   cursor: pointer;
+  overflow: hidden;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* The actual colour is painted by these inner pseudo-elements */
+.api-settings-page .api-color-swatch::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+}
+
+.api-settings-page .api-color-swatch::-webkit-color-swatch {
+  border: none;
+  border-radius: 0;
+}
+
+.api-settings-page .api-color-swatch::-moz-color-swatch {
+  border: none;
+  border-radius: 0;
+}
+
+.api-settings-page .api-color-swatch:focus-visible {
+  outline: 2px solid rgba(6, 182, 212, 0.4);
+  outline-offset: 2px;
 }
 
 .api-color-meta {
