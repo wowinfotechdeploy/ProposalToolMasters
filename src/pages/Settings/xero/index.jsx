@@ -108,12 +108,15 @@ function XeroAuthentication() {
   };
 
   return (
-    <div className="container-fluid py-4 xero-auth-page">
+    <div className="xero-auth-page">
       {/* HEADER */}
-      <div className="d-flex justify-content-between align-items-center mb-4 xero-auth-header">
-        <h4 className="fw-semibold mb-0" style={{ color: "#111827" }}>
-          Xero Driver Mapping
-        </h4>
+      <div className="xero-auth-header">
+        <div className="xero-auth-heading">
+          <h4 className="xero-auth-title">Xero Driver Mapping</h4>
+          <p className="xero-auth-subtitle">
+            Configure your proposal engine data sources from Xero.
+          </p>
+        </div>
 
         <div className="xero-auth-actions">
           <AuthButton
@@ -129,11 +132,13 @@ function XeroAuthentication() {
       </div>
 
       {/* MAPPING */}
-      <MappingUI
-        drivers={drivers}
-        metrics={metrics}
-        metricMappings={metricMappings}
-      />
+      <div className="xero-auth-body">
+        <MappingUI
+          drivers={drivers}
+          metrics={metrics}
+          metricMappings={metricMappings}
+        />
+      </div>
 
       {/* ERROR MODAL */}
       <ErrorModel

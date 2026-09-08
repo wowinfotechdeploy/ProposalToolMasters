@@ -1,116 +1,327 @@
-.service-tag {
-  font-size: 12px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid #c7d2fe;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  background: #eef2ff;
-  color: #4338ca;
-  cursor: default;
-}
-
-/* 🔥 Hover Upgrade */
-.service-tag:hover {
-  background: #e0e7ff; /* slightly deeper */
-  border-color: #a5b4fc; /* stronger border */
-  color: #3730a3; /* darker text */
-  transform: translateY(-1px); /* subtle lift */
-  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.15);
-}
-
 /* =========================================================
-   XERO - MINIMAL UI UPDATE
-   Only:
-   1) spacing from sidebar
-   2) auth/disconnect button colours
+   XERO DRIVER MAPPING — UI ONLY
    ========================================================= */
 
-/* Add breathing room between the sidebar edge and the page content */
 .xero-auth-page {
-  padding-left: 24px !important;
-  padding-right: 24px !important;
+  --xero-bg: #f6f8fb;
+  --xero-surface: #ffffff;
+  --xero-border: #e5eaf0;
+  --xero-border-soft: #eef2f7;
+  --xero-ink: #0f172a;
+  --xero-ink-2: #334155;
+  --xero-muted: #64748b;
+  --xero-accent: #14b5d1;
+  --xero-accent-dark: #0da5c1;
+  --xero-accent-soft: #e7f8fb;
+  --xero-danger: #dc3545;
+  --xero-danger-dark: #c72f3d;
+  --xero-radius: 14px;
+  --xero-radius-sm: 9px;
+
+  background: var(--xero-bg);
+  min-height: 100%;
+  padding: 24px 24px 40px;
+  color: var(--xero-ink);
 }
 
-/* Keep the header aligned after adding the page spacing */
+/* ---------------- Header ---------------- */
 .xero-auth-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  width: 100%;
+  padding-bottom: 18px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--xero-border);
+}
+
+.xero-auth-heading {
+  min-width: 0;
+}
+
+.xero-auth-title {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--xero-ink);
+}
+
+.xero-auth-subtitle {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--xero-muted);
+}
+
+.xero-auth-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* ---------------- Body ---------------- */
+.xero-auth-body {
   width: 100%;
 }
 
-/* Do not style anything inside the shared confirmation modal.
-   Only style buttons rendered directly by AuthButton (up to one wrapper deep). */
+/* ---------------- Mapping cards ---------------- */
+/* Scoped to this page so shared card styles elsewhere are untouched. */
+.xero-auth-body .card,
+.xero-auth-body .mapping-card {
+  border: 1px solid var(--xero-border);
+  border-radius: var(--xero-radius);
+  background: var(--xero-surface);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.xero-auth-body .card:hover,
+.xero-auth-body .mapping-card:hover {
+  border-color: #d5dfea;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.07);
+}
+
+/* Field labels inside the mapping cards */
+.xero-auth-body label,
+.xero-auth-body .form-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--xero-muted);
+}
+
+/* Inputs */
+.xero-auth-body input[type="text"],
+.xero-auth-body input[type="number"],
+.xero-auth-body .form-control {
+  min-height: 40px;
+  border: 1px solid var(--xero-border);
+  border-radius: var(--xero-radius-sm);
+  background: #ffffff;
+  font-size: 13.5px;
+  color: var(--xero-ink);
+  box-shadow: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.xero-auth-body input[type="text"]:focus,
+.xero-auth-body input[type="number"]:focus,
+.xero-auth-body .form-control:focus {
+  border-color: var(--xero-accent);
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.14);
+  outline: none;
+}
+
+/* react-select controls */
+.xero-auth-body [class$="-control"] {
+  min-height: 40px;
+  border-radius: var(--xero-radius-sm);
+  border-color: var(--xero-border);
+  background: #ffffff;
+  box-shadow: none;
+  font-size: 13.5px;
+}
+
+.xero-auth-body [class$="-control"]:hover {
+  border-color: #cbd5e1;
+}
+
+.xero-auth-body [class$="-control"]:focus-within {
+  border-color: var(--xero-accent);
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.14);
+}
+
+.xero-auth-body [class$="-indicatorSeparator"] {
+  display: none;
+}
+
+.xero-auth-body [class$="-placeholder"] {
+  color: #a3adbb;
+}
+
+.xero-auth-body [class$="-menu"] {
+  border-radius: var(--xero-radius-sm);
+  border: 1px solid var(--xero-border);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
+  overflow: hidden;
+  z-index: 30;
+}
+
+/* Driver chips inside the select */
+.xero-auth-body [class$="-multiValue"] {
+  background: var(--xero-accent-soft);
+  border: 1px solid #bfe9f2;
+  border-radius: 999px;
+  padding: 1px 2px;
+}
+
+.xero-auth-body [class$="-multiValue"] > div:first-child {
+  color: #0b7c91;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ---------------- Service tags ---------------- */
+.service-tag {
+  font-size: 12px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid #dbe3ec;
+  font-weight: 500;
+  transition: all 0.18s ease;
+  background: #f3f6fa;
+  color: var(--xero-ink-2);
+  cursor: default;
+}
+
+.service-tag:hover {
+  background: #eaf0f7;
+  border-color: #c8d4e2;
+  color: var(--xero-ink);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+
+/* ---------------- Header action buttons ---------------- */
+/* Only buttons rendered directly by AuthButton (up to one wrapper deep).
+   The shared confirmation modal is left untouched. */
 .xero-auth-actions > button,
 .xero-auth-actions > .btn,
 .xero-auth-actions > div > button,
 .xero-auth-actions > div > .btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+
   min-height: 40px !important;
-  padding: 0 16px !important;
+  padding: 0 18px !important;
 
-  border-radius: 7px !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--xero-radius-sm) !important;
 
-  font-size: 12px !important;
+  font-size: 13px !important;
   font-weight: 600 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
 
   box-shadow: none !important;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease !important;
 }
 
-/* Primary / Authenticate button */
+.xero-auth-actions > button svg,
+.xero-auth-actions > div > button svg,
+.xero-auth-actions > button i,
+.xero-auth-actions > div > button i {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Primary / Authenticate */
 .xero-auth-actions > .btn-primary,
 .xero-auth-actions > .btn-outline-primary,
 .xero-auth-actions > div > .btn-primary,
 .xero-auth-actions > div > .btn-outline-primary {
-  border-color: #14b5d1 !important;
-  background: #14b5d1 !important;
+  border-color: var(--xero-accent) !important;
+  background: var(--xero-accent) !important;
   color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(20, 181, 209, 0.22) !important;
 }
 
 .xero-auth-actions > .btn-primary:hover,
 .xero-auth-actions > .btn-outline-primary:hover,
 .xero-auth-actions > div > .btn-primary:hover,
 .xero-auth-actions > div > .btn-outline-primary:hover {
-  border-color: #0da5c1 !important;
-  background: #0da5c1 !important;
+  border-color: var(--xero-accent-dark) !important;
+  background: var(--xero-accent-dark) !important;
   color: #ffffff !important;
 }
 
-/* Disconnect button */
+/* Disconnect */
 .xero-auth-actions > .btn-danger,
 .xero-auth-actions > .btn-outline-danger,
 .xero-auth-actions > div > .btn-danger,
 .xero-auth-actions > div > .btn-outline-danger {
-  border-color: #dc3545 !important;
+  border-color: var(--xero-danger) !important;
   background: #ffffff !important;
-  color: #dc3545 !important;
+  color: var(--xero-danger) !important;
 }
 
 .xero-auth-actions > .btn-danger:hover,
 .xero-auth-actions > .btn-outline-danger:hover,
 .xero-auth-actions > div > .btn-danger:hover,
 .xero-auth-actions > div > .btn-outline-danger:hover {
-  border-color: #c72f3d !important;
+  border-color: var(--xero-danger-dark) !important;
   background: #fff1f2 !important;
-  color: #c72f3d !important;
+  color: var(--xero-danger-dark) !important;
 }
 
-/* If the shared AuthButton renders plain buttons without Bootstrap variants,
-   use the standard primary/danger order without touching modal buttons. */
+/* Fallback for plain buttons with no Bootstrap variant class */
 .xero-auth-actions > button:first-of-type,
 .xero-auth-actions > div > button:first-of-type {
-  border-color: #14b5d1 !important;
-  background: #14b5d1 !important;
+  border-color: var(--xero-accent) !important;
+  background: var(--xero-accent) !important;
   color: #ffffff !important;
 }
 
 .xero-auth-actions > button:last-of-type:not(:first-of-type),
 .xero-auth-actions > div > button:last-of-type:not(:first-of-type) {
-  border-color: #dc3545 !important;
+  border-color: var(--xero-danger) !important;
   background: #ffffff !important;
-  color: #dc3545 !important;
+  color: var(--xero-danger) !important;
+  box-shadow: none !important;
 }
 
+.xero-auth-actions > button:focus-visible,
+.xero-auth-actions > div > button:focus-visible {
+  outline: 2px solid rgba(20, 181, 209, 0.4) !important;
+  outline-offset: 2px !important;
+}
+
+.xero-auth-actions > button:disabled,
+.xero-auth-actions > div > button:disabled {
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+}
+
+/* ---------------- Responsive ---------------- */
 @media (max-width: 767px) {
   .xero-auth-page {
-    padding-left: 12px !important;
-    padding-right: 12px !important;
+    padding: 18px 12px 32px;
+  }
+
+  .xero-auth-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .xero-auth-title {
+    font-size: 19px;
+  }
+
+  .xero-auth-actions {
+    width: 100%;
+  }
+
+  .xero-auth-actions > button,
+  .xero-auth-actions > .btn,
+  .xero-auth-actions > div > button,
+  .xero-auth-actions > div > .btn {
+    flex: 1 1 0 !important;
+    padding: 0 12px !important;
   }
 }
