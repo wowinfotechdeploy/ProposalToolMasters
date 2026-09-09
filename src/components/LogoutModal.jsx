@@ -1,56 +1,64 @@
 import React from "react";
+import "./LogoutModal-redesign.css";
 
 const LogoutModal = (props) => {
   return (
     <div
-      class="modal fade zoomIn"
+      className="modal fade zoomIn logout-modal-redesign"
       id="logoutModal"
       tabIndex="-1"
       aria-hidden="true"
       data-bs-backdrop="static"
       data-bs-keyboard="false"
     >
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
+      <div className="modal-dialog modal-dialog-centered logout-modal-dialog">
+        <div className="modal-content logout-modal-content">
+          <div className="modal-header logout-modal-header">
+            <h5 className="modal-title logout-modal-title">Logout</h5>
+
             <button
               type="button"
-              class="btn-close"
+              className="btn-close logout-modal-close"
               data-bs-dismiss="modal"
               aria-label="Close"
               id="btn-close"
             ></button>
           </div>
-          <div class="modal-body">
-            <div class="mt-2 text-center">
-              <div class="pt-2 fs-15 mx-4 mx-sm-5">
-                <h4>Are you sure ?</h4>
-                <p class="text-muted mb-0">
-                  Are you sure you want to logout your account?
-                </p>
+
+          <div className="modal-body logout-modal-body">
+            <div className="logout-modal-message">
+              <span className="logout-modal-icon">
+                <i className="ri-logout-box-r-line"></i>
+              </span>
+
+              <div>
+                <h4>Are you sure?</h4>
+                <p>Are you sure you want to logout your account?</p>
               </div>
             </div>
-            <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
-              <button
-                type="button"
-                class="btn w-sm btn-light"
-                data-bs-dismiss="modal"
-              >
-                No
-              </button>
-              <button
-                type="button"
-                class="btn w-sm create-item-btn"
-                id="delete-record"
-                data-bs-dismiss="modal"
-                onClick={async () => {
-                  await localStorage.removeItem("OrganisationLocalList");
-                  await props.Logout();
-                }}
-              >
-                Yes
-              </button>
-            </div>
+          </div>
+
+          <div className="modal-footer logout-modal-footer">
+            <button
+              type="button"
+              className="btn logout-modal-cancel-btn"
+              data-bs-dismiss="modal"
+            >
+              No
+            </button>
+
+            <button
+              type="button"
+              className="btn logout-modal-confirm-btn"
+              id="delete-record"
+              data-bs-dismiss="modal"
+              onClick={async () => {
+                await localStorage.removeItem("OrganisationLocalList");
+                await props.Logout();
+              }}
+            >
+              Yes, Logout
+            </button>
           </div>
         </div>
       </div>
