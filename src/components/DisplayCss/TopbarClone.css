@@ -2548,3 +2548,263 @@
 
   transform: translateX(-50%) !important;
 }
+
+/* ============================================================
+   Theme Customizer drawer — UI only
+   ============================================================ */
+
+.tc-header,
+.tc-body,
+.tc-footer {
+  --tc-border: #e5eaf0;
+  --tc-border-soft: #eef2f7;
+  --tc-ink: #0f172a;
+  --tc-ink-2: #334155;
+  --tc-muted: #64748b;
+  --tc-accent: #06b6d4;
+  --tc-accent-dark: #0596ad;
+  --tc-radius-sm: 9px;
+}
+
+/* ---------------- Header ---------------- */
+.tc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--tc-border-soft);
+}
+
+.tc-header-text {
+  min-width: 0;
+}
+
+.tc-header .tc-title {
+  margin: 0 0 3px;
+  font-size: 16px;
+  font-weight: 200;
+  font-family: inherit !important;
+  color: var(--tc-ink);
+}
+
+.tc-subtitle {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--tc-muted);
+}
+
+.tc-header .tc-close,
+.tc-header .btn.tc-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none !important;
+  border-radius: 8px;
+  background: transparent !important;
+  background-image: none !important;
+  color: var(--tc-ink-2) !important;
+  font-size: 13px;
+  box-shadow: none !important;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.tc-header .tc-close:hover,
+.tc-header .btn.tc-close:hover {
+  background: #eef2f7 !important;
+  color: var(--tc-ink) !important;
+}
+
+/* ---------------- Body ---------------- */
+.tc-body.color-sidebar {
+  padding: 20px;
+  background: #ffffff;
+}
+
+.tc-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.tc-body .tc-section-title {
+  margin: 0 0 2px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--tc-ink);
+}
+
+.tc-section-sub {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--tc-muted);
+}
+
+.tc-body .tc-reset-btn,
+.tc-body .btn.tc-reset-btn {
+  flex-shrink: 0;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--tc-border) !important;
+  border-radius: 7px;
+  background: #ffffff !important;
+  background-image: none !important;
+  color: var(--tc-ink-2) !important;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  box-shadow: none !important;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.tc-body .tc-reset-btn:hover,
+.tc-body .btn.tc-reset-btn:hover {
+  background: #f3f6fa !important;
+  border-color: #cbd5e1 !important;
+  color: var(--tc-ink) !important;
+}
+
+/* ---------------- Swatch rows ---------------- */
+.tc-swatch-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tc-swatch-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  border: 1px solid var(--tc-border);
+  border-radius: var(--tc-radius-sm);
+  background: #fcfdfe;
+  transition: border-color 0.15s ease;
+}
+
+.tc-swatch-row:hover {
+  border-color: #cbd5e1;
+}
+
+/* The colour input — reset Bootstrap so the swatch paints */
+.tc-body .tc-swatch,
+.tc-body input[type="color"].tc-swatch {
+  width: 42px;
+  height: 38px;
+  min-width: 42px;
+  flex-shrink: 0;
+  padding: 0 !important;
+  border: 1px solid var(--tc-border) !important;
+  border-radius: 8px;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  overflow: hidden;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.tc-body .tc-swatch::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+}
+
+.tc-body .tc-swatch::-webkit-color-swatch {
+  border: none;
+  border-radius: 0;
+}
+
+.tc-body .tc-swatch::-moz-color-swatch {
+  border: none;
+  border-radius: 0;
+}
+
+.tc-body .tc-swatch:focus-visible {
+  outline: 2px solid rgba(6, 182, 212, 0.4);
+  outline-offset: 2px;
+}
+
+.tc-swatch-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.tc-swatch-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--tc-ink);
+  line-height: 1.3;
+}
+
+.tc-swatch-desc {
+  font-size: 11px;
+  color: var(--tc-muted);
+  line-height: 1.3;
+}
+
+.tc-swatch-hex {
+  flex-shrink: 0;
+  /* font-family: ui-monospace, SFMono-Regular, Menlo, monospace; */
+  font-family: inherit !important;
+  font-size: 10.5px;
+  color: var(--tc-ink-2);
+  background: #eef2f7;
+  border-radius: 6px;
+  padding: 4px 7px;
+  text-transform: uppercase;
+}
+
+/* ---------------- Footer ---------------- */
+.tc-footer.color-sidebar {
+  padding: 16px 20px;
+  border-top: 1px solid var(--tc-border-soft);
+  background: #fbfcfe;
+}
+
+.tc-footer .tc-apply-btn,
+.tc-footer .btn.tc-apply-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--tc-accent) !important;
+  border-radius: var(--tc-radius-sm);
+  background: var(--tc-accent) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  box-shadow: 0 6px 14px rgba(6, 182, 212, 0.24);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.tc-footer .tc-apply-btn:hover,
+.tc-footer .btn.tc-apply-btn:hover {
+  background: var(--tc-accent-dark) !important;
+  border-color: var(--tc-accent-dark) !important;
+  color: #ffffff !important;
+}

@@ -1113,24 +1113,24 @@ const TopbarClone = () => {
   // Color function sidebar menu
   const List = (anchor) => (
     <>
-      <div
-        class="d-flex align-items-center bg-gradient offcanvas-header sidebar-header"
-        style={{ backgroundColor: " rgb(51, 53, 71)" }}
-      >
-        <h5 class="m-0 me-2" style={{ color: "#ffff" }}>
-          Theme Customizer
-        </h5>
+      <div className="tc-header">
+        <div className="tc-header-text">
+          <h5 className="tc-title">Theme Customizer</h5>
+          <p className="tc-subtitle">Personalize your workspace colors.</p>
+        </div>
         <button
           type="button"
           onClick={ToggleDrawer(anchor, false)}
-          class="btn btn-md btn-success create-item-btn"
+          className="btn btn-md btn-success create-item-btn tc-close"
+          aria-label="Close"
         >
-          <span> Close</span>
+          <i className="bi bi-x-lg"></i>
         </button>
       </div>
+
       <Box
-        className="color-sidebar"
-        sx={{ width: anchor === "top" || anchor === "bottom" ? "auto" : 275 }}
+        className="color-sidebar tc-body"
+        sx={{ width: anchor === "top" || anchor === "bottom" ? "auto" : 300 }}
         role="presentation"
         onClick={() => {
           ToggleDrawer(anchor, true);
@@ -1138,30 +1138,25 @@ const TopbarClone = () => {
         onKeyDown={ToggleDrawer(anchor, false)}
         onKeyPress={ToggleDrawer(anchor, true)}
       >
-        <div className="row">
-          <div className="col-8" style={{ marginTop: "10px" }}>
-            {" "}
-            <h6 class="fw-semibold fs-15">Color Scheme:</h6>
+        <div className="tc-section-head">
+          <div>
+            <h6 className="tc-section-title">Color Scheme</h6>
+            <p className="tc-section-sub">Set your color scheme</p>
           </div>
-          <div className="col-4 float">
-            <h6 class="fw-semibold fs-15">
-              <button
-                type="button"
-                onClick={() => handleSetDefault()}
-                style={{ backgroundColor: "#ebebebe0", fontSize: "small" }}
-                className="btn "
-              >
-                Default
-              </button>
-            </h6>
-          </div>
+          <button
+            type="button"
+            onClick={() => handleSetDefault()}
+            className="btn tc-reset-btn"
+          >
+            Default
+          </button>
         </div>
-        <p class="text-muted fs-13 sidebar-sub-title">Set your color scheme</p>
-        <div className="row">
-          <div className="col-md-6">
+
+        <div className="tc-swatch-list">
+          <div className="tc-swatch-row">
             <input
               type="color"
-              class="form-control"
+              className="form-control tc-swatch"
               id="exampleColorInput contactNumber"
               value={currentTopbarColor}
               onChange={(event) => {
@@ -1169,60 +1164,64 @@ const TopbarClone = () => {
                 OnChangeTopbarColor(event);
               }}
             />
-            <h5 class="fs-13 text-center mt-2">Header Bg-Color</h5>
+            <div className="tc-swatch-meta">
+              <span className="tc-swatch-name">Header Bg-Color</span>
+              <span className="tc-swatch-desc">Sidebar background</span>
+            </div>
+            <span className="tc-swatch-hex">{currentTopbarColor}</span>
           </div>
-          <div className="col-md-6">
+
+          <div className="tc-swatch-row">
             <input
               type="color"
-              class="form-control"
+              className="form-control tc-swatch"
               id="exampleColorInput contactNumber"
               value={currentTopbarTextColor}
               onChange={(event) => {
                 OnChangeTopbarTextColor(event);
               }}
             />
-            <h5 class="fs-13 text-center mt-2">Header Text Color</h5>
+            <div className="tc-swatch-meta">
+              <span className="tc-swatch-name">Header Text Color</span>
+              <span className="tc-swatch-desc">Menu labels and icons</span>
+            </div>
+            <span className="tc-swatch-hex">{currentTopbarTextColor}</span>
           </div>
-        </div>
-        <div className="row">
-          <div className="col-md-6">
+
+          <div className="tc-swatch-row">
             <input
               type="color"
-              class="form-control"
+              className="form-control tc-swatch"
               id="exampleColorInput contactNumber"
               value={currentCardColor}
               onChange={(event) => {
                 handleOnChangeCard(event);
               }}
             />
-            <h5 class="fs-13 text-center mt-2">Card Bg-Color</h5>
+            <div className="tc-swatch-meta">
+              <span className="tc-swatch-name">Card Bg-Color</span>
+              <span className="tc-swatch-desc">Dashboard tiles</span>
+            </div>
+            <span className="tc-swatch-hex">{currentCardColor}</span>
           </div>
         </div>
       </Box>
+
       <Box
-        className="color-sidebar ApplyChanges"
-        sx={{ width: anchor === "top" || anchor === "bottom" ? "auto" : 275 }}
+        className="color-sidebar ApplyChanges tc-footer"
+        sx={{ width: anchor === "top" || anchor === "bottom" ? "auto" : 300 }}
         role="presentation"
       >
-        <div style={{ width: "100%" }} className="row">
-          <div className="col-md-12">
-            <button
-              type="button"
-              onClick={() => {
-                UpdateThemeSettingsData("Theme");
-                setState({ ...state, [anchor]: false }); // Close the drawer
-              }}
-              style={{
-                backgroundColor: "#ebebebe0",
-                fontSize: "small",
-                width: "100%",
-              }}
-              class="btn btn-md btn-success create-item-btn"
-            >
-              <span> Apply Changes</span>
-            </button>
-          </div>
-        </div>
+        <button
+          type="button"
+          onClick={() => {
+            UpdateThemeSettingsData("Theme");
+            setState({ ...state, [anchor]: false }); // Close the drawer
+          }}
+          className="btn btn-md btn-success create-item-btn tc-apply-btn"
+        >
+          <span>Apply Changes</span>
+        </button>
       </Box>
     </>
   );
