@@ -1,0 +1,269 @@
+.upload-signature-modal-redesign {
+  --us-heading: #14243a;
+  --us-muted: #7b8798;
+  --us-border: #dce4ed;
+  --us-cyan: #14b5d1;
+  --us-cyan-hover: #0da5c1;
+}
+
+.upload-signature-modal-redesign .upload-signature-dialog {
+  width: calc(100% - 24px);
+  max-width: 500px !important;
+}
+
+.upload-signature-modal-redesign .upload-signature-content {
+  width: 100% !important;
+  overflow: hidden;
+  border: 1px solid var(--us-border) !important;
+  border-radius: 13px !important;
+  background: #fff !important;
+  box-shadow: 0 20px 48px rgba(15, 23, 42, 0.15) !important;
+}
+
+.upload-signature-modal-redesign .upload-signature-header {
+  min-height: 72px;
+  padding: 15px 18px !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--us-border) !important;
+  background: #fff !important;
+}
+
+.upload-signature-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.upload-signature-heading-icon {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #e9f7fa;
+  color: #087f98;
+  font-size: 17px;
+}
+
+.upload-signature-heading h5 {
+  margin: 0;
+  color: var(--us-heading) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+}
+
+.upload-signature-heading p {
+  margin: 3px 0 0;
+  color: var(--us-muted);
+  font-size: 9.5px;
+}
+
+.upload-signature-modal-redesign .upload-signature-close {
+  width: 29px !important;
+  height: 29px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  opacity: 0.6;
+}
+
+.upload-signature-modal-redesign .upload-signature-body {
+  padding: 20px !important;
+  background: #fff;
+}
+
+.upload-signature-modal-redesign .upload-signature-dropzone {
+  min-height: 235px;
+  padding: 24px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border: 1px dashed #b9ccd7 !important;
+  border-radius: 10px;
+  background: #f9fcfd;
+  text-align: center;
+  cursor: pointer;
+}
+
+.upload-signature-modal-redesign .upload-signature-dropzone:hover {
+  border-color: #72cedd !important;
+  background: #f3fbfd;
+}
+
+.upload-signature-cloud-wrap {
+  width: 52px;
+  height: 52px;
+  margin-bottom: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  background: #e7f7fa;
+  color: #078aa4;
+}
+
+.upload-signature-cloud-wrap .cloud {
+  font-size: 27px !important;
+}
+
+.upload-signature-dropzone h5 {
+  margin: 0;
+  color: #25364d;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.upload-signature-helper {
+  margin: 5px 0 0;
+  color: #8490a1;
+  font-size: 9.5px;
+}
+
+.upload-signature-file-rule {
+  margin-top: 9px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #eef4f7;
+  color: #718092;
+  font-size: 8.5px;
+  font-weight: 600;
+}
+
+.upload-signature-modal-redesign .img-display {
+  display: none !important;
+}
+
+.upload-signature-validation {
+  display: block;
+  margin-top: 8px !important;
+  color: #d94355 !important;
+  font-size: 9.5px !important;
+}
+
+.upload-signature-preview-section {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.upload-signature-preview-frame {
+  width: 100%;
+  min-height: 220px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dce4ed;
+  border-radius: 10px;
+  background: #fbfcfe;
+}
+
+.upload-signature-preview-image {
+  width: 100% !important;
+  max-width: 270px;
+  height: 190px !important;
+  object-fit: contain;
+}
+
+.upload-signature-preview-copy {
+  margin-top: 11px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.upload-signature-preview-copy strong {
+  color: #293b52;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.upload-signature-preview-copy span {
+  margin-top: 2px;
+  color: #8591a2;
+  font-size: 9px;
+}
+
+.upload-signature-modal-redesign .upload-signature-footer {
+  min-height: 64px;
+  padding: 11px 18px !important;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid var(--us-border) !important;
+  background: #fbfcfe !important;
+}
+
+.upload-signature-cancel-btn,
+.upload-signature-remove-btn,
+.upload-signature-confirm-btn {
+  min-height: 38px !important;
+  padding: 0 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  border-radius: 7px !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+.upload-signature-modal-redesign .upload-signature-cancel-btn {
+  border: 1px solid #ccd6e2 !important;
+  background: #fff !important;
+  color: #45546a !important;
+}
+
+.upload-signature-modal-redesign .upload-signature-remove-btn {
+  border: 1px solid #e4c8cd !important;
+  background: #fff !important;
+  color: #c34a5b !important;
+}
+
+.upload-signature-modal-redesign .upload-signature-remove-btn.disabled {
+  border-color: #e2e7ed !important;
+  background: #f5f7f9 !important;
+  color: #a2acb8 !important;
+  opacity: 1 !important;
+}
+
+.upload-signature-modal-redesign .upload-signature-confirm-btn {
+  border: 1px solid var(--us-cyan) !important;
+  background: var(--us-cyan) !important;
+  color: #fff !important;
+}
+
+.upload-signature-modal-redesign .upload-signature-confirm-btn:hover {
+  border-color: var(--us-cyan-hover) !important;
+  background: var(--us-cyan-hover) !important;
+}
+
+@media (max-width: 575px) {
+  .upload-signature-modal-redesign .upload-signature-dialog {
+    width: calc(100% - 20px);
+  }
+
+  .upload-signature-heading p {
+    display: none;
+  }
+
+  .upload-signature-modal-redesign .upload-signature-body {
+    padding: 16px !important;
+  }
+
+  .upload-signature-modal-redesign .upload-signature-footer {
+    padding: 10px 14px !important;
+    flex-wrap: wrap;
+  }
+
+  .upload-signature-confirm-btn {
+    width: 100% !important;
+  }
+}

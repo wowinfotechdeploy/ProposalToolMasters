@@ -53,7 +53,7 @@ function AddressModalComponent(props) {
       ) {
         getCountries(props.companyAddress?.country);
         const selected_Country = countries.filter(
-          (c) => c.countryId == props.companyAddress?.countryId
+          (c) => c.countryId == props.companyAddress?.countryId,
         )[0];
 
         setSelectedCountries({
@@ -111,7 +111,7 @@ function AddressModalComponent(props) {
       ) {
         getCountries(props.address?.country);
         const selected_Country = countries.filter(
-          (c) => c.countryId == props.address?.countryId
+          (c) => c.countryId == props.address?.countryId,
         )[0];
 
         setSelectedCountries({
@@ -193,46 +193,46 @@ function AddressModalComponent(props) {
             console.error("Error fetching predictions");
             setPredictions([]);
           }
-        }
+        },
       );
     }, 700); // 700ms debounce
 
     return () => clearTimeout(handler);
   }, [query]);
 
-// useEffect(() => {
-//     if (query.trim() === "") {
-//       setPredictions([]);
-//       return;
-//     }
+  // useEffect(() => {
+  //     if (query.trim() === "") {
+  //       setPredictions([]);
+  //       return;
+  //     }
 
-//     const handler = setTimeout(async () => {
-//       try {
-//         const { AutocompleteSuggestion } = await window.google.maps.importLibrary("places");
+  //     const handler = setTimeout(async () => {
+  //       try {
+  //         const { AutocompleteSuggestion } = await window.google.maps.importLibrary("places");
 
-//         // Fetch predictions
-//         const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
-//           input: query,
-//           includedRegionCodes: ["gb"],
-//         });
+  //         // Fetch predictions
+  //         const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
+  //           input: query,
+  //           includedRegionCodes: ["gb"],
+  //         });
 
-//         const formatted = suggestions.map((s) => ({
-//           description: `${s.placePrediction.mainText.text}${s.placePrediction.secondaryText
-//               ? ", " + s.placePrediction.secondaryText.text
-//               : ""
-//             }`,
-//           place_id: s.placePrediction.placeId,
-//         }));
+  //         const formatted = suggestions.map((s) => ({
+  //           description: `${s.placePrediction.mainText.text}${s.placePrediction.secondaryText
+  //               ? ", " + s.placePrediction.secondaryText.text
+  //               : ""
+  //             }`,
+  //           place_id: s.placePrediction.placeId,
+  //         }));
 
-//         setPredictions(formatted);
-//       } catch (err) {
-//         console.error("Error fetching predictions", err);
-//         setPredictions([]);
-//       }
-//     },700);
-//     // cleanup
-//     return () => clearTimeout(handler);
-//   }, [query]);
+  //         setPredictions(formatted);
+  //       } catch (err) {
+  //         console.error("Error fetching predictions", err);
+  //         setPredictions([]);
+  //       }
+  //     },700);
+  //     // cleanup
+  //     return () => clearTimeout(handler);
+  //   }, [query]);
 
   const handleClearAddress = () => {
     setRequireErrorMessage(false);
@@ -278,9 +278,9 @@ function AddressModalComponent(props) {
     const addPart = (part) => (part ? `${part}, ` : "");
 
     let concatenatedAddress = `${addPart(
-      address?.addressLine1?.replace(",", " ")
+      address?.addressLine1?.replace(",", " "),
     )}${addPart(address?.addressLine2)}${addPart(address?.locality)}${addPart(
-      address?.region
+      address?.region,
     )}${addPart(address?.country || address?.countryName)}${
       address?.postcode || ""
     }`;
@@ -306,7 +306,7 @@ function AddressModalComponent(props) {
             selectedCountryName.trim() !== ""
           ) {
             const selected_Country = CountryList.filter(
-              (c) => c.countryName == selectedCountryName
+              (c) => c.countryName == selectedCountryName,
             )[0];
 
             setSelectedCountries({
@@ -367,7 +367,7 @@ function AddressModalComponent(props) {
 
   const handlePlaceSelect = (placeId) => {
     const placesService = new window.google.maps.places.PlacesService(
-      document.createElement("div")
+      document.createElement("div"),
     );
     placesService.getDetails({ placeId }, (place, status) => {
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
@@ -421,7 +421,7 @@ function AddressModalComponent(props) {
 
         setPredictions([]);
         const selectedCountry = countries.filter(
-          (c) => c.countryName == updatedAddress.country
+          (c) => c.countryName == updatedAddress.country,
         )[0];
         setSelectedCountries({
           value: selectedCountry?.countryId,
@@ -493,48 +493,67 @@ function AddressModalComponent(props) {
 
   return (
     <Modal
-      className="AddressModal"
+      className="AddressModal address-modal-redesign"
       open={props.openAddressPopUp}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >
-      <Box sx={style} className="Responsive-Address">
-        {/* </Modal.Header> */}
-        <div className="fieldset-group margin-20">
-          <label
-            style={{ fontSize: "14px" }}
-            className="fieldset-group-label required"
-          >
-            {props.title}
-          </label>
-          <div className="row fieldset">
-            <div class="col-md-3 col-sm-12 text-start text-md-end me-3">
-              <label className="fieldset-label required SearchAddress-Modal">
-                Search Address
-              </label>
+      <Box sx={style} className="Responsive-Address address-modal-panel">
+        <div className="address-modal-header">
+          <div className="address-modal-heading">
+            <span className="address-modal-heading-icon">
+              <i className="ri-map-pin-line"></i>
+            </span>
+
+            <div>
+              <h5 id="modal-modal-title">{props.title}</h5>
+              <p>Search for an address or enter the details manually.</p>
             </div>
-            <div class="col-lg-8 col-md-8 ">
+          </div>
+
+          <button
+            type="button"
+            className="address-modal-close-btn"
+            aria-label="Close"
+            onClick={() => {
+              props.handleAddressPopUpClose();
+              handleClearAddress();
+            }}
+          >
+            <i className="ri-close-line"></i>
+          </button>
+        </div>
+
+        <div className="address-modal-body">
+          <div className="address-modal-search-section">
+            <label className="address-modal-label required">
+              Search Address
+            </label>
+
+            <div className="address-modal-search-wrap">
+              <span className="address-modal-search-icon">
+                <i className="ri-search-line"></i>
+              </span>
+
               <input
                 type="text"
-                className="input-text"
+                className="input-text address-modal-input address-modal-search-input"
                 value={query}
                 onChange={(e) => {
                   let { value } = e.target;
-                  // If there's no text or only spaces, allow trimming leading spaces
                   if (!value.trim()) {
                     value = value.trim();
                   } else {
-                    // Capitalize first letter
                     value = value.charAt(0).toUpperCase() + value.slice(1);
                   }
-                  // Update the state with the modified value
                   setQuery(value);
                 }}
                 placeholder="Search Address"
                 autoComplete="off"
               />
+
               {predictions.length > 0 && (
-                <div className="autocomplete-input-div show">
+                <div className="autocomplete-input-div show address-modal-autocomplete">
                   <ul className="locationSearchList">
                     {predictions.map((prediction) => (
                       <li
@@ -544,116 +563,144 @@ function AddressModalComponent(props) {
                           handlePlaceSelect(prediction.place_id);
                         }}
                       >
-                        {prediction.description}
+                        <i className="ri-map-pin-2-line"></i>
+                        <span>{prediction.description}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
               )}
             </div>
+
+            <span className="address-modal-search-help">
+              Start typing to search UK addresses.
+            </span>
           </div>
 
-          <div class="row fieldset">
-            <div class="col-md-3 col-sm-12 text-start text-md-end me-3">
-              <label class="fieldset-label required">
+          <div className="address-modal-divider"></div>
+
+          <div className="address-modal-form-grid">
+            <div className="address-modal-field address-modal-field-full">
+              <label className="address-modal-label required">
                 Premises Or Address Line 1
               </label>
-            </div>
-           <div class="col-lg-8 col-md-8 ">
-              <input
-                class="input-text"
-                placeholder="Premises Or Address Line 1"
-                value={address.addressLine1}
-                onChange={(e) => {
-                  const trimmedValue = e.target.value.replace(/^\s+/, "");
-                  if (!/^[^+-.]*$/.test(trimmedValue)) {
-                    return;
-                  }
-                  setAddress({
-                    ...address,
-                    addressLine1: trimmedValue,
-                  });
-                }}
-              />
-            </div>
-          </div>
 
-          <div class="row fieldset">
-            <div class="col-md-3 col-sm-12 text-start text-md-end me-3">
-              <label class="fieldset-label required">Address Line 2</label>
+              <div className="address-modal-input-wrap">
+                <span className="address-modal-field-icon">
+                  <i className="ri-home-4-line"></i>
+                </span>
+
+                <input
+                  className="input-text address-modal-input"
+                  placeholder="Premises Or Address Line 1"
+                  value={address.addressLine1}
+                  onChange={(e) => {
+                    const trimmedValue = e.target.value.replace(/^\s+/, "");
+                    if (!/^[^+-.]*$/.test(trimmedValue)) {
+                      return;
+                    }
+                    setAddress({
+                      ...address,
+                      addressLine1: trimmedValue,
+                    });
+                  }}
+                />
+              </div>
             </div>
-            <div class="col-lg-8 col-md-8 ">
-              <input
-                class="input-text"
-                placeholder="Address Line 2"
-                value={address.addressLine2}
-                onChange={(e) => {
-                  const trimmedValue = e.target.value.replace(/^\s+/, "");
-                  if (!/^[^+-.]*$/.test(trimmedValue)) {
-                    return;
-                  }
-                  setAddress({
-                    ...address,
-                    addressLine2: trimmedValue,
-                  });
-                }}
-              />
+
+            <div className="address-modal-field address-modal-field-full">
+              <label className="address-modal-label required">
+                Address Line 2
+              </label>
+
+              <div className="address-modal-input-wrap">
+                <span className="address-modal-field-icon">
+                  <i className="ri-road-map-line"></i>
+                </span>
+
+                <input
+                  className="input-text address-modal-input"
+                  placeholder="Address Line 2"
+                  value={address.addressLine2}
+                  onChange={(e) => {
+                    const trimmedValue = e.target.value.replace(/^\s+/, "");
+                    if (!/^[^+-.]*$/.test(trimmedValue)) {
+                      return;
+                    }
+                    setAddress({
+                      ...address,
+                      addressLine2: trimmedValue,
+                    });
+                  }}
+                />
+              </div>
             </div>
-          </div>
-          <div class="row fieldset">
-            <div class="col-md-3 col-sm-12 text-start text-md-end me-3">
-              <label class="fieldset-label required">Town Or City</label>
+
+            <div className="address-modal-field">
+              <label className="address-modal-label required">
+                Town Or City
+              </label>
+
+              <div className="address-modal-input-wrap">
+                <span className="address-modal-field-icon">
+                  <i className="ri-building-2-line"></i>
+                </span>
+
+                <input
+                  className="input-text address-modal-input"
+                  placeholder="Town Or City"
+                  value={address.locality}
+                  onChange={(e) => {
+                    const trimmedValue = e.target.value.replace(/^\s+/, "");
+                    if (!/^[^+-.]*$/.test(trimmedValue)) {
+                      return;
+                    }
+                    setAddress({
+                      ...address,
+                      locality: trimmedValue,
+                    });
+                  }}
+                />
+              </div>
             </div>
-            <div class="col-lg-8 col-md-8 ">
-              <input
-                class="input-text"
-                placeholder="Town Or City"
-                value={address.locality}
-                onChange={(e) => {
-                  const trimmedValue = e.target.value.replace(/^\s+/, "");
-                  if (!/^[^+-.]*$/.test(trimmedValue)) {
-                    return;
-                  }
-                  setAddress({
-                    ...address,
-                    locality: trimmedValue,
-                  });
-                }}
-              />
+
+            <div className="address-modal-field">
+              <label className="address-modal-label required">
+                Region Or County
+              </label>
+
+              <div className="address-modal-input-wrap">
+                <span className="address-modal-field-icon">
+                  <i className="ri-map-2-line"></i>
+                </span>
+
+                <input
+                  className="input-text address-modal-input"
+                  placeholder="Region Or County"
+                  value={address.region}
+                  onChange={(e) => {
+                    const trimmedValue = e.target.value.replace(/^\s+/, "");
+                    if (!/^[^+-.]*$/.test(trimmedValue)) {
+                      return;
+                    }
+                    setAddress({
+                      ...address,
+                      region: trimmedValue,
+                    });
+                  }}
+                />
+              </div>
             </div>
-          </div>
-          <div class="row fieldset ">
-            <div class="col-md-3 col-sm-12 text-start text-md-end me-3">
-              <label class="fieldset-label required">Region Or County</label>
-            </div>
-            <div class="col-lg-8 col-md-8 ">
-              <input
-                class="input-text"
-                placeholder="Region Or County"
-                value={address.region}
-                onChange={(e) => {
-                  const trimmedValue = e.target.value.replace(/^\s+/, "");
-                  if (!/^[^+-.]*$/.test(trimmedValue)) {
-                    return;
-                  }
-                  setAddress({
-                    ...address,
-                    region: trimmedValue,
-                  });
-                }}
-              />
-            </div>
-          </div>
-          <div class="row fieldset">
-            <div class="col-md-3 col-sm-12 text-start text-md-end me-3">
-              <label class="fieldset-label required">Country</label>
-            </div>
-            <div class="col-lg-8 col-md-8">
-              <div className="input-group">
+
+            <div className="address-modal-field">
+              <label className="address-modal-label required">Country</label>
+
+              <div className="address-modal-select-wrap">
                 <Select
                   defaultValue="Select..."
                   options={countryValue}
-                  className="SelectedCity"
+                  className="SelectedCity address-modal-country-select"
+                  classNamePrefix="address-country"
                   value={
                     selectedCountry?.value === undefined ||
                     selectedCountry?.value === null
@@ -665,76 +712,87 @@ function AddressModalComponent(props) {
                 />
               </div>
             </div>
-          </div>
-          <div class="row fieldset">
-            <div class="col-md-3 col-sm-12 text-start text-md-end me-3">
-              <label class="fieldset-label required">
+
+            <div className="address-modal-field">
+              <label className="address-modal-label required">
                 Postcode
                 <span className="text-danger">*</span>
               </label>
-            </div>
-            <div class="col-lg-8 col-md-8">
-              <input
-                type="text"
-                class="input-text"
-                placeholder="Postcode"
-                value={address.postcode}
-                onChange={(e) => {
-                  const trimmedValue = e.target.value.replace(/[^a-z\d]/i, "");
-                  if (!/^[^+-.]*$/.test(trimmedValue)) {
-                    return;
-                  }
-                  setAddress({
-                    ...address,
-                    postcode: trimmedValue,
-                  });
-                }}
-                maxLength={10}
-              />
+
+              <div className="address-modal-input-wrap">
+                <span className="address-modal-field-icon">
+                  <i className="ri-mail-send-line"></i>
+                </span>
+
+                <input
+                  type="text"
+                  className="input-text address-modal-input"
+                  placeholder="Postcode"
+                  value={address.postcode}
+                  onChange={(e) => {
+                    const trimmedValue = e.target.value.replace(
+                      /[^a-z\d]/i,
+                      "",
+                    );
+                    if (!/^[^+-.]*$/.test(trimmedValue)) {
+                      return;
+                    }
+                    setAddress({
+                      ...address,
+                      postcode: trimmedValue,
+                    });
+                  }}
+                  maxLength={10}
+                />
+              </div>
+
               {requireErrorMessage &&
               (address.postcode === null ||
                 address.postcode === undefined ||
                 address.postcode === "") ? (
-                <span className="validation">{ERROR_MESSAGES}</span>
+                <span className="validation address-modal-validation">
+                  {ERROR_MESSAGES}
+                </span>
               ) : (
                 ""
               )}
             </div>
           </div>
         </div>
-        <div className="col-12">
-          <div style={{ float: "right" }}>
-            <button
-              type="button"
-              style={{ padding: "4px" }}
-              class="btn btn-md btn-light Clear-Address"
-              // onClick={() => props.handleAddressPopUpClose();}
-              onClick={() => {
-                props.handleAddressPopUpClose();
-                handleClearAddress();
-              }}
-              variant="outlined"
-            >
-              <span>Close</span>
-            </button>
-            <button
-              type="button"
-              class="btn btn-md btn-light Clear-Address"
-              onClick={() => {
-                handleClearAddress();
-              }}
-              variant="outlined"
-            >
-              <span>Clear Address</span>
-            </button>
-            <button
-              type="button"
-              class="btn btn-md btn-success create-item-btn"
-              onClick={() => handleSetAddress()}
-            >
-              <span>Ok</span>
-            </button>
-          </div>
+
+        <div className="address-modal-footer">
+          <button
+            type="button"
+            className="btn btn-md btn-light Clear-Address address-modal-close-action"
+            onClick={() => {
+              props.handleAddressPopUpClose();
+              handleClearAddress();
+            }}
+            variant="outlined"
+          >
+            <span>Close</span>
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-md btn-light Clear-Address address-modal-clear-btn"
+            onClick={() => {
+              handleClearAddress();
+            }}
+            variant="outlined"
+          >
+            <i className="ri-refresh-line"></i>
+            <span>Clear Address</span>
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-md btn-success create-item-btn address-modal-save-btn"
+            onClick={() => handleSetAddress()}
+          >
+            <i className="ri-check-line"></i>
+            <span>Ok</span>
+          </button>
         </div>
       </Box>
     </Modal>

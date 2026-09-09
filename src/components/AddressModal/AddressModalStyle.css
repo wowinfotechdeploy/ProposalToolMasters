@@ -43,9 +43,502 @@
     border: 2px solid #fff;
   }
 
-  .text-lg-align{
+  .text-lg-align {
     text-align: left;
   }
-
 }
 
+/* =========================================================
+   ADDRESS MODAL REDESIGN
+   UI ONLY
+   ========================================================= */
+
+.address-modal-redesign {
+  --am-heading: #14243a;
+  --am-muted: #7b8798;
+  --am-border: #dce4ed;
+  --am-border-soft: #e8edf3;
+  --am-cyan: #14b5d1;
+  --am-cyan-hover: #0da5c1;
+}
+
+.address-modal-redesign .address-modal-panel {
+  width: calc(100% - 32px) !important;
+  max-width: 760px !important;
+  max-height: calc(100vh - 48px) !important;
+  padding: 0 !important;
+  border: 1px solid var(--am-border) !important;
+  border-radius: 14px !important;
+  background: #ffffff !important;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16) !important;
+}
+
+.address-modal-header {
+  min-height: 76px;
+  padding: 15px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid var(--am-border);
+  background: #ffffff;
+  border-radius: 14px 14px 0 0;
+}
+
+.address-modal-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.address-modal-heading-icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: #e9f7fa;
+  color: #087f98;
+  font-size: 18px;
+}
+
+.address-modal-heading h5 {
+  margin: 0;
+  color: var(--am-heading);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.address-modal-heading p {
+  margin: 3px 0 0;
+  color: var(--am-muted);
+  font-size: 9.5px;
+}
+
+.address-modal-close-btn {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #7a8696;
+  font-size: 18px;
+}
+
+.address-modal-close-btn:hover {
+  background: #f2f5f8;
+}
+
+.address-modal-body {
+  max-height: calc(100vh - 190px);
+  padding: 20px;
+  overflow-y: auto;
+  background: #ffffff;
+}
+
+.address-modal-label {
+  display: block;
+  margin: 0 0 6px;
+  color: #26364b;
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.address-modal-search-wrap,
+.address-modal-input-wrap {
+  position: relative;
+}
+
+.address-modal-search-icon,
+.address-modal-field-icon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  z-index: 2;
+  transform: translateY(-50%);
+  color: #7f8b9b;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.address-modal-redesign .address-modal-input {
+  width: 100% !important;
+  min-height: 42px !important;
+  padding: 9px 12px 9px 37px !important;
+  border: 1px solid #cfd8e3 !important;
+  border-radius: 8px !important;
+  outline: 0 !important;
+  background: #ffffff !important;
+  color: #28374c !important;
+  font-size: 11.5px !important;
+  box-shadow: none !important;
+}
+
+.address-modal-redesign .address-modal-input:focus {
+  border-color: #72cedd !important;
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08) !important;
+}
+
+.address-modal-search-help {
+  display: block;
+  margin-top: 5px;
+  color: #8c97a6;
+  font-size: 8.8px;
+}
+
+.address-modal-divider {
+  height: 1px;
+  margin: 17px 0;
+  background: var(--am-border-soft);
+}
+
+.address-modal-redesign .address-modal-autocomplete {
+  position: absolute !important;
+  top: calc(100% + 5px) !important;
+  left: 0 !important;
+  z-index: 1300 !important;
+  width: 100% !important;
+  max-height: 190px;
+  margin: 0 !important;
+  padding: 5px !important;
+  overflow-y: auto;
+  border: 1px solid #d4dde7 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.12);
+}
+
+.address-modal-autocomplete ul {
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none;
+}
+
+.address-modal-autocomplete li {
+  min-height: 38px;
+  padding: 7px 9px !important;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  border-radius: 6px;
+  color: #405066;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.address-modal-autocomplete li:hover {
+  background: #f1f8fa !important;
+}
+
+.address-modal-autocomplete li i {
+  color: #0b91aa;
+  font-size: 14px;
+}
+
+.address-modal-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.address-modal-field-full {
+  grid-column: 1 / -1;
+}
+
+.address-modal-redesign .address-country__control {
+  min-height: 42px !important;
+  border: 1px solid #cfd8e3 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.address-modal-redesign .address-country__control--is-focused {
+  border-color: #72cedd !important;
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08) !important;
+}
+
+.address-modal-redesign .address-country__value-container {
+  padding: 2px 10px !important;
+}
+
+.address-modal-redesign .address-country__single-value,
+.address-modal-redesign .address-country__placeholder,
+.address-modal-redesign .address-country__input-container {
+  font-size: 11.5px !important;
+}
+
+.address-modal-redesign .address-country__menu {
+  z-index: 1400 !important;
+}
+
+.address-modal-redesign .address-country__option {
+  font-size: 10.5px;
+}
+
+.address-modal-validation {
+  display: block;
+  margin-top: 5px !important;
+  color: #d94355 !important;
+  font-size: 9.5px !important;
+}
+
+.address-modal-footer {
+  min-height: 66px;
+  padding: 11px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid var(--am-border);
+  border-radius: 0 0 14px 14px;
+  background: #fbfcfe;
+}
+
+.address-modal-close-action,
+.address-modal-clear-btn,
+.address-modal-save-btn {
+  min-height: 38px !important;
+  padding: 0 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  border-radius: 7px !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+.address-modal-redesign .address-modal-close-action {
+  border: 1px solid #ccd6e2 !important;
+  background: #ffffff !important;
+  color: #45546a !important;
+}
+
+.address-modal-redesign .address-modal-clear-btn {
+  border: 1px solid #cbd8e3 !important;
+  background: #f7f9fb !important;
+  color: #5d6b7e !important;
+}
+
+.address-modal-redesign .address-modal-save-btn {
+  border: 1px solid var(--am-cyan) !important;
+  background: var(--am-cyan) !important;
+  color: #ffffff !important;
+}
+
+.address-modal-redesign .address-modal-save-btn:hover {
+  border-color: var(--am-cyan-hover) !important;
+  background: var(--am-cyan-hover) !important;
+}
+
+@media (max-width: 767px) {
+  .address-modal-redesign .address-modal-panel {
+    width: calc(100% - 20px) !important;
+    max-height: calc(100vh - 20px) !important;
+  }
+
+  .address-modal-heading p {
+    display: none;
+  }
+
+  .address-modal-body {
+    max-height: calc(100vh - 155px);
+    padding: 16px;
+  }
+
+  .address-modal-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .address-modal-field-full {
+    grid-column: auto;
+  }
+
+  .address-modal-footer {
+    padding: 10px 14px;
+    flex-wrap: wrap;
+  }
+
+  .address-modal-save-btn {
+    width: 100% !important;
+  }
+}
+
+/* =========================================================
+   ADDRESS AUTOCOMPLETE FIX
+   Keep Google address suggestions visible above the form.
+   ========================================================= */
+
+.address-modal-search-section {
+  position: relative !important;
+  z-index: 50 !important;
+}
+
+.address-modal-search-wrap {
+  position: relative !important;
+  z-index: 51 !important;
+}
+
+/* The scrollable body was clipping the autocomplete suggestions.
+   Keep overflow visible on desktop so the suggestion list can
+   overlay the address fields just like before. */
+.address-modal-redesign .address-modal-body {
+  overflow: visible !important;
+}
+
+.address-modal-redesign .address-modal-autocomplete {
+  position: absolute !important;
+  top: calc(100% + 6px) !important;
+  left: 0 !important;
+  right: 0 !important;
+
+  width: 100% !important;
+  max-height: 220px !important;
+
+  margin: 0 !important;
+  padding: 5px !important;
+
+  overflow-y: auto !important;
+
+  z-index: 99999 !important;
+
+  border: 1px solid #d4dde7 !important;
+  border-radius: 8px !important;
+
+  background: #ffffff !important;
+
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14) !important;
+}
+
+.address-modal-form-grid {
+  position: relative;
+  z-index: 1;
+}
+
+/* On smaller screens keep the modal body scrollable. */
+@media (max-width: 767px) {
+  .address-modal-redesign .address-modal-body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .address-modal-redesign .address-modal-autocomplete {
+    max-height: 180px !important;
+  }
+}
+
+/* =========================================================
+   ADDRESS SUGGESTIONS - NORMAL FLOW FIX
+   Keep the existing Google Places logic unchanged.
+   Render suggestions directly below the search input instead
+   of using an absolute overlay, so they cannot be clipped.
+   ========================================================= */
+
+.address-modal-search-section,
+.address-modal-search-wrap {
+  position: relative !important;
+  z-index: auto !important;
+}
+
+.address-modal-redesign .address-modal-body {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Force the existing suggestion container into normal document flow */
+.address-modal-redesign .autocomplete-input-div.address-modal-autocomplete,
+.address-modal-redesign .address-modal-autocomplete {
+  position: static !important;
+
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+
+  width: 100% !important;
+  max-height: 210px !important;
+
+  margin: 6px 0 0 !important;
+  padding: 5px !important;
+
+  display: block !important;
+
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+
+  border: 1px solid #d4dde7 !important;
+  border-radius: 8px !important;
+
+  background: #ffffff !important;
+
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1) !important;
+
+  transform: none !important;
+  z-index: auto !important;
+}
+
+.address-modal-redesign .address-modal-autocomplete .locationSearchList {
+  width: 100% !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  list-style: none !important;
+}
+
+.address-modal-redesign .address-modal-autocomplete .locationSearchList li {
+  width: 100% !important;
+  min-height: 40px;
+
+  padding: 8px 10px !important;
+
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+
+  border-radius: 6px;
+
+  background: #ffffff;
+  color: #405066;
+
+  font-size: 10.5px;
+  line-height: 1.4;
+
+  cursor: pointer;
+}
+
+.address-modal-redesign
+  .address-modal-autocomplete
+  .locationSearchList
+  li
+  + li {
+  border-top: 1px solid #edf1f5;
+}
+
+.address-modal-redesign
+  .address-modal-autocomplete
+  .locationSearchList
+  li:hover {
+  background: #f1f8fa !important;
+}
+
+.address-modal-redesign .address-modal-autocomplete .locationSearchList li i {
+  margin-top: 1px;
+
+  color: #0b91aa;
+
+  font-size: 14px;
+}
+
+.address-modal-divider {
+  position: relative;
+  z-index: 0;
+}

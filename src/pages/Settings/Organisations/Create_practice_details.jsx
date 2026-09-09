@@ -50,6 +50,9 @@ import {
   CreateStripeCheckoutSession,
 } from "../../../redux/Services/Setting/PaymentGatewayApi";
 import { RefreshToken } from "../../../redux/Services/Auth/loginApi";
+import "./Create-practice-details.css";
+import "../../../components/ChoosePlanForPurchase.css";
+
 // Basic Information component
 const Basic_information = (props) => {
   const [openAddressPopUp, setOpenAddressPopUp] = useState(false);
@@ -206,45 +209,49 @@ const Basic_information = (props) => {
             BasicInfoCreatePracticeDivContainerRef,
           )
         }
-        className="create-practice-height scrollbar"
+        className="create-practice-height scrollbar cp-scroll"
         id="style-1"
       >
-        <div className="tab-content">
-          <div className="tab-pane p-3 active">
-            <div class="row fieldset" id="ProspectType_Div">
-              <div class="col-md-3 col-sm-12 text-start text-md-end">
-                <label class="fieldset-label required">
-                  Profession Type
-                  <span class="text-danger">*</span>
-                </label>
+        <div className="cp-body">
+          <section className="cp-card">
+            <div className="cp-card-head">
+              <div>
+                <h2 className="cp-card-title">Business Identity</h2>
+                <p className="cp-card-subtitle">
+                  Tell us what kind of practice you're setting up.
+                </p>
               </div>
-              <div className="col-md-9 col-sm-12 ">
-                <div className="mb businessType input-group">
+            </div>
+
+            <div className="cp-card-body">
+              <div className="cp-grid">
+                <div className="cp-field" id="ProspectType_Div">
+                  <label className="cp-label">
+                    Profession Types<span className="cp-req">*</span>
+                  </label>
                   <Select
                     isMulti
-                    style={{ padding: "5px" }}
+                    className="cp-select"
                     options={props.ProfessionalTypeLookeupListOptions}
                     value={props.professionTypeValue}
                     onChange={props.OnChangeSelectProfessionType}
                   />
                   {props.requireErrorMessage &&
                   props.professionTypeValue?.length === 0 ? (
-                    <span className="validation">{ERROR_MESSAGES}</span>
+                    <span className="validation cp-validation">
+                      {ERROR_MESSAGES}
+                    </span>
                   ) : (
                     ""
                   )}
                 </div>
-              </div>
-            </div>
-            <div class="row fieldset" id="BusinessType_Div">
-              <div class="col-md-3 col-sm-12 text-start text-md-end">
-                <label class="fieldset-label required">Business Type</label>
-                <span class="text-danger">*</span>
-              </div>
-              <div class="col-md-9 col-sm-12">
-                <div className="mb businessType input-group">
+
+                <div className="cp-field" id="BusinessType_Div">
+                  <label className="cp-label">
+                    Business Type<span className="cp-req">*</span>
+                  </label>
                   <Select
-                    style={{ padding: "5px", width: "20%" }}
+                    className="cp-select"
                     options={props.BusinessTypeLookupList}
                     value={{
                       value: props.basicInfo.businessTypeID,
@@ -257,122 +264,126 @@ const Basic_information = (props) => {
                   {props.requireErrorMessage &&
                   (props.basicInfo.businessTypeID === "" ||
                     props.basicInfo.businessTypeID === null) ? (
-                    <span className="validation">{ERROR_MESSAGES}</span>
+                    <span className="validation cp-validation">
+                      {ERROR_MESSAGES}
+                    </span>
                   ) : (
                     ""
                   )}
                 </div>
               </div>
             </div>
-            {/* ...........Sole Trader Detail And Partnership Detail Row........... */}
-            {(props.basicInfo.businessTypeID === CLIENT_TYPES.Sole_Trader ||
-              props.basicInfo.businessTypeID === CLIENT_TYPES.Partnership) && (
-              <div>
-                <div className="row fieldset ">
-                  <div class="col-md-3 col-sm-12 text-start text-md-end">
-                    <label class="fieldset-label required">Trading Name</label>
-                    <span class="text-danger">*</span>
+          </section>
+
+          {/* ---------- Sole Trader / Partnership ---------- */}
+          {(props.basicInfo.businessTypeID === CLIENT_TYPES.Sole_Trader ||
+            props.basicInfo.businessTypeID === CLIENT_TYPES.Partnership) && (
+            <>
+              <section className="cp-card">
+                <div className="cp-card-head">
+                  <div>
+                    <h2 className="cp-card-title">Trading Details</h2>
+                    <p className="cp-card-subtitle">
+                      Name, start date and address of the practice.
+                    </p>
                   </div>
-                  <div className="col-md-9 col-sm-12">
-                    <div className="">
-                      <div className="input-group">
-                        <input
-                          type="text"
-                          maxLength={50}
-                          className="input-text"
-                          placeholder="Trading Name"
-                          value={props.basicInfo.tradingName}
-                          onChange={(e) => {
-                            const inputValue = e.target.value;
-                            const trimmedValue = inputValue.replace(
-                              /^\s+/g,
-                              "",
-                            );
+                </div>
 
-                            // Validation: Check if the trimmed value is either alphanumeric or only alphabet but not only numeric
-                            const isValidName =
-                              /^[a-zA-Z0-9\s,.!?"':;&()-_`]+(?:[a-zA-Z0-9\s,.!?"':;&()-_`]+)*$/.test(
-                                trimmedValue,
-                              ) && !/^\d+$/.test(trimmedValue);
+                <div className="cp-card-body">
+                  <div className="cp-grid">
+                    <div className="cp-field cp-field-full">
+                      <label className="cp-label">
+                        Trading Name<span className="cp-req">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        maxLength={50}
+                        className="input-text cp-input"
+                        placeholder="Trading Name"
+                        value={props.basicInfo.tradingName}
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
+                          const trimmedValue = inputValue.replace(/^\s+/g, "");
 
-                            if (isValidName || trimmedValue === "") {
-                              const capitalizedValue =
-                                trimmedValue.charAt(0).toUpperCase() +
-                                trimmedValue.slice(1);
-                              props.setBasicInfo({
-                                ...props.basicInfo,
-                                tradingName: capitalizedValue,
-                              });
-                            }
-                          }}
-                        />
-                      </div>
+                          // Validation: Check if the trimmed value is either alphanumeric or only alphabet but not only numeric
+                          const isValidName =
+                            /^[a-zA-Z0-9\s,.!?"':;&()-_`]+(?:[a-zA-Z0-9\s,.!?"':;&()-_`]+)*$/.test(
+                              trimmedValue,
+                            ) && !/^\d+$/.test(trimmedValue);
+
+                          if (isValidName || trimmedValue === "") {
+                            const capitalizedValue =
+                              trimmedValue.charAt(0).toUpperCase() +
+                              trimmedValue.slice(1);
+                            props.setBasicInfo({
+                              ...props.basicInfo,
+                              tradingName: capitalizedValue,
+                            });
+                          }
+                        }}
+                      />
                       {props.requireErrorMessage &&
                       (props.basicInfo.tradingName === "" ||
                         props.basicInfo.tradingName === null) ? (
-                        <span className="validation">{ERROR_MESSAGES}</span>
+                        <span className="validation cp-validation">
+                          {ERROR_MESSAGES}
+                        </span>
                       ) : (
                         ""
                       )}
                     </div>
-                  </div>
-                </div>
-                <div className="row fieldset">
-                  <div class="col-md-3 col-sm-12 text-start text-md-end">
-                    <label class="fieldset-label required">
-                      Trading Start Date
-                    </label>
-                    <span class="text-danger">*</span>
-                  </div>
-                  <div className="col-md-9 col-sm-12">
-                    <DatePicker
-                      minDate={minDate}
-                      maxDate={maxDate}
-                      style={{ width: "100%" }}
-                      format="dd/MM/y"
-                      dayPlaceholder="dd"
-                      monthPlaceholder="mm"
-                      yearPlaceholder="yyyy"
-                      value={props.basicInfo.tradingStartDate}
-                      onChange={(e) => {
-                        props.setDateValidation(false);
-                        props.setBasicInfo({
-                          ...props.basicInfo,
-                          tradingStartDate: e,
-                        });
-                      }}
-                    />
 
-                    {props.DateValidation &&
-                    (props.basicInfo.tradingStartDate !== "" ||
-                      props.basicInfo.tradingStartDate !== null) ? (
-                      <span className="validation">Invalid Date</span>
-                    ) : (
-                      ""
-                    )}
+                    <div className="cp-field">
+                      <label className="cp-label">
+                        Trading Start Date<span className="cp-req">*</span>
+                      </label>
+                      <div className="cp-datepicker">
+                        <DatePicker
+                          minDate={minDate}
+                          maxDate={maxDate}
+                          format="dd/MM/y"
+                          dayPlaceholder="dd"
+                          monthPlaceholder="mm"
+                          yearPlaceholder="yyyy"
+                          value={props.basicInfo.tradingStartDate}
+                          onChange={(e) => {
+                            props.setDateValidation(false);
+                            props.setBasicInfo({
+                              ...props.basicInfo,
+                              tradingStartDate: e,
+                            });
+                          }}
+                        />
+                      </div>
 
-                    {props.requireErrorMessage &&
-                    (props.basicInfo.tradingStartDate === "" ||
-                      props.basicInfo.tradingStartDate === null) ? (
-                      <span className="validation">{ERROR_MESSAGES}</span>
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                </div>
-                <div className="row fieldset">
-                  <div class="col-md-3 col-sm-12 text-start text-md-end">
-                    <label class="fieldset-label required">
-                      Trading Address
-                    </label>
-                    <span class="text-danger">*</span>
-                  </div>
-                  <div className="col-md-9 col-sm-12">
-                    <div className="input-group">
+                      {props.DateValidation &&
+                      (props.basicInfo.tradingStartDate !== "" ||
+                        props.basicInfo.tradingStartDate !== null) ? (
+                        <span className="validation cp-validation">
+                          Invalid Date
+                        </span>
+                      ) : (
+                        ""
+                      )}
+
+                      {props.requireErrorMessage &&
+                      (props.basicInfo.tradingStartDate === "" ||
+                        props.basicInfo.tradingStartDate === null) ? (
+                        <span className="validation cp-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+
+                    <div className="cp-field cp-field-full">
+                      <label className="cp-label">
+                        Trading Address<span className="cp-req">*</span>
+                      </label>
                       <input
                         type="text"
-                        style={{ cursor: "pointer" }}
-                        class="input-text"
+                        className="input-text cp-input cp-input-clickable"
                         id="category-description"
                         placeholder="Trading Address"
                         value={props.concatenatedTradingAddress}
@@ -383,194 +394,188 @@ const Basic_information = (props) => {
                         }}
                         autoComplete="off"
                       />
-                    </div>
-                    {props.requireErrorMessage &&
-                    (props.basicInfo.tradingAddress === "" ||
-                      props.basicInfo.tradingAddress === null ||
-                      props.concatenatedTradingAddress === null ||
-                      props.concatenatedTradingAddress === "") ? (
-                      <span className="validation">{ERROR_MESSAGES}</span>
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="fieldset-group">
-                    <label htmlFor="" className="fieldset-group-label required">
-                      E Signature
-                    </label>
-                    <div className="row fieldset">
-                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                        <label class="fieldset-label required">
-                          Signatory Name
-                          {props.signature !== null &&
-                            props.signature !== undefined &&
-                            props.signature !== "" && (
-                              <span class="text-danger">*</span>
-                            )}
-                        </label>
-                      </div>
-                      <div className="col-md-9 col-sm-12">
-                        <div className="">
-                          <div className="input-group">
-                            <input
-                              type="text"
-                              className="input-text"
-                              placeholder="Signatory Name"
-                              value={props.basicInfo.signatoryName}
-                              onChange={(e) => {
-                                let inputValue = e.target.value;
-                                // Remove leading spaces
-                                inputValue = inputValue.trimLeft();
-                                // Capitalize the first letter
-                                inputValue =
-                                  inputValue.charAt(0).toUpperCase() +
-                                  inputValue.slice(1);
-                                // Check if the length is within the limit and there are no digits
-                                if (
-                                  inputValue.length <= 50 &&
-                                  !/\d/.test(inputValue)
-                                ) {
-                                  props.setBasicInfo({
-                                    ...props.basicInfo,
-                                    signatoryName: inputValue,
-                                  });
-                                }
-                              }}
-                            />
-                            {props.requireErrorMessage &&
-                            props.signature !== null &&
-                            props.signature !== undefined &&
-                            props.signature !== "" &&
-                            (props.basicInfo.signatoryName === "" ||
-                              props.basicInfo.signatoryName === null) ? (
-                              <span className="validation">
-                                {ERROR_MESSAGES}
-                              </span>
-                            ) : (
-                              ""
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="row ">
-                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                        <label class="fieldset-label mt-2 required">
-                          Signatory Image
-                          {props.basicInfo.signatoryName !== null &&
-                            props.basicInfo.signatoryName !== undefined &&
-                            props.basicInfo.signatoryName !== "" && (
-                              <span class="text-danger">*</span>
-                            )}
-                        </label>
-                      </div>
-                      <div className="col-md-9 col-sm-12">
-                        <div className="">
-                          <div className="input-group">
-                            <div className="col-lg-12 ">
-                              {props.signature ? (
-                                <div className="upload-image-preview-div">
-                                  <img
-                                    src={props.signature}
-                                    className="upload-image-preview"
-                                    style={{
-                                      height: "200px",
-                                      width: "200px",
-                                      objectFit: "contain",
-                                    }}
-                                    alt="Selected Signature"
-                                  />
-                                  <button
-                                    onClick={() => {
-                                      props.setSignature(null);
-                                      props.setBasicInfo({
-                                        ...props.basicInfo,
-                                        signatoryImage: null,
-                                      });
-                                    }}
-                                    style={{
-                                      float: "right",
-                                      paddingTop: "5px",
-                                    }}
-                                    className="btn btn-sm btn-danger  remove-item-btn d-flex gap-1"
-                                  >
-                                    Remove
-                                  </button>
-                                </div>
-                              ) : (
-                                <>
-                                  <button
-                                    className="btn btn-md btn-primary create-item-btn"
-                                    data-bs-toggle="modal"
-                                    onClick={() => {
-                                      setType("Signature");
-                                    }}
-                                    data-bs-target="#SignatureUploadModel"
-                                  >
-                                    <i class="bi bi-plus-circle margin-right"></i>
-                                    <span> Upload Signature</span>
-                                  </button>
-                                  <div className="text-muted helpMessage">
-                                    Supported file types are .jpg, .jpeg, .png
-                                    up to a file size of 2MB.
-                                  </div>
-                                  {props.requireErrorMessage &&
-                                  props.basicInfo.signatoryName !== null &&
-                                  props.basicInfo.signatoryName !== undefined &&
-                                  props.basicInfo.signatoryName !== "" &&
-                                  (props.signature === "" ||
-                                    props.signature === null) ? (
-                                    <span className="validation">
-                                      This field is required if you have entered
-                                      a value in the above 'Signatory Name'
-                                      field. To proceed without uploading a
-                                      signature, please remove the data from
-                                      'Signatory Name' above.
-                                    </span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      {props.requireErrorMessage &&
+                      (props.basicInfo.tradingAddress === "" ||
+                        props.basicInfo.tradingAddress === null ||
+                        props.concatenatedTradingAddress === null ||
+                        props.concatenatedTradingAddress === "") ? (
+                        <span className="validation cp-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              </section>
 
-            {/* ...........Company Detail And Llp Detail Row........... */}
-            {(props.basicInfo.businessTypeID === CLIENT_TYPES.Company ||
-              props.basicInfo.businessTypeID === CLIENT_TYPES.LLP) && (
-              <div>
-                <div className="row fieldset">
-                  <div class="col-md-3 col-sm-12 text-start text-md-end">
-                    <label class="fieldset-label required">
-                      Search Company
-                    </label>
+              <section className="cp-card">
+                <div className="cp-card-head">
+                  <div>
+                    <h2 className="cp-card-title">E Signature</h2>
+                    <p className="cp-card-subtitle">
+                      Optional — fill both fields or leave both blank.
+                    </p>
                   </div>
-                  <div className="col-md-9 col-sm-12">
-                    <div className="">
-                      <div className="input-group">
-                        <input
-                          type="text"
-                          style={{ padding: "5px" }}
-                          class="input-text"
-                          id="category-description"
-                          placeholder="Search Company"
-                          onChange={(e) => props.handleCompanyInputChange(e)}
-                          onKeyDown={(e) => {
-                            if (e.key === " " && e.target.value === "") {
-                              e.preventDefault();
-                            }
-                          }}
-                        />
-                      </div>
+                </div>
+
+                <div className="cp-card-body">
+                  <div className="cp-grid">
+                    <div className="cp-field">
+                      <label className="cp-label">
+                        Signatory Name
+                        {props.signature !== null &&
+                          props.signature !== undefined &&
+                          props.signature !== "" && (
+                            <span className="cp-req">*</span>
+                          )}
+                      </label>
+                      <input
+                        type="text"
+                        className="input-text cp-input"
+                        placeholder="Signatory Name"
+                        value={props.basicInfo.signatoryName}
+                        onChange={(e) => {
+                          let inputValue = e.target.value;
+                          // Remove leading spaces
+                          inputValue = inputValue.trimLeft();
+                          // Capitalize the first letter
+                          inputValue =
+                            inputValue.charAt(0).toUpperCase() +
+                            inputValue.slice(1);
+                          // Check if the length is within the limit and there are no digits
+                          if (
+                            inputValue.length <= 50 &&
+                            !/\d/.test(inputValue)
+                          ) {
+                            props.setBasicInfo({
+                              ...props.basicInfo,
+                              signatoryName: inputValue,
+                            });
+                          }
+                        }}
+                      />
+                      {props.requireErrorMessage &&
+                      props.signature !== null &&
+                      props.signature !== undefined &&
+                      props.signature !== "" &&
+                      (props.basicInfo.signatoryName === "" ||
+                        props.basicInfo.signatoryName === null) ? (
+                        <span className="validation cp-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+
+                    <div className="cp-field cp-field-full">
+                      <label className="cp-label">
+                        Signatory Image
+                        {props.basicInfo.signatoryName !== null &&
+                          props.basicInfo.signatoryName !== undefined &&
+                          props.basicInfo.signatoryName !== "" && (
+                            <span className="cp-req">*</span>
+                          )}
+                      </label>
+
+                      {props.signature ? (
+                        <div className="cp-media-box">
+                          <div className="cp-media-preview">
+                            <img
+                              src={props.signature}
+                              className="cp-media-img"
+                              alt="Selected Signature"
+                            />
+                          </div>
+                          <button
+                            onClick={() => {
+                              props.setSignature(null);
+                              props.setBasicInfo({
+                                ...props.basicInfo,
+                                signatoryImage: null,
+                              });
+                            }}
+                            className="btn btn-sm btn-danger remove-item-btn cp-btn cp-btn-danger"
+                          >
+                            <i className="bi bi-trash3"></i>
+                            <span>Remove</span>
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="cp-upload-box">
+                            <button
+                              className="btn btn-md btn-primary create-item-btn cp-btn cp-btn-outline"
+                              data-bs-toggle="modal"
+                              onClick={() => {
+                                setType("Signature");
+                              }}
+                              data-bs-target="#SignatureUploadModel"
+                            >
+                              <i className="bi bi-plus-circle"></i>
+                              <span>Upload Signature</span>
+                            </button>
+                            <span className="cp-hint">
+                              Supported file types are .jpg, .jpeg, .png up to a
+                              file size of 2MB.
+                            </span>
+                          </div>
+                          {props.requireErrorMessage &&
+                          props.basicInfo.signatoryName !== null &&
+                          props.basicInfo.signatoryName !== undefined &&
+                          props.basicInfo.signatoryName !== "" &&
+                          (props.signature === "" ||
+                            props.signature === null) ? (
+                            <span className="validation cp-validation">
+                              This field is required if you have entered a value
+                              in the above 'Signatory Name' field. To proceed
+                              without uploading a signature, please remove the
+                              data from 'Signatory Name' above.
+                            </span>
+                          ) : (
+                            ""
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </>
+          )}
+
+          {/* ---------- Company / LLP ---------- */}
+          {(props.basicInfo.businessTypeID === CLIENT_TYPES.Company ||
+            props.basicInfo.businessTypeID === CLIENT_TYPES.LLP) && (
+            <>
+              <section className="cp-card">
+                <div className="cp-card-head">
+                  <div>
+                    <h2 className="cp-card-title">Company Details</h2>
+                    <p className="cp-card-subtitle">
+                      Search Companies House to auto-fill registered details.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="cp-card-body">
+                  <div className="cp-grid">
+                    <div className="cp-field cp-field-full cp-field-search">
+                      <label className="cp-label">Search Company</label>
+                      <input
+                        type="text"
+                        className="input-text cp-input"
+                        id="category-description"
+                        placeholder="Search Company"
+                        onChange={(e) => props.handleCompanyInputChange(e)}
+                        onKeyDown={(e) => {
+                          if (e.key === " " && e.target.value === "") {
+                            e.preventDefault();
+                          }
+                        }}
+                      />
                       {props.companies.length > 0 && (
                         <div className="autocomplete-input-div show">
                           <ul className="searchList">
@@ -586,137 +591,95 @@ const Basic_information = (props) => {
                         </div>
                       )}
                     </div>
-                  </div>
-                </div>
-                <div className="row fieldset" id="CompanyName">
-                  <div class="col-md-3 col-sm-12 text-start text-md-end">
-                    <label class="fieldset-label required">Company Name</label>
-                    <span class="text-danger">*</span>
-                  </div>
-                  <div className="col-md-9 col-sm-12">
-                    <input
-                      disabled
-                      style={{ padding: "5px" }}
-                      class="input-text"
-                      id="category-description"
-                      placeholder="Company Name"
-                      value={props.companyForm.companyName}
-                      onChange={(e) =>
-                        props.setCompanyForm({
-                          ...props.companyForm,
-                          companyName: e.target.value,
-                        })
-                      }
-                    />
-                    {props.requireErrorMessage &&
-                    (props.companyForm.companyName === "" ||
-                      props.companyForm.companyName === null) ? (
-                      <span className="validation">{ERROR_MESSAGES}</span>
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                </div>
-                <div className="row fieldset">
-                  <div class="col-md-3 col-sm-12 text-start text-md-end">
-                    <label class="fieldset-label required">Entity Type</label>
-                    <span class="text-danger">*</span>
-                  </div>
-                  <div className="col-md-9 col-sm-12">
-                    <input
-                      disabled
-                      style={{ padding: "5px" }}
-                      class="input-text"
-                      id="category-description"
-                      placeholder="Entity Type"
-                      value={props.companyForm.companyType}
-                      onChange={(e) =>
-                        props.setCompanyForm({
-                          ...props.companyForm,
-                          companyType: e.target.value,
-                        })
-                      }
-                    />
-                    {props.requireErrorMessage &&
-                    (props.companyForm.companyType === "" ||
-                      props.companyForm.companyType === null) ? (
-                      <span className="validation">{ERROR_MESSAGES}</span>
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                </div>
-                <div className="row fieldset" id="CompanyNumber">
-                  <div class="col-md-3 col-sm-12 text-start text-md-end">
-                    <label class="fieldset-label required">
-                      Company Number
-                    </label>
-                    <span class="text-danger">*</span>
-                  </div>
-                  <div className="col-md-9 col-sm-12">
-                    <input
-                      disabled
-                      style={{ padding: "5px" }}
-                      class="input-text"
-                      id="category-description"
-                      placeholder="Company Number"
-                      value={props.companyForm.companyNumber}
-                      onChange={(e) =>
-                        props.setCompanyForm({
-                          ...props.companyForm,
-                          companyNumber: e.target.value,
-                        })
-                      }
-                    />
-                    {props.requireErrorMessage &&
-                    (props.companyForm.companyNumber === "" ||
-                      props.companyForm.companyNumber === null) ? (
-                      <span className="validation">{ERROR_MESSAGES}</span>
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                </div>
-                <div className="row fieldset">
-                  <div class="col-md-3 col-sm-12 text-start text-md-end">
-                    <label class="fieldset-label required">
-                      Registered Office Address
-                    </label>
-                  </div>
-                  <div className="col-md-9 col-sm-12">
-                    <div className="">
-                      <div className="input-group">
-                        <input
-                          disabled
-                          style={{ padding: "5px" }}
-                          class="input-text"
-                          id="category-description"
-                          placeholder="Registered Office Address"
-                          value={props.concatenatedRegisterAddress}
-                          onChange={(e) =>
-                            props.setCompanyForm({
-                              ...props.companyForm,
-                              companyAddress: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="row fieldset">
-                  <div class="col-md-3 col-sm-12 text-start text-md-end">
-                    <label class="fieldset-label required">
-                      Incorporation Date
-                    </label>
-                    <span class="text-danger">*</span>
-                  </div>
-                  <div className="col-md-9 col-sm-12">
-                    <div className="input-group">
+
+                    <div className="cp-field" id="CompanyName">
+                      <label className="cp-label">
+                        Company Name<span className="cp-req">*</span>
+                      </label>
                       <input
                         disabled
-                        style={{ padding: "5px" }}
-                        className="input-text"
+                        className="input-text cp-input"
+                        placeholder="Company Name"
+                        value={props.companyForm.companyName}
+                        onChange={(e) =>
+                          props.setCompanyForm({
+                            ...props.companyForm,
+                            companyName: e.target.value,
+                          })
+                        }
+                      />
+                      {props.requireErrorMessage &&
+                      (props.companyForm.companyName === "" ||
+                        props.companyForm.companyName === null) ? (
+                        <span className="validation cp-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+
+                    <div className="cp-field">
+                      <label className="cp-label">
+                        Entity Type<span className="cp-req">*</span>
+                      </label>
+                      <input
+                        disabled
+                        className="input-text cp-input"
+                        placeholder="Entity Type"
+                        value={props.companyForm.companyType}
+                        onChange={(e) =>
+                          props.setCompanyForm({
+                            ...props.companyForm,
+                            companyType: e.target.value,
+                          })
+                        }
+                      />
+                      {props.requireErrorMessage &&
+                      (props.companyForm.companyType === "" ||
+                        props.companyForm.companyType === null) ? (
+                        <span className="validation cp-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+
+                    <div className="cp-field" id="CompanyNumber">
+                      <label className="cp-label">
+                        Company Number<span className="cp-req">*</span>
+                      </label>
+                      <input
+                        disabled
+                        className="input-text cp-input"
+                        placeholder="Company Number"
+                        value={props.companyForm.companyNumber}
+                        onChange={(e) =>
+                          props.setCompanyForm({
+                            ...props.companyForm,
+                            companyNumber: e.target.value,
+                          })
+                        }
+                      />
+                      {props.requireErrorMessage &&
+                      (props.companyForm.companyNumber === "" ||
+                        props.companyForm.companyNumber === null) ? (
+                        <span className="validation cp-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+
+                    <div className="cp-field">
+                      <label className="cp-label">
+                        Incorporation Date<span className="cp-req">*</span>
+                      </label>
+                      <input
+                        disabled
+                        className="input-text cp-input"
                         placeholder="Incorporation Date"
                         value={
                           props.companyForm.incorporationDate
@@ -730,114 +693,122 @@ const Basic_information = (props) => {
                           })
                         }
                       />
+                      {props.requireErrorMessage &&
+                      (props.companyForm.incorporationDate === "" ||
+                        props.companyForm.incorporationDate === null) ? (
+                        <span className="validation cp-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
                     </div>
-                    {props.requireErrorMessage &&
-                    (props.companyForm.incorporationDate === "" ||
-                      props.companyForm.incorporationDate === null) ? (
-                      <span className="validation">{ERROR_MESSAGES}</span>
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                </div>
-                <div className="row fieldset" id="InCorporateIDDiv">
-                  <div class="col-md-3 col-sm-12 text-start text-md-end">
-                    <label class="fieldset-label required">
-                      Incorporated In
-                    </label>
-                    <span class="text-danger">*</span>
-                  </div>
-                  <div className="col-md-9 col-sm-12">
-                    <div className="">
-                      <div className="input-group">
-                        <Select
-                          className="CurrencySelect"
-                          options={props.incorporatedInList}
-                          value={IncorporatedValue}
-                          onChange={props.handleIncorporatedInChange}
-                        />
-                      </div>
+
+                    <div className="cp-field cp-field-full">
+                      <label className="cp-label">
+                        Registered Office Address
+                      </label>
+                      <input
+                        disabled
+                        className="input-text cp-input"
+                        id="category-description"
+                        placeholder="Registered Office Address"
+                        value={props.concatenatedRegisterAddress}
+                        onChange={(e) =>
+                          props.setCompanyForm({
+                            ...props.companyForm,
+                            companyAddress: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+
+                    <div className="cp-field" id="InCorporateIDDiv">
+                      <label className="cp-label">
+                        Incorporated In<span className="cp-req">*</span>
+                      </label>
+                      <Select
+                        className="CurrencySelect cp-select"
+                        options={props.incorporatedInList}
+                        value={IncorporatedValue}
+                        onChange={props.handleIncorporatedInChange}
+                      />
                       {props.requireErrorMessage &&
                       (props.companyForm.incInID === 0 ||
                         props.companyForm.incInID === null) ? (
-                        <span className="validation">{ERROR_MESSAGES}</span>
+                        <span className="validation cp-validation">
+                          {ERROR_MESSAGES}
+                        </span>
                       ) : (
                         ""
                       )}
                     </div>
                   </div>
                 </div>
-                {/* .............Trading Detail------------- */}
+              </section>
 
-                <div className="row fieldset" id="LTDTradingDetails">
-                  <div className="fieldset-group">
-                    <label htmlFor="" className="fieldset-group-label required">
-                      Trading Detail
-                    </label>
-                    <div className="row fieldset">
-                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                        <label class="fieldset-label required">
-                          Trading Name
-                        </label>
-                        <span class="text-danger">*</span>
-                      </div>
+              <section className="cp-card" id="LTDTradingDetails">
+                <div className="cp-card-head">
+                  <div>
+                    <h2 className="cp-card-title">Trading Detail</h2>
+                    <p className="cp-card-subtitle">
+                      How the business trades day to day.
+                    </p>
+                  </div>
+                </div>
 
-                      <div className="col-md-9 col-sm-12">
-                        <div className="">
-                          <div className="input-group">
-                            <input
-                              type="text"
-                              maxLength={50}
-                              className="input-text"
-                              placeholder="Trading Name"
-                              value={props.basicInfo.tradingName}
-                              onChange={(e) => {
-                                const inputValue = e.target.value;
-                                const trimmedValue = inputValue.replace(
-                                  /^\s+/g,
-                                  "",
-                                );
+                <div className="cp-card-body">
+                  <div className="cp-grid">
+                    <div className="cp-field cp-field-full">
+                      <label className="cp-label">
+                        Trading Name<span className="cp-req">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        maxLength={50}
+                        className="input-text cp-input"
+                        placeholder="Trading Name"
+                        value={props.basicInfo.tradingName}
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
+                          const trimmedValue = inputValue.replace(/^\s+/g, "");
 
-                                // Validation: Check if the trimmed value is either alphanumeric or only alphabet but not only numeric
-                                const isValidName =
-                                  /^[a-zA-Z0-9\s,.!?"':;&()-_`]+(?:[a-zA-Z0-9\s,.!?"':;&()-_`]+)*$/.test(
-                                    trimmedValue,
-                                  ) && !/^\d+$/.test(trimmedValue);
+                          // Validation: Check if the trimmed value is either alphanumeric or only alphabet but not only numeric
+                          const isValidName =
+                            /^[a-zA-Z0-9\s,.!?"':;&()-_`]+(?:[a-zA-Z0-9\s,.!?"':;&()-_`]+)*$/.test(
+                              trimmedValue,
+                            ) && !/^\d+$/.test(trimmedValue);
 
-                                if (isValidName || trimmedValue === "") {
-                                  const capitalizedValue =
-                                    trimmedValue.charAt(0).toUpperCase() +
-                                    trimmedValue.slice(1);
-                                  props.setBasicInfo({
-                                    ...props.basicInfo,
-                                    tradingName: capitalizedValue,
-                                  });
-                                }
-                              }}
-                            />
-                          </div>
-                          {props.requireErrorMessage &&
-                          (props.basicInfo.tradingName === "" ||
-                            props.basicInfo.tradingName === null) ? (
-                            <span className="validation">{ERROR_MESSAGES}</span>
-                          ) : (
-                            ""
-                          )}
-                        </div>
-                      </div>
+                          if (isValidName || trimmedValue === "") {
+                            const capitalizedValue =
+                              trimmedValue.charAt(0).toUpperCase() +
+                              trimmedValue.slice(1);
+                            props.setBasicInfo({
+                              ...props.basicInfo,
+                              tradingName: capitalizedValue,
+                            });
+                          }
+                        }}
+                      />
+                      {props.requireErrorMessage &&
+                      (props.basicInfo.tradingName === "" ||
+                        props.basicInfo.tradingName === null) ? (
+                        <span className="validation cp-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
                     </div>
-                    <div className="row fieldset">
-                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                        <label class="fieldset-label required">
-                          Trading Start Date
-                        </label>
-                        <span class="text-danger">*</span>
-                      </div>
-                      <div className="col-md-9 col-sm-12">
+
+                    <div className="cp-field">
+                      <label className="cp-label">
+                        Trading Start Date<span className="cp-req">*</span>
+                      </label>
+                      <div className="cp-datepicker">
                         <DatePicker
                           minDate={minDate}
                           maxDate={maxDate}
-                          style={{ width: "100%" }}
                           format="dd/MM/y"
                           dayPlaceholder="dd"
                           monthPlaceholder="mm"
@@ -851,246 +822,234 @@ const Basic_information = (props) => {
                             });
                           }}
                         />
+                      </div>
 
-                        {props.DateValidation &&
-                        (props.basicInfo.tradingStartDate !== "" ||
-                          props.basicInfo.tradingStartDate !== null) ? (
-                          <span className="validation">Invalid Date</span>
-                        ) : (
-                          ""
-                        )}
-                        {props.requireErrorMessage &&
-                        (props.basicInfo.tradingStartDate === "" ||
-                          props.basicInfo.tradingStartDate === null) ? (
-                          <span className="validation">{ERROR_MESSAGES}</span>
-                        ) : (
-                          ""
-                        )}
-                      </div>
+                      {props.DateValidation &&
+                      (props.basicInfo.tradingStartDate !== "" ||
+                        props.basicInfo.tradingStartDate !== null) ? (
+                        <span className="validation cp-validation">
+                          Invalid Date
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                      {props.requireErrorMessage &&
+                      (props.basicInfo.tradingStartDate === "" ||
+                        props.basicInfo.tradingStartDate === null) ? (
+                        <span className="validation cp-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
                     </div>
-                    <div className="row fieldset">
-                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                        <label class="fieldset-label required">
-                          Trading Address
-                        </label>
-                        <span class="text-danger">*</span>
-                      </div>
-                      <div className="col-md-9 col-sm-12">
-                        <div className="">
-                          <div className="input-group">
-                            <input
-                              type="text"
-                              style={{ cursor: "pointer" }}
-                              class="input-text"
-                              id="category-description"
-                              placeholder="Trading Address"
-                              value={props.concatenatedTradingAddress}
-                              onMouseDown={(e) => {
-                                e.preventDefault();
-                                props.setAddressPopUpTitle("Trading Address");
-                                handleOpenTradingAddressPopup(e);
-                              }}
+
+                    <div className="cp-field cp-field-full">
+                      <label className="cp-label">
+                        Trading Address<span className="cp-req">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="input-text cp-input cp-input-clickable"
+                        id="category-description"
+                        placeholder="Trading Address"
+                        value={props.concatenatedTradingAddress}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          props.setAddressPopUpTitle("Trading Address");
+                          handleOpenTradingAddressPopup(e);
+                        }}
+                      />
+                      {props.requireErrorMessage &&
+                      (props.basicInfo.tradingAddress === "" ||
+                        props.basicInfo.tradingAddress === null ||
+                        props.concatenatedTradingAddress === null ||
+                        props.concatenatedTradingAddress === "") ? (
+                        <span className="validation cp-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section className="cp-card" id="LTD_E_Signature">
+                <div className="cp-card-head">
+                  <div>
+                    <h2 className="cp-card-title">E Signature</h2>
+                    <p className="cp-card-subtitle">
+                      Optional — fill both fields or leave both blank.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="cp-card-body">
+                  <div className="cp-grid">
+                    <div className="cp-field">
+                      <label className="cp-label">
+                        Signatory Name
+                        {props.signature !== null &&
+                          props.signature !== undefined &&
+                          props.signature !== "" && (
+                            <span className="cp-req">*</span>
+                          )}
+                      </label>
+                      <input
+                        type="text"
+                        className="input-text cp-input"
+                        placeholder="Signatory Name"
+                        value={props.basicInfo.signatoryName}
+                        onChange={(e) => {
+                          let inputValue = e.target.value;
+                          // Remove leading spaces
+                          inputValue = inputValue.trimLeft();
+                          // Capitalize the first letter
+                          inputValue =
+                            inputValue.charAt(0).toUpperCase() +
+                            inputValue.slice(1);
+                          // Check if the length is within the limit
+                          if (inputValue.length <= 50) {
+                            props.setBasicInfo({
+                              ...props.basicInfo,
+                              signatoryName: inputValue,
+                            });
+                          }
+                        }}
+                      />
+                      {props.requireErrorMessage &&
+                      props.signature !== null &&
+                      props.signature !== undefined &&
+                      props.signature !== "" &&
+                      (props.basicInfo.signatoryName === "" ||
+                        props.basicInfo.signatoryName === null) ? (
+                        <span className="validation cp-validation">
+                          {ERROR_MESSAGES}
+                        </span>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+
+                    <div className="cp-field cp-field-full">
+                      <label className="cp-label">
+                        Signatory Image
+                        {props.basicInfo.signatoryName !== null &&
+                          props.basicInfo.signatoryName !== undefined &&
+                          props.basicInfo.signatoryName !== "" && (
+                            <span className="cp-req">*</span>
+                          )}
+                      </label>
+
+                      {props.signature ? (
+                        <div className="cp-media-box">
+                          <div className="cp-media-preview">
+                            <img
+                              src={props.signature}
+                              className="cp-media-img"
+                              alt="Selected Signature"
                             />
                           </div>
+                          <button
+                            onClick={() => {
+                              props.setSignature(null);
+                              props.setBasicInfo({
+                                ...props.basicInfo,
+                                signatoryImage: null,
+                              });
+                            }}
+                            className="btn btn-sm btn-danger remove-item-btn cp-btn cp-btn-danger"
+                          >
+                            <i className="bi bi-trash3"></i>
+                            <span>Remove</span>
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="cp-upload-box">
+                            <button
+                              className="btn btn-md btn-primary create-item-btn cp-btn cp-btn-outline"
+                              data-bs-toggle="modal"
+                              onClick={() => {
+                                setType("Signature");
+                              }}
+                              data-bs-target="#SignatureUploadModel"
+                            >
+                              <i className="bi bi-plus-circle"></i>
+                              <span>Upload Signature</span>
+                            </button>
+                            <span className="cp-hint">
+                              Supported file types are .jpg, .jpeg, .png up to a
+                              file size of 2MB.
+                            </span>
+                          </div>
                           {props.requireErrorMessage &&
-                          (props.basicInfo.tradingAddress === "" ||
-                            props.basicInfo.tradingAddress === null ||
-                            props.concatenatedTradingAddress === null ||
-                            props.concatenatedTradingAddress === "") ? (
-                            <span className="validation">{ERROR_MESSAGES}</span>
+                          props.basicInfo.signatoryName !== null &&
+                          props.basicInfo.signatoryName !== undefined &&
+                          props.basicInfo.signatoryName !== "" &&
+                          (props.signature === "" ||
+                            props.signature === null) ? (
+                            <span className="validation cp-validation">
+                              This field is required if you have entered a value
+                              in the above 'Signatory Name' field. To proceed
+                              without uploading a signature, please remove the
+                              data from 'Signatory Name' above.
+                            </span>
                           ) : (
                             ""
                           )}
-                        </div>
-                      </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
-                <div className="row fieldset" id="LTD_E_Signature">
-                  {/* ....E-signature........ */}
-                  <div className="fieldset-group">
-                    <label htmlFor="" className="fieldset-group-label required">
-                      E Signature
-                    </label>
-                    <div className="row fieldset">
-                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                        <label class="fieldset-label required">
-                          Signatory Name
-                          {props.signature !== null &&
-                            props.signature !== undefined &&
-                            props.signature !== "" && (
-                              <span class="text-danger">*</span>
-                            )}
-                        </label>
-                      </div>
-                      <div className="col-md-9 col-sm-12">
-                        <div className="">
-                          <div className="input-group">
-                            <input
-                              type="text"
-                              className="input-text"
-                              placeholder="Signatory Name"
-                              value={props.basicInfo.signatoryName}
-                              onChange={(e) => {
-                                let inputValue = e.target.value;
-                                // Remove leading spaces
-                                inputValue = inputValue.trimLeft();
-                                // Capitalize the first letter
-                                inputValue =
-                                  inputValue.charAt(0).toUpperCase() +
-                                  inputValue.slice(1);
-                                // Check if the length is within the limit
-                                if (inputValue.length <= 50) {
-                                  props.setBasicInfo({
-                                    ...props.basicInfo,
-                                    signatoryName: inputValue,
-                                  });
-                                }
-                              }}
-                            />
-                            {props.requireErrorMessage &&
-                            props.signature !== null &&
-                            props.signature !== undefined &&
-                            props.signature !== "" &&
-                            (props.basicInfo.signatoryName === "" ||
-                              props.basicInfo.signatoryName === null) ? (
-                              <span className="validation">
-                                {ERROR_MESSAGES}
-                              </span>
-                            ) : (
-                              ""
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="row ">
-                      <div class="col-md-3 col-sm-12 text-start text-md-end">
-                        <label class="fieldset-label mt-2 required">
-                          Signatory Image
-                          {props.basicInfo.signatoryName !== null &&
-                            props.basicInfo.signatoryName !== undefined &&
-                            props.basicInfo.signatoryName !== "" && (
-                              <span class="text-danger">*</span>
-                            )}
-                        </label>
-                      </div>
-                      <div className="col-md-9  col-sm-12">
-                        <div className="input-group">
-                          <div className="col-lg-12 ">
-                            {props.signature ? (
-                              <div className="upload-image-preview-div">
-                                <img
-                                  src={props.signature}
-                                  style={{
-                                    height: "200px",
-                                    width: "200px",
-                                    objectFit: "contain",
-                                  }}
-                                  className="upload-image-preview"
-                                  alt="Selected Signature"
-                                />
-                                <button
-                                  onClick={() => {
-                                    props.setSignature(null);
-                                    props.setBasicInfo({
-                                      ...props.basicInfo,
-                                      signatoryImage: null,
-                                    });
-                                  }}
-                                  style={{
-                                    float: "right",
-                                    paddingTop: "5px",
-                                  }}
-                                  className="btn btn-sm btn-danger  remove-item-btn d-flex gap-1"
-                                >
-                                  Remove
-                                </button>
-                              </div>
-                            ) : (
-                              <>
-                                <button
-                                  className="btn btn-md btn-primary create-item-btn"
-                                  data-bs-toggle="modal"
-                                  onClick={() => {
-                                    setType("Signature");
-                                  }}
-                                  data-bs-target="#SignatureUploadModel"
-                                >
-                                  <i class="bi bi-plus-circle margin-right"></i>
-                                  <span> Upload Signature</span>
-                                </button>
-                                <div className="text-muted helpMessage">
-                                  Supported file types are .jpg, .jpeg, .png up
-                                  to a file size of 2MB.
-                                </div>
-                                {props.requireErrorMessage &&
-                                props.basicInfo.signatoryName !== null &&
-                                props.basicInfo.signatoryName !== undefined &&
-                                props.basicInfo.signatoryName !== "" &&
-                                (props.signature === "" ||
-                                  props.signature === null) ? (
-                                  <span className="validation">
-                                    This field is required if you have entered a
-                                    value in the above 'Signatory Name' field.
-                                    To proceed without uploading a signature,
-                                    please remove the data from 'Signatory Name'
-                                    above.
-                                  </span>
-                                ) : (
-                                  ""
-                                )}
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-          <AddressModal
-            // handleOk={handleOk}
-            setAddressUpdatedDatetime={props.setAddressUpdatedDatetime}
-            fullAddress={props.fullAddress}
-            setFullAddress={props.setFullAddress}
-            title={props.addressPopUpTitle}
-            openAddressPopUp={openAddressPopUp}
-            address={props.address}
-            setAddress={props.setAddress}
-            handleAddressPopUpClose={handleAddressPopUpClose}
-            setOpenAddressPopUp={setOpenAddressPopUp}
-          />
-          {/* Declare Modal here */}
-          {/* Upload signature modal */}
-          <Upload_image_modal
-            class="modal fade"
-            id="SignatureUploadModel"
-            tabIndex="-1"
-            aria_hidden="true"
-            handleImageUpload={handleImageUpload}
-            setBasicInfo={props.setBasicInfo}
-            basicInfo={props.basicInfo}
-          />
+              </section>
+            </>
+          )}
         </div>
+
+        <AddressModal
+          // handleOk={handleOk}
+          setAddressUpdatedDatetime={props.setAddressUpdatedDatetime}
+          fullAddress={props.fullAddress}
+          setFullAddress={props.setFullAddress}
+          title={props.addressPopUpTitle}
+          openAddressPopUp={openAddressPopUp}
+          address={props.address}
+          setAddress={props.setAddress}
+          handleAddressPopUpClose={handleAddressPopUpClose}
+          setOpenAddressPopUp={setOpenAddressPopUp}
+        />
+        {/* Declare Modal here */}
+        {/* Upload signature modal */}
+        <Upload_image_modal
+          class="modal fade"
+          id="SignatureUploadModel"
+          tabIndex="-1"
+          aria_hidden="true"
+          handleImageUpload={handleImageUpload}
+          setBasicInfo={props.setBasicInfo}
+          basicInfo={props.basicInfo}
+        />
       </div>
 
-      <span
-        style={{ display: "flex", justifyContent: "center" }}
-        className="validation"
-      >
-        {props.errorMessage}
-      </span>
-      <div class="separator"></div>
-      <div class="col-lg-12 hstack gap-2 justify-content-end text-right mt-4">
-        <button class="btn btn-md btn-light" onClick={props.handleCancel}>
+      {props.errorMessage ? (
+        <span className="validation cp-footer-error">{props.errorMessage}</span>
+      ) : (
+        ""
+      )}
+
+      <div className="cp-footer-bar">
+        <button
+          className="btn btn-md btn-light cp-btn cp-btn-ghost"
+          onClick={props.handleCancel}
+        >
           <span>Cancel</span>
         </button>
         <button
-          class="btn btn-md btn-primary create-item-btn"
+          className="btn btn-md btn-primary create-item-btn cp-btn cp-btn-primary"
           onClick={() => props.handleTabChange(2)}
         >
           <span>Next</span>
@@ -1197,31 +1156,380 @@ const OfficerDetails = (props) => {
             OfficerDetailsCreatePracticeDivContainerRef,
           )
         }
-        className="create-practice-height scrollbar"
+        className="create-practice-height scrollbar cp-scroll"
         id="style-1"
       >
-        <div className="tab-content">
-          <div className="row">
-            <div className="col-xl-12 col-lg-12">
-              {/* Sole Trader Form */}
-              {props.businessTypeID === CLIENT_TYPES.Sole_Trader &&
-                props.officersForm?.map((item, index) => {
-                  return (
-                    <>
-                      <div className="row fieldset mt-4">
-                        <div className="col-md-3 col-sm-12 text-start text-md-end">
-                          <label class="fieldset-label required">
-                            First Name
-                            <span style={{ color: "#ec4561" }}>*</span>
-                          </label>
+        <div className="cp-body">
+          {/* ---------- Sole Trader ---------- */}
+          {props.businessTypeID === CLIENT_TYPES.Sole_Trader &&
+            props.officersForm?.map((item, index) => {
+              return (
+                <section className="cp-card" key={index}>
+                  <div className="cp-card-head">
+                    <div>
+                      <h2 className="cp-card-title">Sole Trader Details</h2>
+                      <p className="cp-card-subtitle">
+                        Business owner information.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="cp-card-body">
+                    <div className="cp-grid">
+                      <div className="cp-field">
+                        <label className="cp-label">
+                          First Name<span className="cp-req">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          className="input-text cp-input"
+                          placeholder="First Name"
+                          value={props.officersForm[index].firstName}
+                          onChange={(e) => {
+                            const inputValue = e.target.value.trim();
+                            // Reject input if it contains numeric characters
+                            // Remove all spaces and dots
+                            const cleanedValue = inputValue.replace(
+                              /[.\s]/g,
+                              "",
+                            );
+                            // Reject input if it starts with a digit
+                            if (/\d/.test(cleanedValue)) {
+                              return;
+                            }
+                            const capitalizedValue =
+                              cleanedValue.charAt(0).toUpperCase() +
+                              cleanedValue.slice(1);
+                            props.OnOfficerChange(
+                              index,
+                              "firstName",
+                              capitalizedValue,
+                            );
+                          }}
+                          maxLength={30}
+                        />
+                        {props.officerError &&
+                        (props.officersForm[index].firstName === null ||
+                          props.officersForm[index].firstName === "") ? (
+                          <span className="validation cp-validation">
+                            {ERROR_MESSAGES}
+                          </span>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+
+                      <div className="cp-field">
+                        <label className="cp-label">
+                          Last Name<span className="cp-req">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          className="input-text cp-input"
+                          placeholder="Last Name"
+                          value={props.officersForm[index].lastName}
+                          onChange={(e) => {
+                            const inputValue = e.target.value;
+
+                            // Remove all spaces and dots
+                            const cleanedValue = inputValue.replace(
+                              /[.\s]/g,
+                              "",
+                            );
+
+                            // Reject input if it starts with a digit
+                            if (/\d/.test(cleanedValue)) {
+                              return;
+                            }
+
+                            const capitalizedValue =
+                              cleanedValue.charAt(0).toUpperCase() +
+                              cleanedValue.slice(1);
+                            props.OnOfficerChange(
+                              index,
+                              "lastName",
+                              capitalizedValue,
+                            );
+                          }}
+                          maxLength={30}
+                        />
+                        {props.officerError &&
+                        (props.officersForm[index].lastName === null ||
+                          props.officersForm[index].lastName === "") ? (
+                          <span className="validation cp-validation">
+                            {ERROR_MESSAGES}
+                          </span>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+
+                      <div className="cp-field">
+                        <label className="cp-label">
+                          Phone<span className="cp-req">*</span>
+                        </label>
+                        <div className="phone-input-div cp-phone">
+                          <Select
+                            className="createCompanyInfo cp-select"
+                            options={props.countryCodes}
+                            value={
+                              props.officersForm[index]?.phoneCountryCodeID
+                            }
+                            onChange={(e) => {
+                              setIndex(index);
+                              props.OnOfficerChange(
+                                index,
+                                "phoneCountryCodeID",
+                                e,
+                              );
+                              props.OnOfficerChange(
+                                index,
+                                "countryCodeID",
+                                e.value,
+                              );
+                              props.setOtherInfo({
+                                ...props.otherInfo,
+                                countryCodeID: e,
+                              });
+                            }}
+                          />
+                          <div className="phone-input-number-div">
+                            <input
+                              className="input-text cp-input"
+                              type="text"
+                              placeholder="Phone"
+                              value={props.officersForm[index].phoneNo}
+                              onChange={(e) => {
+                                // Ensure that the input only contains numeric characters
+                                const sanitizedInput = e.target.value
+                                  .replace(/[^0-9]/g, "")
+                                  .slice(0, 15);
+                                props.OnOfficerChange(
+                                  index,
+                                  "phoneNo",
+                                  sanitizedInput,
+                                );
+                                props.setOtherInfo({
+                                  ...props.otherInfo,
+                                  contactPhone: sanitizedInput,
+                                });
+                              }}
+                            />
+                          </div>
                         </div>
-                        <div class="col-lg-9 col-md-8 col-sm-12">
+                        {props.officerError &&
+                        (props.officersForm[index]?.phoneCountryCodeID === "" ||
+                          props.officersForm[index]?.phoneCountryCodeID ===
+                            null ||
+                          props.officersForm[index].phoneNo === "" ||
+                          props.officersForm[index].phoneNo === null) ? (
+                          <span className="validation cp-validation">
+                            {ERROR_MESSAGES}
+                          </span>
+                        ) : props.officerError &&
+                          !isValidPhoneNumber(
+                            props.officersForm[index].phoneNo,
+                          ) ? (
+                          <span className="validation cp-validation">
+                            {" "}
+                            Invalid phone number{" "}
+                          </span>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+
+                      <div className="cp-field">
+                        <label className="cp-label">
+                          Practice Email<span className="cp-req">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          className="input-text cp-input"
+                          placeholder="Email"
+                          maxLength={50}
+                          value={props.officersForm[index].emailID}
+                          onChange={(e) => {
+                            // Get the entered value
+                            const enteredValue = e.target.value
+                              .trim()
+                              .toLowerCase();
+
+                            // Check for consecutive dots
+                            if (enteredValue.includes("..")) {
+                              // If consecutive dots found, remove the last dot
+                              const correctedValue = enteredValue.replace(
+                                /\.+/g,
+                                ".",
+                              );
+                              // Update the value in the parent component
+                              props.OnOfficerChange(
+                                index,
+                                "emailID",
+                                correctedValue,
+                              );
+                              // Update the contact email in the parent component's state
+                              props.setOtherInfo({
+                                ...props.otherInfo,
+                                contactEmail: correctedValue,
+                              });
+                              return;
+                            }
+
+                            // Update the value in the parent component
+                            props.OnOfficerChange(
+                              index,
+                              "emailID",
+                              enteredValue,
+                            );
+                            // Update the contact email in the parent component's state
+                            props.setOtherInfo({
+                              ...props.otherInfo,
+                              contactEmail: enteredValue,
+                            });
+                          }}
+                        />
+                        {props.officerError &&
+                          (props.officersForm[index].emailID === null ||
+                          props.officersForm[index].emailID === "" ? (
+                            <span className="validation cp-validation">
+                              {ERROR_MESSAGES}
+                            </span>
+                          ) : (
+                            !isValidEmail(
+                              props.officersForm[index].emailID,
+                            ) && (
+                              <span className="validation cp-validation">
+                                Invalid email pattern
+                              </span>
+                            )
+                          ))}
+                      </div>
+
+                      <div className="cp-field cp-field-full">
+                        <label className="cp-label">
+                          Practice Address<span className="cp-req">*</span>
+                        </label>
+                        <input
+                          className="input-text cp-input cp-input-clickable"
+                          type="text"
+                          placeholder="Practice Address"
+                          value={
+                            props.concatenatedResidentialAddress[0]
+                              ?.officersFullAddress
+                          }
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            props.setAddressPopUpTitle("Practice Address");
+                            handleOpenRegisterOfficeAddressPopup(e, index);
+                          }}
+                          autoComplete="off"
+                        />
+                        {props.officerError &&
+                        (props.concatenatedResidentialAddress[0]
+                          .officersFullAddress === null ||
+                          props.concatenatedResidentialAddress[index]
+                            .officersFullAddress === "") ? (
+                          <span className="validation cp-validation">
+                            {ERROR_MESSAGES}
+                          </span>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              );
+            })}
+
+          {/* ---------- Partnership ---------- */}
+          {props.businessTypeID === CLIENT_TYPES.Partnership && (
+            <section className="cp-card">
+              <div className="cp-card-head">
+                <div>
+                  <h2 className="cp-card-title">Partnership Details</h2>
+                  <p className="cp-card-subtitle">
+                    Partner information and authorised signatories.
+                  </p>
+                </div>
+              </div>
+
+              <div className="cp-card-body">
+                {props.officersForm?.map((i, index) => {
+                  return (
+                    <div
+                      className="cp-subcard"
+                      id={`Partner_${index}`}
+                      key={index}
+                    >
+                      <div className="cp-subcard-head">
+                        <span className="cp-subcard-title">
+                          Partner {index + 1}
+                        </span>
+                        <div className="cp-subcard-actions">
+                          <div className="cp-signatory">
+                            <Switch
+                              id={`checkbox${index}`}
+                              checked={
+                                props.officersForm[index]?.isAuthorisedSignatory
+                              }
+                              onChange={(e) => handleSwitchToggle(e, index)}
+                              color="primary"
+                            />
+                            <div
+                              htmlFor={`checkbox${index}`}
+                              className="isAuthorized"
+                            >
+                              Authorised Signatory
+                            </div>
+                          </div>
+                          {props.officersForm?.length === 1 ? null : (
+                            <button
+                              className="btn btn-sm btn-danger cp-btn cp-btn-danger"
+                              onClick={() => props.deleteOfficer(index)}
+                            >
+                              <i className="bi bi-trash3"></i>
+                              Delete Partner
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {props.officersForm.length === 0 && (
+                        <span className="validation cp-validation cp-validation-block">
+                          {" "}
+                          At least 1 authorised partner is required.{" "}
+                        </span>
+                      )}
+                      {props.authoritySignatorySignatory &&
+                        props.officerError &&
+                        props.AuthorityCount === 0 && (
+                          <span className="validation cp-validation cp-validation-block">
+                            {" "}
+                            At least 1 authorised partner is required.{" "}
+                          </span>
+                        )}
+
+                      <div className="cp-grid">
+                        <div className="cp-field">
+                          <label className="cp-label">
+                            First Name<span className="cp-req">*</span>
+                          </label>
                           <input
                             type="text"
-                            style={{ padding: "10px" }}
-                            class="input-text"
+                            className="input-text cp-input"
                             placeholder="First Name"
-                            value={props.officersForm[index].firstName}
+                            value={
+                              props.officersForm[index].firstName
+                                ? props.officersForm[index].firstName
+                                    .charAt(0)
+                                    .toUpperCase() +
+                                  props.officersForm[index].firstName
+                                    .slice(1)
+                                    .toLowerCase()
+                                : ""
+                            }
                             onChange={(e) => {
                               const inputValue = e.target.value.trim();
                               // Reject input if it contains numeric characters
@@ -1230,6 +1538,7 @@ const OfficerDetails = (props) => {
                                 /[.\s]/g,
                                 "",
                               );
+
                               // Reject input if it starts with a digit
                               if (/\d/.test(cleanedValue)) {
                                 return;
@@ -1237,6 +1546,7 @@ const OfficerDetails = (props) => {
                               const capitalizedValue =
                                 cleanedValue.charAt(0).toUpperCase() +
                                 cleanedValue.slice(1);
+
                               props.OnOfficerChange(
                                 index,
                                 "firstName",
@@ -1248,26 +1558,32 @@ const OfficerDetails = (props) => {
                           {props.officerError &&
                           (props.officersForm[index].firstName === null ||
                             props.officersForm[index].firstName === "") ? (
-                            <span className="validation">{ERROR_MESSAGES}</span>
+                            <span className="validation cp-validation">
+                              {ERROR_MESSAGES}
+                            </span>
                           ) : (
                             ""
                           )}
                         </div>
-                      </div>
-                      <div className="row fieldset">
-                        <div className="col-md-3 col-sm-12 text-start text-md-end">
-                          <label class="fieldset-label required">
-                            Last Name
-                            <span style={{ color: "#ec4561" }}>*</span>
+
+                        <div className="cp-field">
+                          <label className="cp-label">
+                            Last Name<span className="cp-req">*</span>
                           </label>
-                        </div>
-                        <div class="col-lg-9 col-md-8 col-sm-12">
                           <input
                             type="text"
-                            style={{ padding: "10px" }}
-                            class="input-text"
+                            className="input-text cp-input"
                             placeholder="Last Name"
-                            value={props.officersForm[index].lastName}
+                            value={
+                              props.officersForm[index].lastName
+                                ? props.officersForm[index].lastName
+                                    .charAt(0)
+                                    .toUpperCase() +
+                                  props.officersForm[index].lastName
+                                    .slice(1)
+                                    .toLowerCase()
+                                : ""
+                            }
                             onChange={(e) => {
                               const inputValue = e.target.value;
 
@@ -1285,6 +1601,7 @@ const OfficerDetails = (props) => {
                               const capitalizedValue =
                                 cleanedValue.charAt(0).toUpperCase() +
                                 cleanedValue.slice(1);
+
                               props.OnOfficerChange(
                                 index,
                                 "lastName",
@@ -1296,22 +1613,21 @@ const OfficerDetails = (props) => {
                           {props.officerError &&
                           (props.officersForm[index].lastName === null ||
                             props.officersForm[index].lastName === "") ? (
-                            <span className="validation">{ERROR_MESSAGES}</span>
+                            <span className="validation cp-validation">
+                              {ERROR_MESSAGES}
+                            </span>
                           ) : (
                             ""
                           )}
                         </div>
-                      </div>
-                      <div class="row fieldset">
-                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                          <label class="fieldset-label required">Phone</label>
-                          <span style={{ color: "#ec4561" }}>*</span>
-                        </div>
-                        <div className="col-md-8 col-lg-9 col-sm-12 ">
-                          <div className="phone-input-div">
+
+                        <div className="cp-field">
+                          <label className="cp-label">
+                            Phone<span className="cp-req">*</span>
+                          </label>
+                          <div className="phone-input-div cp-phone">
                             <Select
-                              style={{ padding: "5px", width: "20%" }}
-                              className="createCompanyInfo"
+                              className="createCompanyInfo cp-select"
                               options={props.countryCodes}
                               value={
                                 props.officersForm[index]?.phoneCountryCodeID
@@ -1328,16 +1644,11 @@ const OfficerDetails = (props) => {
                                   "countryCodeID",
                                   e.value,
                                 );
-                                props.setOtherInfo({
-                                  ...props.otherInfo,
-                                  countryCodeID: e,
-                                });
                               }}
                             />
                             <div className="phone-input-number-div">
                               <input
-                                style={{ width: "100%" }}
-                                className="input-text"
+                                className="input-text cp-input"
                                 type="text"
                                 placeholder="Phone"
                                 value={props.officersForm[index].phoneNo}
@@ -1351,10 +1662,6 @@ const OfficerDetails = (props) => {
                                     "phoneNo",
                                     sanitizedInput,
                                   );
-                                  props.setOtherInfo({
-                                    ...props.otherInfo,
-                                    contactPhone: sanitizedInput,
-                                  });
                                 }}
                               />
                             </div>
@@ -1366,12 +1673,14 @@ const OfficerDetails = (props) => {
                               null ||
                             props.officersForm[index].phoneNo === "" ||
                             props.officersForm[index].phoneNo === null) ? (
-                            <span className="validation">{ERROR_MESSAGES}</span>
+                            <span className="validation cp-validation">
+                              {ERROR_MESSAGES}
+                            </span>
                           ) : props.officerError &&
                             !isValidPhoneNumber(
                               props.officersForm[index].phoneNo,
                             ) ? (
-                            <span className="validation">
+                            <span className="validation cp-validation">
                               {" "}
                               Invalid phone number{" "}
                             </span>
@@ -1379,22 +1688,17 @@ const OfficerDetails = (props) => {
                             ""
                           )}
                         </div>
-                      </div>
-                      <div class="row fieldset">
-                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                          <label class="fieldset-label required">
-                            Practice Email
-                            <span className="text-danger">*</span>
+
+                        <div className="cp-field">
+                          <label className="cp-label">
+                            Email<span className="cp-req">*</span>
                           </label>
-                        </div>
-                        <div class="col-lg-9 col-md-8 col-sm-12">
                           <input
-                            type="text"
-                            style={{ padding: "10px" }}
-                            class="input-text"
                             placeholder="Email"
+                            className="input-text cp-input"
+                            type="email"
                             maxLength={50}
-                            value={props.officersForm[index].emailID}
+                            value={props.officersForm[index]?.emailID}
                             onChange={(e) => {
                               // Get the entered value
                               const enteredValue = e.target.value
@@ -1414,11 +1718,6 @@ const OfficerDetails = (props) => {
                                   "emailID",
                                   correctedValue,
                                 );
-                                // Update the contact email in the parent component's state
-                                props.setOtherInfo({
-                                  ...props.otherInfo,
-                                  contactEmail: correctedValue,
-                                });
                                 return;
                               }
 
@@ -1428,663 +1727,283 @@ const OfficerDetails = (props) => {
                                 "emailID",
                                 enteredValue,
                               );
-                              // Update the contact email in the parent component's state
-                              props.setOtherInfo({
-                                ...props.otherInfo,
-                                contactEmail: enteredValue,
-                              });
                             }}
                           />
                           {props.officerError &&
                             (props.officersForm[index].emailID === null ||
                             props.officersForm[index].emailID === "" ? (
-                              <span className="validation">
+                              <span className="validation cp-validation">
                                 {ERROR_MESSAGES}
                               </span>
                             ) : (
                               !isValidEmail(
                                 props.officersForm[index].emailID,
                               ) && (
-                                <span className="validation">
+                                <span className="validation cp-validation">
                                   Invalid email pattern
                                 </span>
                               )
                             ))}
                         </div>
-                      </div>
-                      <div class="row fieldset">
-                        <div class="col-md-3 col-sm-12 text-start text-md-end">
-                          <label class="fieldset-label required">
-                            Practice Address
-                            <span style={{ color: "#ec4561" }}>*</span>
+
+                        <div className="cp-field cp-field-full">
+                          <label className="cp-label">
+                            Residential Address<span className="cp-req">*</span>
                           </label>
-                        </div>
-                        <div class="col-lg-9 col-md-8 col-sm-12">
                           <input
-                            className="input-text"
+                            className="input-text cp-input cp-input-clickable"
                             type="text"
-                            style={{ cursor: "pointer" }}
-                            placeholder="Practice Address"
+                            placeholder="Residential Address"
                             value={
-                              props.concatenatedResidentialAddress[0]
+                              props.concatenatedResidentialAddress[index]
                                 ?.officersFullAddress
                             }
                             onMouseDown={(e) => {
                               e.preventDefault();
-                              props.setAddressPopUpTitle("Practice Address");
+                              props.setAddressPopUpTitle("Residential Address");
                               handleOpenRegisterOfficeAddressPopup(e, index);
                             }}
                             autoComplete="off"
                           />
                           {props.officerError &&
-                          (props.concatenatedResidentialAddress[0]
+                          (props.concatenatedResidentialAddress[index]
                             .officersFullAddress === null ||
                             props.concatenatedResidentialAddress[index]
                               .officersFullAddress === "") ? (
-                            <span className="validation">{ERROR_MESSAGES}</span>
+                            <span className="validation cp-validation">
+                              {ERROR_MESSAGES}
+                            </span>
                           ) : (
                             ""
                           )}
                         </div>
                       </div>
-                    </>
+                    </div>
                   );
                 })}
-              {/* lpp form */}
-              {props.businessTypeID === CLIENT_TYPES.Partnership && (
+              </div>
+            </section>
+          )}
+
+          {/* ---------- Company / LLP ---------- */}
+          {(props.businessTypeID === CLIENT_TYPES.Company ||
+            props.businessTypeID === CLIENT_TYPES.LLP) && (
+            <section className="cp-card">
+              <div className="cp-card-head">
                 <div>
-                  {props.officersForm?.map((i, index) => {
-                    return (
-                      <div className="fieldset-group" id={`Partner_${index}`}>
-                        <label class="fieldset-group-label">
-                          {" "}
-                          Partner {index + 1}{" "}
-                        </label>
-                        <label
-                          htmlFor=""
-                          className="fieldset-group-label-1 required"
-                        >
-                          {props.officersForm?.length === 1 ? null : (
-                            <button
-                              className="btn btn-sm btn-danger gap-1 delete-fieldset-group"
-                              onClick={() => props.deleteOfficer(index)}
-                            >
-                              <i class="bi bi-trash3"></i>
-                              Delete Partner
-                            </button>
-                          )}
-                        </label>
-                        <div
-                          style={{ alignItems: "center" }}
-                          className="align-right text-right mb-2"
-                        >
-                          <Switch
-                            id={`checkbox${index}`}
-                            checked={
-                              props.officersForm[index]?.isAuthorisedSignatory
-                            }
-                            onChange={(e) => handleSwitchToggle(e, index)}
-                            color="primary"
-                          />
-                          <div
-                            htmlFor={`checkbox${index}`}
-                            className="isAuthorized"
-                          >
-                            Authorised Signatory
-                          </div>
-                        </div>
-                        {props.officersForm.length === 0 && (
-                          <div className="row fieldset flex-center-div">
-                            <div className="col-lg-12 text-end">
-                              <span className="validation">
-                                {" "}
-                                At least 1 authorised partner is required.{" "}
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                        {props.authoritySignatorySignatory &&
-                          props.officerError &&
-                          props.AuthorityCount === 0 && (
-                            <div className="row fieldset flex-center-div">
-                              <div className="col-lg-12 text-end">
-                                <span className="validation">
-                                  {" "}
-                                  At least 1 authorised partner is
-                                  required.{" "}
-                                </span>
-                              </div>
-                            </div>
-                          )}
-                        <div className="row fieldset">
-                          <div className="col-md-3 col-sm-12 text-start text-md-end">
-                            <label class="fieldset-label required">
-                              First Name
-                              <span style={{ color: "#ec4561" }}>*</span>
-                            </label>
-                          </div>
-                          <div class="col-md-9 col-sm-12">
-                            <input
-                              type="text"
-                              style={{ padding: "5px" }}
-                              class="input-text"
-                              placeholder="First Name"
-                              value={
-                                props.officersForm[index].firstName
-                                  ? props.officersForm[index].firstName
-                                      .charAt(0)
-                                      .toUpperCase() +
-                                    props.officersForm[index].firstName
-                                      .slice(1)
-                                      .toLowerCase()
-                                  : ""
-                              }
-                              onChange={(e) => {
-                                const inputValue = e.target.value.trim();
-                                // Reject input if it contains numeric characters
-                                // Remove all spaces and dots
-                                const cleanedValue = inputValue.replace(
-                                  /[.\s]/g,
-                                  "",
-                                );
-
-                                // Reject input if it starts with a digit
-                                if (/\d/.test(cleanedValue)) {
-                                  return;
-                                }
-                                const capitalizedValue =
-                                  cleanedValue.charAt(0).toUpperCase() +
-                                  cleanedValue.slice(1);
-
-                                props.OnOfficerChange(
-                                  index,
-                                  "firstName",
-                                  capitalizedValue,
-                                );
-                              }}
-                              maxLength={30}
-                            />
-                            {props.officerError &&
-                            (props.officersForm[index].firstName === null ||
-                              props.officersForm[index].firstName === "") ? (
-                              <span className="validation">
-                                {ERROR_MESSAGES}
-                              </span>
-                            ) : (
-                              ""
-                            )}
-                          </div>
-                          <div className="mb-2"></div>
-                          <div className="col-md-3 col-sm-12 text-start text-md-end">
-                            <label class="fieldset-label required">
-                              Last Name
-                              <span style={{ color: "#ec4561" }}>*</span>
-                            </label>
-                          </div>
-                          <div class="col-md-9 col-sm-12">
-                            <input
-                              type="text"
-                              style={{ padding: "5px" }}
-                              class="input-text"
-                              placeholder="Last Name"
-                              value={
-                                props.officersForm[index].lastName
-                                  ? props.officersForm[index].lastName
-                                      .charAt(0)
-                                      .toUpperCase() +
-                                    props.officersForm[index].lastName
-                                      .slice(1)
-                                      .toLowerCase()
-                                  : ""
-                              }
-                              onChange={(e) => {
-                                const inputValue = e.target.value;
-
-                                // Remove all spaces and dots
-                                const cleanedValue = inputValue.replace(
-                                  /[.\s]/g,
-                                  "",
-                                );
-
-                                // Reject input if it starts with a digit
-                                if (/\d/.test(cleanedValue)) {
-                                  return;
-                                }
-
-                                const capitalizedValue =
-                                  cleanedValue.charAt(0).toUpperCase() +
-                                  cleanedValue.slice(1);
-
-                                props.OnOfficerChange(
-                                  index,
-                                  "lastName",
-                                  capitalizedValue,
-                                );
-                              }}
-                              maxLength={30}
-                            />
-                            {props.officerError &&
-                            (props.officersForm[index].lastName === null ||
-                              props.officersForm[index].lastName === "") ? (
-                              <span className="validation">
-                                {ERROR_MESSAGES}
-                              </span>
-                            ) : (
-                              ""
-                            )}
-                          </div>
-                        </div>
-
-                        <div class="row fieldset">
-                          <div class="col-md-3 col-sm-12 text-start text-md-end">
-                            <label class="fieldset-label required">Phone</label>
-                            <span style={{ color: "#ec4561" }}>*</span>
-                          </div>
-                          <div className="col-md-9 col-sm-12 ">
-                            <div className="phone-input-div">
-                              <Select
-                                style={{ padding: "5px", width: "20%" }}
-                                className="createCompanyInfo"
-                                options={props.countryCodes}
-                                value={
-                                  props.officersForm[index]?.phoneCountryCodeID
-                                }
-                                onChange={(e) => {
-                                  setIndex(index);
-                                  props.OnOfficerChange(
-                                    index,
-                                    "phoneCountryCodeID",
-                                    e,
-                                  );
-                                  props.OnOfficerChange(
-                                    index,
-                                    "countryCodeID",
-                                    e.value,
-                                  );
-                                }}
-                              />
-                              <div className="phone-input-number-div">
-                                <input
-                                  style={{ width: "100%" }}
-                                  className="input-text"
-                                  type="text"
-                                  placeholder="Phone"
-                                  value={props.officersForm[index].phoneNo}
-                                  onChange={(e) => {
-                                    // Ensure that the input only contains numeric characters
-                                    const sanitizedInput = e.target.value
-                                      .replace(/[^0-9]/g, "")
-                                      .slice(0, 15);
-                                    props.OnOfficerChange(
-                                      index,
-                                      "phoneNo",
-                                      sanitizedInput,
-                                    );
-                                  }}
-                                />
-                              </div>
-                            </div>
-                            {props.officerError &&
-                            (props.officersForm[index]?.phoneCountryCodeID ===
-                              "" ||
-                              props.officersForm[index]?.phoneCountryCodeID ===
-                                null ||
-                              props.officersForm[index].phoneNo === "" ||
-                              props.officersForm[index].phoneNo === null) ? (
-                              <span className="validation">
-                                {ERROR_MESSAGES}
-                              </span>
-                            ) : props.officerError &&
-                              !isValidPhoneNumber(
-                                props.officersForm[index].phoneNo,
-                              ) ? (
-                              <span className="validation">
-                                {" "}
-                                Invalid phone number{" "}
-                              </span>
-                            ) : (
-                              ""
-                            )}
-                          </div>
-                          <div className="mb-2"></div>
-
-                          <div class="col-md-3 col-sm-12 text-start text-md-end">
-                            <label class="fieldset-label required">
-                              Email
-                              <span className="text-danger">*</span>
-                            </label>
-                          </div>
-                          <div class="col-md-9 col-sm-12">
-                            <input
-                              placeholder="Email"
-                              className="input-text"
-                              type="email"
-                              maxLength={50}
-                              value={props.officersForm[index]?.emailID}
-                              onChange={(e) => {
-                                // Get the entered value
-                                const enteredValue = e.target.value
-                                  .trim()
-                                  .toLowerCase();
-
-                                // Check for consecutive dots
-                                if (enteredValue.includes("..")) {
-                                  // If consecutive dots found, remove the last dot
-                                  const correctedValue = enteredValue.replace(
-                                    /\.+/g,
-                                    ".",
-                                  );
-                                  // Update the value in the parent component
-                                  props.OnOfficerChange(
-                                    index,
-                                    "emailID",
-                                    correctedValue,
-                                  );
-                                  return;
-                                }
-
-                                // Update the value in the parent component
-                                props.OnOfficerChange(
-                                  index,
-                                  "emailID",
-                                  enteredValue,
-                                );
-                              }}
-                            />
-                            {props.officerError &&
-                              (props.officersForm[index].emailID === null ||
-                              props.officersForm[index].emailID === "" ? (
-                                <span className="validation">
-                                  {ERROR_MESSAGES}
-                                </span>
-                              ) : (
-                                !isValidEmail(
-                                  props.officersForm[index].emailID,
-                                ) && (
-                                  <span className="validation">
-                                    Invalid email pattern
-                                  </span>
-                                )
-                              ))}
-                          </div>
-                        </div>
-                        <div class="row fieldset">
-                          <div class="col-md-3 col-sm-12 text-start text-md-end">
-                            <label class="fieldset-label required">
-                              Residential Address
-                              <span className="text-danger">*</span>
-                            </label>
-                          </div>
-                          <div class="col-md-9 col-sm-12">
-                            <input
-                              className="input-text"
-                              type="text"
-                              style={{ cursor: "pointer" }}
-                              placeholder="Residential Address"
-                              value={
-                                props.concatenatedResidentialAddress[index]
-                                  ?.officersFullAddress
-                              }
-                              onMouseDown={(e) => {
-                                e.preventDefault();
-                                props.setAddressPopUpTitle(
-                                  "Residential Address",
-                                );
-                                handleOpenRegisterOfficeAddressPopup(e, index);
-                              }}
-                              autoComplete="off"
-                            />
-                            {props.officerError &&
-                            (props.concatenatedResidentialAddress[index]
-                              .officersFullAddress === null ||
-                              props.concatenatedResidentialAddress[index]
-                                .officersFullAddress === "") ? (
-                              <span className="validation">
-                                {ERROR_MESSAGES}
-                              </span>
-                            ) : (
-                              ""
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  <h2 className="cp-card-title">Officer Details</h2>
+                  <p className="cp-card-subtitle">
+                    Officer information and authorised signatories.
+                  </p>
                 </div>
-              )}
-              {(props.businessTypeID === CLIENT_TYPES.Company ||
-                props.businessTypeID === CLIENT_TYPES.LLP) && (
-                <div>
-                  {props.officersForm?.map((i, index) => {
-                    return (
-                      <div className="fieldset-group " id={`Officers${index}`}>
-                        <label class="fieldset-group-label">
-                          {" "}
-                          Officer {index + 1}{" "}
-                        </label>
-                        <label
-                          htmlFor=""
-                          className="fieldset-group-label-1 required"
-                        >
+              </div>
+
+              <div className="cp-card-body">
+                {props.officersForm?.map((i, index) => {
+                  return (
+                    <div
+                      className="cp-subcard"
+                      id={`Officers${index}`}
+                      key={index}
+                    >
+                      <div className="cp-subcard-head">
+                        <span className="cp-subcard-title">
+                          Officer {index + 1}
+                        </span>
+                        <div className="cp-subcard-actions">
+                          <div className="cp-signatory">
+                            <Switch
+                              id="checkbox"
+                              checked={
+                                props.officersForm[index]?.isAuthorisedSignatory
+                              }
+                              onChange={(e) => handleSwitchToggle(e, index)}
+                              color="primary"
+                            />
+                            <div className="isAuthorized">
+                              Authorised Signatory
+                            </div>
+                          </div>
                           {props.officersForm?.length === 1 ? null : (
                             <button
-                              className="btn btn-sm btn-danger gap-1 delete-fieldset-group"
+                              className="btn btn-sm btn-danger cp-btn cp-btn-danger"
                               onClick={() => props.deleteOfficer(index)}
                             >
-                              <i class="bi bi-trash3 "></i>
+                              <i className="bi bi-trash3"></i>
                               Delete Officer
                             </button>
                           )}
-                        </label>
-                        <div
-                          style={{ alignItems: "center" }}
-                          className="align-right text-right mb-2"
-                        >
-                          <Switch
-                            id="checkbox"
-                            checked={
-                              props.officersForm[index]?.isAuthorisedSignatory
-                            }
-                            onChange={(e) => handleSwitchToggle(e, index)}
-                            color="primary"
-                          />
-                          <div className="isAuthorized">
-                            Authorised Signatory
-                          </div>
                         </div>
-                        {props.officersForm.length === 0 && (
-                          <div className="row fieldset flex-center-div">
-                            <div className="col-lg-12 text-end">
-                              <span className="validation">
-                                {" "}
-                                At least 1 authorised officer is required.{" "}
-                              </span>
-                            </div>
-                          </div>
+                      </div>
+
+                      {props.officersForm.length === 0 && (
+                        <span className="validation cp-validation cp-validation-block">
+                          {" "}
+                          At least 1 authorised officer is required.{" "}
+                        </span>
+                      )}
+                      {props.authoritySignatorySignatory &&
+                        props.officerError &&
+                        props.AuthorityCount === 0 && (
+                          <span className="validation cp-validation cp-validation-block">
+                            {" "}
+                            At least 1 authorised officer is required.{" "}
+                          </span>
                         )}
-                        {props.authoritySignatorySignatory &&
-                          props.officerError &&
-                          props.AuthorityCount === 0 && (
-                            <div className="row fieldset flex-center-div">
-                              <div className="col-lg-12 text-end">
-                                <span className="validation">
-                                  {" "}
-                                  At least 1 authorised officer is
-                                  required.{" "}
-                                </span>
-                              </div>
-                            </div>
+
+                      <div className="cp-grid">
+                        <div className="cp-field">
+                          <label className="cp-label">
+                            First Name<span className="cp-req">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            className="input-text cp-input"
+                            placeholder="First Name"
+                            value={
+                              props.officersForm[index].firstName
+                                ? props.officersForm[index].firstName
+                                    .charAt(0)
+                                    .toUpperCase() +
+                                  props.officersForm[index].firstName
+                                    .slice(1)
+                                    .toLowerCase()
+                                : ""
+                            }
+                            onChange={(e) => {
+                              const inputValue = e.target.value.trim();
+                              // Reject input if it contains numeric characters
+                              // Remove all spaces and dots
+                              const cleanedValue = inputValue.replace(
+                                /[.\s]/g,
+                                "",
+                              );
+
+                              // Reject input if it starts with a digit
+                              if (/\d/.test(cleanedValue)) {
+                                return;
+                              }
+                              const capitalizedValue =
+                                cleanedValue.charAt(0).toUpperCase() +
+                                cleanedValue.slice(1);
+
+                              props.OnOfficerChange(
+                                index,
+                                "firstName",
+                                capitalizedValue,
+                              );
+                            }}
+                            maxLength={30}
+                          />
+                          {props.officerError &&
+                          (props.officersForm[index].firstName === null ||
+                            props.officersForm[index].firstName === undefined ||
+                            props.officersForm[index].firstName === "") ? (
+                            <span className="validation cp-validation">
+                              {ERROR_MESSAGES}
+                            </span>
+                          ) : (
+                            ""
                           )}
-                        <div className="row fieldset">
-                          <div className="col-md-3 col-sm-12 text-start text-md-end">
-                            <label class="fieldset-label required">
-                              First Name
-                              <span style={{ color: "#ec4561" }}>*</span>
-                            </label>
-                          </div>
-                          <div class="col-md-9 col-sm-12 ">
-                            <input
-                              type="text"
-                              style={{ padding: "5px" }}
-                              class="input-text"
-                              placeholder="First Name"
-                              value={
-                                props.officersForm[index].firstName
-                                  ? props.officersForm[index].firstName
-                                      .charAt(0)
-                                      .toUpperCase() +
-                                    props.officersForm[index].firstName
-                                      .slice(1)
-                                      .toLowerCase()
-                                  : ""
-                              }
-                              onChange={(e) => {
-                                const inputValue = e.target.value.trim();
-                                // Reject input if it contains numeric characters
-                                // Remove all spaces and dots
-                                const cleanedValue = inputValue.replace(
-                                  /[.\s]/g,
-                                  "",
-                                );
-
-                                // Reject input if it starts with a digit
-                                if (/\d/.test(cleanedValue)) {
-                                  return;
-                                }
-                                const capitalizedValue =
-                                  cleanedValue.charAt(0).toUpperCase() +
-                                  cleanedValue.slice(1);
-
-                                props.OnOfficerChange(
-                                  index,
-                                  "firstName",
-                                  capitalizedValue,
-                                );
-                              }}
-                              maxLength={30}
-                            />
-                            {props.officerError &&
-                            (props.officersForm[index].firstName === null ||
-                              props.officersForm[index].firstName ===
-                                undefined ||
-                              props.officersForm[index].firstName === "") ? (
-                              <span className="validation">
-                                {ERROR_MESSAGES}
-                              </span>
-                            ) : (
-                              ""
-                            )}
-                          </div>
-                          <div className="mb-2"></div>
-                          <div className="col-md-3 col-sm-12 text-start text-md-end">
-                            <label class="fieldset-label required">
-                              Last Name
-                              <span style={{ color: "#ec4561" }}>*</span>
-                            </label>
-                          </div>
-                          <div class="col-md-9 col-sm-12 ">
-                            <input
-                              type="text"
-                              style={{ padding: "5px" }}
-                              class="input-text"
-                              placeholder="Last Name"
-                              value={
-                                props.officersForm[index].lastName
-                                  ? props.officersForm[index].lastName
-                                      .charAt(0)
-                                      .toUpperCase() +
-                                    props.officersForm[index].lastName
-                                      .slice(1)
-                                      .toLowerCase()
-                                  : ""
-                              }
-                              onChange={(e) => {
-                                const inputValue = e.target.value;
-
-                                // Remove all spaces and dots
-                                const cleanedValue = inputValue.replace(
-                                  /[.\s]/g,
-                                  "",
-                                );
-
-                                // Reject input if it starts with a digit
-                                if (/\d/.test(cleanedValue)) {
-                                  return;
-                                }
-
-                                const capitalizedValue =
-                                  cleanedValue.charAt(0).toUpperCase() +
-                                  cleanedValue.slice(1);
-
-                                props.OnOfficerChange(
-                                  index,
-                                  "lastName",
-                                  capitalizedValue,
-                                );
-                              }}
-                              maxLength={30}
-                            />
-                            {props.officerError &&
-                            (props.officersForm[index].lastName === null ||
-                              props.officersForm[index].lastName === "") ? (
-                              <span className="validation">
-                                {ERROR_MESSAGES}
-                              </span>
-                            ) : (
-                              ""
-                            )}
-                          </div>
                         </div>
-                        <div className="row fieldset ">
-                          <div className="col-md-3 col-sm-12 text-start text-md-end">
-                            <label class="fieldset-label required">
-                              Role
-                              <span style={{ color: "#ec4561" }}>*</span>
-                            </label>
-                          </div>
-                          <div class="col-md-9 col-sm-12 ">
-                            <input
-                              maxLength={30}
-                              type="text"
-                              style={{ padding: "5px" }}
-                              class="input-text"
-                              placeholder="Role"
-                              value={props.officersForm[index]?.officerRole}
-                              onChange={(e) => {
-                                const inputValue = e.target.value.trimLeft();
-                                const capitalizedValue =
-                                  inputValue.charAt(0).toUpperCase() +
-                                  inputValue.slice(1);
 
-                                props.OnOfficerChange(
-                                  index,
-                                  "officerRole",
-                                  capitalizedValue,
-                                );
-                              }}
-                            />
-                            {props.officerError &&
-                            (props.officersForm[index].officerRole === null ||
-                              props.officersForm[index].officerRole === "") ? (
-                              <span className="validation">
-                                {ERROR_MESSAGES}
-                              </span>
-                            ) : (
-                              ""
-                            )}
-                          </div>
-                          <div className="mb-2"></div>
-                          <div className="col-md-3 col-sm-12 text-start text-md-end">
-                            <label class="fieldset-label required">
-                              Appointed On
-                              <span style={{ color: "#ec4561" }}>*</span>
-                            </label>
-                          </div>
-                          <div class="col-md-9 col-sm-12 ">
+                        <div className="cp-field">
+                          <label className="cp-label">
+                            Last Name<span className="cp-req">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            className="input-text cp-input"
+                            placeholder="Last Name"
+                            value={
+                              props.officersForm[index].lastName
+                                ? props.officersForm[index].lastName
+                                    .charAt(0)
+                                    .toUpperCase() +
+                                  props.officersForm[index].lastName
+                                    .slice(1)
+                                    .toLowerCase()
+                                : ""
+                            }
+                            onChange={(e) => {
+                              const inputValue = e.target.value;
+
+                              // Remove all spaces and dots
+                              const cleanedValue = inputValue.replace(
+                                /[.\s]/g,
+                                "",
+                              );
+
+                              // Reject input if it starts with a digit
+                              if (/\d/.test(cleanedValue)) {
+                                return;
+                              }
+
+                              const capitalizedValue =
+                                cleanedValue.charAt(0).toUpperCase() +
+                                cleanedValue.slice(1);
+
+                              props.OnOfficerChange(
+                                index,
+                                "lastName",
+                                capitalizedValue,
+                              );
+                            }}
+                            maxLength={30}
+                          />
+                          {props.officerError &&
+                          (props.officersForm[index].lastName === null ||
+                            props.officersForm[index].lastName === "") ? (
+                            <span className="validation cp-validation">
+                              {ERROR_MESSAGES}
+                            </span>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+
+                        <div className="cp-field">
+                          <label className="cp-label">
+                            Role<span className="cp-req">*</span>
+                          </label>
+                          <input
+                            maxLength={30}
+                            type="text"
+                            className="input-text cp-input"
+                            placeholder="Role"
+                            value={props.officersForm[index]?.officerRole}
+                            onChange={(e) => {
+                              const inputValue = e.target.value.trimLeft();
+                              const capitalizedValue =
+                                inputValue.charAt(0).toUpperCase() +
+                                inputValue.slice(1);
+
+                              props.OnOfficerChange(
+                                index,
+                                "officerRole",
+                                capitalizedValue,
+                              );
+                            }}
+                          />
+                          {props.officerError &&
+                          (props.officersForm[index].officerRole === null ||
+                            props.officersForm[index].officerRole === "") ? (
+                            <span className="validation cp-validation">
+                              {ERROR_MESSAGES}
+                            </span>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+
+                        <div className="cp-field">
+                          <label className="cp-label">
+                            Appointed On<span className="cp-req">*</span>
+                          </label>
+                          <div className="cp-datepicker">
                             <DatePicker
                               minDate={minDate}
                               maxDate={maxDate}
-                              style={{ width: "100%" }}
                               format="dd/MM/y"
                               dayPlaceholder="dd"
                               monthPlaceholder="mm"
@@ -2094,261 +2013,251 @@ const OfficerDetails = (props) => {
                                 props.OnOfficerChange(index, "appointedOn", e)
                               }
                             />
-                            {/* {props.InvalidAppointedOnDate &&
-                                !isValidDate(
-                                  props.officersForm[index]?.appointedOn
-                                ) ? (
-                                <span className="validation">Invalid Date</span>
-                              ) : null} */}
+                          </div>
+                          {/* {props.InvalidAppointedOnDate &&
+                              !isValidDate(
+                                props.officersForm[index]?.appointedOn
+                              ) ? (
+                              <span className="validation">Invalid Date</span>
+                            ) : null} */}
 
-                            {props.officerError &&
-                            (props.officersForm[index]?.appointedOn === null ||
-                              props.officersForm[index]?.appointedOn === "") ? (
-                              <span className="validation">
-                                {ERROR_MESSAGES}
-                              </span>
-                            ) : (
-                              ""
-                            )}
-                          </div>
+                          {props.officerError &&
+                          (props.officersForm[index]?.appointedOn === null ||
+                            props.officersForm[index]?.appointedOn === "") ? (
+                            <span className="validation cp-validation">
+                              {ERROR_MESSAGES}
+                            </span>
+                          ) : (
+                            ""
+                          )}
                         </div>
-                        <div class="row fieldset">
-                          <div class="col-md-3 col-sm-12 text-start text-md-end ">
-                            <label class="fieldset-label required">Phone</label>
-                          </div>
-                          <div className="col-md-9 col-sm-12">
-                            <div className="phone-input-div">
-                              <Select
-                                style={{ padding: "5px", width: "20%" }}
-                                class="createCompanyInfo"
-                                options={props.countryCodes}
-                                value={
-                                  props.officersForm[index]?.phoneCountryCodeID
-                                }
+
+                        <div className="cp-field">
+                          <label className="cp-label">Phone</label>
+                          <div className="phone-input-div cp-phone">
+                            <Select
+                              className="createCompanyInfo cp-select"
+                              options={props.countryCodes}
+                              value={
+                                props.officersForm[index]?.phoneCountryCodeID
+                              }
+                              onChange={(e) => {
+                                setIndex(index);
+                                props.OnOfficerChange(
+                                  index,
+                                  "phoneCountryCodeID",
+                                  e,
+                                );
+                                props.OnOfficerChange(
+                                  index,
+                                  "countryCodeID",
+                                  e.value,
+                                );
+                              }}
+                            />
+                            <div className="phone-input-number-div">
+                              <input
+                                className="input-text cp-input"
+                                type="text"
+                                placeholder="Phone"
+                                value={props.officersForm[index].phoneNo}
                                 onChange={(e) => {
-                                  setIndex(index);
+                                  const sanitizedInput = e.target.value
+                                    .replace(/[^0-9]/g, "")
+                                    .slice(0, 15);
                                   props.OnOfficerChange(
                                     index,
-                                    "phoneCountryCodeID",
-                                    e,
-                                  );
-                                  props.OnOfficerChange(
-                                    index,
-                                    "countryCodeID",
-                                    e.value,
+                                    "phoneNo",
+                                    sanitizedInput,
                                   );
                                 }}
                               />
-                              <div className="phone-input-number-div">
-                                <input
-                                  style={{ width: "100%" }}
-                                  className="input-text"
-                                  type="text"
-                                  placeholder="Phone"
-                                  value={props.officersForm[index].phoneNo}
-                                  onChange={(e) => {
-                                    const sanitizedInput = e.target.value
-                                      .replace(/[^0-9]/g, "")
-                                      .slice(0, 15);
-                                    props.OnOfficerChange(
-                                      index,
-                                      "phoneNo",
-                                      sanitizedInput,
-                                    );
-                                  }}
-                                />
-                              </div>
                             </div>
-                            {props.officerError &&
-                            props.officersForm[index].phoneNo !== null &&
-                            props.officersForm[index].phoneNo !== "" &&
-                            props.officersForm[index].phoneNo !== undefined &&
-                            !isValidPhoneNumber(
-                              props.officersForm[index].phoneNo,
-                            ) ? (
-                              <span className="validation">
-                                {" "}
-                                Invalid phone number{" "}
-                              </span>
-                            ) : (
-                              ""
-                            )}
                           </div>
-                          <div className="mb-2"></div>
-                          <div class="col-md-3 col-sm-12 text-start text-md-end">
-                            <label class="fieldset-label required">
-                              Email
-                              <span className="text-danger">*</span>
-                            </label>
-                          </div>
-                          <div class="col-md-9 col-sm-12">
-                            <input
-                              className="input-text"
-                              placeholder="Email"
-                              type="text"
-                              maxLength={50}
-                              value={props.officersForm[index]?.emailID}
-                              onChange={(e) => {
-                                // Get the entered value
-                                const enteredValue = e.target.value
-                                  .trim()
-                                  .toLowerCase();
+                          {props.officerError &&
+                          props.officersForm[index].phoneNo !== null &&
+                          props.officersForm[index].phoneNo !== "" &&
+                          props.officersForm[index].phoneNo !== undefined &&
+                          !isValidPhoneNumber(
+                            props.officersForm[index].phoneNo,
+                          ) ? (
+                            <span className="validation cp-validation">
+                              {" "}
+                              Invalid phone number{" "}
+                            </span>
+                          ) : (
+                            ""
+                          )}
+                        </div>
 
-                                // Check for consecutive dots
-                                if (enteredValue.includes("..")) {
-                                  // If consecutive dots found, remove the last dot
-                                  const correctedValue = enteredValue.replace(
-                                    /\.+/g,
-                                    ".",
-                                  );
-                                  // Update the email address in the parent component
-                                  props.OnOfficerChange(
-                                    index,
-                                    "emailID",
-                                    correctedValue,
-                                  );
-                                  return;
-                                }
+                        <div className="cp-field">
+                          <label className="cp-label">
+                            Email<span className="cp-req">*</span>
+                          </label>
+                          <input
+                            className="input-text cp-input"
+                            placeholder="Email"
+                            type="text"
+                            maxLength={50}
+                            value={props.officersForm[index]?.emailID}
+                            onChange={(e) => {
+                              // Get the entered value
+                              const enteredValue = e.target.value
+                                .trim()
+                                .toLowerCase();
 
+                              // Check for consecutive dots
+                              if (enteredValue.includes("..")) {
+                                // If consecutive dots found, remove the last dot
+                                const correctedValue = enteredValue.replace(
+                                  /\.+/g,
+                                  ".",
+                                );
                                 // Update the email address in the parent component
                                 props.OnOfficerChange(
                                   index,
                                   "emailID",
-                                  enteredValue,
+                                  correctedValue,
                                 );
-                              }}
-                            />
-                            {props.officerError &&
-                              (props.officersForm[index].emailID === null ||
-                              props.officersForm[index].emailID === "" ? (
-                                <span className="validation">
-                                  {ERROR_MESSAGES}
-                                </span>
-                              ) : (
-                                !isValidEmail(
-                                  props.officersForm[index].emailID,
-                                ) && (
-                                  <span className="validation">
-                                    Invalid email pattern
-                                  </span>
-                                )
-                              ))}
-                          </div>
-                        </div>
-                        <div class="row fieldset">
-                          <div class="col-md-3 col-sm-12 text-start text-md-end">
-                            <label class="fieldset-label required">
-                              Correspondence Address
-                              <span className="text-danger">*</span>
-                            </label>
-                          </div>
-                          <div class="col-md-9 col-sm-12">
-                            <input
-                              className="input-text"
-                              placeholder="Correspondence Address"
-                              style={{ cursor: "pointer" }}
-                              type="text"
-                              value={
-                                props.concatenatedResidentialAddress[index]
-                                  ?.officersFullAddress
+                                return;
                               }
-                              onMouseDown={(e) => {
-                                e.preventDefault();
-                                props.setAddressPopUpTitle(
-                                  "Correspondence Address",
-                                );
-                                handleOpenRegisterOfficeAddressPopup(e, index);
-                              }}
-                            />
-                            {props.officerError &&
-                            (props.concatenatedResidentialAddress[index]
-                              .officersFullAddress === null ||
-                              props.concatenatedResidentialAddress[index]
-                                .officersFullAddress === "") ? (
-                              <span className="validation">
+
+                              // Update the email address in the parent component
+                              props.OnOfficerChange(
+                                index,
+                                "emailID",
+                                enteredValue,
+                              );
+                            }}
+                          />
+                          {props.officerError &&
+                            (props.officersForm[index].emailID === null ||
+                            props.officersForm[index].emailID === "" ? (
+                              <span className="validation cp-validation">
                                 {ERROR_MESSAGES}
                               </span>
                             ) : (
-                              ""
-                            )}
-                          </div>
+                              !isValidEmail(
+                                props.officersForm[index].emailID,
+                              ) && (
+                                <span className="validation cp-validation">
+                                  Invalid email pattern
+                                </span>
+                              )
+                            ))}
+                        </div>
+
+                        <div className="cp-field cp-field-full">
+                          <label className="cp-label">
+                            Correspondence Address
+                            <span className="cp-req">*</span>
+                          </label>
+                          <input
+                            className="input-text cp-input cp-input-clickable"
+                            placeholder="Correspondence Address"
+                            type="text"
+                            value={
+                              props.concatenatedResidentialAddress[index]
+                                ?.officersFullAddress
+                            }
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              props.setAddressPopUpTitle(
+                                "Correspondence Address",
+                              );
+                              handleOpenRegisterOfficeAddressPopup(e, index);
+                            }}
+                          />
+                          {props.officerError &&
+                          (props.concatenatedResidentialAddress[index]
+                            .officersFullAddress === null ||
+                            props.concatenatedResidentialAddress[index]
+                              .officersFullAddress === "") ? (
+                            <span className="validation cp-validation">
+                              {ERROR_MESSAGES}
+                            </span>
+                          ) : (
+                            ""
+                          )}
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-            <AddressModal
-              title={props.addressPopUpTitle}
-              setAddressUpdatedDatetime={props.setAddressUpdatedDatetime}
-              fullAddress={props.fullAddress}
-              setFullAddress={props.setFullAddress}
-              openAddressPopUp={openAddressPopUp}
-              address={props.address}
-              setAddress={props.setAddress}
-              handleAddressPopUpClose={handleAddressPopUpClose}
-              setOpenAddressPopUp={setOpenAddressPopUp}
-            />
-          </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
         </div>
+
+        <AddressModal
+          title={props.addressPopUpTitle}
+          setAddressUpdatedDatetime={props.setAddressUpdatedDatetime}
+          fullAddress={props.fullAddress}
+          setFullAddress={props.setFullAddress}
+          openAddressPopUp={openAddressPopUp}
+          address={props.address}
+          setAddress={props.setAddress}
+          handleAddressPopUpClose={handleAddressPopUpClose}
+          setOpenAddressPopUp={setOpenAddressPopUp}
+        />
       </div>
-      <span
-        style={{ display: "flex", justifyContent: "center" }}
-        className="validation"
-      >
-        {props.errorMessage}
-      </span>
-      <div class="separator"></div>
-      <div class="row fieldset modal-footer">
-        <div class="col-lg-12 hstack gap-2 justify-content-end text-right mt-4">
-          {props.businessTypeID === CLIENT_TYPES.Partnership && (
-            <button
-              className="btn btn-md btn-primary create-item-btn"
-              onClick={() => {
-                props.setOfficersError(false);
-                props.addOfficer();
-              }}
-            >
-              <i class="bi bi-plus-circle "></i>
-              <span style={{ paddingLeft: "5px" }}>Add Partner</span>
-            </button>
-          )}
-          {props.businessTypeID === CLIENT_TYPES.LLP && (
-            <button
-              className="btn btn-md btn-primary create-item-btn"
-              onClick={props.addOfficer}
-            >
-              <i class="bi bi-plus-circle "></i>
-              <span style={{ paddingLeft: "5px" }}>Add Officer</span>
-            </button>
-          )}
-          {props.businessTypeID === CLIENT_TYPES.Company && (
-            <button
-              className="btn btn-md btn-primary create-item-btn"
-              onClick={props.addOfficer}
-            >
-              <i class="bi bi-plus-circle "></i>
-              <span style={{ paddingLeft: "5px" }}>Add Officer</span>
-            </button>
-          )}
-          <button class="btn btn-md  btn-light" onClick={props.handleCancel}>
-            <span>Cancel</span>
-          </button>
+
+      {props.errorMessage ? (
+        <span className="validation cp-footer-error">{props.errorMessage}</span>
+      ) : (
+        ""
+      )}
+
+      <div className="cp-footer-bar">
+        {props.businessTypeID === CLIENT_TYPES.Partnership && (
           <button
-            onClick={() => props.handleBackBtnChange(1)}
-            style={{ paddingTop: "5px", marginRight: "4px" }}
-            class="btn btn-md btn-primary create-item-btn"
+            className="btn btn-md btn-primary create-item-btn cp-btn cp-btn-outline cp-btn-add"
+            onClick={() => {
+              props.setOfficersError(false);
+              props.addOfficer();
+            }}
           >
-            <span>Back</span>
+            <i className="bi bi-plus-circle"></i>
+            <span>Add Partner</span>
           </button>
+        )}
+        {props.businessTypeID === CLIENT_TYPES.LLP && (
           <button
-            class="btn btn-md btn-primary create-item-btn"
-            onClick={() => props.handleTabChange(3)}
+            className="btn btn-md btn-primary create-item-btn cp-btn cp-btn-outline cp-btn-add"
+            onClick={props.addOfficer}
           >
-            <span> Next</span>
+            <i className="bi bi-plus-circle"></i>
+            <span>Add Officer</span>
           </button>
-        </div>
+        )}
+        {props.businessTypeID === CLIENT_TYPES.Company && (
+          <button
+            className="btn btn-md btn-primary create-item-btn cp-btn cp-btn-outline cp-btn-add"
+            onClick={props.addOfficer}
+          >
+            <i className="bi bi-plus-circle"></i>
+            <span>Add Officer</span>
+          </button>
+        )}
+
+        <button
+          className="btn btn-md btn-light cp-btn cp-btn-ghost"
+          onClick={props.handleCancel}
+        >
+          <span>Cancel</span>
+        </button>
+        <button
+          onClick={() => props.handleBackBtnChange(1)}
+          className="btn btn-md btn-primary create-item-btn cp-btn cp-btn-ghost"
+        >
+          <span>Back</span>
+        </button>
+        <button
+          className="btn btn-md btn-primary create-item-btn cp-btn cp-btn-primary"
+          onClick={() => props.handleTabChange(3)}
+        >
+          <span>Next</span>
+        </button>
       </div>
     </>
   );
@@ -2461,98 +2370,86 @@ const OtherInformation = (props) => {
   };
   return (
     <>
-      <div className="create-practice-height scrollbar" id="style-1">
-        <div className="tab-content">
-          <div className="row">
-            <div className="col-xl-12 col-lg-12">
-              <div className="row fieldset">
-                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                  <label class="fieldset-label  required">
-                    Preferred Currency
+      <div className="create-practice-height scrollbar cp-scroll" id="style-1">
+        <div className="cp-body">
+          <section className="cp-card">
+            <div className="cp-card-head">
+              <div>
+                <h2 className="cp-card-title">Currency &amp; Tax</h2>
+                <p className="cp-card-subtitle">
+                  Billing currency and indirect tax registration.
+                </p>
+              </div>
+            </div>
+
+            <div className="cp-card-body">
+              <div className="cp-grid">
+                <div className="cp-field">
+                  <label className="cp-label">
+                    Preferred Currency<span className="cp-req">*</span>
                   </label>
-                  <span class="text-danger">*</span>
-                </div>
-                <div className="col-md-9 col-sm-12">
-                  <div className="input-group">
-                    <Select
-                      style={{ padding: "5px", width: "20%" }}
-                      className="CurrencySelect"
-                      options={props.currencyType}
-                      value={currencyFilter}
-                      onChange={(e) => {
-                        props.setOtherInfo({
-                          ...props.otherInfo,
-                          preferredCurrency: e.value,
-                        });
-                      }}
-                    />
-                  </div>
+                  <Select
+                    className="CurrencySelect cp-select"
+                    options={props.currencyType}
+                    value={currencyFilter}
+                    onChange={(e) => {
+                      props.setOtherInfo({
+                        ...props.otherInfo,
+                        preferredCurrency: e.value,
+                      });
+                    }}
+                  />
                   {props.requireOtherErrorMessage &&
                   (props.otherInfo.preferredCurrency === "" ||
                     props.otherInfo.preferredCurrency === null) ? (
-                    <span className="validation">{ERROR_MESSAGES}</span>
+                    <span className="validation cp-validation">
+                      {ERROR_MESSAGES}
+                    </span>
                   ) : (
                     ""
                   )}
                 </div>
-              </div>
-              <div className="row fieldset mt-3">
-                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                  <label class="fieldset-label required">
-                    {taxName} Registered
-                  </label>
+
+                <div className="cp-field">
+                  <label className="cp-label">{taxName} Registered</label>
+                  <Select
+                    className="CurrencySelect cp-select"
+                    options={Utils.VAT_Registered}
+                    value={VATRegFilter}
+                    onChange={(e) =>
+                      props.setOtherInfo({
+                        ...props.otherInfo,
+                        VATReg: e.value,
+                      })
+                    }
+                  />
                 </div>
-                <div className="col-md-9 col-sm-12">
-                  <div className="input-group">
-                    <Select
-                      className="CurrencySelect"
-                      options={Utils.VAT_Registered}
-                      value={VATRegFilter}
-                      onChange={(e) =>
-                        props.setOtherInfo({
-                          ...props.otherInfo,
-                          VATReg: e.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-              {props.otherInfo.VATReg === 0 && (
-                <>
-                  <div className="row fieldset mt-3">
-                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                      <label class="fieldset-label required">
-                        {taxName} Number
+
+                {props.otherInfo.VATReg === 0 && (
+                  <>
+                    <div className="cp-field">
+                      <label className="cp-label">{taxName} Number</label>
+                      <input
+                        type="text"
+                        className="input-text cp-input"
+                        placeholder={`${taxName} Number`}
+                        value={props.otherInfo.VATNumber}
+                        onChange={(e) => {
+                          const sanitizedInput = e.target.value
+                            .trimStart()
+                            .slice(0, 12);
+                          props.setOtherInfo({
+                            ...props.otherInfo,
+                            VATNumber: sanitizedInput.toUpperCase(),
+                          });
+                        }}
+                      />
+                    </div>
+
+                    <div className="cp-field">
+                      <label className="cp-label">
+                        {taxName} Percentage (%)
                       </label>
-                    </div>
-                    <div className="col-md-9 col-sm-12">
-                      <div className="input-group">
-                        <input
-                          type="text"
-                          className="input-text"
-                          placeholder={`${taxName} Number`}
-                          value={props.otherInfo.VATNumber}
-                          onChange={(e) => {
-                            const sanitizedInput = e.target.value
-                              .trimStart()
-                              .slice(0, 12);
-                            props.setOtherInfo({
-                              ...props.otherInfo,
-                              VATNumber: sanitizedInput.toUpperCase(),
-                            });
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="row fieldset mt-3">
-                    <div class="col-md-3 col-sm-12 text-start text-md-end">
-                      <label class="fieldset-label required">
-                        {taxName} Percentage
-                      </label>
-                    </div>
-                    <div className="col-md-9 col-sm-12">
                       {/* <Slider
                         value={props.otherInfo.indirectTaxPercentage ?? 20}
                         step={0.1}
@@ -2568,146 +2465,124 @@ const OtherInformation = (props) => {
                         }}
                       /> */}
                       <input
-                        className="input-text"
+                        className="input-text cp-input"
                         type="text"
                         value={props.otherInfo.indirectTaxPercentage ?? 20.0}
                         onChange={handleChangeTaxPercentage}
                         max={100}
                       />
+                      {props.requireOtherErrorMessage &&
+                        props.otherInfo.indirectTaxPercentage > 100 && (
+                          <label className="text-danger cp-validation">
+                            Percentage cannot exceed 100
+                          </label>
+                        )}
                     </div>
-                    {props.requireOtherErrorMessage &&
-                      props.otherInfo.indirectTaxPercentage > 100 && (
-                        <label className="text-danger text-center mt-1">
-                          Percentage cannot exceed 100
-                        </label>
-                      )}
-                  </div>
-                </>
-              )}
-              {/* <div className="row fieldset">
-                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                  <label class="fieldset-label  required">
-                    Preferred Currency
-                  </label>
-                  <span class="text-danger">*</span>
-                </div>
-                <div className="col-md-9 col-sm-12">
-                  <div className="input-group">
-                    <Select
-                      style={{ padding: "5px", width: "20%" }}
-                      className="CurrencySelect"
-                      options={props.currencyType}
-                      value={currencyFilter}
-                      onChange={(e) => {
-                        props.setOtherInfo({
-                          ...props.otherInfo,
-                          preferredCurrency: e.value,
-                        });
-                      }}
-                    />
-                  </div>
-                  {props.requireOtherErrorMessage &&
-                    (props.otherInfo.preferredCurrency === "" ||
-                      props.otherInfo.preferredCurrency === null) ? (
-                    <span className="validation">{ERROR_MESSAGES}</span>
-                  ) : (
-                    ""
-                  )}
-                </div>
-              </div> */}
-              <div className="row fieldset ">
-                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                  <label class="fieldset-label required">Website</label>
-                </div>
-                <div className="col-md-9 col-sm-12">
-                  <div className="input-group">
-                    <input
-                      maxLength={100}
-                      type="text"
-                      className="input-text"
-                      placeholder="www.example.com"
-                      value={props.otherInfo.website}
-                      onChange={(e) =>
-                        props.setOtherInfo({
-                          ...props.otherInfo,
-                          website: e.target.value.trim(),
-                        })
-                      }
-                    />
-                  </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </section>
+
+          <section className="cp-card">
+            <div className="cp-card-head">
+              <div>
+                <h2 className="cp-card-title">Contact Information</h2>
+                <p className="cp-card-subtitle">
+                  How clients and the system reach your practice.
+                </p>
+              </div>
+            </div>
+
+            <div className="cp-card-body">
+              <div className="cp-grid">
+                <div className="cp-field">
+                  <label className="cp-label">Website</label>
+                  <input
+                    maxLength={100}
+                    type="text"
+                    className="input-text cp-input"
+                    placeholder="www.example.com"
+                    value={props.otherInfo.website}
+                    onChange={(e) =>
+                      props.setOtherInfo({
+                        ...props.otherInfo,
+                        website: e.target.value.trim(),
+                      })
+                    }
+                  />
                   {props.requireOtherErrorMessage &&
                     props.otherInfo.website !== null &&
                     props.otherInfo.website !== "" &&
                     props.otherInfo.website !== undefined &&
                     !isValidWebUrl(props.otherInfo.website) && (
-                      <span className="validation"> Invalid Url </span>
+                      <span className="validation cp-validation">
+                        {" "}
+                        Invalid Url{" "}
+                      </span>
                     )}
                 </div>
-              </div>
-              <div className="row fieldset ">
-                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                  <label class="fieldset-label required">Contact Email</label>
-                  <span class="text-danger">*</span>
-                </div>
-                <div className="col-md-9 col-sm-12">
-                  <div className="input-group">
-                    <input
-                      type="text"
-                      className="input-text"
-                      placeholder="Email"
-                      maxLength={50}
-                      value={props.otherInfo.contactEmail}
-                      onChange={(e) => {
-                        // Get the entered value
-                        const enteredValue = e.target.value
-                          .trim()
-                          .toLowerCase();
 
-                        // Check for consecutive dots
-                        if (enteredValue.includes("..")) {
-                          // If consecutive dots found, remove the last dot
-                          const correctedValue = enteredValue.replace(
-                            /\.+/g,
-                            ".",
-                          );
-                          // Update the contact email in the state
-                          props.setOtherInfo({
-                            ...props.otherInfo,
-                            contactEmail: correctedValue,
-                          });
-                          return;
-                        }
+                <div className="cp-field">
+                  <label className="cp-label">
+                    Contact Email<span className="cp-req">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="input-text cp-input"
+                    placeholder="Email"
+                    maxLength={50}
+                    value={props.otherInfo.contactEmail}
+                    onChange={(e) => {
+                      // Get the entered value
+                      const enteredValue = e.target.value.trim().toLowerCase();
 
+                      // Check for consecutive dots
+                      if (enteredValue.includes("..")) {
+                        // If consecutive dots found, remove the last dot
+                        const correctedValue = enteredValue.replace(
+                          /\.+/g,
+                          ".",
+                        );
                         // Update the contact email in the state
                         props.setOtherInfo({
                           ...props.otherInfo,
-                          contactEmail: enteredValue,
+                          contactEmail: correctedValue,
                         });
-                      }}
-                    />
-                  </div>
+                        return;
+                      }
+
+                      // Update the contact email in the state
+                      props.setOtherInfo({
+                        ...props.otherInfo,
+                        contactEmail: enteredValue,
+                      });
+                    }}
+                  />
                   {props.requireOtherErrorMessage &&
                   (props.otherInfo.contactEmail === "" ||
                     props.otherInfo.contactEmail === null) ? (
-                    <span className="validation">{ERROR_MESSAGES}</span>
+                    <span className="validation cp-validation">
+                      {ERROR_MESSAGES}
+                    </span>
                   ) : props.requireOtherErrorMessage &&
                     !isValidEmail(props.otherInfo.contactEmail) ? (
-                    <span className="validation"> Invalid Email </span>
+                    <span className="validation cp-validation">
+                      {" "}
+                      Invalid Email{" "}
+                    </span>
                   ) : (
                     ""
                   )}
                 </div>
-              </div>
-              <div className="row fieldset ">
-                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                  <label class="fieldset-label required">Contact Phone</label>
-                  <span class="text-danger">*</span>
-                </div>
-                <div className="col-md-9 col-sm-12">
-                  <div className="phone-input-div">
+
+                <div className="cp-field cp-field-full">
+                  <label className="cp-label">
+                    Contact Phone<span className="cp-req">*</span>
+                  </label>
+                  <div className="phone-input-div cp-phone">
                     <Select
-                      style={{ padding: "5px", width: "20%" }}
-                      class="createCompanyInfo"
+                      className="createCompanyInfo cp-select"
                       options={props.countryCodes}
                       value={PhoneValue}
                       onChange={(e) => {
@@ -2719,8 +2594,7 @@ const OtherInformation = (props) => {
                     />
                     <div className="phone-input-number-div">
                       <input
-                        style={{ width: "100%" }}
-                        className="input-text"
+                        className="input-text cp-input"
                         type="text"
                         placeholder="Phone"
                         value={props.otherInfo.contactPhone}
@@ -2741,76 +2615,81 @@ const OtherInformation = (props) => {
                     props.otherInfo.countryCodeID === null ||
                     props.otherInfo.contactPhone === "" ||
                     props.otherInfo.contactPhone === null) ? (
-                    <span className="validation">{ERROR_MESSAGES}</span>
+                    <span className="validation cp-validation">
+                      {ERROR_MESSAGES}
+                    </span>
                   ) : props.requireOtherErrorMessage &&
                     !isValidPhoneNumber(props.otherInfo.contactPhone) ? (
-                    <span className="validation"> Invalid phone number </span>
+                    <span className="validation cp-validation">
+                      {" "}
+                      Invalid phone number{" "}
+                    </span>
                   ) : (
                     ""
                   )}
                 </div>
               </div>
-              <div className="row fieldset ">
-                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                  <label class="fieldset-label mb-3 required">Logo</label>
-                </div>
-                <div className="col-md-9 col-sm-12">
-                  <div className="">
-                    <div className="input-group">
-                      <div className="col-lg-12 ">
-                        {props.logo ? (
-                          <div className="upload-image-preview-div">
-                            <img
-                              src={props.logo}
-                              style={{
-                                height: "200px",
-                                width: "200px",
-                                objectFit: "contain",
-                              }}
-                              className="upload-image-preview"
-                              alt="Selected Signature"
-                            />
-                            <button
-                              onClick={() => props.setLogo(null)}
-                              style={{ float: "right", paddingTop: "5px" }}
-                              className="btn btn-sm btn-danger  remove-item-btn d-flex gap-1"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        ) : (
-                          <>
-                            <button
-                              className="btn btn-md btn-primary create-item-btn"
-                              data-bs-toggle="modal"
-                              data-bs-target="#LogoUploadModal"
-                              onClick={() => {
-                                setType("Logo");
-                              }}
-                            >
-                              <i class="bi bi-plus-circle margin-right"></i>
-                              <span> Upload Logo</span>
-                            </button>
-                            <div className="text-muted helpMessage">
-                              Supported file types are .jpg, .jpeg, .png up to a
-                              file size of 2MB.
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            </div>
+          </section>
+
+          <section className="cp-card">
+            <div className="cp-card-head">
+              <div>
+                <h2 className="cp-card-title">Branding</h2>
+                <p className="cp-card-subtitle">
+                  Logo, colour and tagline applied to client-facing documents.
+                </p>
               </div>
-              <div className="row fieldset ">
-                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                  <label class="fieldset-label required">Brand Color</label>
+            </div>
+
+            <div className="cp-card-body">
+              <div className="cp-grid">
+                <div className="cp-field cp-field-full">
+                  <label className="cp-label">Logo</label>
+                  {props.logo ? (
+                    <div className="cp-media-box">
+                      <div className="cp-media-preview">
+                        <img
+                          src={props.logo}
+                          className="cp-media-img"
+                          alt="Selected Signature"
+                        />
+                      </div>
+                      <button
+                        onClick={() => props.setLogo(null)}
+                        className="btn btn-sm btn-danger remove-item-btn cp-btn cp-btn-danger"
+                      >
+                        <i className="bi bi-trash3"></i>
+                        <span>Remove</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="cp-upload-box">
+                      <button
+                        className="btn btn-md btn-primary create-item-btn cp-btn cp-btn-outline"
+                        data-bs-toggle="modal"
+                        data-bs-target="#LogoUploadModal"
+                        onClick={() => {
+                          setType("Logo");
+                        }}
+                      >
+                        <i className="bi bi-plus-circle"></i>
+                        <span>Upload Logo</span>
+                      </button>
+                      <span className="cp-hint">
+                        Supported file types are .jpg, .jpeg, .png up to a file
+                        size of 2MB.
+                      </span>
+                    </div>
+                  )}
                 </div>
-                <div className="col-md-9 col-sm-12">
-                  <div className="input-group">
+
+                <div className="cp-field">
+                  <label className="cp-label">Brand Color</label>
+                  <div className="cp-color-row">
                     <input
                       type="color"
-                      class="form-control height"
+                      className="form-control cp-color-swatch"
                       id="exampleColorInput contactNumber"
                       title="Choose your color"
                       value={props.otherInfo.brandColor}
@@ -2821,6 +2700,9 @@ const OtherInformation = (props) => {
                         })
                       }
                     />
+                    <span className="cp-color-hex">
+                      {props.otherInfo.brandColor}
+                    </span>
                   </div>
                   {/* {props.requireOtherErrorMessage &&
                                     (props.otherInfo.brandColor === "" ||
@@ -2830,136 +2712,119 @@ const OtherInformation = (props) => {
                                     ""
                                 )} */}
                 </div>
-              </div>
-              <div className="row fieldset ">
-                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                  <label class="fieldset-label required">
-                    Business Tagline
-                  </label>
-                  {/* <span class="text-danger">*</span> */}
-                </div>
-                <div className="col-md-9 col-sm-12">
-                  <div className="input-group">
-                    <input
-                      maxLength={100}
-                      type="text"
-                      className="input-text"
-                      placeholder="Business Tagline"
-                      value={props.otherInfo.businessTagline}
-                      onChange={(e) => {
-                        const inputValue = e.target.value;
-                        const trimmedValue = inputValue.trimLeft();
-                        const capitalizedValue =
-                          trimmedValue.charAt(0).toUpperCase() +
-                          trimmedValue.slice(1);
 
-                        props.setOtherInfo({
-                          ...props.otherInfo,
-                          businessTagline: capitalizedValue,
-                        });
-                      }}
-                    />
-                  </div>
+                <div className="cp-field">
+                  <label className="cp-label">Business Tagline</label>
+                  <input
+                    maxLength={100}
+                    type="text"
+                    className="input-text cp-input"
+                    placeholder="Business Tagline"
+                    value={props.otherInfo.businessTagline}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      const trimmedValue = inputValue.trimLeft();
+                      const capitalizedValue =
+                        trimmedValue.charAt(0).toUpperCase() +
+                        trimmedValue.slice(1);
+
+                      props.setOtherInfo({
+                        ...props.otherInfo,
+                        businessTagline: capitalizedValue,
+                      });
+                    }}
+                  />
                 </div>
-              </div>
-              <div className="row fieldset">
-                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                  <label class="form-label">
+
+                <div className="cp-field">
+                  <label className="cp-label">
                     Affiliated Accounting Body Name
                   </label>
+                  <input
+                    maxLength={50}
+                    type="text"
+                    className="input-text cp-input"
+                    placeholder="Affiliated Accounting Body Name"
+                    value={props.otherInfo.AffiliatedAcBodyName}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      const trimmedValue = inputValue.trimLeft();
+                      const capitalizedValue =
+                        trimmedValue.charAt(0).toUpperCase() +
+                        trimmedValue.slice(1);
+                      props.setOtherInfo({
+                        ...props.otherInfo,
+                        AffiliatedAcBodyName: capitalizedValue,
+                      });
+                    }}
+                  />
                 </div>
-                <div className="col-md-9 col-sm-12">
-                  <div className="input-group">
-                    <input
-                      maxLength={50}
-                      type="text"
-                      className="input-text"
-                      placeholder="Affiliated Accounting Body Name"
-                      value={props.otherInfo.AffiliatedAcBodyName}
-                      onChange={(e) => {
-                        const inputValue = e.target.value;
-                        const trimmedValue = inputValue.trimLeft();
-                        const capitalizedValue =
-                          trimmedValue.charAt(0).toUpperCase() +
-                          trimmedValue.slice(1);
-                        props.setOtherInfo({
-                          ...props.otherInfo,
-                          AffiliatedAcBodyName: capitalizedValue,
-                        });
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="row fieldset ">
-                <div class="col-md-3 col-sm-12 text-start text-md-end">
-                  <label class="form-label">
+
+                <div className="cp-field">
+                  <label className="cp-label">
                     Website of Affiliated Accounting Body
                   </label>
-                </div>
-                <div className="col-md-9 col-sm-12">
-                  <div className="input-group">
-                    <input
-                      maxLength={100}
-                      type="text"
-                      className="input-text"
-                      placeholder="Website of Affiliated Accounting Body"
-                      value={props.otherInfo.webOfAffiliatedAccount}
-                      onChange={(e) => {
-                        const inputValue = e.target.value;
-                        const trimmedValue = inputValue.trimLeft();
-                        const capitalizedValue =
-                          trimmedValue.charAt(0).toUpperCase() +
-                          trimmedValue.slice(1);
-                        props.setOtherInfo({
-                          ...props.otherInfo,
-                          webOfAffiliatedAccount: capitalizedValue,
-                        });
-                      }}
-                    />
-                  </div>
+                  <input
+                    maxLength={100}
+                    type="text"
+                    className="input-text cp-input"
+                    placeholder="Website of Affiliated Accounting Body"
+                    value={props.otherInfo.webOfAffiliatedAccount}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      const trimmedValue = inputValue.trimLeft();
+                      const capitalizedValue =
+                        trimmedValue.charAt(0).toUpperCase() +
+                        trimmedValue.slice(1);
+                      props.setOtherInfo({
+                        ...props.otherInfo,
+                        webOfAffiliatedAccount: capitalizedValue,
+                      });
+                    }}
+                  />
                 </div>
               </div>
             </div>
-          </div>
-          <Upload_Logo_Modal
-            class="modal fade"
-            id="LogoUploadModal"
-            tabIndex="-1"
-            aria_hidden="true"
-            handleImageUpload={handleImageUpload}
-            setOtherInfo={props.setOtherInfo}
-            otherInfo={props.otherInfo}
-          />
+          </section>
         </div>
+
+        <Upload_Logo_Modal
+          class="modal fade"
+          id="LogoUploadModal"
+          tabIndex="-1"
+          aria_hidden="true"
+          handleImageUpload={handleImageUpload}
+          setOtherInfo={props.setOtherInfo}
+          otherInfo={props.otherInfo}
+        />
       </div>
-      <span
-        style={{ display: "flex", justifyContent: "center" }}
-        className="validation"
-      >
-        {props.errorMessage}
-      </span>
-      <div class="separator"></div>
-      <div class="row fieldset modal-footer">
-        <div class="col-lg-12 hstack gap-2 justify-content-end text-right mt-4">
-          <button class="btn btn-md  btn-light" onClick={props.handleCancel}>
-            <span>Cancel</span>
-          </button>
-          <button
-            onClick={() => props.handleBackBtnChange(2)}
-            style={{ paddingTop: "5px", marginRight: "4px" }}
-            class="btn btn-md btn-primary create-item-btn"
-          >
-            <span>Back</span>
-          </button>
-          <button
-            class="btn btn-md btn-primary create-item-btn"
-            onClick={() => props.handleTabChange(4)}
-          >
-            <span>Next</span>
-            {/* <span> Create Practice</span> */}
-          </button>
-        </div>
+
+      {props.errorMessage ? (
+        <span className="validation cp-footer-error">{props.errorMessage}</span>
+      ) : (
+        ""
+      )}
+
+      <div className="cp-footer-bar">
+        <button
+          className="btn btn-md btn-light cp-btn cp-btn-ghost"
+          onClick={props.handleCancel}
+        >
+          <span>Cancel</span>
+        </button>
+        <button
+          onClick={() => props.handleBackBtnChange(2)}
+          className="btn btn-md btn-primary create-item-btn cp-btn cp-btn-ghost"
+        >
+          <span>Back</span>
+        </button>
+        <button
+          className="btn btn-md btn-primary create-item-btn cp-btn cp-btn-primary"
+          onClick={() => props.handleTabChange(4)}
+        >
+          <span>Next</span>
+          {/* <span> Create Practice</span> */}
+        </button>
       </div>
     </>
   );
@@ -2968,319 +2833,324 @@ const OtherInformation = (props) => {
 const SubscriptionPlanView = (props) => {
   return (
     <>
-      <div class="col-12">
-        <div class="d-flex justify-content-sm-end add-new-btn">
-          <label style={{ marginRight: "1rem" }}>Monthly</label>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={props.isYearly}
-                onChange={props.handleToggle}
-                color="primary"
-              />
-            }
-          />
-          <label style={{ marginRight: "1rem" }}>Yearly</label>
-        </div>
-      </div>
-      <div className="create-practice-height scrollbar" id="style-1">
-        <div className="tab-content">
-          <>
-            <Row className="d-flex" style={{ background: "white" }}>
+      <div className="create-practice-height scrollbar cp-scroll" id="style-1">
+        <div className="choose-plan-page">
+          <div className="choose-plan-shell">
+            {/* =========================
+                HEADER
+                ========================= */}
+            <div className="choose-plan-header">
+              <div>
+                <h1 className="choose-plan-title">Choose Plan</h1>
+                <p className="choose-plan-subtitle">
+                  Select the subscription package that best fits your practice.
+                </p>
+              </div>
+
+              <div className="choose-plan-billing-toggle">
+                <span
+                  className={`choose-plan-billing-label ${
+                    !props.isYearly ? "is-active" : ""
+                  }`}
+                >
+                  Monthly
+                </span>
+
+                <FormControlLabel
+                  className="choose-plan-switch-label"
+                  control={
+                    <Switch
+                      checked={props.isYearly}
+                      onChange={props.handleToggle}
+                      color="primary"
+                    />
+                  }
+                />
+
+                <span
+                  className={`choose-plan-billing-label ${
+                    props.isYearly ? "is-active" : ""
+                  }`}
+                >
+                  Yearly
+                </span>
+              </div>
+            </div>
+
+            {/* =========================
+                PLANS
+                ========================= */}
+            <div className="choose-plan-grid">
               {props.chooseApiData?.map((PurchasePlanList, index) => {
                 return (
-                  <>
-                    <Col xl={6} md={6}>
-                      <Card className="pricing-box d-flex shadow-lg p-3 mb-3 bg-white rounded">
-                        <CardBody className="p-3">
-                          <div className="media ">
-                            <i className="ion ion-ios-airplane h2 align-self-center"></i>
-                            <div className="media-body text-center ">
-                              <div className="text-center login-logo">
-                                <img
-                                  width={130}
-                                  height={25}
-                                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAi4AAABkCAMAAACWyEvOAAADAFBMVEUBAQE3NDUNR103NDU3NDU3NDUAr+9MaXEAru43NDUAre02MzU2MzQ2MzQAr+83NDU3MzUqKCkAr+4Ar+8Ar+82NDQ3NDU3NDU3NDUAr+4wLi83NDUAre0Aruw3NDU3NDU3NDUAr+82MzQ3NDUAr+80MTIAr+83NDU3NDU3NDU3NDUAreoAru4Ar+81MjMAq+oAr+8Aru4BfqsAo94ArewAru4ArewAru4BrewAmdE1MjMAru43NDU3NDUAr+8Ar+8Aru4AqugBntgAksY3NDU3NDU3NDUAqOU2MzQ3NDU2MzQ3NDU3NDUAr+83NDU3NDUAru0Ar+8Ar+4Ar+8Ar+8Aru43NDU3NDUAq+kAr+8Aru4AqOQ3NDU3NDU3NDUAq+oAr+8Ar+8Aru0Aru4Ar+82MzQ3NDU3NDU2NDU3NDUApeAAru4Ar+8Ar+8Ar+8Ar+8Ar+83NDU3NDU3NDU3NDU3NDU3NDU3NDU1MjM3NDU3NDUAr+8Ar+8Ar+8Ar+8Ar+8ApuMAr+8Ar+8Ar+8Aru03NDU3NDU3NDU3NDU3NDU3NDU3NDUAru4Ar+8ArewAru4Ar+8AqeYAr+83NDU3NDU3NDU3NDUAr+8Ar+8Aru4Ar+4Ar+8Aru4Aru4Ar+83NDU3NDUArOsAre0Ar+8AqucAr+8AresAru43NDUAr+8ArewArOsAr+4Ar+83NDU3NDU3NDUArew3NDU3NDUArewBoNsAru43NDU2MzQAr+83NDX+/v6H2fclu/Exv/L6/f7T8fzb8/wStfACsO8ovPIGsfD9/v5BxPPt+f1/1/cMs/Ct5fkIsvAPtPAtvvJn0PXk9v1jzvV51fa66fqw5vodufHX8vxezfXA6/s5wfOX3/hr0fZFxfOO2/h81vfo+P3x+v3z+/3H7vshuvF11PYVtvD2/P7h9f2j4vlUyfSc4Pk1wPI9w/NPyPS96vrD7PtNx/TM7/tKx/ST3fhv0vaQ3PhZy/Te9fyr5PmF2fdbzPUYt/Gz5/qL2/en4/mE2PetDlqoAAAAuXRSTlMBcwLV8FPAAICIQStBPv6bLgOVpfsjgPbAjAb+RDn56fO9HKP1CvBIYZf9JmKJEyTaXAMMO2k0bykHDm1xj63ychoJBWntLBMZtxbgTJA40UrRefepduPcHepTEoOq2CDd60JNsSC9bSWTDl7KzO7XhHgyy1BFXXwRh6+YxYfmtxDitdNRNcW0wzueyFbgMWD4Ffma51VkoZNZfptHaOO6iyw9yRe6LmV1yDYqfJ7PoVgwWqY/CmyfJ7gQkTYAABd3SURBVHja7J19UFTXFcCXZTFDXYSdCCgkQNdsWNYJyZjGtAzEJALhq1BNA00CaMYibJza4Us+mraZThEBo3b4MNOmgaadjk0z6kRn6ttXBEVUiPgRJX5WjV/RxBqj0bZpknb33rfv3fvueY9F1zhveeev3ffu3vv2nd+ee+4557413HMLYtBFY3KPn8Rwd3ExLrh/8xuL7ntr1au6SnVcVOTPb7zz7Qc5Qqb8dO2Szb/RNavjIpdHVz/0CAfK1F/99m1duToukjzzwo9f4tRk3vTZun51XJB8d7o6K1gmPTZXV7GOy4In1nC+ycLHjbqSJzYuD9/LjUOeXz1LV/PExeXRd+Zw45NXvqPreaLict9Sbvxy7zO6piciLnN/xt2SvLlIV/XEw+VH87hblDU/13U90XBZuYa7dZn0lK7tCYXL/Knc7cjCmbq6Jw4uxtcVQRjslWS7ypL6D3frLtfFuyX/Gx0yzzNk+oTFZZZKsGUrL8nfVezL0ruVFQh1uSXsGx0yxDNk0ETFZdZa7vZx4ebM1nGZELioLqB9xoV76a86LhMAlyc5/+DC/eJFHZeAx+XXnL9w4ea9quMS4LgseN5/uHBP6LgENi5PL+T8iAv3+zutqYa0tLRKHZe7hcvrnF9xWbrqDmvK5FZUsI7LXcJl0VT/4sL9ca6OS8DiMus1zs+4cE/quAQsLg9xfsdl6VM6LgGKy8wH/I8Lt1bHJUBx8aUud9y4cKt0XAISl7en3BFcJum4BCQuPhX9jx8XbraOSwDismDOHcLldzouAYjLdGWFD57fPii8HP2MwuXsDkHODit+esrDOi4Bh8uLcLLo/L7/HDy1k+f7/nVo6PAe94GBwx8RuGyT4Nl/aOjSHrCP53RcAg6XFwA9bz/cz1Ny5poHiOt9EC5I3jsBVUrBI8bk19Q520Pt5hz2nDXCLTHwYRvxOsGtqKIIJJksLpaWzqikpOKNYSlq37zMnN7T7lyXGKG2Z9eSn6d4sQwuFdMKPFJHN8syd/W0J9XVtBgDAJdXGC3v+Xw3z8gHX7jPXPpQCRee/3QXy8tbwHiRDYUuQeI2dcrPzvAcj2Q+FO45PJl4TUicHJeKUHGEBKdZ4WvHdGU7vK0KKpMVWlVEkRdrHAOXLUWo5QwL2Sjsb3HeLoIrY7SOy/cYHR/t50E5Mup2ePcr4sLzFxk35ofMcCnSzcOaMvsbF5vTRJ3OLoO+tr2IapQRCikyZUM01Wp9mCoukR2oVStJi8XpIHvIrdI4LkvkKn5/J68gfZfcLu4pZVz4/VtlfT0iH82c4JKLM8WvuEyOZ0ZItci7S25mGuVGMIPmZTCtWm3KuFRgQzSDtEEp2bIOYhO1jcv3ZWuhQ7yK3OC43t3KuPCnD8t4kT1eqtjhYqUg2Y+4dCYAI2TLXJiIQqBRgl02ZjHQyLXeqoSLwKmT6qOV6cAUpmVcjG/SbssRXlUuDnC7TivjwvP7aFyWQApwtIWay7Ii0huFWSO3bFy4ZCa6xUNFbiKSWgKXNEEpyz0jVJU3CyMspoxChHfckmWTsyLzkoKFD3VRQzYIR6t7aq1ZVenNgqkpyoJxycTni6k+JuNx0io801JTKxp3uZZxmU2r99/8GPKxe7ZSw+XCNeUqTLugO/H3lVyMbUGbZTy4qC2ksTS2iCM4sau0iZyJsG2JLxcZCinA9oX0o7pwV93ixebU4a7aYiBcqjAtoQYWuW7RekaUet5XaBiXH1DaHeLHlMPc8BEVXPjdO8gOnyV/1AmsJ9GEPc4ef+ISt4w83IT1SBzDfssKclapT8JmQLIcTcgSOCpJs5SZKzMgEi7CKGkyL2mFp1Niri2jv6z2cKFcl0tj08Kf/oTbelIFF37bINnly9JQ6KcVV0uPX1+N1FLrP1wKm2QhG0RknEhCOrDYNRiC0NES8T2+LJlfaluOWrUwuOTj6a0cCiZGkQdSw8PDgzSMy19IN3ebD7jwZwa4XjVc+HMkLt8SR3oXvqPJ6Hc5zW+4ODKZ2Anyrxu8bztkM4og2OvxLo/y0Lt18kY5yL6sl+PSYgL8Fo9Ey3HRepiOrNH9n2zd/OnQid4dV2+ckeFwwNN2ZLsgo9eOyeI0F0aJPueLPvUK5LewV9CJbrXZX7iksiOkk+ZlGfJS2PCHsZBc17R53jSzXSWiMZpoXMzRSiN7DGqzJYBwITQ7SsdyL+71nrh8hY7vMoG9m/3y5TYbqKtCtzQTuATEUaufcAkGlGMrJbyXaeRoDLYJOcTFQj5pNel9IFzSQjAt0ByTRNk17ePyJ0Kz50iVn/onycPx0+S5mwwvI19RZmkYqJFKRUsW6BrQLzbYT7hshEZYh3xbPJ0g3VqBRjbk42BvpU7BEgqzVG4MgYsg5VDrGhz2ybMFCC73Ezonjcv+HTQPu8hQ73tANpFaU50EcGlTvKeGOOKnfJu4OMAsntXjvcRKi/lS8DIaJMOBFk8hUKMU5KZUsbikgX1WCzkGZ2qmMQBwWQTXP/UdleNwnDi7sxfg5Wsy20g8QJViIhK8CDQ/2P2Cy2KDstbQPBMFREcMhFeDg2gZBBMyKSE8LRKX2HdBUHOlLEN3UL3WcXlMUuwx9XI5MjlwFcBlgDBOO/8rHn7NOxK6ZfBF9LikBcRt4lJsUAYyTDQhIXD2GdkBVHGADBWcPY4i/KAQKrwP5r5zFpNNqvNiNI3Lc5K+ifD/h4MsDr0XqNAuKzfBVMBSH3AJ8h8uCk/+QjqrEZ1PuKghxeWdslDsvsOgjEsqhYsjKRZlg1rAepmaYBKYYLOWcZkPWoevIByI/MBH0PlhooMhtkJKBZdK/+FSrmJd8jyvnMq4JCPV03ZGAZdyEpe4GiHI15EDfyQzvJpIrUYFhHU5SxiHSxAOB4gGYKnlFcj8PEjhApvids+pOlVcNviIi1MFlyoxy2kHGzWhmDCyM8hawJ5GKDGbIVyiQ7wejatacQVkTS9e7EVmmXZxeVzU62XC9RiBaDg3Fi7XpfNXpCdJkfp1wQ+mLBWnCoELNuCR7SMuwfDXRA6nTTQOrWCjcrToldqDcwuOEpGuLgqrpOD0QIna8icrsRlhmJGsWVxWSktlYhUN0kCGVgagBsTiqV88+BNqRRGl6DNEpxCBrXzYPPgSdwFVYUYROPSyFnkZ4L0Il6aZJIUorcEQ6dF4rJXJSNsKXD6kD63ZhCHVIC6bIVy2jYnL4BizVT8bd0FB01KLkuuynCyJYXyLGJOvuPQoLr024J4KlZwXa7RUG54qzktgQmEaUO9iRdVRji71+11fJFowLeIyE8LlNGg8hsaajE4SaUgWlzKkjU7AuKBoaiXpSTL3HFfK+IJLfBYAQhyBCLJybcCtQJHcUjyb1JsULtZmIuP9VDVdPholNk/9hrcrO9EawMUo6vUTgoa9EA37xsLlEBT3/SVt6wttsO/oqCBzBfKCM2O3z7hAeQbkPpcKI2eiVmxMLdJB5qA3ocBaPZxOcOWAtboozOeKlmp+61PdYmWDBrHaTTGKu+lH+hRKELxygsBlFGrwARTmk/6EJAJrU744MjuoFQ1O7m0B4q2+1rukw6bJTsVgMuSLr3rkHSV4i3rLHHT5ize9FU1drGwnAGapULRvNmBpn6ToOmkCF+lPf/vBID4Hmp+TY5x/Xzy6UpaedSXR44dl0LfYUCSrxvSY+fjx4OIoh1Qstc1H74vo3HhMsyxPiOvHe+iVDq5U6LAq4CIUcleLv4gEukLPM/PmksU92sNFeq77wTFmo0EiDHcK+BOJL4nPXxaPEs+QSsaFlo2kibfjwqJO2cxBLXU3ereC+Fqr20pasFTkUjiIEjtcYF5IlvVF4lRgtk31YtNNsqS3HBdhm4g4H6KY4PocecapQbu4rAaTiJ8xe57Pf859TDS4ztBylYeivlMoK4Fvt8nuvYFmIaFCBtfyhd0kidjA1OetEDHwARdcetJhF7RsaVmPLY6dCeK4l0reHGJZJY6g5ZKKnYwri6O7kr1dLWZSz8ymV2E57bWgEQjVaO/VGBNRPiA6U7u4SCvpEVnBP51APHKECuvyX8if57GfOPm19Pxuel4QdjCaWqPS7ZUNBQIGJdTU0ygcjS8JLXZOEz7h8BGXLsESZbTXpXdVhpaCgfdk78ArioPs5VElwhgdEVSrWmEHY0I4dbGNNhVcDFviqcCtsPnE1B5VVxflFLLTSRqupnv6AXA24o9RoZUR90yzd4AkYucBipa9VCXeXqVnMISxWwxdsbJKkfpStk2jr0mAMCvw6QS592vJhnbHyb3f/A6gFTWRAE9gwGW7jjzakFEb24waxoV4dNQJqoLyIFHUsqsfua//oBocOy+5NXS1nRSk4zaDYU1Kl0w1gbWA0ZHF1xRjmKG+Uf7pUjYoZ0lltlOWsEv8sm55owx6AQ49sAMX0JkES2WTb7l0dedouVaXzEnTOxgvXBQq6o5+2YdLdIf76B3RN/B6evi4rLZbqtt89mUmPruM2njsaAfqIHMaYsk2bfm+Z6TD3ChspKyCIwpMFf6/vXOPbeuq4/jBEtaVFS5rciXmzZHmyaQTiRXbaZOaUjtpxAJSDYkfECdCdh4MlDR2JMpfSZw4zjaqxXkYibw7pc1DaZI/CnWmn4TWagO6rRui7VQJpI2JDZAYIAbTYH+AOOc+7PvyI22apq7PH0l8c++5x/d87u/3Pb/zeuTruZAiVD0lyerxz8tm56uu78I1p78t9EYclszd/+pTuQfVHWhcqkWRlSvyKYkfXX/76q/SMwAUs9aufHTrD+/JD95K57iqFhn87DM8MY+/cCLDq/bF7z3zTfb9f+JHP2Yh+cyjOIkr63n8+SXJNT8hp7Av9aGfvsjPlP7Cc1/J2En8/ZcEK/at589mfDxnXuQL+6UfnFD0R32O3FIxOvgEOfpoWi49+7Pn2OI88cJ3Tj3go+lwiqoPqFOmP7/1xtV8JiKJvFiV+i0fe7bk8JmSkq9lLddjTz799JN5D3CV83a25NSpkrNfzn7Wd0t+eOZwySPZb3LoGyWnchY2RzpEvku+E0gONi51otZy9nlpP4df/yk3LR+n82NsqJh2nQ42LtWiVXV/+1pWEj6UdBypp/+I+ifLinVfcLggr6hB/M+s5uPqK3AzBy1vi1eQOlKs+8LDRbIIwz/eywbD/wA+zUrLrVf2a9nuIi73CRfUJ1mZLgsvV98no6CyGKC/vJl5LaBiKhBcxqW9Q3/PKEu4SO+HmQTxa9KlozqKNV+QuNhbpP0/H/9GDYbbqejbG+9eUfVU70uzqSrWfEHigrpkW468evO2YlUXSZ/iW+/8W75K0HX5TNgLmmLNFyYuqFsxHuFv/xKZmNufKpZY/uWN3/0+Hf29/sEfFRsCLKrfqtVgaM2jRO3JPE7qMTQ3qRxurB0zNN276kxKy5Zstz9suDSo7Wj08rUbr7/z33c/ufYL9R0iXn352icfvH7zxrW/vpnvVtI1Q6zfi5lrcpUISnOXessJYFqQc7XpIJsc0INH7xUulPS7Wfba6x58XNAW7HEKqe02onOC3zgwYIyAs+3ucVmCsNsdk8UCk/2YRod+weiBlup7hQtcSn8qh4cQF3vfHuOi1oheT3jWWVuQXPfk2o2E4NLaYsZ/TWozOK+wvx2hkSBILNUwxI6womllCPyZ9t9yuRSHalvcsiPL2raMuAykP42q4aJlTduEtqtAcUENzj2lZVvlFp0Q2kx5DD905sSlkx2MR0Gl6hkBMJJfQ5LY8SxoUwp7zjKaYTNrrTKAOAfdsiNHoC4TLjSdQjTA0Cq4gJ41pnC0UHFB1r2kJaym/iwgUr8XIZjbGbU1ZMFlkxseoaMCov4vJp6PxlXBxTY+kj8ugzAvfPCB46HEJb8dGfNLJrVNXg1SlbENhvy0SyZc7KaY4tgQWNGd4aJMWXDpNVkEG+ZkFh9OXLDb36vUrJZ9P7RJawO3L+om2b+nKXb5XXv9gMOsQ5PrAi4UzojSwiylm6T4GShVVE9aNSjuUzGl0qxedzlcc+xQijEKtenHK6l4nGLz26S8M77pALWGdRJlYMux1u8t6ydKdnIbhqnJyxS/JZOOmkjjYpgRbr0OWzoeF6ve4eq16SgNuoztD0Wh+hkYpYh6se+UOsxj7Em9Po11drwgcBnZ2CNadlSzd9ASTVpD41c8yL3mx4AiajMItAeYIe1pARfyg82RsvLSuHYqvUVSrdKfwYbyW2ERbwIYrGENqAPA3SxsQ+tmIMHAuXliksrBTMoRdoKJgQqsq7RsJ2mriRVI6GQwXiPChddNCF2gAxwudiOAB2DVDBqihcmUmSi/fWmDBWhcAgcRUsbQKtC+gsAFtcf2hJYMNtzokX42yXBprwhh8zOCfaIEF94ZxRNJzmOWp9SGFzibn04aGFVEemKmelzb/YnVk+TqiqO2lDPygRabGF0QRLhAGVZdc57VlDNa4OxIb1qtEFwwTGxzrRnfkMXFNsjM21CjGzcYNDJn1BQMLeFyuGgHvrURKqwF4oywUtwLXmYzZO4FiQptBxkuC1xbSeNVxWUO+vHPNZH5qANHlJHpH9m8JpYJH1/HcwSX9bR2aXWG2YZTdVSEywX2UDfdLuAyTZMVajQRZ6sEl2au7VcG5zlcqsjlOB1X4jIEnB9yEfCM0IUKBhcUuOvwC7OlyRjdEt6rpna2WT0jxSXOW4YGjxouSYu/iasewZKEwo0GOjotuUeUkTfJ+hKV1SRt0kZyuSaNy7igpSgRLhQftJxISd0FIsl7+X+kcLFbOvCdR5gw4nDx0lxw2R6T42KLhtgCVDcTqW9kUAHhgmoG744Weilj1uVCZGPN4tAQY1MuwWUkVSMbarhgUdmP1qbSwZE1Mlt/CwYb0aw/kLYlck/IiFfJKwNRy2hemASlU+BST8rG41JpOo1OxiJNUlyQm+x2oCcmi8XF4hcigHJcROuih4l2KShcUM9dtacrFrNkHeObEytOqMeVQZrBFg6XCVxNjQlBiMRVcbH5K2zbotjeGNnMxO4AfU2iL91/6fGvSG/a4TzOpyUZLnXCbihjWXHBF10cF607wuOSZOJ2WzTSw+OyMZVyuTJckkxEKEFv4eGCH6PpjmkJZu1rrvUwy1wbesoz6TeRCP0Gt6j3DqkmLYnps05CFRdkhTLR4kLoEhBDVhOBOF0u7vu6kLIDbuizoW0IiENLIlzKge8KMGbHZYXWRkx2OS7YsowtwRbicRnid50MMArt0g0ih1l4uKDac3dIi2ske8ZtjLO/kasOIGYcm26GmIuGIKkmA9fRO+HPgEsS63Cx8YpUBNgqkWrrUohYWYHS6oVz+IRaJkZK1dBtXJHhYhulWfEyD9lxQbOyFhiHSyU93MeKdxaXQChOoOgZVEpdA20kbfDq4eGegsQFJV13AkukM2fG56PAGM3mVSwoWlhuOk3MwPEBpoOtJjPEl7oGEtGoOi64EiWTIsecntmj2zQwFkmLq94DTod+wQIwzEb2dminu4sysX2eElxIPMQ7NtkC4Ry4LENoWokLWRnHiwRcUFvCM99FhZx9ClywlfPXd+kTbCd8IeKC34iWXWvc0p58Iju+MOu0qBbeE1iD+NKyLq6aquJknEylNgMuA7IobvNpfLpxzCcLthxzRUh5uoU+8WbyXfq6FM4IN2wGEgAdPkMOXNrAhVRwMQAXA+KjuuWkkXC6k1LigubIEl3aTlSwuKCao1O7oqVvOc+MNcs63bIGrTn5sJemsjxtHOxHdNXYoquDd2xqUJ7XhO4YUh1NpzsvtjgXdROZ+uF1l5OoMcdwOAvdk9dXu6Sr1aBku8p/bOW65fyf/QOICwamviNvWEYXd519w66vmIFadD/SHLj394YPJC7YVi/584Kl+/x+PMQG+j7Ncos5p4u45Jd0wxU5WInpR/bnIXr5WPp+pyrx0LkiLjlS085M5jhM2Ny5X8+wx1F6f4zL0HBTEZddqZjLdcODcuUb1y60raFiKuKimhovWbcoihrS9+OfvsWVYq0eeFz+D5XCAUmfQUrGAAAAAElFTkSuQmCC"
-                                  alt="login"
-                                />
-                              </div>
+                  <article
+                    className="choose-plan-card"
+                    key={
+                      PurchasePlanList.subscriptionPackageKeyID ||
+                      PurchasePlanList.packageName ||
+                      index
+                    }
+                  >
+                    <div className="choose-plan-card__header">
+                      <div className="choose-plan-card__heading">
+                        <span className="choose-plan-card__icon">
+                          <i className="bi bi-stars"></i>
+                        </span>
 
-                              <h6 className="text-dark">
-                                {PurchasePlanList?.packageName}
-                              </h6>
+                        <div>
+                          <h2>{PurchasePlanList?.packageName}</h2>
+                          <span className="choose-plan-card__billing-badge">
+                            {props.isYearly
+                              ? "Yearly billing"
+                              : "Monthly billing"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
 
-                              {!props.isYearly ? (
-                                <div>
-                                  {(() => {
-                                    const MonthlyPrice =
-                                      Number(
-                                        PurchasePlanList?.yearlyValuePlan,
-                                      ) / 12;
-                                    return props.formatValue(MonthlyPrice);
-                                  })()}
-                                  / Month
-                                </div>
-                              ) : (
-                                <div>
-                                  {props.formatValue(
-                                    PurchasePlanList?.yearlyValuePlan,
-                                  )}
-                                  / Year
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="pricing-features mt-1 pt-2">
-                            <div>
-                              {PurchasePlanList?.apiIntegration == true ? (
-                                <span
-                                  style={{
-                                    color: "green",
-                                  }}
-                                  className="fa fa-check"
-                                ></span>
-                              ) : (
-                                <span
-                                  style={{
-                                    color: "red",
-                                  }}
-                                  className="fa fa-times"
-                                ></span>
-                              )}
-                              <span
-                                style={{
-                                  marginLeft: "10px",
-                                }}
-                              >
-                                {" "}
-                                API Integration
-                              </span>
-                            </div>
-                            <div>
-                              {PurchasePlanList?.prepareQuote == true ? (
-                                <span
-                                  style={{
-                                    color: "green",
-                                  }}
-                                  className="fa fa-check"
-                                ></span>
-                              ) : (
-                                <span
-                                  style={{
-                                    color: "red",
-                                  }}
-                                  className="fa fa-times"
-                                ></span>
-                              )}
-                              <span
-                                style={{
-                                  marginLeft: "10px",
-                                }}
-                              >
-                                {" "}
-                                Prepare {props.proposalName}
-                              </span>
-                            </div>
-                            <div>
-                              {PurchasePlanList?.prepareContract === true ? (
-                                <span
-                                  style={{
-                                    color: "green",
-                                  }}
-                                  className="fa fa-check"
-                                ></span>
-                              ) : (
-                                <span
-                                  style={{
-                                    color: "red",
-                                  }}
-                                  className="fa fa-times"
-                                ></span>
-                              )}
-                              {"  "}
-                              <span
-                                style={{
-                                  marginLeft: "10px",
-                                }}
-                              >
-                                {" "}
-                                Prepare {props.EngagementName}
-                              </span>
-                            </div>
-                            <div>
-                              {PurchasePlanList?.sendQuote === true ? (
-                                <span
-                                  style={{
-                                    color: "green",
-                                  }}
-                                  className="fa fa-check"
-                                ></span>
-                              ) : (
-                                <span
-                                  style={{
-                                    color: "red",
-                                  }}
-                                  className="fa fa-times"
-                                ></span>
-                              )}
-                              <span
-                                style={{
-                                  marginLeft: "10px",
-                                }}
-                              >
-                                {" "}
-                                Send {props.proposalName}
-                              </span>
-                            </div>
+                    <div className="choose-plan-card__body">
+                      {/* PRICE */}
+                      <div className="choose-plan-price-area">
+                        <div className="choose-plan-current-price">
+                          {!props.isYearly
+                            ? (() => {
+                                const MonthlyPrice =
+                                  Number(PurchasePlanList?.yearlyValuePlan) /
+                                  12;
+                                return `${props.formatValue(
+                                  MonthlyPrice,
+                                )}/Month`;
+                              })()
+                            : `${props.formatValue(
+                                PurchasePlanList?.yearlyValuePlan,
+                              )}/Year`}
+                        </div>
+                      </div>
 
-                            <div className="d-flex align-items-start">
-                              <div>
-                                {PurchasePlanList?.eSignaturePerMonth > 0 ? (
-                                  <span
-                                    style={{
-                                      color: "green",
-                                    }}
-                                    className="fa fa-check"
-                                  ></span>
-                                ) : (
-                                  <span
-                                    style={{
-                                      color: "red",
-                                    }}
-                                    className="fa fa-times"
-                                  ></span>
-                                )}
-                              </div>
-                              <span
-                                style={{
-                                  marginLeft: "10px",
-                                }}
-                              >
-                                Send And Digitally Sign The{" "}
-                                {props.EngagementName}
-                                {PurchasePlanList?.eSignaturePerMonth > 0 && (
-                                  <>
-                                    : {PurchasePlanList?.eSignaturePerMonth}
-                                    /Month
-                                  </>
-                                )}
-                              </span>
-                            </div>
-                            <div>
-                              {PurchasePlanList?.isMailBox === true ||
-                              PurchasePlanList?.isMailBox === null ? (
-                                <span
-                                  style={{
-                                    color: "green",
-                                  }}
-                                  className="fa fa-check"
-                                ></span>
-                              ) : (
-                                <span
-                                  style={{
-                                    color: "red",
-                                  }}
-                                  className="fa fa-times"
-                                ></span>
-                              )}
-                              <span
-                                style={{
-                                  marginLeft: "10px",
-                                }}
-                              >
-                                {" "}
-                                Personalized Outgoing Mailbox
-                              </span>
-                            </div>
-                            {PurchasePlanList && (
-                              <div
-                                className="d-flex flex-column"
-                                style={{
-                                  minHeight: PurchasePlanList.isFreePackage
-                                    ? "110px"
-                                    : "90px",
-                                }}
-                              >
-                                {(props.isYearly &&
-                                  PurchasePlanList.yearlyOffer?.length > 0) ||
-                                (!props.isYearly &&
-                                  PurchasePlanList.monthlyOffer?.length > 0) ? (
-                                  <div className="w-100">
-                                    <label></label>
-                                    <Select
-                                      placeholder="Select Offer"
-                                      menuPosition="auto"
-                                      className="phone-input-country-code selectDropDown Drop-down-width"
-                                      onChange={(selectedOption) =>
-                                        props.handleSelectChange(
-                                          selectedOption,
-                                          index,
-                                          PurchasePlanList.subscriptionPackageKeyID,
-                                          PurchasePlanList.packageName,
-                                        )
-                                      }
-                                      options={(props.isYearly
-                                        ? PurchasePlanList.yearlyOffer
-                                        : PurchasePlanList.monthlyOffer
-                                      )?.map((offer) => ({
-                                        id: offer.offerID,
-                                        label: offer.offerName,
-                                        value: offer.offerID,
-                                      }))}
-                                      value={
-                                        props.selectedOfferID &&
-                                        props.selectedOfferID.index === index
-                                          ? props.selectedOfferID
-                                          : null
-                                      }
-                                    />
-                                  </div>
-                                ) : (
-                                  <div className="flex-grow-1"></div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                          {props.errorMessage && <p>{props.errorMessage}</p>}
-                          <div className="d-flex justify-content-center">
-                            {!PurchasePlanList.isFreePackage ? (
-                              <button
-                                onClick={() =>
-                                  props.BuyPlanData(
+                      <div className="choose-plan-divider"></div>
+
+                      {/* FEATURES */}
+                      <div className="choose-plan-features">
+                        <div className="choose-plan-feature">
+                          <span
+                            className={`choose-plan-feature__icon ${
+                              PurchasePlanList?.prepareQuote == true
+                                ? "is-enabled"
+                                : "is-disabled"
+                            }`}
+                          >
+                            <i
+                              className={`bi ${
+                                PurchasePlanList?.prepareQuote == true
+                                  ? "bi-check-lg"
+                                  : "bi-x-lg"
+                              }`}
+                            ></i>
+                          </span>
+                          <span>Prepare {props.proposalName}</span>
+                        </div>
+
+                        <div className="choose-plan-feature">
+                          <span
+                            className={`choose-plan-feature__icon ${
+                              PurchasePlanList?.sendQuote === true
+                                ? "is-enabled"
+                                : "is-disabled"
+                            }`}
+                          >
+                            <i
+                              className={`bi ${
+                                PurchasePlanList?.sendQuote === true
+                                  ? "bi-check-lg"
+                                  : "bi-x-lg"
+                              }`}
+                            ></i>
+                          </span>
+                          <span>Send {props.proposalName}</span>
+                        </div>
+
+                        <div className="choose-plan-feature">
+                          <span
+                            className={`choose-plan-feature__icon ${
+                              PurchasePlanList?.prepareContract === true
+                                ? "is-enabled"
+                                : "is-disabled"
+                            }`}
+                          >
+                            <i
+                              className={`bi ${
+                                PurchasePlanList?.prepareContract === true
+                                  ? "bi-check-lg"
+                                  : "bi-x-lg"
+                              }`}
+                            ></i>
+                          </span>
+                          <span>Prepare {props.EngagementName}</span>
+                        </div>
+
+                        <div className="choose-plan-feature">
+                          <span
+                            className={`choose-plan-feature__icon ${
+                              PurchasePlanList?.eSignaturePerMonth > 0
+                                ? "is-enabled"
+                                : "is-disabled"
+                            }`}
+                          >
+                            <i
+                              className={`bi ${
+                                PurchasePlanList?.eSignaturePerMonth > 0
+                                  ? "bi-check-lg"
+                                  : "bi-x-lg"
+                              }`}
+                            ></i>
+                          </span>
+                          <span>
+                            Send And Digitally Sign The {props.EngagementName}
+                            {PurchasePlanList?.eSignaturePerMonth > 0
+                              ? `: ${PurchasePlanList?.eSignaturePerMonth}/Month`
+                              : ""}
+                          </span>
+                        </div>
+
+                        <div className="choose-plan-feature">
+                          <span
+                            className={`choose-plan-feature__icon ${
+                              PurchasePlanList?.isMailBox === true ||
+                              PurchasePlanList?.isMailBox === null
+                                ? "is-enabled"
+                                : "is-disabled"
+                            }`}
+                          >
+                            <i
+                              className={`bi ${
+                                PurchasePlanList?.isMailBox === true ||
+                                PurchasePlanList?.isMailBox === null
+                                  ? "bi-check-lg"
+                                  : "bi-x-lg"
+                              }`}
+                            ></i>
+                          </span>
+                          <span>Personalized Outgoing Mailbox</span>
+                        </div>
+
+                        <div className="choose-plan-feature">
+                          <span
+                            className={`choose-plan-feature__icon ${
+                              PurchasePlanList?.apiIntegration == true
+                                ? "is-enabled"
+                                : "is-disabled"
+                            }`}
+                          >
+                            <i
+                              className={`bi ${
+                                PurchasePlanList?.apiIntegration == true
+                                  ? "bi-check-lg"
+                                  : "bi-x-lg"
+                              }`}
+                            ></i>
+                          </span>
+                          <span>API Integration</span>
+                        </div>
+                      </div>
+
+                      {/* OFFER */}
+                      {PurchasePlanList && (
+                        <div className="choose-plan-offer-area">
+                          {(props.isYearly &&
+                            PurchasePlanList.yearlyOffer?.length > 0) ||
+                          (!props.isYearly &&
+                            PurchasePlanList.monthlyOffer?.length > 0) ? (
+                            <>
+                              <label className="choose-plan-offer-label">
+                                Available Offer
+                              </label>
+
+                              <Select
+                                placeholder="Select Offer"
+                                menuPosition="auto"
+                                className="choose-plan-offer-select"
+                                classNamePrefix="choose-plan-select"
+                                onChange={(selectedOption) =>
+                                  props.handleSelectChange(
+                                    selectedOption,
                                     index,
                                     PurchasePlanList.subscriptionPackageKeyID,
+                                    PurchasePlanList.packageName,
                                   )
                                 }
-                                className="btn btn-success create-item-btn add-new "
-                              >
-                                <span> Purchase</span>
-                              </button>
-                            ) : (
-                              <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
-                            )}
-                          </div>
-                        </CardBody>
-                      </Card>
-                    </Col>
-                  </>
+                                options={(props.isYearly
+                                  ? PurchasePlanList.yearlyOffer
+                                  : PurchasePlanList.monthlyOffer
+                                )?.map((offer) => ({
+                                  id: offer.offerID,
+                                  label: offer.offerName,
+                                  value: offer.offerID,
+                                }))}
+                                value={
+                                  props.selectedOfferID &&
+                                  props.selectedOfferID.index === index
+                                    ? props.selectedOfferID
+                                    : null
+                                }
+                              />
+                            </>
+                          ) : (
+                            <div className="choose-plan-no-offer">
+                              No offers available for this billing period.
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {props.errorMessage && (
+                        <div className="choose-plan-error">
+                          {props.errorMessage}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="choose-plan-card__footer">
+                      {!PurchasePlanList.isFreePackage ? (
+                        <>
+                          <button
+                            onClick={() =>
+                              props.BuyPlanData(
+                                index,
+                                PurchasePlanList.subscriptionPackageKeyID,
+                              )
+                            }
+                            className="btn choose-plan-purchase-btn"
+                          >
+                            Purchase
+                          </button>
+
+                          <p className="choose-plan-note">
+                            Note: Selected offer apply once only. After expiry,
+                            standard rates apply.
+                          </p>
+                        </>
+                      ) : (
+                        <p className="choose-plan-note">
+                          Included by default with your account.
+                        </p>
+                      )}
+                    </div>
+                  </article>
                 );
               })}
-            </Row>
-          </>
-          {/* end modal  */}
+            </div>
+          </div>
         </div>
       </div>
-      <div class="separator"></div>
-      <div class="row fieldset modal-footer">
-        <div class="col-lg-12 hstack gap-2 justify-content-end text-right mt-3">
-          <button
-            class="btn btn-md btn-primary create-item-btn"
-            onClick={() => props.handleSuccessPopupOk(4)}
-          >
-            <span>Continue With The Free Package</span>
-            {/* <span> Create Practice</span> */}
-          </button>
-        </div>
+
+      <div className="cp-footer-bar">
+        <button
+          className="btn btn-md btn-primary create-item-btn cp-btn cp-btn-primary"
+          onClick={() => props.handleSuccessPopupOk(4)}
+        >
+          <span>Continue With The Free Package</span>
+          {/* <span> Create Practice</span> */}
+        </button>
       </div>
     </>
   );
@@ -4800,242 +4670,238 @@ const Create_practice_details = () => {
   };
 
   return (
-    <div className="container-fluid">
-      <div class="new-item-page-nav"></div>
-      <div className="new-item-page-content">
-        <div className="row form-row">
-          <div className="col-lg-12">
-            <h3 class="modal-title mb-3">
-              <BackButtonSvg onClick={handleCancel} />
-              Create New Practice
-            </h3>
-            <div
-              className="steps"
-              style={{ pointerEvents: "all", overflow: "auto" }}
-            >
-              <ul className="steps-list">
-                <li>
-                  <div
-                    onClick={() =>
-                      handleChangeTab(1, "Practice_BasicInformation_Tab")
-                    }
-                    id="Practice_BasicInformation_Tab"
-                    className={`${
-                      activeTab === CREATE_PRACTICE_DETAILS.BasicInformation
-                        ? "step tab-field-center"
-                        : isValidForm.BasicForm === true
-                          ? "step tab-field-center"
-                          : "step disabled cursor-not-allowed tab-field-center"
-                    } w-90`}
-                  >
-                    <span class="stepCount">1</span>
-                    <span class="stepTitle">Basic Information</span>
-
-                    {requireErrorMessage && (
-                      <span className="validation">
-                        <InvalidFormIcon />
-                      </span>
-                    )}
-                  </div>
-                </li>
-                <li>
-                  <div
-                    onClick={() =>
-                      handleChangeTab(2, "Practice_OfficerDetails_Tab")
-                    }
-                    id="Practice_OfficerDetails_Tab"
-                    class={`${
-                      activeTab === CREATE_PRACTICE_DETAILS.OfficerDetails
-                        ? "step tab-field-center"
-                        : isValidForm.BasicForm === true
-                          ? "step tab-field-center"
-                          : "step disabled cursor-not-allowed tab-field-center"
-                    } w-90`}
-                  >
-                    <span class="stepCount">2</span>
-                    <span class="stepTitle">
-                      {basicInfo.businessTypeID === null
-                        ? "Sole Trader"
-                        : [4, 5].includes(basicInfo.businessTypeID)
-                          ? "Officer Details"
-                          : basicInfo.businessTypeName}
-                    </span>
-
-                    {officerError && isValidForm.BasicForm === true && (
-                      <span className="validation">
-                        <InvalidFormIcon />
-                      </span>
-                    )}
-                  </div>
-                </li>
-                <li>
-                  <div
-                    onClick={() =>
-                      handleChangeTab(3, "Practice_OtherInformation_Tab")
-                    }
-                    id="Practice_OtherInformation_Tab"
-                    class={`${
-                      activeTab === CREATE_PRACTICE_DETAILS.OtherInformation
-                        ? "step tab-field-center"
-                        : isValidForm.OfficerForm === true
-                          ? "step tab-field-center"
-                          : "step disabled cursor-not-allowed tab-field-center"
-                    } w-90`}
-                  >
-                    <span class="stepCount">3</span>
-                    <span class="stepTitle">Other Information</span>
-
-                    {requireOtherErrorMessage && isValidForm.OfficerForm && (
-                      <span className="validation">
-                        <InvalidFormIcon />
-                      </span>
-                    )}
-                  </div>
-                </li>
-                <li>
-                  <div
-                    class={`${
-                      activeTab === CREATE_PRACTICE_DETAILS.ChoosePlan
-                        ? "step tab-field-center"
-                        : isValidForm.ChooseSubscriptionPlan === true
-                          ? "step tab-field-center"
-                          : "step disabled cursor-not-allowed tab-field-center"
-                    } w-90`}
-                  >
-                    <span class="stepCount">4</span>
-                    <span class="stepTitle">Choose Plan</span>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            {activeTab === CREATE_PRACTICE_DETAILS.BasicInformation && (
-              <Basic_information
-                scrollUptoCurrentPosition={scrollUptoCurrentPosition}
-                DateValidation={DateValidation}
-                setDateValidation={setDateValidation}
-                InvalidAppointedOnDate={InvalidAppointedOnDate}
-                setInvalidAppointedOnDate={setInvalidAppointedOnDate}
-                concatenatedTradingAddress={concatenatedTradingAddress}
-                officersForm={officersForm}
-                setOfficers={setOfficers}
-                errorMessage={errorMessage}
-                setOfficersError={setOfficersError}
-                setConcatenatedTradingAddress={setConcatenatedTradingAddress}
-                basicInfo={basicInfo}
-                ProfessionalTypeLookeupListOptions={
-                  ProfessionalTypeLookeupListOptions
-                }
-                professionTypeValue={professionTypeValue}
-                OnChangeSelectProfessionType={OnChangeSelectProfessionType}
-                addressPopUpTitle={addressPopUpTitle}
-                setAddressPopUpTitle={setAddressPopUpTitle}
-                addressUpdatedDatetime={addressUpdatedDatetime}
-                setAddressUpdatedDatetime={setAddressUpdatedDatetime}
-                address={address}
-                fullAddress={fullAddress}
-                concatenatedRegisterAddress={concatenatedRegisterAddress}
-                setConcatenatedRegisterAddress={setConcatenatedRegisterAddress}
-                setFullAddress={setFullAddress}
-                setRequireErrorMessage={setRequireErrorMessage}
-                signature={signature}
-                setSignature={setSignature}
-                setAddress={setAddress}
-                setBasicInfo={setBasicInfo}
-                requireErrorMessage={requireErrorMessage}
-                companies={companies}
-                companyForm={companyForm}
-                setCompanyForm={setCompanyForm}
-                selectedCountry={selectedCountry}
-                BusinessTypeLookupList={BusinessTypeLookupList}
-                countryValue={countryValue}
-                incorporatedInList={incorporatedInList}
-                handleCompanySelect={handleCompanySelect}
-                handleCompanyInputChange={handleCompanyInputChange}
-                handleCountriesChange={handleCountriesChange}
-                handleIncorporatedInChange={handleIncorporatedInChange}
-                handleTabChange={handleTabChange}
-                handleCancel={handleCancel}
-                setConcatenatedResidentialAddress={
-                  setConcatenatedResidentialAddress
-                }
-                handleBackBtnChange={handleBackBtnChange}
-              />
-            )}
-            {activeTab === CREATE_PRACTICE_DETAILS.OfficerDetails && (
-              <OfficerDetails
-                scrollUptoCurrentPosition={scrollUptoCurrentPosition}
-                officersForm={officersForm}
-                officerError={officerError}
-                errorMessage={errorMessage}
-                otherInfo={otherInfo}
-                InvalidAppointedOnDate={InvalidAppointedOnDate}
-                setInvalidAppointedOnDate={setInvalidAppointedOnDate}
-                setOtherInfo={setOtherInfo}
-                AuthorityCount={AuthorityCount}
-                authoritySignatorySignatory={authoritySignatorySignatory}
-                setAuthoritySignatorySignatory={setAuthoritySignatorySignatory}
-                businessTypeID={basicInfo.businessTypeID}
-                addressPopUpTitle={addressPopUpTitle}
-                setOfficersError={setOfficersError}
-                setAddressPopUpTitle={setAddressPopUpTitle}
-                addressUpdatedDatetime={addressUpdatedDatetime}
-                setAddressUpdatedDatetime={setAddressUpdatedDatetime}
-                concatenatedResidentialAddress={concatenatedResidentialAddress}
-                setConcatenatedResidentialAddress={
-                  setConcatenatedResidentialAddress
-                }
-                setSelectedOfficerAddressIndex={setSelectedOfficerAddressIndex}
-                OnOfficerChange={OnOfficerChange}
-                addOfficer={addOfficer}
-                fullAddress={fullAddress}
-                setFullAddress={setFullAddress}
-                address={address}
-                setAddress={setAddress}
-                deleteOfficer={deleteOfficer}
-                countryCodes={countryCodes}
-                handleTabChange={handleTabChange}
-                handleCancel={handleCancel}
-                handleBackBtnChange={handleBackBtnChange}
-              />
-            )}
-            {activeTab === CREATE_PRACTICE_DETAILS.OtherInformation && (
-              <OtherInformation
-                otherInfo={otherInfo}
-                setOtherInfo={setOtherInfo}
-                requireOtherErrorMessage={requireOtherErrorMessage}
-                currencyType={currencyType}
-                countryCodes={countryCodes}
-                logo={logo}
-                errorMessage={errorMessage}
-                setLogo={setLogo}
-                handleCancel={handleCancel}
-                handleTabChange={handleTabChange}
-                handleBackBtnChange={handleBackBtnChange}
-              />
-            )}
-            {activeTab === CREATE_PRACTICE_DETAILS.ChoosePlan && (
-              <SubscriptionPlanView
-                handleSelectChange={handleSelectChange}
-                BuyPlanData={BuyPlanData}
-                handleSuccessPopupOk={handleSuccessPopupOk}
-                handleToggle={handleToggle}
-                isYearly={isYearly}
-                setIsYearly={setIsYearly}
-                formatValue={formatValue}
-                EngagementName={EngagementName}
-                proposalName={proposalName}
-                selectedOfferID={selectedOfferID}
-                chooseApiData={chooseApiData}
-                formatValueWithoutCurrencySymbol={
-                  formatValueWithoutCurrencySymbol
-                }
-              />
-            )}
-
-            {/* Write Component here */}
-          </div>
-        </div>
+    <div className="cp-page">
+      <div className="cp-page-head">
+        <h1 className="cp-page-title">
+          <BackButtonSvg onClick={handleCancel} />
+          Create New Practice
+        </h1>
+        {/* <p className="cp-page-subtitle">
+          Set up your organisation profile, officers, branding and plan.
+        </p> */}
       </div>
+
+      <div className="cp-steps-wrap">
+        <ul className="cp-steps">
+          <li>
+            <div
+              onClick={() =>
+                handleChangeTab(1, "Practice_BasicInformation_Tab")
+              }
+              id="Practice_BasicInformation_Tab"
+              className={`${
+                activeTab === CREATE_PRACTICE_DETAILS.BasicInformation
+                  ? "cp-step is-active"
+                  : isValidForm.BasicForm === true
+                    ? "cp-step is-done"
+                    : "cp-step disabled cursor-not-allowed"
+              }`}
+            >
+              <span className="cp-step-count">1</span>
+              <span className="cp-step-title">Basic Information</span>
+              {requireErrorMessage && (
+                <span className="validation cp-step-warn">
+                  <InvalidFormIcon />
+                </span>
+              )}
+            </div>
+          </li>
+
+          <li>
+            <div
+              onClick={() => handleChangeTab(2, "Practice_OfficerDetails_Tab")}
+              id="Practice_OfficerDetails_Tab"
+              className={`${
+                activeTab === CREATE_PRACTICE_DETAILS.OfficerDetails
+                  ? "cp-step is-active"
+                  : isValidForm.BasicForm === true
+                    ? "cp-step is-done"
+                    : "cp-step disabled cursor-not-allowed"
+              }`}
+            >
+              <span className="cp-step-count">2</span>
+              <span className="cp-step-title">
+                {basicInfo.businessTypeID === null
+                  ? "Sole Trader"
+                  : [4, 5].includes(basicInfo.businessTypeID)
+                    ? "Officer Details"
+                    : basicInfo.businessTypeName}
+              </span>
+              {officerError && isValidForm.BasicForm === true && (
+                <span className="validation cp-step-warn">
+                  <InvalidFormIcon />
+                </span>
+              )}
+            </div>
+          </li>
+
+          <li>
+            <div
+              onClick={() =>
+                handleChangeTab(3, "Practice_OtherInformation_Tab")
+              }
+              id="Practice_OtherInformation_Tab"
+              className={`${
+                activeTab === CREATE_PRACTICE_DETAILS.OtherInformation
+                  ? "cp-step is-active"
+                  : isValidForm.OfficerForm === true
+                    ? "cp-step is-done"
+                    : "cp-step disabled cursor-not-allowed"
+              }`}
+            >
+              <span className="cp-step-count">3</span>
+              <span className="cp-step-title">Other Information</span>
+              {requireOtherErrorMessage && isValidForm.OfficerForm && (
+                <span className="validation cp-step-warn">
+                  <InvalidFormIcon />
+                </span>
+              )}
+            </div>
+          </li>
+
+          <li>
+            <div
+              className={`${
+                activeTab === CREATE_PRACTICE_DETAILS.ChoosePlan
+                  ? "cp-step is-active"
+                  : isValidForm.ChooseSubscriptionPlan === true
+                    ? "cp-step is-done"
+                    : "cp-step disabled cursor-not-allowed"
+              }`}
+            >
+              <span className="cp-step-count">4</span>
+              <span className="cp-step-title">Choose Plan</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div className="cp-content">
+        {activeTab === CREATE_PRACTICE_DETAILS.BasicInformation && (
+          <Basic_information
+            scrollUptoCurrentPosition={scrollUptoCurrentPosition}
+            DateValidation={DateValidation}
+            setDateValidation={setDateValidation}
+            InvalidAppointedOnDate={InvalidAppointedOnDate}
+            setInvalidAppointedOnDate={setInvalidAppointedOnDate}
+            concatenatedTradingAddress={concatenatedTradingAddress}
+            officersForm={officersForm}
+            setOfficers={setOfficers}
+            errorMessage={errorMessage}
+            setOfficersError={setOfficersError}
+            setConcatenatedTradingAddress={setConcatenatedTradingAddress}
+            basicInfo={basicInfo}
+            ProfessionalTypeLookeupListOptions={
+              ProfessionalTypeLookeupListOptions
+            }
+            professionTypeValue={professionTypeValue}
+            OnChangeSelectProfessionType={OnChangeSelectProfessionType}
+            addressPopUpTitle={addressPopUpTitle}
+            setAddressPopUpTitle={setAddressPopUpTitle}
+            addressUpdatedDatetime={addressUpdatedDatetime}
+            setAddressUpdatedDatetime={setAddressUpdatedDatetime}
+            address={address}
+            fullAddress={fullAddress}
+            concatenatedRegisterAddress={concatenatedRegisterAddress}
+            setConcatenatedRegisterAddress={setConcatenatedRegisterAddress}
+            setFullAddress={setFullAddress}
+            setRequireErrorMessage={setRequireErrorMessage}
+            signature={signature}
+            setSignature={setSignature}
+            setAddress={setAddress}
+            setBasicInfo={setBasicInfo}
+            requireErrorMessage={requireErrorMessage}
+            companies={companies}
+            companyForm={companyForm}
+            setCompanyForm={setCompanyForm}
+            selectedCountry={selectedCountry}
+            BusinessTypeLookupList={BusinessTypeLookupList}
+            countryValue={countryValue}
+            incorporatedInList={incorporatedInList}
+            handleCompanySelect={handleCompanySelect}
+            handleCompanyInputChange={handleCompanyInputChange}
+            handleCountriesChange={handleCountriesChange}
+            handleIncorporatedInChange={handleIncorporatedInChange}
+            handleTabChange={handleTabChange}
+            handleCancel={handleCancel}
+            setConcatenatedResidentialAddress={
+              setConcatenatedResidentialAddress
+            }
+            handleBackBtnChange={handleBackBtnChange}
+          />
+        )}
+        {activeTab === CREATE_PRACTICE_DETAILS.OfficerDetails && (
+          <OfficerDetails
+            scrollUptoCurrentPosition={scrollUptoCurrentPosition}
+            officersForm={officersForm}
+            officerError={officerError}
+            errorMessage={errorMessage}
+            otherInfo={otherInfo}
+            InvalidAppointedOnDate={InvalidAppointedOnDate}
+            setInvalidAppointedOnDate={setInvalidAppointedOnDate}
+            setOtherInfo={setOtherInfo}
+            AuthorityCount={AuthorityCount}
+            authoritySignatorySignatory={authoritySignatorySignatory}
+            setAuthoritySignatorySignatory={setAuthoritySignatorySignatory}
+            businessTypeID={basicInfo.businessTypeID}
+            addressPopUpTitle={addressPopUpTitle}
+            setOfficersError={setOfficersError}
+            setAddressPopUpTitle={setAddressPopUpTitle}
+            addressUpdatedDatetime={addressUpdatedDatetime}
+            setAddressUpdatedDatetime={setAddressUpdatedDatetime}
+            concatenatedResidentialAddress={concatenatedResidentialAddress}
+            setConcatenatedResidentialAddress={
+              setConcatenatedResidentialAddress
+            }
+            setSelectedOfficerAddressIndex={setSelectedOfficerAddressIndex}
+            OnOfficerChange={OnOfficerChange}
+            addOfficer={addOfficer}
+            fullAddress={fullAddress}
+            setFullAddress={setFullAddress}
+            address={address}
+            setAddress={setAddress}
+            deleteOfficer={deleteOfficer}
+            countryCodes={countryCodes}
+            handleTabChange={handleTabChange}
+            handleCancel={handleCancel}
+            handleBackBtnChange={handleBackBtnChange}
+          />
+        )}
+        {activeTab === CREATE_PRACTICE_DETAILS.OtherInformation && (
+          <OtherInformation
+            otherInfo={otherInfo}
+            setOtherInfo={setOtherInfo}
+            requireOtherErrorMessage={requireOtherErrorMessage}
+            currencyType={currencyType}
+            countryCodes={countryCodes}
+            logo={logo}
+            errorMessage={errorMessage}
+            setLogo={setLogo}
+            handleCancel={handleCancel}
+            handleTabChange={handleTabChange}
+            handleBackBtnChange={handleBackBtnChange}
+          />
+        )}
+        {activeTab === CREATE_PRACTICE_DETAILS.ChoosePlan && (
+          <SubscriptionPlanView
+            handleSelectChange={handleSelectChange}
+            BuyPlanData={BuyPlanData}
+            handleSuccessPopupOk={handleSuccessPopupOk}
+            handleToggle={handleToggle}
+            isYearly={isYearly}
+            setIsYearly={setIsYearly}
+            formatValue={formatValue}
+            EngagementName={EngagementName}
+            proposalName={proposalName}
+            selectedOfferID={selectedOfferID}
+            chooseApiData={chooseApiData}
+            formatValueWithoutCurrencySymbol={formatValueWithoutCurrencySymbol}
+          />
+        )}
+
+        {/* Write Component here */}
+      </div>
+
       <ConfirmModel
         openErrorModal={openErrorModal}
         openSuccessModal={openSuccessModal}
