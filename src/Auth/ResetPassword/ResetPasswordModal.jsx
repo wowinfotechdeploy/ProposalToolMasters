@@ -8,6 +8,7 @@ import SuccessModal from "../../components/SuccessModal";
 import { ERROR_MESSAGES } from "../../components/GlobalMessage";
 import { AuthContextProvider } from "../../AuthContext/AuthContext";
 import { updateState } from "../../redux/Persist";
+import "./ResetPasswordModal-redesign.css";
 function ResetPasswordModal(props) {
   /* -------------------------------------------------------------------------- */
   /*                                Declare State                               */
@@ -116,7 +117,7 @@ function ResetPasswordModal(props) {
     }
 
     const pass = /^(?=.*\d)(?=.*[-@$!%*#?&])[A-Za-z\d\-@$!%*#?&]{8,}$/.test(
-      CreateNewPassword.Password
+      CreateNewPassword.Password,
     );
     if (!pass) {
       hasError = true;
@@ -171,7 +172,7 @@ function ResetPasswordModal(props) {
     dispatch(
       updateState({
         isPasswordSet: true,
-      })
+      }),
     );
   };
 
@@ -259,199 +260,260 @@ function ResetPasswordModal(props) {
   /* ---------------------- Design Part Start From Here. ---------------------- */
   return (
     <div
-      class="modal fade zoomIn"
+      className="modal fade zoomIn reset-password-redesign"
       id="ResetPasswordModal"
-      tabindex="-1"
+      tabIndex="-1"
       aria-hidden="false"
       data-bs-backdrop="static"
       data-bs-keyboard="false"
     >
-      <div class="modal-dialog modal-md modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header bg-light p-3">
-            <h5 class="modal-title" id="exampleModalLabel">
-              {common.isPasswordSet ? "Reset Password" : "Set Password"}
-            </h5>
+      <div className="modal-dialog modal-md modal-dialog-centered reset-password-dialog">
+        <div className="modal-content reset-password-content">
+          <div className="modal-header reset-password-header">
+            <div className="reset-password-heading">
+              <span className="reset-password-heading-icon">
+                <i className="ri-lock-password-line"></i>
+              </span>
+
+              <div className="reset-password-heading-copy">
+                <h5 className="modal-title" id="exampleModalLabel">
+                  {common.isPasswordSet ? "Reset Password" : "Set Password"}
+                </h5>
+                <p>
+                  {common.isPasswordSet
+                    ? "Create a new secure password for your account."
+                    : "Set a secure password to protect your account."}
+                </p>
+              </div>
+            </div>
+
             <button
               onClick={handleClose}
               type="button"
-              class="btn-close"
+              className="btn-close reset-password-close"
               id="close-modal"
+              aria-label="Close"
             ></button>
           </div>
-          <div class="modal-body">
-            <div class="tab-content">
+
+          <div className="modal-body reset-password-body">
+            <div className="reset-password-form">
               {common.isPasswordSet && (
-                <div className="row fieldset">
-                  <div className="col-lg-4">
-                    <label className="form-label">
-                      Current Password<span className="text-danger">*</span>
-                    </label>
-                  </div>
-                  <div className="col-lg-8">
-                    <div className="input-group">
-                      <input
-                        // onPaste={handlePaste}
-                        type={showCurrentPassword ? "text" : "password"}
-                        className="input-text"
-                        placeholder="Current Password"
-                        value={CreateNewPassword.CurrentPassword}
-                        maxLength={20}
-                        autoComplete="new-password"
-                        onChange={(e) => {
-                          setErrorMessage("");
-                          setValidationErrors({
-                            ...validationErrors,
-                            ConfirmPassword: "",
-                          });
-                          const inputValue = e.target.value;
-                          const trimmedValue = inputValue.replace(/\s+/g, ""); // Remove leading spaces
-                          setCreateNewPassword({
-                            ...CreateNewPassword,
-                            CurrentPassword: trimmedValue,
-                          });
-                        }}
-                      // onCopy={(e) => e.preventDefault()} // Prevent default copy behavior
-                      // onCut={(e) => e.preventDefault()} // Prevent default cut behavior
-                      // onDrag={(e) => e.preventDefault()} // Prevent default drag behavior
-                      // onDrop={(e) => e.preventDefault()} // Prevent default drop behavior
-                      />
-                    </div>
-                    {RequireErrorMessage &&
-                      (CreateNewPassword.CurrentPassword === undefined ||
-                        CreateNewPassword.CurrentPassword === "") ? (
-                      <label className="validation">{ERROR_MESSAGES}</label>
-                    ) : (
-                      ""
-                    )}
+                <div className="reset-password-field">
+                  <label className="reset-password-label">
+                    Current Password
+                    <span className="reset-password-required">*</span>
+                  </label>
+
+                  <div className="reset-password-input-wrap">
+                    <span className="reset-password-input-icon">
+                      <i className="ri-lock-line"></i>
+                    </span>
+
+                    <input
+                      type={showCurrentPassword ? "text" : "password"}
+                      className="input-text reset-password-input"
+                      placeholder="Enter current password"
+                      value={CreateNewPassword.CurrentPassword}
+                      maxLength={20}
+                      autoComplete="new-password"
+                      onChange={(e) => {
+                        setErrorMessage("");
+                        setValidationErrors({
+                          ...validationErrors,
+                          ConfirmPassword: "",
+                        });
+                        const inputValue = e.target.value;
+                        const trimmedValue = inputValue.replace(/\s+/g, "");
+                        setCreateNewPassword({
+                          ...CreateNewPassword,
+                          CurrentPassword: trimmedValue,
+                        });
+                      }}
+                    />
+
                     <button
-                      className="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon"
+                      className="reset-password-eye-btn"
                       type="button"
                       id="password-addon"
                       onClick={toggleCurrentPasswordVisibility}
                     >
-                      <i className="ri-eye-fill align-middle"></i>
+                      <i
+                        className={
+                          showCurrentPassword
+                            ? "ri-eye-off-line"
+                            : "ri-eye-line"
+                        }
+                      ></i>
                     </button>
                   </div>
-                </div>
-              )}
 
-              <div className="row fieldset">
-                <div className="col-lg-4">
-                  <label className="form-label">
-                    New Password<span className="text-danger">*</span>
-                  </label>
-                </div>
-                <div className="col-lg-8">
-                  <div className="input-group">
-                    <input
-                      // onPaste={handlePaste}
-                      type={showNewPassword ? "text" : "password"}
-                      className="input-text"
-                      placeholder="Create Password"
-                      value={CreateNewPassword.Password}
-                      onChange={handlePasswordChange}
-                      required
-                      maxLength={20}
-                    />
-                  </div>
                   {RequireErrorMessage &&
-                    (CreateNewPassword.Password === undefined ||
-                      CreateNewPassword.Password === "") ? (
-                    <label className="validation">{ERROR_MESSAGES}</label>
+                  (CreateNewPassword.CurrentPassword === undefined ||
+                    CreateNewPassword.CurrentPassword === "") ? (
+                    <label className="validation reset-password-validation">
+                      {ERROR_MESSAGES}
+                    </label>
                   ) : (
                     ""
                   )}
-                  {validationErrors.Password && (
-                    <label className="validation">
-                      {validationErrors.Password}
-                    </label>
-                  )}
+                </div>
+              )}
+
+              <div className="reset-password-field">
+                <label className="reset-password-label">
+                  New Password
+                  <span className="reset-password-required">*</span>
+                </label>
+
+                <div className="reset-password-input-wrap">
+                  <span className="reset-password-input-icon">
+                    <i className="ri-key-2-line"></i>
+                  </span>
+
+                  <input
+                    type={showNewPassword ? "text" : "password"}
+                    className="input-text reset-password-input"
+                    placeholder="Create new password"
+                    value={CreateNewPassword.Password}
+                    onChange={handlePasswordChange}
+                    required
+                    maxLength={20}
+                  />
+
                   <button
-                    className="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon"
+                    className="reset-password-eye-btn"
                     type="button"
                     id="password-addon"
                     onClick={toggleNewPasswordVisibility}
                   >
-                    <i className="ri-eye-fill align-middle"></i>
+                    <i
+                      className={
+                        showNewPassword ? "ri-eye-off-line" : "ri-eye-line"
+                      }
+                    ></i>
                   </button>
                 </div>
-              </div>
-              <div className="row fieldset">
-                <div className="col-lg-4">
-                  <label className="form-label">
-                    Confirm New Password<span className="text-danger">*</span>
-                  </label>
-                </div>
 
-                <div className="col-lg-8">
-                  <div className="input-group">
-                    <input
-                      // onPaste={handlePaste}
-                      type={showConfirmNewPassword ? "text" : "password"}
-                      className="input-text"
-                      value={CreateNewPassword.ConfirmPassword}
-                      onChange={handleConfirmPasswordChange}
-                      required
-                      placeholder="Confirm Password"
-                      maxLength={20}
-                    // onCopy={(e) => e.preventDefault()} // Prevent default copy behavior
-                    // onCut={(e) => e.preventDefault()} // Prevent default cut behavior
-                    // onDrag={(e) => e.preventDefault()} // Prevent default drag behavior
-                    // onDrop={(e) => e.preventDefault()} // Prevent default drop behavior
-                    />
-                  </div>
-                  {RequireErrorMessage &&
-                    (CreateNewPassword.ConfirmPassword === undefined ||
-                      CreateNewPassword.ConfirmPassword === "") ? (
-                    <label className="validation">{ERROR_MESSAGES}</label>
-                  ) : (
-                    ""
-                  )}
-                  {hasError && validationErrors.ConfirmPassword && (
-                    <label className="validation">
-                      {validationErrors.ConfirmPassword}
-                    </label>
-                  )}
+                {RequireErrorMessage &&
+                (CreateNewPassword.Password === undefined ||
+                  CreateNewPassword.Password === "") ? (
+                  <label className="validation reset-password-validation">
+                    {ERROR_MESSAGES}
+                  </label>
+                ) : (
+                  ""
+                )}
+
+                {validationErrors.Password && (
+                  <label className="validation reset-password-validation">
+                    {validationErrors.Password}
+                  </label>
+                )}
+              </div>
+
+              <div className="reset-password-field">
+                <label className="reset-password-label">
+                  Confirm New Password
+                  <span className="reset-password-required">*</span>
+                </label>
+
+                <div className="reset-password-input-wrap">
+                  <span className="reset-password-input-icon">
+                    <i className="ri-shield-check-line"></i>
+                  </span>
+
+                  <input
+                    type={showConfirmNewPassword ? "text" : "password"}
+                    className="input-text reset-password-input"
+                    value={CreateNewPassword.ConfirmPassword}
+                    onChange={handleConfirmPasswordChange}
+                    required
+                    placeholder="Confirm new password"
+                    maxLength={20}
+                  />
+
                   <button
-                    className="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon"
+                    className="reset-password-eye-btn"
                     type="button"
                     id="password-addon"
                     onClick={toggleConfirmNewPasswordVisibility}
                   >
-                    <i className="ri-eye-fill align-middle"></i>
+                    <i
+                      className={
+                        showConfirmNewPassword
+                          ? "ri-eye-off-line"
+                          : "ri-eye-line"
+                      }
+                    ></i>
                   </button>
                 </div>
+
+                {RequireErrorMessage &&
+                (CreateNewPassword.ConfirmPassword === undefined ||
+                  CreateNewPassword.ConfirmPassword === "") ? (
+                  <label className="validation reset-password-validation">
+                    {ERROR_MESSAGES}
+                  </label>
+                ) : (
+                  ""
+                )}
+
+                {hasError && validationErrors.ConfirmPassword && (
+                  <label className="validation reset-password-validation">
+                    {validationErrors.ConfirmPassword}
+                  </label>
+                )}
               </div>
-              <label
-                style={{ display: "flex", justifyContent: "center" }}
-                className="validation"
-              >
-                {errorMessage}
-              </label>
+
+              {errorMessage && (
+                <div className="reset-password-api-error">
+                  <i className="ri-error-warning-line"></i>
+                  <span>{errorMessage}</span>
+                </div>
+              )}
+
+              <div className="reset-password-note">
+                <span className="reset-password-note-icon">
+                  <i className="ri-information-line"></i>
+                </span>
+
+                <div>
+                  <strong>Password requirements</strong>
+                  <p>
+                    Minimum 8 characters with at least 1 letter, 1 number and 1
+                    special character from: - @ $ ! % * # ? &amp;
+                  </p>
+                </div>
+              </div>
             </div>
-            <span style={{ fontSize: "12px" }}>
-              {`Note:Password should be minimum 8 characters long. It must contain at least 1 letter, at least 1 number and at least one special character, and only from the following set (others not allowed): - @ $ ! % * # ? &`}
-            </span>
           </div>
 
-          <div class="modal-footer">
-            <div class="hstack gap-2 justify-content-end">
-              <button
-                onClick={CreateNewPasswordClicked}
-                type="submit"
-                class="btn btn-md btn-success create-item-btn"
-                id="add-btn"
-                data-bs-target="#ResetPass"
-              >
-                <span>
-                  {common.isPasswordSet ? "Reset Password" : "Set Password"}
-                </span>
-              </button>
-            </div>
+          <div className="modal-footer reset-password-footer">
+            <button
+              onClick={handleClose}
+              type="button"
+              className="btn reset-password-cancel-btn"
+            >
+              Cancel
+            </button>
+
+            <button
+              onClick={CreateNewPasswordClicked}
+              type="submit"
+              className="btn btn-md btn-success create-item-btn reset-password-submit-btn"
+              id="add-btn"
+              data-bs-target="#ResetPass"
+            >
+              <i className="ri-check-line"></i>
+              <span>
+                {common.isPasswordSet ? "Reset Password" : "Set Password"}
+              </span>
+            </button>
           </div>
         </div>
       </div>
+
       <SuccessModal
         handleClose={handleCloseOnSuccess}
         setDismissModal={setDismissModal}
