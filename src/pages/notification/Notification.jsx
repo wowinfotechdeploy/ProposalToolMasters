@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import "./Notification.css";
+import "./Notification-redesign.css";
 import { AuthContextProvider } from "../../AuthContext/AuthContext";
 import Footer from "../../components/Footer";
 import { GetNotificationList } from "../../redux/Services/Setting/NotificationApi";
@@ -94,150 +95,170 @@ const Notification = () => {
   };
 
   return (
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
-        <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{marginTop: "3rem"}}>
-                      <div class="bg-light border-bottom px-2">
-                        <div class="">
-                          <div className="row">
-                <div className="col-md-4 col-4">
-              <h4 class="page-display-title fw-bold">Notifications</h4>
-            </div>
+    <div className="notification-redesign">
+      <div className="notification-page">
+        {/* =========================
+            PAGE HEADER
+            ========================= */}
+        {/* <div className="notification-page-header">
+          <div>
+            <h1>Notifications</h1>
+            <p>Track proposal, engagement letter and workspace activity.</p>
           </div>
-          <div class="">
-            <div class="row">
-              <div class="col-12 mt-3">
-                <div class="card cus-card">
-                  <div
-                    class="card-body"
-                  >
-                    {notificationList && notificationList.length > 0 ? (
-                      <div class="row">
-                        <div class="col-md-6">
-                          <ol class="activity-feed ">
-                            {notificationList
-                              .slice(0, Math.ceil(notificationList.length / 2))
-                              .map((notificationVal, index) => (
-                                <li key={index} class="feed-item">
-                                  <div class="feed-item-list">
-                                    <span class="date">
-                                      <strong>
-                                        {notificationVal.title
-                                          ?.replace(/quote/g, proposalName)
-                                          ?.replace(/client/g, prospectName)
-                                          ?.replace(/Quotation/g, prospectName)
-                                          ?.replace(
-                                            /contract/g,
-                                            EngagementName
-                                          )}{" "}
-                                       {notificationVal.notificationDate.replace(/^(.+\d{4})\s+(.+)$/, (match, p1, p2) => `[ ${p1}  (${p2.trim()}) ]`)}                                       
-                                      </strong>
-                                    </span>
+        </div> */}
 
-                                    <span
-                                      style={{
-                                        color: "blue",
-                                        cursor: "pointer",
-                                      }}
-                                      class="activity-text"
-                                      onClick={() => {
-                                        navigate(
-                                          `/${notificationVal.moduleURL}`
-                                        );
-                                      }}
-                                    >
-                                      {notificationVal?.message
-                                        ?.replace(/quotation/g, proposalName)
-                                        ?.replace(/client/g, prospectName)
-                                        ?.replace(/contract/g, EngagementName)}
-                                    </span>
-                                  </div>
-                                </li>
-                              ))}
-                          </ol>
+        {/* =========================
+            NOTIFICATION TIMELINE
+            ========================= */}
+        <section className="notification-list-card">
+          <div className="notification-list-card-header">
+            <div>
+              <h2>Recent Notifications</h2>
+              <p>Review your latest activity and open the related record.</p>
+            </div>
+
+            {listCount > 0 && (
+              <span className="notification-count">
+                {listCount} {listCount === 1 ? "notification" : "notifications"}
+              </span>
+            )}
+          </div>
+
+          <div className="notification-list-body">
+            {notificationList && notificationList.length > 0 ? (
+              <div className="notification-timeline">
+                {/* Keep the original first-half mapping and replacements exactly as-is */}
+                <ol className="notification-feed">
+                  {notificationList
+                    .slice(0, Math.ceil(notificationList.length / 2))
+                    .map((notificationVal, index) => (
+                      <li key={index} className="notification-feed-item">
+                        <span className="notification-timeline-dot"></span>
+
+                        <div className="notification-card">
+                          <div className="notification-card-icon">
+                            <i className="ri-notification-3-line"></i>
+                          </div>
+
+                          <div className="notification-card-content">
+                            <div className="notification-card-top">
+                              <strong className="notification-card-title">
+                                {notificationVal.title
+                                  ?.replace(/quote/g, proposalName)
+                                  ?.replace(/client/g, prospectName)
+                                  ?.replace(/Quotation/g, prospectName)
+                                  ?.replace(/contract/g, EngagementName)}
+                              </strong>
+
+                              <span className="notification-card-date">
+                                {notificationVal.notificationDate.replace(
+                                  /^(.+\d{4})\s+(.+)$/,
+                                  (match, p1, p2) => `${p1}  •  ${p2.trim()}`,
+                                )}
+                              </span>
+                            </div>
+
+                            <span
+                              className="notification-card-message"
+                              onClick={() => {
+                                navigate(`/${notificationVal.moduleURL}`);
+                              }}
+                            >
+                              {notificationVal?.message
+                                ?.replace(/quotation/g, proposalName)
+                                ?.replace(/client/g, prospectName)
+                                ?.replace(/contract/g, EngagementName)}
+                            </span>
+                          </div>
+
+                          <span className="notification-card-arrow">
+                            <i className="ri-arrow-right-s-line"></i>
+                          </span>
                         </div>
-                        <div class="col-md-6">
-                          <ol class="activity-feed">
-                            {notificationList
-                              .slice(Math.ceil(notificationList.length / 2))
-                              .map((notificationVal, index) => (
-                                <li key={index} class="feed-item">
-                                  <div class="feed-item-list">
-                                    <span class="date">
-                                      <strong>
-                                        {notificationVal.title
-                                          ?.replace(/quote/g, proposalName)
-                                          ?.replace(/Quotation/g, proposalName)
-                                          ?.replace(/client/g, prospectName)
-                                          ?.replace(
-                                            /contract/g,
-                                            EngagementName
-                                          )}{" "}
-                                      {notificationVal.notificationDate.replace(/^(.+\d{4})\s+(.+)$/, (match, p1, p2) => `[ ${p1}  (${p2.trim()}) ]`)}
-                                      </strong>
-                                    </span>
+                      </li>
+                    ))}
+                </ol>
 
-                                    <span
-                                      style={{
-                                        color: "blue",
-                                        cursor: "pointer",
-                                      }}
-                                      class="activity-text"
-                                      onClick={() => {
-                                        navigate(
-                                          `/${notificationVal.moduleURL}`
-                                        );
-                                      }}
-                                    >
-                                      {notificationVal?.message
-                                        ?.replace(/quotation/g, proposalName)
-                                        ?.replace(/client/g, prospectName)
-                                        ?.replace(/contract/g, EngagementName)}
-                                    </span>
-                                  </div>
-                                </li>
-                              ))}
-                          </ol>
+                {/* Keep the original second-half mapping and replacements exactly as-is */}
+                <ol className="notification-feed notification-feed-continuation">
+                  {notificationList
+                    .slice(Math.ceil(notificationList.length / 2))
+                    .map((notificationVal, index) => (
+                      <li key={index} className="notification-feed-item">
+                        <span className="notification-timeline-dot"></span>
+
+                        <div className="notification-card">
+                          <div className="notification-card-icon">
+                            <i className="ri-notification-3-line"></i>
+                          </div>
+
+                          <div className="notification-card-content">
+                            <div className="notification-card-top">
+                              <strong className="notification-card-title">
+                                {notificationVal.title
+                                  ?.replace(/quote/g, proposalName)
+                                  ?.replace(/Quotation/g, proposalName)
+                                  ?.replace(/client/g, prospectName)
+                                  ?.replace(/contract/g, EngagementName)}
+                              </strong>
+
+                              <span className="notification-card-date">
+                                {notificationVal.notificationDate.replace(
+                                  /^(.+\d{4})\s+(.+)$/,
+                                  (match, p1, p2) => `${p1}  •  ${p2.trim()}`,
+                                )}
+                              </span>
+                            </div>
+
+                            <span
+                              className="notification-card-message"
+                              onClick={() => {
+                                navigate(`/${notificationVal.moduleURL}`);
+                              }}
+                            >
+                              {notificationVal?.message
+                                ?.replace(/quotation/g, proposalName)
+                                ?.replace(/client/g, prospectName)
+                                ?.replace(/contract/g, EngagementName)}
+                            </span>
+                          </div>
+
+                          <span className="notification-card-arrow">
+                            <i className="ri-arrow-right-s-line"></i>
+                          </span>
                         </div>
-                      </div>
-                    ) : (
-                      <NoResultFoundModel name={" Notification "} />
-                    )}
-
-                    {listCount > pageSize && (
-                      <PaginationComponent
-                        totalCount={listCount}
-                        totalPages={totalPage}
-                        desktopRecords={desktopRecords}
-                        currentPage={currentPage}
-                        onPageChange={handlePageChange}
-                      />
-                    )}
-                  </div>
-                </div>
+                      </li>
+                    ))}
+                </ol>
               </div>
-            </div>
+            ) : (
+              <div className="notification-empty-state">
+                <NoResultFoundModel name={" Notification "} />
+              </div>
+            )}
           </div>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
+
+          {listCount > pageSize && (
+            <div className="notification-pagination">
+              <PaginationComponent
+                totalCount={listCount}
+                totalPages={totalPage}
+                desktopRecords={desktopRecords}
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          )}
+        </section>
       </div>
-      <button class="btn btn-danger btn-icon" id="back-to-top">
-        <i class="ri-arrow-up-line"></i>
+
+      <div className="notification-footer-wrap">
+        <Footer />
+      </div>
+
+      <button className="btn btn-danger btn-icon" id="back-to-top">
+        <i className="ri-arrow-up-line"></i>
       </button>
-      <Footer />
     </div>
   );
 };
