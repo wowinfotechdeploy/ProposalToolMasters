@@ -9,10 +9,12 @@ import SetTimeoutComponentModel from "./SessionTimeOutModel";
 import { ERROR_MESSAGES } from "./GlobalMessage";
 import { useNavigate } from "react-router-dom";
 import SuccessModal from "./SuccessModal";
+import "./SetTimeoutComponent-redesign.css";
 
 const SetTimeoutComponent = (props) => {
   const dispatch = useDispatch();
-  const { setLoader, logoutTimeUpModal, setLogoutTimeUpModal } = useContext(AuthContextProvider);
+  const { setLoader, logoutTimeUpModal, setLogoutTimeUpModal } =
+    useContext(AuthContextProvider);
   const navigate = useNavigate();
   const [successMessage, setSuccessMessage] = useState("");
   const [logoutTime, setLogoutTimeFormLocal] = useState("");
@@ -85,10 +87,16 @@ const SetTimeoutComponent = (props) => {
     }
   };
 
-  const UpdateUsersLoginSessionTimeData = async (userKeyID, LoginSessionTime) => {
+  const UpdateUsersLoginSessionTimeData = async (
+    userKeyID,
+    LoginSessionTime,
+  ) => {
     setLoader(true);
     try {
-      const response = await UpdateUsersLoginSessionTime(userKeyID, LoginSessionTime);
+      const response = await UpdateUsersLoginSessionTime(
+        userKeyID,
+        LoginSessionTime,
+      );
       const data = response.data;
       if (data.statusCode === 200) {
         setLoader(false);
@@ -107,7 +115,7 @@ const SetTimeoutComponent = (props) => {
 
   const handleLogoutTimeChange = (event) => {
     let inputValue = event.target.value.trim();
-    const sanitizedInput = inputValue.replace(/[^0-9-]/g, '');
+    const sanitizedInput = inputValue.replace(/[^0-9-]/g, "");
     let parsedInput = parseInt(sanitizedInput, 10);
 
     if (isNaN(parsedInput)) {
@@ -181,69 +189,134 @@ const SetTimeoutComponent = (props) => {
 
   return (
     <div>
-      <Modal show={props.isOpenSessionTimeout} centered size="md">
-        <Modal.Header>
-          <h6 className="modal-title">Set Session Timeout</h6>
+      <Modal
+        show={props.isOpenSessionTimeout}
+        centered
+        size="md"
+        className="session-timeout-redesign"
+        dialogClassName="session-timeout-dialog"
+      >
+        <Modal.Header className="session-timeout-header">
+          <div className="session-timeout-heading">
+            <span className="session-timeout-heading-icon">
+              <i className="ri-timer-line"></i>
+            </span>
+
+            <div className="session-timeout-heading-copy">
+              <h6 className="modal-title">Set Session Timeout</h6>
+              <p>
+                Choose how long your session should remain active while idle.
+              </p>
+            </div>
+          </div>
+
           <button
             type="button"
-            className="btn-close"
+            className="btn-close session-timeout-close"
             onClick={() => {
               props.handleCloseSessionModel();
               setError(false);
             }}
+            aria-label="Close"
           ></button>
         </Modal.Header>
-        <Modal.Body>
-          <div className="modal-body">
-            <div className="tab-content">
-              <div className="row">
-                <div className="col-lg-4">
-                  <div className="col-md-3 col-sm-12 text-start text-md-end">
-                    <label htmlFor="logout-time-input" className="fieldset-label mt-2">
-                      Enter Session Timeout<span className="text-danger">*</span>
-                    </label>
-                  </div>
-                </div>
-                <div className="col-md-8 col-sm-12">
-                  <div className="input-group">
-                    <input
-                      type="text"
-                      id="logout-time-input"
-                      className="input-text"
-                      placeholder="Session Timeout (in minutes)"
-                      required
-                      pattern="\d*"
-                      value={logoutTime}
-                      maxLength={4}
-                      onChange={handleLogoutTimeChange}
-                      onKeyDown={(e) => {
-                        if (e.key === "." || e.key === "e" || e.key === "+" || e.key === "-") {
-                          e.preventDefault();
-                        }
-                      }}
-                    />
-                  </div>
-                  {error && <label className="validation mt-2">{ERROR_MESSAGES}</label>}
-                </div>
+
+        <Modal.Body className="session-timeout-body">
+          <div className="session-timeout-form">
+            <div className="session-timeout-field">
+              <label
+                htmlFor="logout-time-input"
+                className="session-timeout-label"
+              >
+                Session Timeout
+                <span className="session-timeout-required">*</span>
+              </label>
+
+              <div className="session-timeout-input-wrap">
+                <span className="session-timeout-input-icon">
+                  <i className="ri-time-line"></i>
+                </span>
+
+                <input
+                  type="text"
+                  id="logout-time-input"
+                  className="input-text session-timeout-input"
+                  placeholder="Enter session timeout"
+                  required
+                  pattern="\d*"
+                  value={logoutTime}
+                  maxLength={4}
+                  onChange={handleLogoutTimeChange}
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === "." ||
+                      e.key === "e" ||
+                      e.key === "+" ||
+                      e.key === "-"
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+
+                <span className="session-timeout-suffix">minutes</span>
               </div>
-              {/* Countdown Timer */}
-              {/* <div className="row mt-3">
-                <div className="col-md-12 text-center">
-                  <h5>Time Remaining: {Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, "0")}</h5>
-                </div>
-              </div> */}
+
+              {error && (
+                <label className="validation session-timeout-validation">
+                  {ERROR_MESSAGES}
+                </label>
+              )}
+
+              <span className="session-timeout-field-help">
+                Enter a value between 1 and 1440 minutes.
+              </span>
             </div>
+
+            <div className="session-timeout-note">
+              <span className="session-timeout-note-icon">
+                <i className="ri-information-line"></i>
+              </span>
+
+              <div>
+                <strong>Automatic sign out</strong>
+                <p>
+                  Your session timer restarts when activity is detected. You
+                  will be signed out when the configured timeout is reached.
+                </p>
+              </div>
+            </div>
+
+            {/* Countdown Timer */}
+            {/* <div className="row mt-3">
+              <div className="col-md-12 text-center">
+                <h5>Time Remaining: {Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, "0")}</h5>
+              </div>
+            </div> */}
           </div>
         </Modal.Body>
-        <Modal.Footer>
-          <div className="hstack gap-2 justify-content-end">
-            <button type="submit" className="btn btn-md btn-success create-item-btn" id="add-btn" onClick={setLogoutTime}>
-              Submit
-            </button>
-          </div>
+
+        <Modal.Footer className="session-timeout-footer">
+          <button
+            type="submit"
+            className="btn btn-md btn-success create-item-btn session-timeout-submit-btn"
+            id="add-btn"
+            onClick={setLogoutTime}
+          >
+            <i className="ri-check-line"></i>
+            <span>Submit</span>
+          </button>
         </Modal.Footer>
       </Modal>
-      <SetTimeoutComponentModel class="modal fade" tabIndex="-1" aria_labelledby="exampleModalLabel" aria_hidden="true" handleCloseModal={handleCloseModal} />
+
+      <SetTimeoutComponentModel
+        class="modal fade"
+        tabIndex="-1"
+        aria_labelledby="exampleModalLabel"
+        aria_hidden="true"
+        handleCloseModal={handleCloseModal}
+      />
+
       <SuccessModal
         handleClose={handleClose}
         setOpenSuccessModal={setOpenSuccessModal}
