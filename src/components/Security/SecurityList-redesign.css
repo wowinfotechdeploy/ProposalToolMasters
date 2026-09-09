@@ -1,0 +1,757 @@
+/* =========================================================
+   SECURITY LIST REDESIGN
+   Matches the shared list UI used across the application.
+   UI ONLY — logic, APIs and handlers remain unchanged.
+   ========================================================= */
+
+.security-list-redesign {
+  --sec-bg: #f7f9fc;
+  --sec-card: #ffffff;
+  --sec-heading: #14243a;
+  --sec-text: #334258;
+  --sec-muted: #7b8798;
+  --sec-border: #dce4ed;
+  --sec-border-soft: #e8edf3;
+  --sec-navy: #0f1b33;
+  --sec-cyan: #14b5d1;
+  --sec-cyan-hover: #0da5c1;
+
+  width: calc(100% - 20px) !important;
+  min-height: 100%;
+
+  margin-left: 20px !important;
+
+  padding: 0 16px 28px 0 !important;
+
+  background: var(--sec-bg);
+  color: var(--sec-text);
+
+  overflow: visible !important;
+}
+
+.security-list-redesign,
+.security-list-redesign * {
+  box-sizing: border-box;
+}
+
+.security-list-page {
+  width: 100%;
+  max-width: 1500px;
+
+  margin: 0 auto;
+  padding: 24px 0 28px;
+}
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.security-list-page-header {
+  width: 100%;
+  min-height: 78px;
+
+  padding: 0 0 16px;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+
+  border-bottom: 1px solid #e2e8ef;
+}
+
+.security-list-heading-copy {
+  min-width: 0;
+}
+
+.security-list-heading-copy h1 {
+  margin: 0;
+
+  color: var(--sec-heading);
+
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.security-list-heading-copy p {
+  margin: 6px 0 0;
+
+  color: var(--sec-muted);
+
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.security-list-header-actions {
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.security-list-header-actions .btn,
+.security-list-header-actions button {
+  min-height: 42px !important;
+
+  border-radius: 8px !important;
+}
+
+/* =========================================================
+   TWO FACTOR CARD
+   ========================================================= */
+
+.security-twofa-card {
+  width: 100%;
+  min-height: 92px;
+
+  margin-top: 20px;
+  padding: 16px 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  border: 1px solid var(--sec-border);
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.035),
+    0 10px 24px rgba(15, 23, 42, 0.02);
+}
+
+.security-twofa-copy {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.security-twofa-icon {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: #e9f7fa;
+  color: #087f98;
+
+  font-size: 19px;
+}
+
+.security-twofa-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.security-twofa-title-row h2 {
+  margin: 0;
+
+  color: #21334c;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.security-twofa-copy p {
+  margin: 5px 0 0;
+
+  color: #8591a2;
+
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+.security-twofa-status {
+  min-height: 23px;
+  padding: 0 8px;
+
+  display: inline-flex;
+  align-items: center;
+
+  border-radius: 999px;
+
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.security-twofa-status.is-enabled {
+  background: #eaf8f3;
+  color: #18845f;
+}
+
+.security-twofa-status.is-disabled {
+  background: #f1f4f7;
+  color: #687589;
+}
+
+.security-twofa-toggle {
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  color: #536176;
+
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.security-twofa-toggle .MuiFormGroup-root,
+.security-twofa-toggle .MuiFormControlLabel-root {
+  margin: 0 !important;
+}
+
+/* =========================================================
+   LIST CARD
+   ========================================================= */
+
+.security-list-card {
+  width: 100%;
+
+  margin-top: 18px;
+
+  overflow: hidden;
+
+  border: 1px solid var(--sec-border);
+  border-radius: 12px;
+
+  background: var(--sec-card);
+
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.04),
+    0 10px 28px rgba(15, 23, 42, 0.025);
+}
+
+.security-list-card-header {
+  min-height: 74px;
+  padding: 15px 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  border-bottom: 1px solid var(--sec-border);
+
+  background: #ffffff;
+}
+
+.security-list-card-header h2 {
+  margin: 0;
+
+  color: #20314a;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.security-list-card-header p {
+  margin: 4px 0 0;
+
+  color: #8994a3;
+
+  font-size: 10.5px;
+}
+
+.security-list-count {
+  min-height: 28px;
+  padding: 0 10px;
+
+  display: inline-flex;
+  align-items: center;
+
+  border-radius: 999px;
+
+  background: #eef7fa;
+  color: #087f98;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.security-list-table-scroll {
+  width: 100%;
+
+  overflow-x: auto;
+  overflow-y: visible;
+
+  scrollbar-width: thin;
+  scrollbar-color: #c9d1dc transparent;
+}
+
+.security-list-table-scroll::-webkit-scrollbar {
+  height: 7px;
+}
+
+.security-list-table-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background: #c9d1dc;
+}
+
+.security-list-table {
+  width: 100%;
+  min-width: 980px;
+
+  margin: 0;
+
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.security-list-table thead th {
+  height: 52px;
+
+  padding: 0 15px;
+
+  border: 0;
+  border-bottom: 1px solid #1d2940;
+
+  background: var(--sec-navy);
+  color: #ffffff;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.security-list-table tbody td {
+  min-height: 70px;
+  padding: 12px 15px;
+
+  border-bottom: 1px solid var(--sec-border-soft);
+
+  background: #ffffff;
+  color: var(--sec-text);
+
+  font-size: 11.5px;
+  vertical-align: middle;
+}
+
+.security-list-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.security-list-table tbody tr:hover td {
+  background: #fbfdff;
+}
+
+.security-list-table th:nth-child(1),
+.security-list-table td:nth-child(1) {
+  width: 29%;
+}
+
+.security-list-table th:nth-child(2),
+.security-list-table td:nth-child(2) {
+  width: 24%;
+}
+
+.security-list-table th:nth-child(3),
+.security-list-table td:nth-child(3) {
+  width: 17%;
+}
+
+.security-list-table th:nth-child(4),
+.security-list-table td:nth-child(4) {
+  width: 18%;
+}
+
+.security-list-table th:nth-child(5),
+.security-list-table td:nth-child(5) {
+  width: 12%;
+}
+
+/* SORT */
+
+.security-sort-button {
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  border: 0;
+
+  background: transparent;
+  color: #ffffff;
+
+  font: inherit;
+  font-weight: inherit;
+  text-transform: inherit;
+
+  cursor: pointer;
+}
+
+.security-sort-button i {
+  color: #c9d3e1;
+
+  font-size: 10px;
+}
+
+/* =========================================================
+   NAME
+   ========================================================= */
+
+.security-auth-name-cell {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.security-auth-icon {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #e9f7fa;
+  color: #087f98;
+
+  font-size: 16px;
+}
+
+.security-auth-name {
+  min-width: 0;
+
+  overflow: hidden;
+
+  color: #20314a;
+
+  font-weight: 600;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   TYPE / STATUS
+   ========================================================= */
+
+.security-auth-type-chip {
+  max-width: 100%;
+  min-height: 27px;
+  padding: 0 9px;
+
+  display: inline-flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: #f0eefc;
+  color: #6255af;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.security-switch-cell {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.security-switch-cell .MuiFormGroup-root,
+.security-switch-cell .MuiFormControlLabel-root {
+  margin: 0 !important;
+}
+
+.security-value-pill,
+.security-status-pill {
+  min-width: 48px;
+  min-height: 27px;
+  padding: 0 9px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  font-size: 9.5px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.security-value-pill.is-positive,
+.security-status-pill.is-active {
+  background: #eaf8f3;
+  color: #18845f;
+}
+
+.security-value-pill.is-neutral {
+  background: #f1f4f7;
+  color: #687589;
+}
+
+.security-status-pill.is-inactive {
+  background: #fff0f2;
+  color: #cf4052;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.security-actions-heading,
+.security-actions-cell {
+  text-align: center !important;
+}
+
+.security-delete-button {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #d8e1ea;
+  border-radius: 7px;
+
+  background: #ffffff;
+  color: #d44a59;
+
+  font-size: 15px;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.security-delete-button:hover {
+  border-color: #efc4c9;
+
+  background: #fff3f4;
+  color: #c53a49;
+}
+
+/* =========================================================
+   EMPTY / PAGINATION
+   ========================================================= */
+
+.security-list-empty-wrap {
+  min-height: 250px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.security-list-pagination {
+  min-height: 64px;
+  padding: 13px 16px;
+
+  position: relative !important;
+
+  border-top: 1px solid var(--sec-border);
+
+  background: #ffffff;
+}
+
+/* Shared PaginationComponent may use Bootstrap fixed-bottom.
+   Keep it in this card's normal flow. */
+.security-list-pagination .fixed-bottom {
+  position: static !important;
+
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.security-list-pagination .fixed-bottom > .row {
+  margin: 0 !important;
+}
+
+.security-list-pagination .pagination,
+.security-list-pagination .mb-4 {
+  margin-bottom: 0 !important;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.security-list-footer-wrap,
+.security-list-footer-wrap > *,
+.security-list-footer-wrap footer,
+.security-list-footer-wrap .footer,
+.security-list-footer-wrap .fixed-bottom {
+  position: static !important;
+
+  inset: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+
+  transform: none !important;
+
+  z-index: auto !important;
+}
+
+.security-list-footer-wrap {
+  clear: both;
+
+  background: var(--sec-bg);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (min-width: 1200px) {
+  .security-list-table {
+    min-width: 0;
+  }
+
+  .security-list-table-scroll {
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 991px) {
+  .security-list-redesign {
+    width: calc(100% - 14px) !important;
+
+    margin-left: 14px !important;
+    padding-right: 12px !important;
+  }
+
+  .security-twofa-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .security-twofa-toggle {
+    width: 100%;
+
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 767px) {
+  .security-list-redesign {
+    width: 100% !important;
+
+    margin-left: 0 !important;
+
+    padding: 0 8px 24px !important;
+  }
+
+  .security-list-page {
+    padding-top: 18px;
+  }
+
+  .security-list-page-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .security-list-heading-copy h1 {
+    font-size: 24px;
+  }
+
+  .security-list-header-actions,
+  .security-list-header-actions > * {
+    width: 100%;
+  }
+
+  .security-list-card-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .security-twofa-copy {
+    align-items: flex-start;
+  }
+}
+
+/* =========================================================
+   SECURITY LIST V2 — KEEP FOOTER AT VIEWPORT BOTTOM
+   Keeps the footer in normal flow, but pushes it to the bottom
+   when the page content is shorter than the viewport.
+   ========================================================= */
+
+.security-list-redesign {
+  display: flex !important;
+  flex-direction: column !important;
+
+  min-height: 100vh !important;
+
+  /* Remove the old bottom padding so the footer can sit at the bottom */
+  padding-bottom: 0 !important;
+}
+
+.security-list-page {
+  flex: 1 0 auto !important;
+}
+
+.security-list-footer-wrap {
+  flex-shrink: 0 !important;
+
+  margin-top: auto !important;
+  margin-right: 0 !important;
+  margin-bottom: 0 !important;
+  margin-left: 0 !important;
+}
+
+/* Keep any fixed/sticky rules from the shared Footer component disabled */
+.security-list-footer-wrap footer,
+.security-list-footer-wrap .footer,
+.security-list-footer-wrap .fixed-bottom {
+  position: static !important;
+
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+
+  margin-top: 0 !important;
+}

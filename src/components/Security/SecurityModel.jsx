@@ -15,550 +15,288 @@ import { AuthContextProvider } from "../../AuthContext/AuthContext";
 import BackButtonSvg from "../BackButtonSvg";
 import { ERROR_MESSAGES } from "../GlobalMessage";
 import { TwoFactor } from "../../Middleware/enums";
+import "./SecurityModel-redesign.css";
 
-//Tab Custom Component Created
+/* =========================================================
+   STEP 1 — CHOOSE VERIFICATION METHOD
+   ========================================================= */
 const BasicInformationComponent = (props) => {
   return (
-    <>
-      <div className="">
-        <div class="tab-content">
-          <div className="row">
-            <p className="text-start">
-              How would you like to receive verification codes?
-            </p>
-            <div class="container ">
-              <div class="row justify-content-center ">
-                <div class="col-12 col-md-6">
-                  <div class="mb-3">
-                    <input
-                      type="radio"
-                      id="app"
-                      name="verification_method"
-                      value="AuthenticatorApp"
-                      class="form-check-input"
-                      onChange={() => props.handleMethodChange(1)}
-                      checked={props.authenticatorCode.selectedMethod === 1}
-                    />
-                    <label class="form-check-label ms-2" htmlFor="app">
-                      Authenticator app (Recommended)
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div class="row justify-content-center">
-                <div class="col-12 col-md-6">
-                  <div class="mb-3">
-                    <input
-                      type="radio"
-                      id="Email"
-                      name="verification_method"
-                      value="Email"
-                      maxLength={50}
-                      class="form-check-input"
-                      checked={props.authenticatorCode.selectedMethod === 2}
-                      onChange={() => props.handleMethodChange(2)}
-                    />
-                    <label class="form-check-label ms-2" htmlFor="Email">
-                      Email
-                    </label>
-                  </div>
-                </div>
-              </div>
+    <div className="security-setup-step">
+      <div className="security-setup-step-intro">
+        <span className="security-setup-step-icon">
+          <i className="ri-shield-keyhole-line"></i>
+        </span>
 
-              <br />
-            </div>
-          </div>
+        <div>
+          <h3>Choose a verification method</h3>
+          <p>How would you like to receive your verification codes?</p>
         </div>
       </div>
-      <div>
-        <div class="separator"></div>
-        <div class="row fieldset modal-footer">
-          <div class="col-lg-12 hstack gap-2 justify-content-end text-right mt-2">
-            <button
-              class="btn btn-md  btn-light"
-              onClick={() => props.BackBtn()}
-            >
-              <span>{props.getCrudButtonTextName("Cancel")}</span>
-            </button>
-            <button
-              class="btn btn-md btn-success create-item-btn"
-              onClick={() => {
-                props.authenticatorCode.selectedMethod === 2
-                  ? props.authenticatorBtnClicked(4)
-                  : props.authenticatorBtnClicked(2);
-                // props.GetQrCodeData();
-              }}
-            >
-              <span>Next </span>
-            </button>
-          </div>
-        </div>
+
+      <div className="security-method-grid">
+        <label
+          className={`security-method-card ${
+            props.authenticatorCode.selectedMethod === 1 ? "is-selected" : ""
+          }`}
+          htmlFor="app"
+        >
+          <input
+            type="radio"
+            id="app"
+            name="verification_method"
+            value="AuthenticatorApp"
+            className="form-check-input"
+            onChange={() => props.handleMethodChange(1)}
+            checked={props.authenticatorCode.selectedMethod === 1}
+          />
+
+          <span className="security-method-card-icon">
+            <i className="ri-smartphone-line"></i>
+          </span>
+
+          <span className="security-method-card-copy">
+            <span className="security-method-title-row">
+              <strong>Authenticator App</strong>
+              <span className="security-recommended-badge">Recommended</span>
+            </span>
+
+            <small>
+              Use an authenticator app to generate secure verification codes.
+            </small>
+          </span>
+
+          <span className="security-method-check">
+            <i className="ri-check-line"></i>
+          </span>
+        </label>
+
+        <label
+          className={`security-method-card ${
+            props.authenticatorCode.selectedMethod === 2 ? "is-selected" : ""
+          }`}
+          htmlFor="Email"
+        >
+          <input
+            type="radio"
+            id="Email"
+            name="verification_method"
+            value="Email"
+            maxLength={50}
+            className="form-check-input"
+            checked={props.authenticatorCode.selectedMethod === 2}
+            onChange={() => props.handleMethodChange(2)}
+          />
+
+          <span className="security-method-card-icon">
+            <i className="ri-mail-line"></i>
+          </span>
+
+          <span className="security-method-card-copy">
+            <strong>Email</strong>
+            <small>Receive a verification code at your email address.</small>
+          </span>
+
+          <span className="security-method-check">
+            <i className="ri-check-line"></i>
+          </span>
+        </label>
       </div>
-    </>
+
+      <div className="security-setup-footer">
+        <button
+          type="button"
+          className="btn security-secondary-btn"
+          onClick={() => props.BackBtn()}
+        >
+          <span>{props.getCrudButtonTextName("Cancel")}</span>
+        </button>
+
+        <button
+          type="button"
+          className="btn security-primary-btn"
+          onClick={() => {
+            props.authenticatorCode.selectedMethod === 2
+              ? props.authenticatorBtnClicked(4)
+              : props.authenticatorBtnClicked(2);
+          }}
+        >
+          <span>Next</span>
+          <i className="ri-arrow-right-line"></i>
+        </button>
+      </div>
+    </div>
   );
 };
 
+/* =========================================================
+   STEP 2A — AUTHENTICATOR QR CODE
+   ========================================================= */
 const ShowQrCode = (props) => {
   const [showQRCode, setShowQRCode] = useState(true);
+
   const toggleQRCode = () => {
     setShowQRCode(!showQRCode);
   };
+
   return (
-    <>
-      <div className="">
-        <div className="tab-content ">
-          <div className="tab-pane active">
-            <div class="row">
-              {/* <div class="twoFactorVerificationContainer">
-                <p class="instructions">On Your Phone</p>
-                {showQRCode ? (
-                  <>
-                    <ol style={{ textAlign: "start" }}>
-                      <li>
-                        1. Install an <b> Authenticator App</b> from your
-                        phone's app store such as the{" "}
-                        <b>Google Authenticator App. </b>
-                      </li>
-                      <li>
-                        2. Open the <b>Authenticator App.</b>
-                      </li>
-                      <li>
-                        3. Tap the<b> Add </b>icon or the <b>Begin Setup</b>{" "}
-                        button.
-                      </li>
-                      <li>
-                        4. Choose <b>Scan a QR code,</b> and scan using your
-                        phone:
-                      </li>
-                    </ol>
+    <div className="security-setup-step">
+      <div className="security-setup-step-intro">
+        <span className="security-setup-step-icon">
+          <i className="ri-qr-code-line"></i>
+        </span>
 
-                    <div className="barcode">
-                      <img
-                        src={`data:image/png;base64, ${props.authenticatorCode.qrCodeUrl}`}
-                        alt="QR code"
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <ol style={{ textAlign: "start" }}>
-                      <li>
-                        1. Install an <b> Authenticator App</b> from your
-                        phone's app store such as the{" "}
-                        <b>Google Authenticator App. </b>
-                      </li>
-                      <li>
-                        2. Open the <b>Authenticator App.</b>
-                      </li>
-                      <li>
-                        3. Tap the<b> Add </b>icon or the <b>Begin Setup</b>{" "}
-                        button.
-                      </li>
-                      <li>
-                        4. Enter a provided key by following these steps:
-                        <ul>
-                          a .On the menu screen , press{" "}
-                          <b> Enter Provided Key</b>{" "}
-                        </ul>
-                        <ul>
-                          b .Enter the email address for your Outbooks Proposal
-                          account
-                        </ul>
-                        <ul>c .Enter the secret key</ul>
-                      </li>
-                    </ol>
-                    <div className="barcode">
-                      <p
-                        class="instructions"
-                        style={{ color: "black", backgroundColor: "yellow" }}
-                      >
-                        <b>{props.authenticatorCode.secretKey}</b>
-                      </p>
-                    </div>
-                  </>
-                )}
-                <p class="instructions">
-                  <Link onClick={toggleQRCode}>
-                    {" "}
-                    {showQRCode
-                      ? "Unable to scan the QR code?"
-                      : "Use a QR code Instead "}
-                  </Link>
-                </p>
-              </div> */}
-              <div className="container">
-                <p class="instructions">On Your Phone</p>
-                <div className="row align-items-center">
-                  <div className="col-md-6 ">
-                    <ol className="mb-5">
-                      <li>
-                        1. Install an <b>Authenticator App</b> from your phone's
-                        app store such as the{" "}
-                        <b>Google Authenticator App.</b>
-                      </li>
-                      <li>
-                        2. Open the <b>Authenticator App.</b>
-                      </li>
-                      <li>
-                        3. Tap the <b>Add</b> icon or the <b>Begin Setup</b>{" "}
-                        button.
-                      </li>
-                      <li>
-                        {showQRCode ? (
-                          <>
-                            4. Choose <b>Scan a QR code,</b> and scan using your
-                            phone
-                          </>
-                        ) : (
-                          <>
-                            4. Enter a provided key by following these steps:
-                            <ul>
-                              <li>
-                                On the menu screen, press{" "}
-                                <b>Enter Provided Key</b>
-                              </li>
-                              <li>
-                                Enter the email address for your Outbooks
-                                Proposal account
-                              </li>
-                              <li> Enter the secret key</li>
-                            </ul>
-                          </>
-                        )}
-                      </li>
-                    </ol>
-                  </div>
-                  <div className="col-md-6">
-                    {showQRCode ? (
-                      <div className="barcode">
-                        <img
-                          src={`data:image/png;base64,${props.authenticatorCode.qrCodeUrl}`}
-                          alt="QR code"
-                          className="img-fluid"
-                        />
-                      </div>
-                    ) : (
-                      <div
-                        className="barcode"
-                        style={{ width: "50%", margin: "0 auto" }}
-                      >
-                        <p
-                          className="instructions"
-                          style={{ color: "black", backgroundColor: "yellow" }}
-                        >
-                          <b>{props.authenticatorCode.secretKey}</b>
-                        </p>
-                      </div>
-                    )}
-                    <div className="row">
-                      <div className="col-12 text-center">
-                        <p className="instructions">
-                          <button
-                            className="btn btn-link"
-                            onClick={toggleQRCode}
-                          >
-                            {props.authenticatorCode.qrCodeUrl !== null && (
-                              showQRCode
-                                ? "Unable to scan the QR code?"
-                                : "Use a QR code Instead"
-                            )}{ }
-                          </button>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+        <div>
+          <h3>Set up your authenticator app</h3>
+          <p>
+            Follow the instructions below on your phone to connect your
+            authenticator.
+          </p>
+        </div>
+      </div>
+
+      <div className="security-qr-layout">
+        <div className="security-instructions-card">
+          <span className="security-section-eyebrow">On your phone</span>
+
+          <ol className="security-instruction-list">
+            <li>
+              Install an <strong>Authenticator App</strong> from your phone's
+              app store, such as Google Authenticator.
+            </li>
+            <li>
+              Open the <strong>Authenticator App</strong>.
+            </li>
+            <li>
+              Tap the <strong>Add</strong> icon or the{" "}
+              <strong>Begin Setup</strong> button.
+            </li>
+            <li>
+              {showQRCode ? (
+                <>
+                  Choose <strong>Scan a QR code</strong> and scan the code shown
+                  on this screen.
+                </>
+              ) : (
+                <>
+                  Choose <strong>Enter Provided Key</strong>, enter the email
+                  address for your Outbooks Proposal account and use the secret
+                  key shown on this screen.
+                </>
+              )}
+            </li>
+          </ol>
+        </div>
+
+        <div className="security-qr-card">
+          {showQRCode ? (
+            <div className="security-qr-image-wrap">
+              <img
+                src={`data:image/png;base64,${props.authenticatorCode.qrCodeUrl}`}
+                alt="QR code"
+                className="security-qr-image"
+              />
             </div>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div class="separator"></div>
-        <div class="row fieldset modal-footer">
-          <div class="col-lg-12 hstack gap-2 justify-content-end text-right mt-2">
-            <button class="btn btn-md  btn-light" onClick={props.BackBtn}>
-              <span>{props.getCrudButtonTextName("Cancel")}</span>
-            </button>
-            <button
-              onClick={() => props.handleBackButton(1)}
-              style={{ paddingTop: "5px", marginRight: "4px" }}
-              className="btn btn-md btn-success create-item-btn"
-            >
-              <span>Back</span>
-            </button>
-            <button
-              class="btn btn-md btn-success create-item-btn"
-              onClick={() => {
-                props.authenticatorBtnClicked(3);
-              }}
-            >
-              <span>Next</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-};
-
-const AuthenticatorCode = (props) => {
-  return (
-    <>
-      {/* <div className="create-practice-height scrollbar"> */}
-      <div class="container mt-1">
-        <div class="container">
-          <div class="card mx-auto" style={{ maxWidth: "30rem" }}>
-            <div class="card-body" style={{ height: "30vh" }}>
-              {/* <h1 className="text-center StepTitle2">2-Step Verification</h1> */}
-
-              <div class="mb-3">
-                <label class="form-label">
-                  Enter the code generated by your device
-                  <span className="text-danger">*</span>
-                </label>
-                <input
-                  type="text"
-                  class="input-text"
-                  id="code"
-                  placeholder="Enter code"
-                  maxlength={6}
-                  value={props.authenticatorCode.deviceCode}
-                  required
-                  onChange={(e) => {
-                    props.setInvalidCodeErrorMessage("");
-                    const inputValue = e.target.value;
-                    const numericValue = inputValue.replace(/\D/g, ""); // Replace non-digit characters with empty string
-                    if (!isNaN(numericValue) && numericValue.length <= 6) {
-                      // Check if the result is a number and has maximum length of 6
-                      props.setAuthenticatorCode({
-                        ...props.authenticatorCode,
-                        deviceCode: numericValue,
-                      });
-                    }
-                  }}
-                />
-                {props.authError.AuthenticatorCode &&
-                  (props.authenticatorCode.deviceCode === "" ||
-                    props.authenticatorCode.deviceCode === null ||
-                    props.authenticatorCode.deviceCode === undefined) ? (
-                  <label className="validation">{ERROR_MESSAGES}</label>
-                ) : (
-                  <label className="validation">
-                    {props.errorInvalidCodeMessage}
-                  </label>
-                )}
-              </div>
-              <div class="mb-3">
-                <label class="form-label">
-                  Enter a name for your Authenticator App
-                  <span className="text-danger">*</span>
-                </label>
-                <input
-                  type="text"
-                  class="input-text"
-                  id="authName"
-                  placeholder="Authenticator name"
-                  value={props.authenticatorCode.authenticatorName}
-                  required
-                  onChange={(e) => {
-                    let inputValue = e.target.value;
-
-                    // Remove leading spaces
-                    if (inputValue.startsWith(" ")) {
-                      inputValue = inputValue.trimStart();
-                    }
-
-                    // Capitalize the first letter
-                    inputValue =
-                      inputValue.charAt(0).toUpperCase() + inputValue.slice(1);
-
-                    // Update the state
-                    props.setAuthenticatorCode({
-                      ...props.authenticatorCode,
-                      authenticatorName: inputValue,
-                    });
-                  }}
-                />
-
-                {props.authError.AuthenticatorCode &&
-                  (props.authenticatorCode.authenticatorName === "" ||
-                    props.authenticatorCode.authenticatorName === null ||
-                    props.authenticatorCode.authenticatorName === undefined) ? (
-                  <label className="validation">{ERROR_MESSAGES}</label>
-                ) : (
-                  ""
-                )}
-                {
-                  <>
-                    <div className="text-center mt-5">
-                      <label className="validation">{props.errorMessage}</label>
-                    </div>
-                  </>
-                }
-              </div>
+          ) : (
+            <div className="security-secret-key-box">
+              <span>Secret Key</span>
+              <strong>{props.authenticatorCode.secretKey}</strong>
             </div>
-          </div>
-        </div>
-      </div>
-      {/* </div> */}
+          )}
 
-      <div class="separator"></div>
-      <div class="row fieldset modal-footer">
-        <div class="col-lg-12 hstack gap-2 justify-content-end text-right mt-2">
-          <button class="btn btn-md  btn-light" onClick={() => props.BackBtn()}>
-            <span>{props.getCrudButtonTextName("Cancel")}</span>
-          </button>
           <button
-            onClick={() => props.setActiveTab(2)}
-            style={{ paddingTop: "5px", marginRight: "4px" }}
-            className="btn btn-md btn-success create-item-btn"
+            type="button"
+            className="security-link-btn"
+            onClick={toggleQRCode}
           >
+            {props.authenticatorCode.qrCodeUrl !== null &&
+              (showQRCode
+                ? "Unable to scan the QR code?"
+                : "Use a QR code instead")}
+          </button>
+        </div>
+      </div>
+
+      <div className="security-setup-footer">
+        <button
+          type="button"
+          className="btn security-secondary-btn"
+          onClick={props.BackBtn}
+        >
+          <span>{props.getCrudButtonTextName("Cancel")}</span>
+        </button>
+
+        <div className="security-footer-right">
+          <button
+            type="button"
+            onClick={() => props.handleBackButton(1)}
+            className="btn security-secondary-btn"
+          >
+            <i className="ri-arrow-left-line"></i>
             <span>Back</span>
           </button>
 
           <button
-            class="btn btn-md btn-success create-item-btn"
+            type="button"
+            className="btn security-primary-btn"
             onClick={() => {
-              props.authenticatorBtnClicked("AuthenticatorApp");
-              // props.VerifyAuthenticatorToken()AuthenticatorApp
+              props.authenticatorBtnClicked(3);
             }}
           >
-            Add Verification
+            <span>Next</span>
+            <i className="ri-arrow-right-line"></i>
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
-const RegisterEmail = (props) => {
-  // const isValidEmail = (email) => {
-  //   // Regular expression for a basic email validation
-  //   // const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-  //   const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*(?!\.{2})\.[A-Za-z]{2,}$/;
-
-  //   return emailRegex.test(email);
-  // };
+/* =========================================================
+   STEP 3A — AUTHENTICATOR CODE
+   ========================================================= */
+const AuthenticatorCode = (props) => {
   return (
-    <>
-      {/* <div className="create-practice-height scrollbar centerDiv"> */}
-      <div class="container">
-        <div class="card  mx-auto" style={{ maxWidth: "30rem" }}>
-          <div class="card-body">
-            <p class="card-text text-center">
-              Enter your email id. A 6 digit verification code will be sent to
-              it.
-            </p>
-            <label>
-              Email
-              <span className="text-danger">*</span>
-            </label>
-            <input
-              type="text"
-              class="input-text"
-              placeholder="Enter email address"
-              value={props.authenticatorCode.UserEmail}
-              maxLength={50}
-              onChange={(e) => {
-                // Get the entered value
-                const enteredValue = e.target.value.trim().toLowerCase();
+    <div className="security-setup-step">
+      <div className="security-setup-step-intro">
+        <span className="security-setup-step-icon">
+          <i className="ri-shield-check-line"></i>
+        </span>
 
-                // Check for consecutive dots
-                if (enteredValue.includes("..")) {
-                  // If consecutive dots found, remove the last dot
-                  const correctedValue = enteredValue.replace(/\.+/g, ".");
-                  // Update the email address in the state
-                  props.setAuthenticatorCode({
-                    ...props.authenticatorCode,
-                    UserEmail: correctedValue,
-                  });
-                  return;
-                }
-
-                // Update the email address in the state
-                props.setAuthenticatorCode({
-                  ...props.authenticatorCode,
-                  UserEmail: enteredValue,
-                });
-              }}
-            />
-            {props.authError.RegisterEmail &&
-              (props.authenticatorCode.UserEmail === null ||
-                props.authenticatorCode.UserEmail === "" ? (
-                <label className="validation">{ERROR_MESSAGES}</label>
-              ) : (
-                !props.isValidEmail(props.authenticatorCode.UserEmail) && (
-                  <label className="validation">Invalid email</label>
-                )
-              ))}
-            {
-              <>
-                <div className="text-center mt-5">
-                  <label className="validation">{props.errorMessage}</label>
-                </div>
-              </>
-            }
-          </div>
+        <div>
+          <h3>Verify your authenticator</h3>
+          <p>
+            Enter the code generated by your device and give this authenticator
+            a recognizable name.
+          </p>
         </div>
       </div>
-      {/* </div> */}
 
-      <div class="separator"></div>
-      <div class="row fieldset modal-footer">
-        <div class="col-lg-12 hstack gap-2 justify-content-end text-right mt-2">
-          <button class="btn btn-md  btn-light" onClick={() => props.BackBtn()}>
-            <span>{props.getCrudButtonTextName("Cancel")}</span>
-          </button>
-          <button
-            onClick={() => props.setActiveTab(1)}
-            style={{ paddingTop: "5px", marginRight: "4px" }}
-            className="btn btn-md btn-success create-item-btn"
-          >
-            <span>Back</span>
-          </button>
+      <div className="security-form-card">
+        <div className="security-field">
+          <label htmlFor="code">
+            Verification Code
+            <span className="security-required">*</span>
+          </label>
 
-          <button
-            class="btn btn-md btn-success create-item-btn"
-            onClick={() => props.authenticatorBtnClicked(5)}
-          >
-            <span>Next </span>
-          </button>
-        </div>
-      </div>
-    </>
-  );
-};
-
-const EmailVerificationCode = (props) => {
-  return (
-    <>
-      {/* <div className="create-practice-height scrollbar centerDiv"> */}
-      <div className="container">
-        <div class="card mx-auto" style={{ maxWidth: "30rem" }}>
-          <div class="card-body ">
-            <p className="text-center ">
-              Enter the 6 digit verification code received on your email :
-              <br />
-              <b>{props.authenticatorCode.UserEmail}</b>
-            </p>
-
-            <label class="fieldset-label required">
-              Enter Code
-              <span className="text-danger">*</span>
-            </label>
+          <div className="security-input-wrap">
+            <span className="security-input-icon">
+              <i className="ri-key-2-line"></i>
+            </span>
 
             <input
               type="text"
-              class="input-text"
-              placeholder="Enter code"
+              className="input-text security-input"
+              id="code"
+              placeholder="Enter 6 digit code"
+              maxLength={6}
               value={props.authenticatorCode.deviceCode}
+              required
               onChange={(e) => {
                 props.setInvalidCodeErrorMessage("");
                 const inputValue = e.target.value;
-                const numericValue = inputValue.replace(/\D/g, ""); // Replace non-digit characters with empty string
+                const numericValue = inputValue.replace(/\D/g, "");
                 if (!isNaN(numericValue) && numericValue.length <= 6) {
-                  // Check if the result is a number and has maximum length of 6
                   props.setAuthenticatorCode({
                     ...props.authenticatorCode,
                     deviceCode: numericValue,
@@ -566,55 +304,343 @@ const EmailVerificationCode = (props) => {
                 }
               }}
             />
-            {props.authError.deviceCode &&
-              (props.authenticatorCode.deviceCode === "" ||
-                props.authenticatorCode.deviceCode === null ||
-                props.authenticatorCode.deviceCode === undefined) ? (
-              <label className="validation">{ERROR_MESSAGES}</label>
-            ) : props.errorInvalidCodeMessage !== null ? (
-              <label className="validation">
-                {props.errorInvalidCodeMessage}
-              </label>
-            ) : (
-              ""
-            )}
-
-            {
-              <>
-                <div className="text-center mt-5">
-                  <label className="validation">{props.errorMessage}</label>
-                </div>
-              </>
-            }
           </div>
+
+          {props.authError.AuthenticatorCode &&
+          (props.authenticatorCode.deviceCode === "" ||
+            props.authenticatorCode.deviceCode === null ||
+            props.authenticatorCode.deviceCode === undefined) ? (
+            <label className="validation security-validation">
+              {ERROR_MESSAGES}
+            </label>
+          ) : (
+            <label className="validation security-validation">
+              {props.errorInvalidCodeMessage}
+            </label>
+          )}
         </div>
-        {/* </div> */}
+
+        <div className="security-field">
+          <label htmlFor="authName">
+            Authenticator Name
+            <span className="security-required">*</span>
+          </label>
+
+          <div className="security-input-wrap">
+            <span className="security-input-icon">
+              <i className="ri-smartphone-line"></i>
+            </span>
+
+            <input
+              type="text"
+              className="input-text security-input"
+              id="authName"
+              placeholder="Authenticator name"
+              value={props.authenticatorCode.authenticatorName}
+              required
+              onChange={(e) => {
+                let inputValue = e.target.value;
+
+                if (inputValue.startsWith(" ")) {
+                  inputValue = inputValue.trimStart();
+                }
+
+                inputValue =
+                  inputValue.charAt(0).toUpperCase() + inputValue.slice(1);
+
+                props.setAuthenticatorCode({
+                  ...props.authenticatorCode,
+                  authenticatorName: inputValue,
+                });
+              }}
+            />
+          </div>
+
+          {props.authError.AuthenticatorCode &&
+          (props.authenticatorCode.authenticatorName === "" ||
+            props.authenticatorCode.authenticatorName === null ||
+            props.authenticatorCode.authenticatorName === undefined) ? (
+            <label className="validation security-validation">
+              {ERROR_MESSAGES}
+            </label>
+          ) : (
+            ""
+          )}
+        </div>
+
+        {props.errorMessage && (
+          <div className="security-inline-error">
+            <i className="ri-error-warning-line"></i>
+            <span>{props.errorMessage}</span>
+          </div>
+        )}
       </div>
-      <div class="separator"></div>
-      <div class="row fieldset modal-footer">
-        <div class="col-lg-12 hstack gap-2 justify-content-end text-right mt-2">
-          <button class="btn btn-md  btn-light" onClick={() => props.BackBtn()}>
-            <span>{props.getCrudButtonTextName("Cancel")}</span>
-          </button>
+
+      <div className="security-setup-footer">
+        <button
+          type="button"
+          className="btn security-secondary-btn"
+          onClick={() => props.BackBtn()}
+        >
+          <span>{props.getCrudButtonTextName("Cancel")}</span>
+        </button>
+
+        <div className="security-footer-right">
           <button
-            onClick={() => props.setActiveTab(4)}
-            style={{ paddingTop: "5px", marginRight: "4px" }}
-            className="btn btn-md btn-success create-item-btn"
+            type="button"
+            onClick={() => props.setActiveTab(2)}
+            className="btn security-secondary-btn"
           >
+            <i className="ri-arrow-left-line"></i>
             <span>Back</span>
           </button>
 
           <button
-            class="btn btn-md btn-success create-item-btn"
-            onClick={() => props.authenticatorBtnClicked("AuthenticateApp")}
+            type="button"
+            className="btn security-primary-btn"
+            onClick={() => {
+              props.authenticatorBtnClicked("AuthenticatorApp");
+            }}
           >
-            Add Verification
+            <i className="ri-check-line"></i>
+            <span>Add Verification</span>
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
+
+/* =========================================================
+   STEP 2B — EMAIL
+   ========================================================= */
+const RegisterEmail = (props) => {
+  return (
+    <div className="security-setup-step">
+      <div className="security-setup-step-intro">
+        <span className="security-setup-step-icon">
+          <i className="ri-mail-send-line"></i>
+        </span>
+
+        <div>
+          <h3>Enter your email address</h3>
+          <p>
+            A 6 digit verification code will be sent to the email address you
+            provide.
+          </p>
+        </div>
+      </div>
+
+      <div className="security-form-card">
+        <div className="security-field">
+          <label>
+            Email Address
+            <span className="security-required">*</span>
+          </label>
+
+          <div className="security-input-wrap">
+            <span className="security-input-icon">
+              <i className="ri-mail-line"></i>
+            </span>
+
+            <input
+              type="text"
+              className="input-text security-input"
+              placeholder="Enter email address"
+              value={props.authenticatorCode.UserEmail}
+              maxLength={50}
+              onChange={(e) => {
+                const enteredValue = e.target.value.trim().toLowerCase();
+
+                if (enteredValue.includes("..")) {
+                  const correctedValue = enteredValue.replace(/\.+/g, ".");
+                  props.setAuthenticatorCode({
+                    ...props.authenticatorCode,
+                    UserEmail: correctedValue,
+                  });
+                  return;
+                }
+
+                props.setAuthenticatorCode({
+                  ...props.authenticatorCode,
+                  UserEmail: enteredValue,
+                });
+              }}
+            />
+          </div>
+
+          {props.authError.RegisterEmail &&
+            (props.authenticatorCode.UserEmail === null ||
+            props.authenticatorCode.UserEmail === "" ? (
+              <label className="validation security-validation">
+                {ERROR_MESSAGES}
+              </label>
+            ) : (
+              !props.isValidEmail(props.authenticatorCode.UserEmail) && (
+                <label className="validation security-validation">
+                  Invalid email
+                </label>
+              )
+            ))}
+        </div>
+
+        {props.errorMessage && (
+          <div className="security-inline-error">
+            <i className="ri-error-warning-line"></i>
+            <span>{props.errorMessage}</span>
+          </div>
+        )}
+
+        <div className="security-info-box">
+          <i className="ri-information-line"></i>
+          <span>
+            Make sure you can access this email before continuing to the next
+            step.
+          </span>
+        </div>
+      </div>
+
+      <div className="security-setup-footer">
+        <button
+          type="button"
+          className="btn security-secondary-btn"
+          onClick={() => props.BackBtn()}
+        >
+          <span>{props.getCrudButtonTextName("Cancel")}</span>
+        </button>
+
+        <div className="security-footer-right">
+          <button
+            type="button"
+            onClick={() => props.setActiveTab(1)}
+            className="btn security-secondary-btn"
+          >
+            <i className="ri-arrow-left-line"></i>
+            <span>Back</span>
+          </button>
+
+          <button
+            type="button"
+            className="btn security-primary-btn"
+            onClick={() => props.authenticatorBtnClicked(5)}
+          >
+            <span>Next</span>
+            <i className="ri-arrow-right-line"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* =========================================================
+   STEP 3B — EMAIL VERIFICATION CODE
+   ========================================================= */
+const EmailVerificationCode = (props) => {
+  return (
+    <div className="security-setup-step">
+      <div className="security-setup-step-intro">
+        <span className="security-setup-step-icon">
+          <i className="ri-mail-check-line"></i>
+        </span>
+
+        <div>
+          <h3>Verify your email</h3>
+          <p>
+            Enter the 6 digit verification code received at{" "}
+            <strong>{props.authenticatorCode.UserEmail}</strong>.
+          </p>
+        </div>
+      </div>
+
+      <div className="security-form-card">
+        <div className="security-field">
+          <label>
+            Verification Code
+            <span className="security-required">*</span>
+          </label>
+
+          <div className="security-input-wrap">
+            <span className="security-input-icon">
+              <i className="ri-key-2-line"></i>
+            </span>
+
+            <input
+              type="text"
+              className="input-text security-input"
+              placeholder="Enter 6 digit code"
+              value={props.authenticatorCode.deviceCode}
+              onChange={(e) => {
+                props.setInvalidCodeErrorMessage("");
+                const inputValue = e.target.value;
+                const numericValue = inputValue.replace(/\D/g, "");
+                if (!isNaN(numericValue) && numericValue.length <= 6) {
+                  props.setAuthenticatorCode({
+                    ...props.authenticatorCode,
+                    deviceCode: numericValue,
+                  });
+                }
+              }}
+            />
+          </div>
+
+          {props.authError.deviceCode &&
+          (props.authenticatorCode.deviceCode === "" ||
+            props.authenticatorCode.deviceCode === null ||
+            props.authenticatorCode.deviceCode === undefined) ? (
+            <label className="validation security-validation">
+              {ERROR_MESSAGES}
+            </label>
+          ) : props.errorInvalidCodeMessage !== null ? (
+            <label className="validation security-validation">
+              {props.errorInvalidCodeMessage}
+            </label>
+          ) : (
+            ""
+          )}
+        </div>
+
+        {props.errorMessage && (
+          <div className="security-inline-error">
+            <i className="ri-error-warning-line"></i>
+            <span>{props.errorMessage}</span>
+          </div>
+        )}
+      </div>
+
+      <div className="security-setup-footer">
+        <button
+          type="button"
+          className="btn security-secondary-btn"
+          onClick={() => props.BackBtn()}
+        >
+          <span>{props.getCrudButtonTextName("Cancel")}</span>
+        </button>
+
+        <div className="security-footer-right">
+          <button
+            type="button"
+            onClick={() => props.setActiveTab(4)}
+            className="btn security-secondary-btn"
+          >
+            <i className="ri-arrow-left-line"></i>
+            <span>Back</span>
+          </button>
+
+          <button
+            type="button"
+            className="btn security-primary-btn"
+            onClick={() => props.authenticatorBtnClicked("AuthenticateApp")}
+          >
+            <i className="ri-check-line"></i>
+            <span>Add Verification</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const SecurityModel = (props) => {
   const moduleName = "Authenticator";
   //Data Get On Another Component
@@ -912,17 +938,85 @@ const SecurityModel = (props) => {
     setTopbar("block");
     navigate("/security");
   };
+
   return (
-    <div className="container-fluid new-item-page-container">
-      <div class="new-item-page-content" style={{ marginTop: "40px" }}>
-        <div class="row form-row">
-          <div class="col-lg-12">
-            <h3 className="modal-title">
-              <BackButtonSvg onClick={BackBtn} />
-              2-Step Verification
-            </h3>
-            <div class="separator mb-3"></div>
-            <h3 className="text-center">2-Step Verification</h3>
+    <div className="security-model-redesign">
+      <div className="security-model-page">
+        {/* PAGE HEADER */}
+        <div className="security-model-page-header">
+          <div className="security-model-page-heading">
+            <BackButtonSvg onClick={BackBtn} />
+
+            <div>
+              <h1>2-Step Verification</h1>
+              <p>Add a secure verification method to protect your account.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* SETUP CARD */}
+        <section className="security-setup-card">
+          <div className="security-setup-card-header">
+            <div className="security-setup-title">
+              <span className="security-setup-title-icon">
+                <i className="ri-shield-check-line"></i>
+              </span>
+
+              <div>
+                <h2>Set Up Verification</h2>
+                <p>Complete the steps below to add a verification method.</p>
+              </div>
+            </div>
+
+            <span className="security-step-badge">
+              Step{" "}
+              {activeTab === TwoFactor.BasicInformation
+                ? "1"
+                : activeTab === TwoFactor.ShowQrCode ||
+                    activeTab === TwoFactor.RegisterEmail
+                  ? "2"
+                  : "3"}{" "}
+              of 3
+            </span>
+          </div>
+
+          <div className="security-stepper">
+            <div
+              className={`security-stepper-item ${
+                activeTab >= TwoFactor.BasicInformation ? "is-active" : ""
+              }`}
+            >
+              <span>1</span>
+              <strong>Choose Method</strong>
+            </div>
+
+            <div className="security-stepper-line"></div>
+
+            <div
+              className={`security-stepper-item ${
+                activeTab !== TwoFactor.BasicInformation ? "is-active" : ""
+              }`}
+            >
+              <span>2</span>
+              <strong>Set Up</strong>
+            </div>
+
+            <div className="security-stepper-line"></div>
+
+            <div
+              className={`security-stepper-item ${
+                activeTab === TwoFactor.AuthenticatorCode ||
+                activeTab === TwoFactor.EmailVerification
+                  ? "is-active"
+                  : ""
+              }`}
+            >
+              <span>3</span>
+              <strong>Verify</strong>
+            </div>
+          </div>
+
+          <div className="security-setup-content">
             {activeTab === TwoFactor.BasicInformation && (
               <BasicInformationComponent
                 setActiveTab={setActiveTab}
@@ -943,6 +1037,7 @@ const SecurityModel = (props) => {
                 common={common}
               />
             )}
+
             {activeTab === TwoFactor.ShowQrCode && (
               <ShowQrCode
                 setActiveTab={setActiveTab}
@@ -963,6 +1058,7 @@ const SecurityModel = (props) => {
                 VerifyAuthenticatorToken={VerifyAuthenticatorToken}
               />
             )}
+
             {activeTab === TwoFactor.RegisterEmail && (
               <RegisterEmail
                 setActiveTab={setActiveTab}
@@ -984,6 +1080,7 @@ const SecurityModel = (props) => {
                 common={common}
               />
             )}
+
             {activeTab === TwoFactor.AuthenticatorCode && (
               <AuthenticatorCode
                 errorInvalidCodeMessage={errorInvalidCodeMessage}
@@ -1028,8 +1125,9 @@ const SecurityModel = (props) => {
               />
             )}
           </div>
-        </div>
+        </section>
       </div>
+
       <SuccessModal
         handleClose={handleClose}
         setDismissModal={setDismissModal}
@@ -1039,9 +1137,9 @@ const SecurityModel = (props) => {
         message={
           authenticatorCode.selectedMethod === 2
             ? `Email Verification ` +
-            (authenticatorCode.authenticatorName == null
-              ? authenticatorCode.UserEmail
-              : authenticatorCode.authenticatorName)
+              (authenticatorCode.authenticatorName == null
+                ? authenticatorCode.UserEmail
+                : authenticatorCode.authenticatorName)
             : `Verification ${authenticatorCode.authenticatorName}`
         }
       />

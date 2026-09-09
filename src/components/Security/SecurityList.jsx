@@ -1,6 +1,7 @@
 /* global $ */
 import React, { useContext, useEffect, useState } from "react";
 import "../../pages/configure/service_categories/ServiceCategory.css";
+import "./SecurityList-redesign.css";
 import CommonButtonComponent from "../../components/CommonButtonComponent";
 import ConfirmModel from "../../components/ConfirmationBox";
 import {
@@ -117,7 +118,7 @@ const SecurityList = () => {
     i,
     searchKeywordValue,
     sortValue,
-    AuthSortType
+    AuthSortType,
   ) => {
     setLoader(true);
     const pageNoList = i - 1;
@@ -151,7 +152,7 @@ const SecurityList = () => {
                 newPaneNo,
                 searchKeywordValue,
                 sortValue,
-                AuthSortType
+                AuthSortType,
               );
               setCurrentPage(pageNoList);
               return;
@@ -187,7 +188,7 @@ const SecurityList = () => {
         try {
           const Data = await AuthenticationChangeStatus(
             modelRequestData.mfaKeyID,
-            modelRequestData.userKeyID
+            modelRequestData.userKeyID,
           );
           if (Data) {
             setLoader(false);
@@ -208,7 +209,7 @@ const SecurityList = () => {
           const Data = await GetChangeIsDefaultStatus(
             modelRequestData.mfaKeyID,
             common.userKeyID,
-            modelRequestData.isDefault
+            modelRequestData.isDefault,
           );
           if (Data) {
             setLoader(false);
@@ -228,7 +229,7 @@ const SecurityList = () => {
       try {
         const Data = await DeleteAuthentication(
           modelRequestData.mfaKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -259,7 +260,7 @@ const SecurityList = () => {
             setOpenErrorModal(true);
           }
         }
-      } catch (error) { }
+      } catch (error) {}
     }
   };
 
@@ -303,7 +304,7 @@ const SecurityList = () => {
       dispatch(
         updateState({
           enableMFA: common.enableMFA == 1 ? 0 : 1,
-        })
+        }),
       );
       $("#" + "ConfirmModel").modal("hide");
       $("#" + "RecordsAvailablePopupModel").modal("hide");
@@ -337,427 +338,418 @@ const SecurityList = () => {
   //Design part :
   return (
     <div>
-      <div class="main-content">
-        <div class="services page-background">
-          <div class="page-info-header page-info-strip">
-            <div class="container ">
-              <div className="row">
-                <div className="col-md-4 col-4">
-                  <div class="page-title-cls">Security</div>
+      <div className="main-content security-list-redesign">
+        <div className="security-list-page">
+          {/* =========================
+              PAGE HEADER
+              ========================= */}
+          <div className="security-list-page-header">
+            <div className="security-list-heading-copy">
+              <h1>Security</h1>
+              <p>
+                Manage two-step verification methods and account authentication
+                security.
+              </p>
+            </div>
+
+            <div className="security-list-header-actions">
+              <CommonButtonComponent
+                title={getCrudButtonToolTipName("Add", "Verification")}
+                name={getCrudButtonTextName("Add", "Verification")}
+                setTitle={"setTitle"}
+                onclick={() => AuthenticationAddBtnClicked()}
+              />
+            </div>
+          </div>
+
+          {/* =========================
+              TWO-FACTOR VERIFICATION
+              ========================= */}
+          <section className="security-twofa-card">
+            <div className="security-twofa-copy">
+              <span className="security-twofa-icon">
+                <i className="ri-shield-keyhole-line"></i>
+              </span>
+
+              <div>
+                <div className="security-twofa-title-row">
+                  <h2>Two-Step Verification</h2>
+
+                  <span
+                    className={`security-twofa-status ${
+                      common.enableMFA == 1 ? "is-enabled" : "is-disabled"
+                    }`}
+                  >
+                    {common.enableMFA == 1 ? "Enabled" : "Disabled"}
+                  </span>
                 </div>
-                <div class="col-md-8 col-8">
-                  <div className="d-flex gap-2 justify-content-sm-end">
-                    <Tooltip title={`Enable/Disable 2 step verification`}>
-                      <div
-                        className="d-flex gap-2 justify-content-sm-end add-new-btn"
-                        style={{ marginRight: "10px" }}
+
+                <p>
+                  Add an extra layer of security by requiring another
+                  verification method when signing in.
+                </p>
+              </div>
+            </div>
+
+            <Tooltip title={`Enable/Disable 2 step verification`}>
+              <div className="security-twofa-toggle">
+                <span>
+                  {common.enableMFA == 1 ? "Disable" : "Enable"} verification
+                </span>
+
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Android12Switch
+                        checked={common.enableMFA == 1}
+                        onClick={() =>
+                          setModelRequestData({
+                            ...modelRequestData,
+                            status:
+                              common.enableMFA == 1 ? "Disable" : "Enable",
+                            StatusType: "2FaStatusChange",
+                            Action: "2FaStatusChange",
+                          })
+                        }
+                        data-bs-toggle="modal"
+                        data-bs-target="#ConfirmModel"
+                      />
+                    }
+                  />
+                </FormGroup>
+              </div>
+            </Tooltip>
+          </section>
+
+          {/* =========================
+              AUTHENTICATOR LIST
+              ========================= */}
+          <section className="security-list-card">
+            <div className="security-list-card-header">
+              <div>
+                <h2>Verification Methods</h2>
+                <p>
+                  Review your configured authenticators, defaults and current
+                  status.
+                </p>
+              </div>
+
+              {listCount > 0 && (
+                <span className="security-list-count">
+                  {listCount}{" "}
+                  {listCount === 1 ? "verification" : "verifications"}
+                </span>
+              )}
+            </div>
+
+            <div className="security-list-table-scroll">
+              <table className="security-list-table" id="customerTable">
+                <thead>
+                  <tr>
+                    <th>
+                      <button
+                        type="button"
+                        className="security-sort-button"
+                        onClick={() => {
+                          setSortType("AuthenticatorName");
+                          handleSort(
+                            primarySortDirectionObj.AuthenticatorNameSort ===
+                              null
+                              ? "asc"
+                              : primarySortDirectionObj.AuthenticatorNameSort ===
+                                  "asc"
+                                ? "desc"
+                                : "asc",
+                            "AuthenticatorName",
+                          );
+                        }}
                       >
-                        <span style={{ marginBottom: "5px" }}>
-                          {common.enableMFA == 1 ? "Disable" : "Enable"} 2 step
-                          verification{" "}
-                        </span>{" "}
-                        <FormGroup>
-                          <FormControlLabel
-                            control={
-                              <Android12Switch
-                                checked={common.enableMFA == 1}
+                        <span>Verification Name</span>
+
+                        <i
+                          className={
+                            primarySortDirectionObj.AuthenticatorNameSort ===
+                            "desc"
+                              ? "fas fa-sort-alpha-up"
+                              : "fas fa-sort-alpha-down"
+                          }
+                        ></i>
+                      </button>
+                    </th>
+
+                    <th>
+                      <button
+                        type="button"
+                        className="security-sort-button"
+                        onClick={() => {
+                          setSortType("AuthenticationTypeName");
+                          handleSort(
+                            primarySortDirectionObj?.authenticationType === null
+                              ? "asc"
+                              : primarySortDirectionObj?.authenticationType ===
+                                  "asc"
+                                ? "desc"
+                                : "asc",
+                            "AuthenticationTypeName",
+                          );
+                        }}
+                      >
+                        <span>Verification Type</span>
+
+                        <i
+                          className={
+                            primarySortDirectionObj?.authenticationType ===
+                            "desc"
+                              ? "fas fa-sort-alpha-up"
+                              : "fas fa-sort-alpha-down"
+                          }
+                        ></i>
+                      </button>
+                    </th>
+
+                    <th>Is Default</th>
+                    <th>Status</th>
+                    <th className="security-actions-heading">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {authList
+                    ?.slice(0, isMobile ? isMobileRecords : desktopRecords)
+                    .map((auth, index) => {
+                      return (
+                        <tr key={index}>
+                          <td>
+                            <div className="security-auth-name-cell">
+                              <span className="security-auth-icon">
+                                <i className="ri-shield-user-line"></i>
+                              </span>
+
+                              <span
+                                className="security-auth-name"
+                                title={auth.authenticatorName}
+                              >
+                                {isMobile ? (
+                                  <>
+                                    {auth.authenticatorName?.length > 20
+                                      ? auth.authenticatorName.substring(
+                                          0,
+                                          20,
+                                        ) + "..."
+                                      : auth.authenticatorName}
+                                  </>
+                                ) : (
+                                  <>
+                                    {auth.authenticatorName.length > 45 ? (
+                                      <Tooltip title={auth.authenticatorName}>
+                                        <span>
+                                          {auth.authenticatorName.substring(
+                                            0,
+                                            45,
+                                          ) + "..."}
+                                        </span>
+                                      </Tooltip>
+                                    ) : (
+                                      <>{auth?.authenticatorName}</>
+                                    )}
+                                  </>
+                                )}
+                              </span>
+                            </div>
+                          </td>
+
+                          <td>
+                            <span className="security-auth-type-chip">
+                              {auth?.authenticationTypeName}
+                            </span>
+                          </td>
+
+                          <td>
+                            <div className="security-switch-cell">
+                              <span
+                                className={`security-value-pill ${
+                                  auth.isDefault === 1
+                                    ? "is-positive"
+                                    : "is-neutral"
+                                }`}
+                              >
+                                {auth.isDefault === 0 ? "No" : "Yes"}
+                              </span>
+
+                              <Tooltip
+                                title={getCrudButtonToolTipName(
+                                  "Change Is Default",
+                                )}
+                              >
+                                <FormGroup>
+                                  <FormControlLabel
+                                    control={
+                                      <Android12Switch
+                                        onClick={() =>
+                                          setModelRequestData({
+                                            ...modelRequestData,
+                                            status: auth.isDefaultName,
+                                            keyID: auth.keyID,
+                                            mfaKeyID: auth.mfaKeyID,
+                                            userKeyID: common.userKeyID,
+                                            isDefault:
+                                              auth.isDefault === 1
+                                                ? false
+                                                : true,
+                                            StatusType: "2FaIsDefault",
+                                            Action: "Status",
+                                          })
+                                        }
+                                        checked={auth.isDefault === 1}
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#ConfirmModel"
+                                      />
+                                    }
+                                  />
+                                </FormGroup>
+                              </Tooltip>
+                            </div>
+                          </td>
+
+                          <td>
+                            <div className="security-switch-cell">
+                              <span
+                                className={`security-status-pill ${
+                                  auth.statusName === "Active"
+                                    ? "is-active"
+                                    : "is-inactive"
+                                }`}
+                              >
+                                {auth.statusName}
+                              </span>
+
+                              <Tooltip
+                                title={getCrudButtonToolTipName(
+                                  "Change Status",
+                                )}
+                              >
+                                <FormGroup>
+                                  <FormControlLabel
+                                    control={
+                                      <Android12Switch
+                                        onClick={() =>
+                                          setModelRequestData({
+                                            ...modelRequestData,
+                                            status: auth.statusName,
+                                            keyID: auth.keyID,
+                                            mfaKeyID: auth.mfaKeyID,
+                                            userKeyID: common.userKeyID,
+                                            StatusType: null,
+                                            Action: "Status",
+                                          })
+                                        }
+                                        checked={auth.statusName === "Active"}
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#ConfirmModel"
+                                      />
+                                    }
+                                  />
+                                </FormGroup>
+                              </Tooltip>
+                            </div>
+                          </td>
+
+                          <td className="security-actions-cell">
+                            <Tooltip
+                              title={getCrudButtonToolTipName(
+                                "Delete",
+                                "Verification",
+                              )}
+                            >
+                              <button
+                                type="button"
+                                className="security-delete-button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#ConfirmModel"
                                 onClick={() =>
                                   setModelRequestData({
                                     ...modelRequestData,
-                                    status:
-                                      common.enableMFA == 1
-                                        ? "Disable"
-                                        : "Enable",
-                                    StatusType: "2FaStatusChange",
-                                    Action: "2FaStatusChange",
+                                    mfaKeyID: auth.mfaKeyID,
+                                    authenticatorName: auth.authenticatorName,
+                                    userKeyID: common.userKeyID,
+                                    StatusType: null,
+                                    Action: "Delete",
                                   })
                                 }
-                                data-bs-toggle="modal"
-                                data-bs-target="#ConfirmModel"
-                              />
-                            }
-                          />
-                        </FormGroup>
-                      </div>
-                    </Tooltip>
-                    {isMobile && (
-                      <div className="d-flex justify-content-sm-end add-new-btn text-nowrap">
-                        <CommonButtonComponent
-                          title={getCrudButtonToolTipName("Add", moduleName)}
-                          name={getCrudButtonTextName("Add", moduleName)}
-                          setTitle={"setTitle"}
-                          onclick={() => AuthenticationAddBtnClicked()}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="container">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card ">
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mb-3 table-padding">
-                        {/* <div className="row">
-                        
-                        </div> */}
-
-                        <div className="row">
-                          <div class="col-lg-10 col-md-10 col-sm-9">
-                            <span style={{ fontWeight: "600" }}>
-                              Two-factor authentication adds an additional layer
-                              of security to your account by requiring more than
-                              just a password for signing in.
-                            </span>
-                          </div>
-                          {!isMobile && (
-                            <div class="col-lg-2 col-md-2 col-sm-3">
-                              <div className="d-flex justify-content-sm-end add-new-btn mb-2">
-                                <CommonButtonComponent
-                                  title={getCrudButtonToolTipName(
-                                    "Add",
-                                    "Verification"
-                                  )}
-                                  name={getCrudButtonTextName(
-                                    "Add",
-                                    "Verification"
-                                  )}
-                                  setTitle={"setTitle"}
-                                  onclick={() => AuthenticationAddBtnClicked()}
-                                />
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        <table
-                          class="table align-middle table-nowrap"
-                          id="customerTable"
-                        >
-                          <thead class="table-light table-header-font">
-                            <tr className="head-row">
-                              <td
-                                className="tr-table-class text-white"
-                                style={{ width: "50%" }}
                               >
-                                Verification Name
-                                {primarySortDirectionObj.AuthenticatorNameSort ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("AuthenticatorName");
-                                        handleSort("asc", "AuthenticatorName");
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primarySortDirectionObj.AuthenticatorNameSort ===
-                                  null ||
-                                  primarySortDirectionObj.AuthenticatorNameSort ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("AuthenticatorName");
-                                        handleSort(
-                                          primarySortDirectionObj.AuthenticatorNameSort ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "AuthenticatorName"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-
-                              <td className="tr-table-class text-white profession-type-column">
-                                {/* {showProfessionType && ( */}
-                                <>
-                                  Verification Type
-                                  {primarySortDirectionObj?.authenticationType ===
-                                    "desc" && (
-                                      <i
-                                        onClick={() => {
-                                          setSortType("AuthenticationTypeName");
-                                          handleSort(
-                                            "asc",
-                                            "AuthenticationTypeName"
-                                          );
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-up ml-1"
-                                      ></i>
-                                    )}
-                                  {(primarySortDirectionObj?.authenticationType ===
-                                    null ||
-                                    primarySortDirectionObj?.authenticationType ===
-                                    "asc") && (
-                                      <i
-                                        onClick={() => {
-                                          setSortType("AuthenticationTypeName");
-                                          handleSort(
-                                            primarySortDirectionObj?.authenticationType ===
-                                              null
-                                              ? "asc"
-                                              : "desc",
-                                            "AuthenticationTypeName"
-                                          );
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-down ml-1"
-                                      ></i>
-                                    )}
-                                </>
-                                {/* )} */}
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Is Default
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Status
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Action
-                              </td>
-                            </tr>
-                          </thead>
-                          <tbody class="list form-check-all">
-                            {authList
-                              ?.slice(
-                                0,
-                                isMobile ? isMobileRecords : desktopRecords
-                              )
-                              .map((auth, index) => {
-                                return (
-                                  <tr class="table_new" key={index}>
-                                    <td className="table-content-font">
-                                      {isMobile ? (
-                                        <>
-                                          {auth.authenticatorName?.length > 20
-                                            ? auth.authenticatorName.substring(
-                                              0,
-                                              20
-                                            ) + "..."
-                                            : auth.authenticatorName}
-                                        </>
-                                      ) : (
-                                        <>
-                                          {auth.authenticatorName.length >
-                                            45 ? (
-                                            <Tooltip
-                                              title={auth.authenticatorName}
-                                            >
-                                              {auth.authenticatorName.substring(
-                                                0,
-                                                45
-                                              ) + "..."}
-                                            </Tooltip>
-                                          ) : (
-                                            <>{auth?.authenticatorName}</>
-                                          )}
-                                        </>
-                                      )}
-                                    </td>
-                                    <td className="table-content-font">
-                                      {auth?.authenticationTypeName}
-                                    </td>
-                                    <td className="Switch table-content-font">
-                                      <div
-                                        style={{ alignItems: "none" }}
-                                        class="d-flex gap-2 "
-                                      >
-                                        <div style={{ width: "20px" }}>
-                                          {" "}
-                                          {auth.isDefault === 0 ? "No" : "Yes"}
-                                        </div>
-                                        <Tooltip
-                                          title={getCrudButtonToolTipName(
-                                            "Change Is Default"
-                                          )}
-                                        >
-                                          <FormGroup style={{ width: "55px" }}>
-                                            <FormControlLabel
-                                              control={
-                                                <Android12Switch
-                                                  onClick={() =>
-                                                    setModelRequestData({
-                                                      ...modelRequestData,
-                                                      status:
-                                                        auth.isDefaultName,
-                                                      keyID: auth.keyID,
-                                                      mfaKeyID: auth.mfaKeyID,
-                                                      userKeyID:
-                                                        common.userKeyID,
-                                                      isDefault:
-                                                        auth.isDefault ===
-                                                          1
-                                                          ? false
-                                                          : true,
-                                                      StatusType:
-                                                        "2FaIsDefault",
-                                                      Action: "Status",
-                                                    })
-                                                  }
-                                                  checked={auth.isDefault === 1}
-                                                  data-bs-toggle="modal"
-                                                  data-bs-target="#ConfirmModel"
-                                                />
-                                              }
-                                            />
-                                          </FormGroup>
-                                        </Tooltip>
-                                      </div>
-                                    </td>
-                                    <td className="Switch table-content-font">
-                                      <div
-                                        style={{ alignItems: "none" }}
-                                        class="d-flex gap-2 "
-                                      >
-                                        <div style={{ width: "40px" }}>
-                                          {" "}
-                                          {auth.statusName}
-                                        </div>
-                                        <Tooltip
-                                          title={getCrudButtonToolTipName(
-                                            "Change Status"
-                                          )}
-                                        >
-                                          <FormGroup style={{ width: "55px" }}>
-                                            <FormControlLabel
-                                              control={
-                                                <Android12Switch
-                                                  onClick={() =>
-                                                    setModelRequestData({
-                                                      ...modelRequestData,
-                                                      status: auth.statusName,
-                                                      keyID: auth.keyID,
-                                                      mfaKeyID: auth.mfaKeyID,
-                                                      userKeyID:
-                                                        common.userKeyID,
-                                                      StatusType: null,
-                                                      Action: "Status",
-                                                    })
-                                                  }
-                                                  checked={
-                                                    auth.statusName === "Active"
-                                                  }
-                                                  data-bs-toggle="modal"
-                                                  data-bs-target="#ConfirmModel"
-                                                />
-                                              }
-                                            />
-                                          </FormGroup>
-                                        </Tooltip>
-                                      </div>
-                                    </td>
-                                    <td className="table-content-font">
-                                      <div class="d-flex gap-2">
-                                        <Tooltip
-                                          title={getCrudButtonToolTipName(
-                                            "Delete",
-                                            // moduleName
-                                            "Verification"
-                                          )}
-                                        >
-                                          <div class="remove">
-                                            <button
-                                              class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                              data-bs-toggle="modal"
-                                              data-bs-target="#ConfirmModel"
-                                              onClick={() =>
-                                                setModelRequestData({
-                                                  ...modelRequestData,
-                                                  mfaKeyID: auth.mfaKeyID,
-                                                  authenticatorName:
-                                                    auth.authenticatorName,
-                                                  userKeyID: common.userKeyID,
-                                                  StatusType: null,
-                                                  Action: "Delete",
-                                                })
-                                              }
-                                            >
-                                              <i class="ri-delete-bin-5-fill"></i>
-                                            </button>
-                                          </div>
-                                        </Tooltip>
-                                      </div>
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                          </tbody>
-                        </table>
-
-                        {totalRecords <= 0 && (
-                          <NoResultFoundModel
-                            name={"2 Step Verification"}
-                            totalRecords={totalRecords}
-
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  {listCount > pageSize && (
-                    <PaginationComponent
-                      totalCount={listCount}
-                      totalPages={totalPage}
-                      desktopRecords={desktopRecords}
-                      currentPage={currentPage}
-                      onPageChange={handlePageChange}
-                    />
-                  )}
-                </div>
-              </div>
+                                <i className="ri-delete-bin-5-line"></i>
+                              </button>
+                            </Tooltip>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
             </div>
 
-            <ErrorModel
-              ErrorModel={openErrorModal}
-              handleClose={handleClose}
-              ErrorMessage={formattedErrorMessage}
-            />
-            {/* Confirm Modal  */}
-            <ConfirmModel
-              openErrorModal={openErrorModal}
-              openSuccessModal={openSuccessModal}
-              modelRequestData={modelRequestData}
-              UpdatedStatus={AuthenticationChangeStatusDataAndDeleteData}
-            />
+            {totalRecords <= 0 && (
+              <div className="security-list-empty-wrap">
+                <NoResultFoundModel
+                  name={"2 Step Verification"}
+                  totalRecords={totalRecords}
+                />
+              </div>
+            )}
 
-            {/* Success Modal  */}
-            <SuccessModal
-              handleClose={handleCloseSuccessModel}
-              setOpenSuccessModal={setOpenSuccessModal}
-              openSuccessModal={openSuccessModal}
-              modelAction={modelRequestData.Action}
-              message={
-                modelRequestData.Action === "Delete"
-                  ? "Verification" + " " + modelRequestData.authenticatorName
-                  : modelRequestData.Action === "2FaStatusChange"
-                    ? `Verification status has been changed successfully!`
-                    : "Status has been changed successfully!"
-              }
-            />
-          </div>
+            {listCount > pageSize && (
+              <div className="security-list-pagination">
+                <PaginationComponent
+                  totalCount={listCount}
+                  totalPages={totalPage}
+                  desktopRecords={desktopRecords}
+                  currentPage={currentPage}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
+          </section>
+
+          <ErrorModel
+            ErrorModel={openErrorModal}
+            handleClose={handleClose}
+            ErrorMessage={formattedErrorMessage}
+          />
+
+          <ConfirmModel
+            openErrorModal={openErrorModal}
+            openSuccessModal={openSuccessModal}
+            modelRequestData={modelRequestData}
+            UpdatedStatus={AuthenticationChangeStatusDataAndDeleteData}
+          />
+
+          <SuccessModal
+            handleClose={handleCloseSuccessModel}
+            setOpenSuccessModal={setOpenSuccessModal}
+            openSuccessModal={openSuccessModal}
+            modelAction={modelRequestData.Action}
+            message={
+              modelRequestData.Action === "Delete"
+                ? "Verification" + " " + modelRequestData.authenticatorName
+                : modelRequestData.Action === "2FaStatusChange"
+                  ? `Verification status has been changed successfully!`
+                  : "Status has been changed successfully!"
+            }
+          />
         </div>
-        <Footer />
+
+        <div className="security-list-footer-wrap">
+          <Footer />
+        </div>
       </div>
 
       {/* start back-to-top */}
       <button
         onClick="topFunction()"
-        class="btn btn-danger btn-icon"
+        className="btn btn-danger btn-icon"
         id="back-to-top"
       >
-        <i class="ri-arrow-up-line"></i>
+        <i className="ri-arrow-up-line"></i>
       </button>
       {/* end back-to-top */}
     </div>
