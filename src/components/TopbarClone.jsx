@@ -3860,108 +3860,123 @@ const TopbarClone = () => {
       <SetTimeoutComponent id="SetLogoutTimeModal" />
       {/* ...............personalize setting modal............. */}
       <div
-        class="modal fade zoomIn"
+        className="modal fade zoomIn variable-name-modal"
         id="SetPersonalizeSettingModal"
         tabIndex="-1"
         data-bs-backdrop="static"
         data-bs-keyboard="false"
       >
-        <div class="modal-dialog modal-md modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header bg-light p-3">
-              <h5 class="modal-title">Variable Names</h5>
+        <div className="modal-dialog modal-md modal-dialog-centered variable-name-dialog">
+          <div className="modal-content variable-name-content">
+            {/* HEADER */}
+            <div className="modal-header variable-name-header">
+              <div className="variable-name-heading">
+                <span className="variable-name-heading-icon">
+                  <i className="ri-edit-box-line"></i>
+                </span>
+
+                <div>
+                  <h5 className="modal-title">Variable Names</h5>
+                  <p>Customize the terminology used across your workspace.</p>
+                </div>
+              </div>
+
               <button
                 type="button"
-                class="btn-close"
+                className="btn-close variable-name-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
                 id="close-modal"
                 onClick={setInitializeValidationError}
               ></button>
             </div>
-            <div class="modal-body">
-              <div class="tab-content">
-                <div className="container">
-                  <div className="row">
-                    <div
-                      style={{ display: "flex", alignItems: "center" }}
-                      className="col-lg-12 col-sm-12"
-                    >
-                      <label class="fieldset-label required">{`Change ${prospectName} Name`}</label>
-                    </div>
-                    <div className="col-lg-12 col-sm-12 mb-1">
-                      <input
-                        type="text"
-                        className="input-text"
-                        id="customerName-field"
-                        value={updatedProspectName}
-                        onChange={handleInputChange}
-                        placeholder={`Change ${prospectName} Name`}
-                        maxLength={20}
-                      />
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div
-                      style={{ display: "flex", alignItems: "center" }}
-                      className="col-lg-12 col-sm-12 mt-1"
-                    >
-                      <label class="fieldset-label required">{`Change ${proposalName} Name`}</label>
-                    </div>
-                    <div className="col-lg-12 col-sm-12 mb-1">
-                      <input
-                        type="text"
-                        className="input-text"
-                        id="customerName-field"
-                        value={updatedProposalName}
-                        onChange={handleInputChangeProposal}
-                        placeholder={`Change ${proposalName} Name`}
-                        maxLength={20}
-                      />
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div
-                      style={{ display: "flex", alignItems: "center" }}
-                      className="col-lg-12 col-sm-12 mt-1"
-                    >
-                      <label class="fieldset-label required">{`Change ${EngagementName} Name`}</label>
-                    </div>
-                    <div className="col-lg-12 col-sm-12 mb-1">
-                      <input
-                        type="text"
-                        className="input-text"
-                        id="customerName-field"
-                        value={updatedEngagementName}
-                        onChange={handleInputChangeEngagement}
-                        placeholder={`Change ${EngagementName} Name`}
-                        maxLength={20}
-                      />
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-lg-6 col-sm-6 mt-1 d-flex align-items-center ">
-                      <input
-                        id="setDefault"
-                        type="checkbox"
-                        value={DefaultVariables}
-                        checked={DefaultVariables}
-                        onChange={handleSetDefaultVariables}
-                      />
-                      <label
-                        htmlFor="setDefault"
-                        className="ml-2 mb-0"
-                        style={{ marginLeft: "6px" }}
-                      >
-                        {" "}
-                        Set Default
-                      </label>
-                    </div>
+
+            {/* BODY */}
+            <div className="modal-body variable-name-body">
+              <div className="variable-name-form">
+                <div className="variable-name-field">
+                  <label className="variable-name-label">
+                    {`Change ${prospectName} Name`}
+                  </label>
+
+                  <div className="variable-name-input-wrap">
+                    <span className="variable-name-input-icon">
+                      <i className="ri-user-line"></i>
+                    </span>
+
+                    <input
+                      type="text"
+                      className="input-text variable-name-input"
+                      id="customerName-field"
+                      value={updatedProspectName}
+                      onChange={handleInputChange}
+                      placeholder={`Change ${prospectName} Name`}
+                      maxLength={20}
+                    />
                   </div>
                 </div>
-                <div className="text-center">
-                  {" "}
-                  {RequireErrorMessage &&
+
+                <div className="variable-name-field">
+                  <label className="variable-name-label">
+                    {`Change ${proposalName} Name`}
+                  </label>
+
+                  <div className="variable-name-input-wrap">
+                    <span className="variable-name-input-icon">
+                      <i className="ri-file-text-line"></i>
+                    </span>
+
+                    <input
+                      type="text"
+                      className="input-text variable-name-input"
+                      id="customerName-field"
+                      value={updatedProposalName}
+                      onChange={handleInputChangeProposal}
+                      placeholder={`Change ${proposalName} Name`}
+                      maxLength={20}
+                    />
+                  </div>
+                </div>
+
+                <div className="variable-name-field">
+                  <label className="variable-name-label">
+                    {`Change ${EngagementName} Name`}
+                  </label>
+
+                  <div className="variable-name-input-wrap">
+                    <span className="variable-name-input-icon">
+                      <i className="ri-draft-line"></i>
+                    </span>
+
+                    <input
+                      type="text"
+                      className="input-text variable-name-input"
+                      id="customerName-field"
+                      value={updatedEngagementName}
+                      onChange={handleInputChangeEngagement}
+                      placeholder={`Change ${EngagementName} Name`}
+                      maxLength={20}
+                    />
+                  </div>
+                </div>
+
+                <label className="variable-default-row" htmlFor="setDefault">
+                  <div>
+                    <strong>Set as Default</strong>
+                    <span>Use these names as the default terminology.</span>
+                  </div>
+
+                  <input
+                    id="setDefault"
+                    type="checkbox"
+                    value={DefaultVariables}
+                    checked={DefaultVariables}
+                    onChange={handleSetDefaultVariables}
+                  />
+                </label>
+
+                {/* VALIDATIONS */}
+                {RequireErrorMessage &&
                   (updatedEngagementName === "" ||
                     updatedEngagementName === null ||
                     updatedEngagementName === undefined) &&
@@ -3970,56 +3985,57 @@ const TopbarClone = () => {
                     updatedProposalName === undefined) &&
                   (updatedProspectName === "" ||
                     updatedProspectName === null ||
-                    updatedProspectName === undefined) ? (
-                    <label className="validation">
-                      Please make sure to fill out at least one field.
-                    </label>
-                  ) : (
-                    ""
+                    updatedProspectName === undefined) && (
+                    <div className="variable-name-error">
+                      <i className="ri-error-warning-line"></i>
+                      <span>
+                        Please make sure to fill out at least one field.
+                      </span>
+                    </div>
                   )}
-                </div>
-                <div className="text-center mt-1">
-                  {RequireErrorMessage &&
-                    ((updatedEngagementName !== "" &&
-                      updatedEngagementName !== null &&
-                      updatedEngagementName !== undefined) ||
-                      (updatedProposalName !== "" &&
-                        updatedProposalName !== null &&
-                        updatedProposalName !== undefined) ||
-                      (updatedProspectName !== "" &&
-                        updatedProspectName !== null &&
-                        updatedProspectName !== undefined)) &&
-                    (updatedEngagementName === updatedProposalName ||
+
+                {RequireErrorMessage &&
+                  ((updatedEngagementName !== "" &&
+                    updatedEngagementName !== null &&
+                    updatedEngagementName !== undefined) ||
+                    (updatedProposalName !== "" &&
+                      updatedProposalName !== null &&
+                      updatedProposalName !== undefined) ||
+                    (updatedProspectName !== "" &&
+                      updatedProspectName !== null &&
+                      updatedProspectName !== undefined)) &&
+                  (updatedEngagementName === updatedProposalName ||
                     updatedProposalName === updatedProspectName ||
-                    updatedEngagementName === updatedProspectName ? (
-                      <label className="validation">
+                    updatedEngagementName === updatedProspectName) && (
+                    <div className="variable-name-error">
+                      <i className="ri-error-warning-line"></i>
+                      <span>
                         Variable name should be unique. Please set unique
                         variable name.
-                      </label>
-                    ) : null)}
-                </div>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <div class="hstack gap-2 justify-content-end">
-                {((userAccessData.Admin_Personalize_SettingCanView &&
-                  userAccessData.Admin_Personalize_SettingCanEdit) ||
-                  (userAccessData.SuperAdmin_Personalize_SettingCanView &&
-                    userAccessData.SuperAdmin_Personalize_SettingCanEdit)) && (
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      await updateVariableFun();
-                    }}
-                    class="btn btn-md btn-success create-item-btn"
-                  >
-                    <span> Apply Changes</span>
-                  </button>
-                )}
+                      </span>
+                    </div>
+                  )}
               </div>
             </div>
 
-            {/* </form> */}
+            {/* FOOTER */}
+            <div className="modal-footer variable-name-footer">
+              {((userAccessData.Admin_Personalize_SettingCanView &&
+                userAccessData.Admin_Personalize_SettingCanEdit) ||
+                (userAccessData.SuperAdmin_Personalize_SettingCanView &&
+                  userAccessData.SuperAdmin_Personalize_SettingCanEdit)) && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await updateVariableFun();
+                  }}
+                  className="btn btn-md btn-success create-item-btn variable-name-submit-btn"
+                >
+                  <i className="ri-check-line"></i>
+                  <span>Apply Changes</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
