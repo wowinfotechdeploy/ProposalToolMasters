@@ -1,6 +1,7 @@
 /* global $ */
 import React, { useState, useEffect, useContext } from "react";
 import "./SubscriptionPackage.css";
+import "./SubscriptionPackage-redesign.css";
 import { useNavigate } from "react-router-dom";
 import CommonButtonComponent from "../../../components/CommonButtonComponent";
 import FormGroup from "@mui/material/FormGroup";
@@ -108,7 +109,7 @@ const Subscription_Package = () => {
   const GetSubscriptionPackageListData = async (
     i,
     searchKeywordValue,
-    sortValue
+    sortValue,
   ) => {
     setLoader(true);
     const pageNoList = i - 1;
@@ -136,7 +137,7 @@ const Subscription_Package = () => {
               GetSubscriptionPackageListData(
                 newPaneNo,
                 searchKeywordValue,
-                sortValue
+                sortValue,
               );
               setCurrentPage(pageNoList);
               return;
@@ -211,7 +212,7 @@ const Subscription_Package = () => {
       try {
         const Data = await SubscriptionPackageChangeStatus(
           modelRequestData.subscriptionPackageKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -219,7 +220,7 @@ const Subscription_Package = () => {
             setOpenSuccessModal(true);
           } else {
             setErrorMessage(
-              Data?.response?.data?.errors?.SubscriptionPackageKeyID[0]
+              Data?.response?.data?.errors?.SubscriptionPackageKeyID[0],
             );
             setOpenErrorModal(true);
           }
@@ -232,7 +233,7 @@ const Subscription_Package = () => {
       try {
         const Data = await DeleteSubscriptionPackage(
           modelRequestData.subscriptionPackageKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -277,334 +278,326 @@ const Subscription_Package = () => {
   };
 
   return (
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
-        <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                        <div className="container">
-                          <div className="row">
-                            <div className="col-md-6 p-0 ">
-                  <div class="page-title-cls">Subscription Packages</div>
-                </div>
-                <div class="col-auto ms-auto">
-                  <div className="d-flex justify-content-sm-end add-new-btn">
-                    {userAccessData.SuperAdmin_Config_Subscription_Package_CanAdd && (
-                      <CommonButtonComponent
-                        title={`Add ${moduleName} `}
-                        // dataBsTarget="#addUpdateModal"
-                        // data_bs_toggle="modal"
-                        name={`Add ${moduleName} `}
-                        AddBtn={() => SubscriptionPackageAddBtnClicked()}
-                      />
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
+    <div className="container-fluid subscription-packages-redesign">
+      <div className="subscription-packages-page">
+        {/* =========================
+            PAGE HEADER
+            ========================= */}
+        <div className="subscription-packages-page-header">
+          <div className="subscription-packages-heading-copy">
+            <h1>Subscription Packages</h1>
+            <p>Manage package pricing, availability and subscription status.</p>
           </div>
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card ">
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
-                        <div class="search-box col-md-3 col-8 width-searchbox mb-2">
-                          <i class="ri-search-line search-icon"></i>
-                          <input
-                            type="text"
-                            value={searchKeyword}
-                            onChange={(e) => {
-                              HandleSearch(e);
-                            }}
-                            className="form-control search"
-                            placeholder={
-                              isMobile
-                                ? "Search"
-                                : getPlaceholderTextName("Search", moduleName)
-                            }
-                          />
-                        </div>
-                        <table
-                          class="table align-middle table-nowrap"
-                          id="customerTable"
-                        >
-                          <thead class="table-light table-header-font">
-                            <tr className="head-row">
-                              <td
-                                className="tr-table-class text-white"
-                                style={{ width: "50%" }}
-                              >
-                                {moduleName} Name
-                                {primarySortDirection === "desc" && (
-                                  <i
-                                    onClick={() => {
-                                      HandleSort("asc");
-                                    }}
-                                    style={{ cursor: "pointer" }}
-                                    class="fas fa-sort-alpha-up ml-1"
-                                  ></i>
-                                )}{" "}
-                                {(primarySortDirection === null ||
-                                  primarySortDirection === "asc") && (
-                                  <i
-                                    onClick={() => {
-                                      HandleSort(
-                                        primarySortDirection === null
-                                          ? "asc"
-                                          : "desc"
-                                      );
-                                    }}
-                                    style={{ cursor: "pointer" }}
-                                    class="fas fa-sort-alpha-down ml-1"
-                                  ></i>
-                                )}
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Monthly Price
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Yearly Price
-                              </td>
 
-                              <td className="tr-table-class text-white">
-                                Status
-                              </td>
-                              <td className="tr-table-class text-white">
-                                {(userAccessData.SuperAdmin_Config_Subscription_Package_CanDelete ||
-                                  userAccessData.SuperAdmin_Config_Subscription_Package_CanEdit) && (
-                                  <>Action</>
-                                )}
-                              </td>
-                            </tr>
-                          </thead>
-                          <tbody class="list form-check-all">
-                            {subscriptionPackageList.map(
-                              (subscriptionPackage) => {
-                                return (
-                                  <tr class="table_new">
-                                    <td className="table-content-font">
-                                      {subscriptionPackage.packageName}
-                                    </td>
-                                    <td className="table-content-font">
-                                      {formatValue(
-                                        subscriptionPackage.monthlyPrice
-                                      )}
-                                      {/* {Number(subscriptionPackage.monthlyPrice)
-                                        .toFixed(2)
-                                        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} */}
-                                      {/* {subscriptionPackage.monthlyPrice} */}
-                                    </td>
-                                    <td className="table-content-font">
-                                      {formatValue(
-                                        subscriptionPackage.yearlyPrice
-                                      )}
-                                      {/* {Number(subscriptionPackage.yearlyPrice)
-                                        .toFixed(2)
-                                        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} */}
-                                      {/* {subscriptionPackage.yearlyPrice} */}
-                                    </td>
-                                    <td className="Switch">
-                                      <div
-                                        style={{
-                                          alignItems: "none",
-                                          marginLeft:
-                                            userAccessData.SuperAdmin_Config_Subscription_Package_CanEdit
-                                              ? ""
-                                              : "10px",
-                                        }}
-                                        class="d-flex gap-2 "
-                                      >
-                                        <div style={{ width: "50px" }}>
-                                          {" "}
-                                          {subscriptionPackage.statusName}
-                                        </div>
-                                        {userAccessData.SuperAdmin_Config_Subscription_Package_CanEdit && (
-                                          <Tooltip title={"Change Status"}>
-                                            <FormGroup>
-                                              <FormControlLabel
-                                                control={
-                                                  <Android12Switch
-                                                    disabled={
-                                                      subscriptionPackage.isFreePackage || subscriptionPackage.isFreeAfterTrial
-                                                    }
-                                                    onClick={() =>
-                                                      setModelRequestData(
-                                                        (prevState) => ({
-                                                          ...prevState,
-                                                          status:
-                                                            subscriptionPackage.statusName,
-                                                          subscriptionPackageKeyID:
-                                                            subscriptionPackage.subscriptionPackageKeyID,
-                                                          userKeyID:
-                                                            common.userKeyID,
-                                                          Action: "Status",
-                                                        })
-                                                      )
-                                                    }
-                                                    checked={
-                                                      subscriptionPackage.statusName ===
-                                                      "Active"
-                                                    }
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#ConfirmModel"
-                                                  />
-                                                }
-                                              />
-                                            </FormGroup>
-                                          </Tooltip>
-                                        )}
-                                      </div>
-                                    </td>
-                                    <td>
-                                      <div class="d-flex gap-2">
-                                        {userAccessData.SuperAdmin_Config_Subscription_Package_CanEdit && (
-                                          <Tooltip
-                                            title={
-                                              "Update Subscription Package"
-                                            }
-                                          >
-                                            <div class="edit">
-                                              <button
-                                                onClick={() =>
-                                                  SubscriptionPackageEditBtnClicked(
-                                                    subscriptionPackage
-                                                  )
-                                                }
-                                                class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
-                                              >
-                                                <i class="ri-pencil-fill"></i>
-                                              </button>
-                                            </div>
-                                          </Tooltip>
-                                        )}
-                                        {userAccessData.SuperAdmin_Config_Subscription_Package_CanDelete &&
-                                          !(subscriptionPackage.isFreePackage || subscriptionPackage.isFreeAfterTrial) && (
-                                            <Tooltip
-                                              title={
-                                                "Delete Subscription Package"
-                                              }
-                                            >
-                                              <div class="remove">
-                                                <button
-                                                  class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                                  data-bs-toggle="modal"
-                                                  data-bs-target="#ConfirmModel"
-                                                  onClick={() =>
-                                                    setModelRequestData({
-                                                      ...modelRequestData,
-                                                      subscriptionPackageKeyID:
-                                                        subscriptionPackage.subscriptionPackageKeyID,
-                                                      packageName:
-                                                        subscriptionPackage.packageName,
-                                                      userKeyID:
-                                                        common.userKeyID,
-                                                      Action: "Delete",
-                                                    })
-                                                  }
-                                                >
-                                                  <i class="ri-delete-bin-5-fill"></i>
-                                                </button>
-                                              </div>
-                                            </Tooltip>
-                                          )}
-                                      </div>
-                                    </td>
-                                  </tr>
-                                );
-                              }
-                            )}
-                          </tbody>
-                        </table>
-
-                        {totalRecords <= 0 && (
-                          <NoResultFoundModel
-                            name={moduleName}
-                            totalRecords={totalRecords}
-                          />
-                        )}
-                        {listCount > 6 && (
-                        <PaginationComponent
-                          totalCount={listCount}
-                          totalPages={totalPage}
-                          desktopRecords={desktopRecords}
-                          currentPage={currentPage}
-                          onPageChange={handlePageChange}
-                        />
-                      )}
-                      </div>
-
-
-                    </div>
-                  </div>
-                </div>
-              </div>
+          {userAccessData.SuperAdmin_Config_Subscription_Package_CanAdd && (
+            <div className="subscription-packages-header-action">
+              <CommonButtonComponent
+                title={`Add ${moduleName} `}
+                name={`Add ${moduleName} `}
+                AddBtn={() => SubscriptionPackageAddBtnClicked()}
+              />
             </div>
-
-            <ErrorModel
-              ErrorModel={openErrorModal}
-              handleClose={handleClose}
-              ErrorMessage={formattedErrorMessage}
-            />
-            {/* Confirm Modal  */}
-            <ConfirmModel
-              openErrorModal={openErrorModal}
-              openSuccessModal={openSuccessModal}
-              modelRequestData={modelRequestData}
-              UpdatedStatus={SubscriptionPackageChangeStatusDataAndDeleteData}
-            />
-
-            {/* Success Modal  */}
-            <SuccessModal
-              handleClose={handleClose}
-              setOpenSuccessModal={setOpenSuccessModal}
-              openSuccessModal={openSuccessModal}
-              modelAction={modelRequestData.Action}
-              message={`${
-                modelRequestData.Action === "Delete"
-                  ? `Subscription package ${modelRequestData.packageName}`
-                  : "Status has been changed successfully!"
-              }`}
-            />
-
-            {/* Modal  */}
-            {/* <SubscriptionPackageModel
-              class="modal fade"
-              id="addUpdateModal"
-              tabIndex="-1"
-              aria_labelledby="exampleModalLabel"
-              aria_hidden="true"
-              setIsAddUpdateActionDone={setIsAddUpdateActionDone}
-              modelRequestData={modelRequestData}
-            /> */}
-          </div>
+          )}
         </div>
-      </div>
-      </div>
-      </div>
-      </div>
-      </div>
+
+        {/* =========================
+            LIST CARD
+            ========================= */}
+        <section className="subscription-packages-list-card">
+          {/* SEARCH TOOLBAR */}
+          <div className="subscription-packages-toolbar">
+            <div className="subscription-packages-search-wrap">
+              <i className="ri-search-line"></i>
+
+              <input
+                type="text"
+                value={searchKeyword}
+                onChange={(e) => {
+                  HandleSearch(e);
+                }}
+                className="form-control subscription-packages-search-input"
+                placeholder={
+                  isMobile
+                    ? "Search"
+                    : getPlaceholderTextName("Search", moduleName)
+                }
+              />
+            </div>
+
+            <div className="subscription-packages-count">
+              {/* <span className="subscription-packages-count-icon">
+                <i className="ri-box-3-line"></i>
+              </span> */}
+
+              <span>Total Packages</span>
+              <strong>{listCount > 0 ? listCount : 0}</strong>
+            </div>
+          </div>
+
+          {/* TABLE */}
+          <div className="subscription-packages-table-scroll">
+            <table className="subscription-packages-table" id="customerTable">
+              <thead>
+                <tr>
+                  <th className="subscription-package-name-column">
+                    <button
+                      type="button"
+                      className="subscription-packages-sort-btn"
+                      onClick={() => {
+                        HandleSort(
+                          primarySortDirection === null
+                            ? "asc"
+                            : primarySortDirection === "asc"
+                              ? "desc"
+                              : "asc",
+                        );
+                      }}
+                    >
+                      <span>{moduleName} Name</span>
+
+                      <i
+                        className={
+                          primarySortDirection === "desc"
+                            ? "fas fa-sort-alpha-up"
+                            : "fas fa-sort-alpha-down"
+                        }
+                      ></i>
+                    </button>
+                  </th>
+
+                  <th>Monthly Price</th>
+                  <th>Yearly Price</th>
+                  <th>Status</th>
+
+                  <th className="subscription-packages-actions-heading">
+                    {(userAccessData.SuperAdmin_Config_Subscription_Package_CanDelete ||
+                      userAccessData.SuperAdmin_Config_Subscription_Package_CanEdit) && (
+                      <>Actions</>
+                    )}
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {subscriptionPackageList.map((subscriptionPackage) => {
+                  return (
+                    <tr key={subscriptionPackage.subscriptionPackageKeyID}>
+                      {/* PACKAGE NAME */}
+                      <td>
+                        <div className="subscription-package-name-cell">
+                          <span className="subscription-package-icon">
+                            <i className="ri-price-tag-3-line"></i>
+                          </span>
+
+                          <div className="subscription-package-name-copy">
+                            <strong>{subscriptionPackage.packageName}</strong>
+
+                            {(subscriptionPackage.isFreePackage ||
+                              subscriptionPackage.isFreeAfterTrial) && (
+                              <span className="subscription-package-type-badge">
+                                {subscriptionPackage.isFreePackage
+                                  ? "Free Package"
+                                  : "Free After Trial"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* MONTHLY PRICE */}
+                      <td>
+                        <span className="subscription-package-price">
+                          {formatValue(subscriptionPackage.monthlyPrice)}
+                        </span>
+                      </td>
+
+                      {/* YEARLY PRICE */}
+                      <td>
+                        <span className="subscription-package-price">
+                          {formatValue(subscriptionPackage.yearlyPrice)}
+                        </span>
+                      </td>
+
+                      {/* STATUS */}
+                      <td>
+                        <div className="subscription-package-status-cell">
+                          <span
+                            className={`subscription-package-status-pill ${
+                              subscriptionPackage.statusName === "Active"
+                                ? "is-active"
+                                : "is-inactive"
+                            }`}
+                          >
+                            {subscriptionPackage.statusName}
+                          </span>
+
+                          {userAccessData.SuperAdmin_Config_Subscription_Package_CanEdit && (
+                            <Tooltip title={"Change Status"}>
+                              <FormGroup>
+                                <FormControlLabel
+                                  control={
+                                    <Android12Switch
+                                      disabled={
+                                        subscriptionPackage.isFreePackage ||
+                                        subscriptionPackage.isFreeAfterTrial
+                                      }
+                                      onClick={() =>
+                                        setModelRequestData((prevState) => ({
+                                          ...prevState,
+                                          status:
+                                            subscriptionPackage.statusName,
+                                          subscriptionPackageKeyID:
+                                            subscriptionPackage.subscriptionPackageKeyID,
+                                          userKeyID: common.userKeyID,
+                                          Action: "Status",
+                                        }))
+                                      }
+                                      checked={
+                                        subscriptionPackage.statusName ===
+                                        "Active"
+                                      }
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#ConfirmModel"
+                                    />
+                                  }
+                                />
+                              </FormGroup>
+                            </Tooltip>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* ACTIONS */}
+                      <td className="subscription-packages-actions-cell">
+                        <div className="subscription-packages-row-actions">
+                          {userAccessData.SuperAdmin_Config_Subscription_Package_CanEdit && (
+                            <Tooltip title={"Update Subscription Package"}>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  SubscriptionPackageEditBtnClicked(
+                                    subscriptionPackage,
+                                  )
+                                }
+                                className="subscription-package-action-btn subscription-package-edit-btn"
+                              >
+                                <i className="ri-pencil-fill"></i>
+                              </button>
+                            </Tooltip>
+                          )}
+
+                          {userAccessData.SuperAdmin_Config_Subscription_Package_CanDelete &&
+                            !(
+                              subscriptionPackage.isFreePackage ||
+                              subscriptionPackage.isFreeAfterTrial
+                            ) && (
+                              <Tooltip title={"Delete Subscription Package"}>
+                                <button
+                                  type="button"
+                                  className="subscription-package-action-btn subscription-package-delete-btn"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#ConfirmModel"
+                                  onClick={() =>
+                                    setModelRequestData({
+                                      ...modelRequestData,
+                                      subscriptionPackageKeyID:
+                                        subscriptionPackage.subscriptionPackageKeyID,
+                                      packageName:
+                                        subscriptionPackage.packageName,
+                                      userKeyID: common.userKeyID,
+                                      Action: "Delete",
+                                    })
+                                  }
+                                >
+                                  <i className="ri-delete-bin-5-fill"></i>
+                                </button>
+                              </Tooltip>
+                            )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {totalRecords <= 0 && (
+            <div className="subscription-packages-empty-state">
+              <NoResultFoundModel
+                name={moduleName}
+                totalRecords={totalRecords}
+              />
+            </div>
+          )}
+        </section>
+
+        {/* PAGINATION OUTSIDE LIST CARD */}
+        {listCount > 6 && (
+          <div className="subscription-packages-pagination">
+            <PaginationComponent
+              totalCount={listCount}
+              totalPages={totalPage}
+              desktopRecords={desktopRecords}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        )}
+
+        {/* EXISTING MODALS */}
+        <ErrorModel
+          ErrorModel={openErrorModal}
+          handleClose={handleClose}
+          ErrorMessage={formattedErrorMessage}
+        />
+
+        <ConfirmModel
+          openErrorModal={openErrorModal}
+          openSuccessModal={openSuccessModal}
+          modelRequestData={modelRequestData}
+          UpdatedStatus={SubscriptionPackageChangeStatusDataAndDeleteData}
+        />
+
+        <SuccessModal
+          handleClose={handleClose}
+          setOpenSuccessModal={setOpenSuccessModal}
+          openSuccessModal={openSuccessModal}
+          modelAction={modelRequestData.Action}
+          message={`${
+            modelRequestData.Action === "Delete"
+              ? `Subscription package ${modelRequestData.packageName}`
+              : "Status has been changed successfully!"
+          }`}
+        />
+
+        {/* Modal */}
+        {/* <SubscriptionPackageModel
+          class="modal fade"
+          id="addUpdateModal"
+          tabIndex="-1"
+          aria_labelledby="exampleModalLabel"
+          aria_hidden="true"
+          setIsAddUpdateActionDone={setIsAddUpdateActionDone}
+          modelRequestData={modelRequestData}
+        /> */}
       </div>
 
       {/* start back-to-top */}
       <button
         onclick="topFunction()"
-        class="btn btn-danger btn-icon"
+        className="btn btn-danger btn-icon"
         id="back-to-top"
       >
-        <i class="ri-arrow-up-line"></i>
+        <i className="ri-arrow-up-line"></i>
       </button>
       {/* end back-to-top */}
-      <Footer />
+
+      <div className="subscription-packages-footer-wrap">
+        <Footer />
+      </div>
     </div>
   );
 };
+
 export default Subscription_Package;

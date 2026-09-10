@@ -1,0 +1,708 @@
+/* =========================================================
+   SUBSCRIPTION PACKAGE LIST REDESIGN
+   UI ONLY — APIs, navigation, search, sorting, permissions,
+   status changes, delete flow and pagination remain unchanged.
+   ========================================================= */
+
+.subscription-packages-redesign {
+  --sp-bg: #f7f9fc;
+  --sp-card: #ffffff;
+  --sp-heading: #14243a;
+  --sp-text: #334258;
+  --sp-muted: #7b8798;
+  --sp-border: #dce4ed;
+  --sp-border-soft: #e8edf3;
+  --sp-navy: #0f1b33;
+  --sp-cyan: #14b5d1;
+  --sp-cyan-hover: #0da5c1;
+
+  width: calc(100% - 20px) !important;
+  min-height: 100vh;
+
+  margin-left: 20px !important;
+  padding: 24px 16px 0 !important;
+
+  display: flex;
+  flex-direction: column;
+
+  background: var(--sp-bg) !important;
+  color: var(--sp-text);
+}
+
+.subscription-packages-redesign,
+.subscription-packages-redesign * {
+  box-sizing: border-box;
+}
+
+.subscription-packages-page {
+  width: 100%;
+  max-width: 1500px;
+
+  margin: 0 auto;
+  padding-bottom: 24px;
+
+  flex: 1 0 auto;
+}
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.subscription-packages-page-header {
+  min-height: 88px;
+  padding-bottom: 16px;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+
+  border-bottom: 1px solid #e2e8ef;
+}
+
+.subscription-packages-heading-copy {
+  min-width: 0;
+}
+
+.subscription-packages-heading-copy h1 {
+  margin: 0;
+
+  color: var(--sp-heading);
+
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.subscription-packages-heading-copy p {
+  margin: 6px 0 0;
+
+  color: var(--sp-muted);
+
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.subscription-packages-header-action {
+  flex: 0 0 auto;
+}
+
+.subscription-packages-header-action .create-item-btn,
+.subscription-packages-header-action .btn-success,
+.subscription-packages-header-action button {
+  min-height: 42px !important;
+  padding: 0 14px !important;
+
+  border: 1px solid var(--sp-cyan) !important;
+  border-radius: 8px !important;
+
+  background: var(--sp-cyan) !important;
+  color: #ffffff !important;
+
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+}
+
+.subscription-packages-header-action .create-item-btn:hover,
+.subscription-packages-header-action .btn-success:hover,
+.subscription-packages-header-action button:hover {
+  border-color: var(--sp-cyan-hover) !important;
+
+  background: var(--sp-cyan-hover) !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   LIST CARD
+   ========================================================= */
+
+.subscription-packages-list-card {
+  width: 100%;
+
+  margin-top: 20px;
+
+  overflow: hidden;
+
+  border: 1px solid var(--sp-border);
+  border-radius: 12px;
+
+  background: var(--sp-card);
+
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.04),
+    0 10px 28px rgba(15, 23, 42, 0.025);
+}
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.subscription-packages-toolbar {
+  min-height: 82px;
+  padding: 14px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  border-bottom: 1px solid var(--sp-border);
+
+  background: #ffffff;
+}
+
+.subscription-packages-search-wrap {
+  position: relative;
+
+  width: 100%;
+  max-width: 390px;
+}
+
+.subscription-packages-search-wrap > i {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  z-index: 2;
+
+  transform: translateY(-50%);
+
+  color: #708095;
+
+  font-size: 16px;
+
+  pointer-events: none;
+}
+
+.subscription-packages-redesign .subscription-packages-search-input {
+  width: 100%;
+  min-height: 42px;
+
+  padding: 9px 12px 9px 40px;
+
+  border: 1px solid #cfdae5;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #314056;
+
+  font-size: 11.5px;
+
+  box-shadow: none;
+}
+
+.subscription-packages-redesign
+  .subscription-packages-search-input:focus {
+  border-color: #72cedd;
+
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08);
+}
+
+.subscription-packages-count {
+  min-width: 135px;
+  min-height: 46px;
+  padding: 6px 10px;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  border: 1px solid #e0e7ee;
+  border-radius: 9px;
+
+  background: #f8fafc;
+}
+
+.subscription-packages-count-icon {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 7px;
+
+  background: #e9f7fa;
+  color: #087f98;
+
+  font-size: 14px;
+}
+
+.subscription-packages-count > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.subscription-packages-count > div > span {
+  color: #8995a5;
+
+  font-size: 8px;
+  font-weight: 500;
+}
+
+.subscription-packages-count strong {
+  margin-top: 1px;
+
+  color: #24364d;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.subscription-packages-table-scroll {
+  width: 100%;
+
+  overflow-x: auto;
+  overflow-y: visible;
+
+  scrollbar-width: thin;
+  scrollbar-color: #cbd4df transparent;
+}
+
+.subscription-packages-table {
+  width: 100%;
+  min-width: 920px;
+
+  margin: 0;
+
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.subscription-packages-table thead th {
+  height: 54px;
+  padding: 0 16px;
+
+  border: 0;
+
+  background: var(--sp-navy);
+  color: #ffffff;
+
+  font-size: 9.5px;
+  font-weight: 600;
+
+  text-align: left;
+  text-transform: uppercase;
+  vertical-align: middle;
+
+  white-space: nowrap;
+}
+
+.subscription-packages-table tbody td {
+  height: 72px;
+  padding: 12px 16px;
+
+  border-bottom: 1px solid var(--sp-border-soft);
+
+  background: #ffffff;
+  color: #4b596d;
+
+  font-size: 10.5px;
+  vertical-align: middle;
+}
+
+.subscription-packages-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.subscription-packages-table tbody tr:hover td {
+  background: #fbfdff;
+}
+
+.subscription-packages-table th:nth-child(1),
+.subscription-packages-table td:nth-child(1) {
+  width: 38%;
+}
+
+.subscription-packages-table th:nth-child(2),
+.subscription-packages-table td:nth-child(2) {
+  width: 17%;
+}
+
+.subscription-packages-table th:nth-child(3),
+.subscription-packages-table td:nth-child(3) {
+  width: 17%;
+}
+
+.subscription-packages-table th:nth-child(4),
+.subscription-packages-table td:nth-child(4) {
+  width: 17%;
+}
+
+.subscription-packages-table th:nth-child(5),
+.subscription-packages-table td:nth-child(5) {
+  width: 11%;
+}
+
+/* SORT */
+
+.subscription-packages-sort-btn {
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  border: 0;
+
+  background: transparent;
+  color: #ffffff;
+
+  font: inherit;
+  font-weight: inherit;
+  text-transform: inherit;
+
+  cursor: pointer;
+}
+
+.subscription-packages-sort-btn i {
+  color: #c7d1df;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   PACKAGE ROW
+   ========================================================= */
+
+.subscription-package-name-cell {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.subscription-package-icon {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #e9f7fa;
+  color: #087f98;
+
+  font-size: 15px;
+}
+
+.subscription-package-name-copy {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subscription-package-name-copy strong {
+  overflow: hidden;
+
+  color: #24364d;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subscription-package-type-badge {
+  min-height: 24px;
+  padding: 0 8px;
+
+  display: inline-flex;
+  align-items: center;
+
+  border-radius: 999px;
+
+  background: #fff6df;
+  color: #98701b;
+
+  font-size: 8px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.subscription-package-price {
+  color: #26384f;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.subscription-package-status-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subscription-package-status-cell .MuiFormGroup-root,
+.subscription-package-status-cell .MuiFormControlLabel-root {
+  margin: 0 !important;
+}
+
+.subscription-package-status-pill {
+  min-width: 52px;
+  min-height: 27px;
+  padding: 0 9px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.subscription-package-status-pill.is-active {
+  background: #eaf8f3;
+  color: #18845f;
+}
+
+.subscription-package-status-pill.is-inactive {
+  background: #fff0f2;
+  color: #cf4052;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.subscription-packages-actions-heading,
+.subscription-packages-actions-cell {
+  text-align: center !important;
+}
+
+.subscription-packages-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.subscription-package-action-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #d8e1ea;
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  font-size: 13px;
+
+  cursor: pointer;
+
+  box-shadow: none;
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.subscription-package-edit-btn {
+  color: #4c647d;
+}
+
+.subscription-package-edit-btn:hover {
+  border-color: #b9dce4;
+
+  background: #eef9fb;
+  color: #087f98;
+}
+
+.subscription-package-delete-btn {
+  color: #d44a59;
+}
+
+.subscription-package-delete-btn:hover {
+  border-color: #efc4c9;
+
+  background: #fff3f4;
+  color: #c53a49;
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.subscription-packages-empty-state {
+  min-height: 300px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+}
+
+/* =========================================================
+   PAGINATION — OUTSIDE LIST CARD
+   ========================================================= */
+
+.subscription-packages-pagination {
+  width: 100%;
+  min-height: 64px;
+
+  margin: 14px auto 18px;
+  padding: 0 4px;
+
+  position: relative !important;
+
+  background: transparent;
+}
+
+.subscription-packages-pagination .fixed-bottom {
+  position: static !important;
+
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  background: transparent !important;
+
+  transform: none !important;
+
+  z-index: auto !important;
+}
+
+.subscription-packages-pagination .fixed-bottom > .row,
+.subscription-packages-pagination .row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.subscription-packages-pagination .pagination,
+.subscription-packages-pagination .mb-4 {
+  margin-bottom: 0 !important;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.subscription-packages-footer-wrap {
+  width: 100%;
+
+  margin-top: auto;
+
+  flex: 0 0 auto;
+
+  position: relative !important;
+
+  background: var(--sp-bg);
+}
+
+.subscription-packages-footer-wrap > *,
+.subscription-packages-footer-wrap footer,
+.subscription-packages-footer-wrap .footer,
+.subscription-packages-footer-wrap .fixed-bottom {
+  position: static !important;
+
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+
+  transform: none !important;
+
+  z-index: auto !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (min-width: 1300px) {
+  .subscription-packages-table {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 991px) {
+  .subscription-packages-redesign {
+    width: calc(100% - 14px) !important;
+
+    margin-left: 14px !important;
+    padding-right: 12px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .subscription-packages-redesign {
+    width: 100% !important;
+
+    margin-left: 0 !important;
+    padding: 18px 8px 0 !important;
+  }
+
+  .subscription-packages-page-header {
+    min-height: auto;
+
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .subscription-packages-heading-copy h1 {
+    font-size: 24px;
+  }
+
+  .subscription-packages-header-action,
+  .subscription-packages-header-action > * {
+    width: 100%;
+  }
+
+  .subscription-packages-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .subscription-packages-search-wrap {
+    max-width: 100%;
+  }
+
+  .subscription-packages-count {
+    width: 100%;
+  }
+
+  .subscription-packages-pagination {
+    margin: 10px auto 14px;
+    padding: 0;
+  }
+}
