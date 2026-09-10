@@ -1,6 +1,7 @@
 /* global $ */
 import React, { useContext, useEffect, useState } from "react";
 import "./UsersStyle.css";
+import "./UsersStyle-redesign.css";
 import { useSelector } from "react-redux";
 import Android12Switch from "../../components/AndroidSwitch";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -637,7 +638,7 @@ const InviteUser = () => {
         sortValue,
         UserSort,
       );
-    } 
+    }
   };
 
   const HandleSearchInviteUser = (e) => {
@@ -721,9 +722,16 @@ const InviteUser = () => {
   };
   //Design part :
   return (
-    <div className="container-fluid">
+    <div className="container-fluid users-list-redesign">
+      <div className="users-redesign-page-header">
+        <div>
+          <h1>Users</h1>
+          <p>Manage workspace users, invitations, roles and account access.</p>
+        </div>
+      </div>
+
       {/* <div class="main-content"> */}
-      <div class="services page-background">
+      <div class="services page-background users-redesign-shell">
         <div class="">
           <div class="row">
             <div class="col-lg-12">
@@ -731,78 +739,79 @@ const InviteUser = () => {
                 {/* end card header  */}
                 <div class="card-body mb-2">
                   <div id="customerList" style={{ marginTop: "3rem" }}>
-                    <div class="bg-light border-bottom px-2">
-                      <div className="container">
-                        <div className="row">
-                          <div className="col-md-6 p-0 ">
-                            {/* <div class="page-title-cls">Users</div> */}
-                            <ul class="nav nav-tabs " role="tablist">
-                              <li class="nav-item">
-                                <a
-                                  class="nav-link tab_nav active"
-                                  data-bs-toggle="tab"
-                                  href="#base-justified-home"
-                                  role="tab"
-                                  aria-selected="false"
-                                  onClick={() => {
-                                    userFun();
-                                    setTabSelected("users");
-                                  }}
-                                >
-                                  <b>Users</b>
-                                </a>
-                              </li>
-                              <li class="nav-item">
-                                <a
-                                  onClick={() => {
-                                    GetInviteUsersListData(1);
-                                    setTabSelected("invite");
-                                  }}
-                                  class="nav-link tab_nav"
-                                  data-bs-toggle="tab"
-                                  href="#product"
-                                  role="tab"
-                                  aria-selected="false"
-                                >
-                                  <b>Invite User</b>
-                                </a>
-                              </li>
-                            </ul>
-                          </div>
-                          <div className="col d-flex align-items-center justify-content-end ms-auto">
-                            <div className="count-card">
-                              {tabSelected === "users" ? (
-                                <>
-                                  Total Users:{" "}
-                                  {UserListCount > 0 ? (
-                                    UserListCount
-                                  ) : (
-                                    <span style={{ fontSize: "12px" }}> 0</span>
-                                  )}
-                                </>
-                              ) : (
-                                <>
-                                  Total Users:{" "}
-                                  {listCount > 0 ? (
-                                    listCount
-                                  ) : (
-                                    <span style={{ fontSize: "12px" }}> 0</span>
-                                  )}
-                                </>
-                              )}
+                    <div className="users-tabs-panel">
+                      <div className="users-tabs-panel-inner">
+                        <ul
+                          className="nav nav-tabs users-modern-tabs"
+                          role="tablist"
+                        >
+                          <li className="nav-item">
+                            <a
+                              className="nav-link tab_nav active users-modern-tab"
+                              data-bs-toggle="tab"
+                              href="#base-justified-home"
+                              role="tab"
+                              aria-selected="false"
+                              onClick={() => {
+                                userFun();
+                                setTabSelected("users");
+                              }}
+                            >
+                              <span className="users-modern-tab-icon">
+                                <i className="ri-group-line"></i>
+                              </span>
+
+                              <span className="users-modern-tab-copy">
+                                <strong>Users</strong>
+                                <small>Workspace users</small>
+                              </span>
+
+                              <span className="users-modern-tab-count">
+                                {UserListCount > 0 ? UserListCount : 0}
+                              </span>
+                            </a>
+                          </li>
+
+                          <li className="nav-item">
+                            <a
+                              onClick={() => {
+                                GetInviteUsersListData(1);
+                                setTabSelected("invite");
+                              }}
+                              className="nav-link tab_nav users-modern-tab"
+                              data-bs-toggle="tab"
+                              href="#product"
+                              role="tab"
+                              aria-selected="false"
+                            >
+                              <span className="users-modern-tab-icon">
+                                <i className="ri-user-add-line"></i>
+                              </span>
+
+                              <span className="users-modern-tab-copy">
+                                <strong>Invite User</strong>
+                                <small>Pending invitations</small>
+                              </span>
+
+                              <span className="users-modern-tab-count">
+                                {listCount > 0 ? listCount : 0}
+                              </span>
+                            </a>
+                          </li>
+                        </ul>
+
+                        {tabSelected === "users" && (
+                          <div className="users-tabs-org-summary">
+                            <span className="users-tabs-org-icon">
+                              <i className="ri-building-4-line"></i>
+                            </span>
+
+                            <div>
+                              <span>Organisations</span>
+                              <strong>{orgCount > 0 ? orgCount : 0}</strong>
                             </div>
-                            {tabSelected === "users" && (
-                              <div className="count-card">
-                                Total Organisations:{" "}
-                                {orgCount > 0 ? (
-                                  orgCount
-                                ) : (
-                                  <span style={{ fontSize: "12px" }}> 0</span>
-                                )}
-                              </div>
-                            )}
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                     <div class="">
@@ -845,6 +854,7 @@ const InviteUser = () => {
                                             <div className="input-group">
                                               <Select
                                                 className="phone-input-country-code selectDropDown Drop-down-width"
+                                                classNamePrefix="users-select"
                                                 placeholder="Select Country"
                                                 options={countryNameListData}
                                                 value={countryNameFilter}
@@ -865,6 +875,7 @@ const InviteUser = () => {
                                             <div className="input-group">
                                               <Select
                                                 className="phone-input-country-code selectDropDown Drop-down-width"
+                                                classNamePrefix="users-select"
                                                 placeholder="Select Role"
                                                 options={UserRoleTypeLookupList}
                                                 value={RoleTypeFilter}
@@ -885,6 +896,7 @@ const InviteUser = () => {
                                             <div className="input-group">
                                               <Select
                                                 className="phone-input-country-code selectDropDown Drop-down-width"
+                                                classNamePrefix="users-select"
                                                 style={{ cursor: "pointer" }}
                                                 placeholder="Date Filter"
                                                 options={Utils.DateFilter}
@@ -1107,11 +1119,13 @@ const InviteUser = () => {
                                               className="tr-table-class text-white"
                                             >
                                               Country Name
-                                            {primaryUserSortDirectionObj.RoleTypeSort ===
+                                              {primaryUserSortDirectionObj.RoleTypeSort ===
                                                 "desc" && (
                                                 <i
                                                   onClick={() => {
-                                                    setUserSortType("CountryName");
+                                                    setUserSortType(
+                                                      "CountryName",
+                                                    );
                                                     setPrimaryInviteUserSortDirectionObj(
                                                       "asc",
                                                     );
@@ -1130,7 +1144,9 @@ const InviteUser = () => {
                                                   "asc") && (
                                                 <i
                                                   onClick={() => {
-                                                    setUserSortType("CountryName");
+                                                    setUserSortType(
+                                                      "CountryName",
+                                                    );
                                                     handleUserSort(
                                                       primaryUserSortDirectionObj.RoleTypeSort ===
                                                         null
@@ -1512,15 +1528,6 @@ const InviteUser = () => {
                                           totalRecords={totalRecords}
                                         />
                                       )}
-
-                                      {UserListCount > pageSize && (
-                                        <PaginationComponent
-                                          totalCount={UserListCount}
-                                          totalPages={totalUserPage}
-                                          currentPage={currentPageUsers}
-                                          onPageChange={HandlePageChangeUsers}
-                                        />
-                                      )}
                                     </div>
                                   </div>
 
@@ -1849,21 +1856,33 @@ const InviteUser = () => {
                                         />
                                       )}
                                     </div>
-
-                                    {listCount > pageSize && (
-                                      <PaginationComponent
-                                        totalCount={listCount}
-                                        totalPages={totalPage}
-                                        currentPage={currentPage}
-                                        onPageChange={HandlePageChange}
-                                      />
-                                    )}
                                   </div>
                                 </div>
                               </div>
                             </div>
                           </div>
                         </div>
+                      </div>
+
+                      <div className="users-pagination-outside">
+                        {tabSelected === "users" &&
+                          UserListCount > pageSize && (
+                            <PaginationComponent
+                              totalCount={UserListCount}
+                              totalPages={totalUserPage}
+                              currentPage={currentPageUsers}
+                              onPageChange={HandlePageChangeUsers}
+                            />
+                          )}
+
+                        {tabSelected === "invite" && listCount > pageSize && (
+                          <PaginationComponent
+                            totalCount={listCount}
+                            totalPages={totalPage}
+                            currentPage={currentPage}
+                            onPageChange={HandlePageChange}
+                          />
+                        )}
                       </div>
 
                       <ErrorModel
@@ -1916,7 +1935,6 @@ const InviteUser = () => {
                       />
                     </div>
                   </div>
-                  
                 </div>
               </div>
             </div>
@@ -1933,7 +1951,9 @@ const InviteUser = () => {
         <i class="ri-arrow-up-line"></i>
       </button>
       {/* end back-to-top */}
-      <Footer />
+      <div className="users-footer-wrap">
+        <Footer />
+      </div>
     </div>
   );
 };

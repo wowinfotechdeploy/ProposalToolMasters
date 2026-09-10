@@ -1,0 +1,1156 @@
+/* =========================================================
+   USERS LIST REDESIGN
+   UI ONLY — existing APIs, handlers, permissions, sorting,
+   filtering, tabs, pagination and modals remain unchanged.
+   ========================================================= */
+
+.users-list-redesign {
+  --users-bg: #f7f9fc;
+  --users-card: #ffffff;
+  --users-heading: #14243a;
+  --users-text: #334258;
+  --users-muted: #7b8798;
+  --users-border: #dce4ed;
+  --users-border-soft: #e8edf3;
+  --users-navy: #0f1b33;
+  --users-cyan: #14b5d1;
+  --users-cyan-hover: #0da5c1;
+
+  width: calc(100% - 20px) !important;
+  min-height: 100vh;
+
+  margin-left: 20px !important;
+  padding: 24px 16px 0 !important;
+
+  display: flex;
+  flex-direction: column;
+
+  background: var(--users-bg) !important;
+  color: var(--users-text);
+}
+
+.users-list-redesign,
+.users-list-redesign * {
+  box-sizing: border-box;
+}
+
+/* PAGE HEADER */
+
+.users-redesign-page-header {
+  width: 100%;
+  max-width: 1500px;
+
+  margin: 0 auto 20px;
+  padding-bottom: 16px;
+
+  border-bottom: 1px solid #e2e8ef;
+}
+
+.users-redesign-page-header h1 {
+  margin: 0;
+
+  color: var(--users-heading);
+
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.users-redesign-page-header p {
+  margin: 6px 0 0;
+
+  color: var(--users-muted);
+
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* REMOVE LEGACY PAGE/CARD SPACING */
+
+.users-list-redesign .users-redesign-shell {
+  width: 100%;
+  max-width: 1500px;
+
+  margin: 0 auto !important;
+  padding: 0 !important;
+
+  flex: 1 0 auto;
+
+  background: transparent !important;
+}
+
+.users-list-redesign .users-redesign-shell > div,
+.users-list-redesign .users-redesign-shell > div > .row,
+.users-list-redesign .users-redesign-shell .col-lg-12 {
+  margin-top: 0 !important;
+}
+
+.users-list-redesign .users-redesign-shell > div > .row > .col-lg-12 > .card {
+  margin: 0 !important;
+
+  overflow: hidden;
+
+  border: 1px solid var(--users-border) !important;
+  border-radius: 12px !important;
+
+  background: #ffffff !important;
+
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.04),
+    0 10px 28px rgba(15, 23, 42, 0.025) !important;
+}
+
+.users-list-redesign
+  .users-redesign-shell
+  > div
+  > .row
+  > .col-lg-12
+  > .card
+  > .card-body {
+  padding: 0 !important;
+
+  background: #ffffff !important;
+}
+
+.users-list-redesign #customerList[style] {
+  margin-top: 0 !important;
+}
+
+/* =========================================================
+   TAB HEADER + COUNTERS
+   ========================================================= */
+
+.users-list-redesign .bg-light.border-bottom.px-2 {
+  min-height: 70px;
+  padding: 0 18px !important;
+
+  display: flex;
+  align-items: center;
+
+  border-bottom: 1px solid var(--users-border) !important;
+
+  background: #ffffff !important;
+}
+
+.users-list-redesign .bg-light.border-bottom.px-2 > .container {
+  width: 100%;
+  max-width: none !important;
+
+  padding: 0 !important;
+}
+
+.users-list-redesign .nav-tabs {
+  min-height: 69px;
+  margin: 0 !important;
+
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+
+  border: 0 !important;
+}
+
+.users-list-redesign .nav-tabs .nav-item {
+  margin: 0 !important;
+}
+
+.users-list-redesign .nav-tabs .tab_nav {
+  min-height: 69px;
+  padding: 0 3px !important;
+
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+
+  border: 0 !important;
+
+  background: transparent !important;
+  color: #6c798c !important;
+
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.users-list-redesign .nav-tabs .tab_nav::after {
+  content: "";
+
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  height: 2px;
+
+  background: transparent;
+}
+
+.users-list-redesign .nav-tabs .tab_nav.active {
+  color: #10243f !important;
+}
+
+.users-list-redesign .nav-tabs .tab_nav.active::after {
+  background: var(--users-cyan);
+}
+
+.users-list-redesign .count-card {
+  min-height: 32px !important;
+  margin-left: 8px !important;
+  padding: 0 11px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+
+  border: 1px solid #dce5ed !important;
+  border-radius: 999px !important;
+
+  background: #f5f9fb !important;
+  color: #617084 !important;
+
+  font-size: 9.5px !important;
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+}
+
+/* REMOVE INNER LEGACY CARD CHROME */
+
+.users-list-redesign
+  .users-redesign-shell
+  .card-body
+  > #customerList
+  > div:not(.bg-light)
+  .card {
+  margin: 0 !important;
+
+  border: 0 !important;
+  border-radius: 0 !important;
+
+  box-shadow: none !important;
+}
+
+.users-list-redesign
+  .users-redesign-shell
+  .card-body
+  > #customerList
+  > div:not(.bg-light)
+  .card-body {
+  padding: 0 !important;
+}
+
+/* =========================================================
+   SEARCH + FILTER TOOLBAR
+   ========================================================= */
+
+.users-list-redesign .table-responsive.table-card {
+  margin: 0 !important;
+  padding: 0 !important;
+
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+
+  border: 0 !important;
+
+  background: #ffffff !important;
+}
+
+.users-list-redesign .table-responsive.table-card > .row {
+  min-height: 82px;
+  margin: 0 !important;
+  padding: 14px 16px;
+
+  display: flex;
+  align-items: center;
+
+  border-bottom: 1px solid var(--users-border);
+
+  background: #ffffff;
+}
+
+.users-list-redesign .search-box {
+  position: relative;
+
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+}
+
+.users-list-redesign .search-box .search-icon {
+  position: absolute !important;
+  top: 50% !important;
+  left: 13px !important;
+  z-index: 2;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  transform: translateY(-50%);
+
+  color: #708095 !important;
+
+  font-size: 16px !important;
+
+  pointer-events: none;
+}
+
+.users-list-redesign .search-box .form-control.search {
+  min-height: 42px !important;
+
+  padding: 9px 12px 9px 40px !important;
+
+  border: 1px solid #cfdae5 !important;
+  border-radius: 8px !important;
+
+  background: #ffffff !important;
+  color: #314056 !important;
+
+  font-size: 11.5px !important;
+
+  box-shadow: none !important;
+}
+
+.users-list-redesign .search-box .form-control.search:focus {
+  border-color: #72cedd !important;
+
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08) !important;
+}
+
+/* REACT SELECT */
+
+.users-list-redesign .users-select__control {
+  min-height: 42px !important;
+
+  border: 1px solid #cfdae5 !important;
+  border-radius: 8px !important;
+
+  background: #ffffff !important;
+
+  box-shadow: none !important;
+}
+
+.users-list-redesign .users-select__control:hover {
+  border-color: #bcc9d6 !important;
+}
+
+.users-list-redesign .users-select__control--is-focused {
+  border-color: #72cedd !important;
+
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08) !important;
+}
+
+.users-list-redesign .users-select__value-container {
+  padding: 2px 9px !important;
+}
+
+.users-list-redesign .users-select__single-value,
+.users-list-redesign .users-select__placeholder,
+.users-list-redesign .users-select__input-container {
+  color: #536176 !important;
+
+  font-size: 10.5px !important;
+}
+
+.users-list-redesign .users-select__indicator {
+  padding: 7px !important;
+}
+
+.users-list-redesign .users-select__menu {
+  z-index: 1000 !important;
+
+  overflow: hidden;
+
+  border: 1px solid #d7e0e9 !important;
+  border-radius: 8px !important;
+
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.11) !important;
+}
+
+.users-list-redesign .users-select__option {
+  padding: 8px 10px !important;
+
+  font-size: 10.5px !important;
+}
+
+/* BUTTONS */
+
+.users-list-redesign .create-item-btn {
+  min-height: 40px !important;
+  padding: 0 13px !important;
+
+  border: 1px solid var(--users-cyan) !important;
+  border-radius: 8px !important;
+
+  background: var(--users-cyan) !important;
+  color: #ffffff !important;
+
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+}
+
+.users-list-redesign .create-item-btn:hover {
+  border-color: var(--users-cyan-hover) !important;
+
+  background: var(--users-cyan-hover) !important;
+  color: #ffffff !important;
+}
+
+/* Clear Filter is the second toolbar action */
+.users-list-redesign
+  #base-justified-home
+  .table-responsive
+  > .row
+  .d-flex.gap-2
+  > .create-item-btn:last-child:not(:first-child) {
+  border-color: #ccd6e2 !important;
+
+  background: #ffffff !important;
+  color: #536176 !important;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.users-list-redesign table.table {
+  width: 100%;
+  min-width: 1220px;
+
+  margin: 0 !important;
+
+  border-collapse: collapse !important;
+
+  table-layout: fixed;
+}
+
+.users-list-redesign #product table.table {
+  min-width: 900px;
+}
+
+.users-list-redesign table.table thead,
+.users-list-redesign table.table thead tr,
+.users-list-redesign table.table thead td {
+  background: var(--users-navy) !important;
+}
+
+.users-list-redesign table.table thead td {
+  height: 54px !important;
+  padding: 0 13px !important;
+
+  border: 0 !important;
+
+  color: #ffffff !important;
+
+  font-size: 9.25px !important;
+  font-weight: 600 !important;
+
+  text-transform: uppercase;
+  vertical-align: middle !important;
+
+  white-space: nowrap;
+}
+
+.users-list-redesign table.table thead td i {
+  margin-left: 5px !important;
+
+  color: #c6d1df !important;
+
+  font-size: 9px !important;
+}
+
+.users-list-redesign table.table tbody tr {
+  background: #ffffff !important;
+}
+
+.users-list-redesign table.table tbody td {
+  height: 68px !important;
+  padding: 11px 13px !important;
+
+  border-bottom: 1px solid var(--users-border-soft) !important;
+
+  background: #ffffff !important;
+  color: #4b596d !important;
+
+  font-size: 10.5px !important;
+  vertical-align: middle !important;
+}
+
+.users-list-redesign table.table tbody tr:hover td {
+  background: #fbfdff !important;
+}
+
+/* ROLE COLUMN */
+
+.users-list-redesign #base-justified-home table tbody td:nth-child(6) {
+  color: #6255af !important;
+
+  font-weight: 600 !important;
+}
+
+/* ORGANISATION COLUMN */
+
+.users-list-redesign #base-justified-home table tbody td:nth-child(5) {
+  color: #526277 !important;
+}
+
+/* STATUS */
+
+.users-list-redesign #base-justified-home td.Switch > .d-flex {
+  align-items: center !important;
+}
+
+.users-list-redesign
+  #base-justified-home
+  td.Switch
+  > .d-flex
+  > div:first-child {
+  width: auto !important;
+  min-width: 50px;
+  min-height: 26px;
+  padding: 0 8px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  background: #eaf8f3;
+  color: #18845f;
+
+  font-size: 8.75px;
+  font-weight: 600;
+}
+
+.users-list-redesign #base-justified-home td.Switch .MuiFormGroup-root,
+.users-list-redesign #base-justified-home td.Switch .MuiFormControlLabel-root {
+  margin: 0 !important;
+}
+
+/* INVITE ACCEPTANCE STATUS */
+
+.users-list-redesign #product table tbody td:nth-child(5) {
+  color: #8a6a1c !important;
+
+  font-weight: 600 !important;
+}
+
+/* ACTION BUTTONS */
+
+.users-list-redesign .actionButtonsStyle {
+  width: 34px !important;
+  height: 34px !important;
+  padding: 0 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border: 1px solid #d8e1ea !important;
+  border-radius: 7px !important;
+
+  background: #ffffff !important;
+
+  font-size: 13px !important;
+
+  box-shadow: none !important;
+}
+
+.users-list-redesign .edit-item-btn.actionButtonsStyle {
+  color: #4c647d !important;
+}
+
+.users-list-redesign .edit-item-btn.actionButtonsStyle:hover {
+  border-color: #b9dce4 !important;
+
+  background: #eef9fb !important;
+  color: #087f98 !important;
+}
+
+.users-list-redesign .remove-item-btn.actionButtonsStyle {
+  color: #d44a59 !important;
+}
+
+.users-list-redesign .remove-item-btn.actionButtonsStyle:hover {
+  border-color: #efc4c9 !important;
+
+  background: #fff3f4 !important;
+  color: #c53a49 !important;
+}
+
+/* =========================================================
+   EMPTY STATE + PAGINATION
+   ========================================================= */
+
+.users-list-redesign .table-card > .fixed-bottom,
+.users-list-redesign .tab-pane > .fixed-bottom,
+.users-list-redesign .table-responsive + .fixed-bottom {
+  position: static !important;
+
+  inset: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 13px 16px !important;
+
+  border-top: 1px solid var(--users-border) !important;
+
+  background: #ffffff !important;
+}
+
+.users-list-redesign .fixed-bottom > .row {
+  margin: 0 !important;
+}
+
+.users-list-redesign .pagination,
+.users-list-redesign .mb-4 {
+  margin-bottom: 0 !important;
+}
+
+/* =========================================================
+   INVITE USER TOOLBAR
+   ========================================================= */
+
+.users-list-redesign #product .table-responsive > .row {
+  min-height: 80px;
+}
+
+.users-list-redesign #product .add-new-btn {
+  align-items: center;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.users-list-redesign > footer,
+.users-list-redesign > .footer,
+.users-list-redesign > .fixed-bottom:last-of-type {
+  position: static !important;
+
+  inset: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin-top: auto !important;
+  margin-bottom: 0 !important;
+
+  transform: none !important;
+
+  z-index: auto !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1199px) {
+  .users-list-redesign .table-responsive.table-card > .row {
+    align-items: stretch !important;
+
+    gap: 10px;
+  }
+
+  .users-list-redesign
+    #base-justified-home
+    .table-responsive
+    > .row
+    > .col-md-9 {
+    width: 100% !important;
+
+    justify-content: flex-start !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .users-list-redesign {
+    width: calc(100% - 14px) !important;
+
+    margin-left: 14px !important;
+    padding-right: 12px !important;
+  }
+
+  .users-list-redesign .bg-light.border-bottom.px-2 .row {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 767px) {
+  .users-list-redesign {
+    width: 100% !important;
+
+    margin-left: 0 !important;
+    padding: 18px 8px 0 !important;
+  }
+
+  .users-redesign-page-header h1 {
+    font-size: 24px;
+  }
+
+  .users-list-redesign .bg-light.border-bottom.px-2 {
+    padding: 0 12px !important;
+  }
+
+  .users-list-redesign .bg-light.border-bottom.px-2 .container > .row {
+    flex-direction: column;
+  }
+
+  .users-list-redesign .bg-light.border-bottom.px-2 .col-md-6,
+  .users-list-redesign .bg-light.border-bottom.px-2 .col {
+    width: 100% !important;
+  }
+
+  .users-list-redesign .bg-light.border-bottom.px-2 .col {
+    padding-bottom: 10px;
+
+    justify-content: flex-start !important;
+  }
+
+  .users-list-redesign .table-responsive.table-card > .row {
+    padding: 12px;
+  }
+
+  .users-list-redesign .search-box,
+  .users-list-redesign .search-box.col-md-3,
+  .users-list-redesign .search-box.col-md-6 {
+    width: 100% !important;
+  }
+
+  .users-list-redesign
+    #base-justified-home
+    .table-responsive
+    > .row
+    > .col-md-9 {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .users-list-redesign
+    #base-justified-home
+    .table-responsive
+    > .row
+    > .col-md-9
+    > .col-md-3 {
+    width: 100% !important;
+  }
+
+  .users-list-redesign
+    #base-justified-home
+    .table-responsive
+    > .row
+    .d-flex.gap-2 {
+    width: 100%;
+  }
+
+  .users-list-redesign
+    #base-justified-home
+    .table-responsive
+    > .row
+    .d-flex.gap-2
+    .btn {
+    flex: 1;
+  }
+}
+
+/* =========================================================
+   USERS TABS V2
+   More distinct tab cards while preserving Bootstrap tab behavior.
+   ========================================================= */
+
+.users-list-redesign .users-tabs-panel {
+  padding: 14px 16px;
+
+  border-bottom: 1px solid var(--users-border);
+
+  background: #ffffff;
+}
+
+.users-list-redesign .users-tabs-panel-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.users-list-redesign .users-modern-tabs {
+  min-height: 0 !important;
+  margin: 0 !important;
+
+  display: flex;
+  align-items: center;
+  gap: 10px !important;
+
+  border: 0 !important;
+}
+
+.users-list-redesign .users-modern-tabs .nav-item {
+  margin: 0 !important;
+}
+
+.users-list-redesign .users-modern-tabs .users-modern-tab {
+  min-width: 205px;
+  min-height: 64px;
+  padding: 9px 11px !important;
+
+  position: relative;
+
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+
+  border: 1px solid #dce4ed !important;
+  border-radius: 10px !important;
+
+  background: #ffffff !important;
+  color: #526176 !important;
+
+  transition:
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.users-list-redesign .users-modern-tabs .users-modern-tab::after {
+  display: none !important;
+}
+
+.users-list-redesign .users-modern-tabs .users-modern-tab:hover {
+  border-color: #bcdce4 !important;
+
+  background: #f8fcfd !important;
+}
+
+.users-list-redesign .users-modern-tabs .users-modern-tab.active {
+  border-color: #71cddd !important;
+
+  background: #f0fbfd !important;
+  color: #10243f !important;
+
+  box-shadow: 0 0 0 2px rgba(20, 181, 209, 0.06) !important;
+}
+
+.users-modern-tab-icon {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #eef4f8;
+  color: #607388;
+
+  font-size: 16px;
+}
+
+.users-modern-tab.active .users-modern-tab-icon {
+  background: #dff6fa;
+  color: #078ca6;
+}
+
+.users-modern-tab-copy {
+  min-width: 0;
+
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.users-modern-tab-copy strong {
+  color: #20314a;
+
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.users-modern-tab-copy small {
+  margin-top: 2px;
+
+  color: #8b97a7;
+
+  font-size: 8.5px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.users-modern-tab-count {
+  min-width: 27px;
+  height: 27px;
+  padding: 0 7px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  background: #edf2f6;
+  color: #536478;
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.users-modern-tab.active .users-modern-tab-count {
+  background: #14b5d1;
+  color: #ffffff;
+}
+
+.users-tabs-org-summary {
+  min-width: 138px;
+  min-height: 48px;
+  padding: 7px 10px;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  border: 1px solid #e0e7ee;
+  border-radius: 9px;
+
+  background: #f8fafc;
+}
+
+.users-tabs-org-icon {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 7px;
+
+  background: #e9f7fa;
+  color: #087f98;
+
+  font-size: 14px;
+}
+
+.users-tabs-org-summary > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.users-tabs-org-summary > div span {
+  color: #8995a5;
+
+  font-size: 8px;
+  font-weight: 500;
+}
+
+.users-tabs-org-summary > div strong {
+  margin-top: 1px;
+
+  color: #24364d;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   PAGINATION OUTSIDE LIST CARD
+   ========================================================= */
+
+.users-list-redesign .users-pagination-outside {
+  width: 100%;
+  max-width: 1500px;
+
+  margin: 14px auto 0;
+  padding: 0 4px;
+
+  position: relative !important;
+
+  background: transparent !important;
+}
+
+.users-list-redesign .users-pagination-outside:empty {
+  display: none;
+}
+
+.users-list-redesign .users-pagination-outside .fixed-bottom {
+  position: static !important;
+
+  inset: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  background: transparent !important;
+
+  transform: none !important;
+}
+
+.users-list-redesign .users-pagination-outside .fixed-bottom > .row {
+  margin: 0 !important;
+}
+
+.users-list-redesign .users-pagination-outside .pagination {
+  margin: 0 !important;
+}
+
+.users-list-redesign .users-pagination-outside .mb-4 {
+  margin-bottom: 0 !important;
+}
+
+/* Ensure old pagination container rules do not draw a fake footer/list strip. */
+.users-list-redesign .table-card > .fixed-bottom,
+.users-list-redesign .tab-pane > .fixed-bottom,
+.users-list-redesign .table-responsive + .fixed-bottom {
+  border-top: 0 !important;
+  background: transparent !important;
+}
+
+@media (max-width: 767px) {
+  .users-list-redesign .users-tabs-panel {
+    padding: 10px 12px;
+  }
+
+  .users-list-redesign .users-tabs-panel-inner {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .users-list-redesign .users-modern-tabs {
+    width: 100%;
+
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .users-list-redesign .users-modern-tabs .users-modern-tab {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .users-modern-tab-copy small {
+    display: none;
+  }
+
+  .users-tabs-org-summary {
+    width: 100%;
+  }
+
+  .users-list-redesign .users-pagination-outside {
+    margin-top: 10px;
+    padding: 0;
+  }
+}
+
+/* =========================================================
+   PAGINATION / FOOTER FLOW FIX
+   Keep pagination and footer as separate blocks in normal flow.
+   ========================================================= */
+
+.users-list-redesign {
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+}
+
+/* Give the external pagination its own visual space. */
+.users-list-redesign .users-pagination-outside {
+  min-height: 64px;
+  margin: 14px auto 18px !important;
+  padding: 0 4px !important;
+
+  display: block;
+
+  position: relative !important;
+  z-index: 1;
+}
+
+/* PaginationComponent internally uses Bootstrap fixed-bottom in some builds. */
+.users-list-redesign .users-pagination-outside .fixed-bottom,
+.users-list-redesign .users-pagination-outside > .fixed-bottom {
+  position: static !important;
+
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  transform: none !important;
+
+  z-index: auto !important;
+}
+
+.users-list-redesign .users-pagination-outside .row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.users-list-redesign .users-pagination-outside .pagination {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Shared Footer must never float over the page content on this screen. */
+.users-list-redesign .users-footer-wrap {
+  width: 100%;
+  margin-top: auto;
+  flex: 0 0 auto;
+
+  position: relative !important;
+  z-index: 0;
+
+  background: var(--users-bg);
+}
+
+.users-list-redesign .users-footer-wrap > *,
+.users-list-redesign .users-footer-wrap footer,
+.users-list-redesign .users-footer-wrap .footer,
+.users-list-redesign .users-footer-wrap .fixed-bottom {
+  position: static !important;
+
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+
+  transform: none !important;
+
+  z-index: auto !important;
+}
+
+/* Neutralize legacy footer rules that may come from the shared stylesheet. */
+.users-list-redesign footer,
+.users-list-redesign .footer {
+  position: static !important;
+  bottom: auto !important;
+}
+
+/* The back-to-top control should not affect document flow. */
+.users-list-redesign #back-to-top {
+  z-index: 10;
+}
+
+@media (max-width: 767px) {
+  .users-list-redesign .users-pagination-outside {
+    margin: 10px auto 14px !important;
+    padding: 0 !important;
+  }
+}
