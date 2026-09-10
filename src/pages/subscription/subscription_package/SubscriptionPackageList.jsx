@@ -385,9 +385,9 @@ const Subscription_Package = () => {
                       {/* PACKAGE NAME */}
                       <td>
                         <div className="subscription-package-name-cell">
-                          <span className="subscription-package-icon">
+                          {/* <span className="subscription-package-icon">
                             <i className="ri-price-tag-3-line"></i>
-                          </span>
+                          </span> */}
 
                           <div className="subscription-package-name-copy">
                             <strong>{subscriptionPackage.packageName}</strong>

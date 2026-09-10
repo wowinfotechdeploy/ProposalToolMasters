@@ -1,0 +1,566 @@
+/* =========================================================
+   PDF TO CSV SUBSCRIPTION LIST - V2
+   UI only. Existing handlers, API calls, permissions and modal
+   behaviour remain unchanged.
+   ========================================================= */
+
+.pdfcsv-subscription-redesign-v2 {
+  --pdf-bg: #f7f9fc;
+  --pdf-card: #ffffff;
+  --pdf-heading: #14243a;
+  --pdf-text: #334258;
+  --pdf-muted: #7b8798;
+  --pdf-border: #dce4ed;
+  --pdf-border-soft: #e8edf3;
+  --pdf-navy: #0f1b33;
+  --pdf-cyan: #14b5d1;
+  --pdf-cyan-hover: #0da5c1;
+
+  width: calc(100% - 20px) !important;
+  min-height: 100vh;
+  margin-left: 20px !important;
+  padding: 24px 16px 0 !important;
+  display: flex;
+  flex-direction: column;
+  background: var(--pdf-bg) !important;
+  color: var(--pdf-text);
+  overflow: visible !important;
+}
+
+.pdfcsv-subscription-redesign-v2,
+.pdfcsv-subscription-redesign-v2 * {
+  box-sizing: border-box;
+}
+
+.pdfcsv-subscription-page-v2 {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding-bottom: 22px;
+  flex: 1 0 auto;
+}
+
+/* HEADER */
+.pdfcsv-subscription-header-v2 {
+  min-height: 88px;
+  padding-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid #e2e8ef;
+}
+
+.pdfcsv-subscription-heading-v2 h1 {
+  margin: 0;
+  color: var(--pdf-heading);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.pdfcsv-subscription-heading-v2 p {
+  margin: 6px 0 0;
+  color: var(--pdf-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.pdfcsv-subscription-add-v2 {
+  flex: 0 0 auto;
+}
+
+.pdfcsv-subscription-add-v2 .create-item-btn,
+.pdfcsv-subscription-add-v2 .btn-success,
+.pdfcsv-subscription-add-v2 button {
+  min-height: 42px !important;
+  padding: 0 14px !important;
+  border: 1px solid var(--pdf-cyan) !important;
+  border-radius: 8px !important;
+  background: var(--pdf-cyan) !important;
+  color: #fff !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+.pdfcsv-subscription-add-v2 .create-item-btn:hover,
+.pdfcsv-subscription-add-v2 .btn-success:hover,
+.pdfcsv-subscription-add-v2 button:hover {
+  border-color: var(--pdf-cyan-hover) !important;
+  background: var(--pdf-cyan-hover) !important;
+  color: #fff !important;
+}
+
+/* LIST CARD */
+.pdfcsv-subscription-card-v2 {
+  width: 100%;
+  margin-top: 20px;
+  overflow: hidden;
+  border: 1px solid var(--pdf-border);
+  border-radius: 12px;
+  background: var(--pdf-card);
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.04),
+    0 10px 28px rgba(15, 23, 42, 0.025);
+}
+
+/* No fake/minimum table height: card follows actual rows. */
+.pdfcsv-subscription-card-v2,
+.pdfcsv-subscription-table-scroll-v2,
+.pdfcsv-subscription-table-v2,
+.pdfcsv-subscription-table-v2 tbody {
+  min-height: 0 !important;
+  height: auto !important;
+}
+
+/* TOOLBAR */
+.pdfcsv-subscription-toolbar-v2 {
+  min-height: 78px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid var(--pdf-border);
+  background: #fff;
+}
+
+.pdfcsv-subscription-search-v2 {
+  position: relative;
+  width: min(420px, 100%);
+}
+
+.pdfcsv-subscription-search-v2 > i {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  z-index: 2;
+  transform: translateY(-50%);
+  color: #718096;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.pdfcsv-subscription-search-v2 .form-control {
+  min-height: 42px !important;
+  padding: 9px 12px 9px 40px !important;
+  border: 1px solid #cfdae5 !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  color: #314056 !important;
+  font-size: 11.5px !important;
+  box-shadow: none !important;
+}
+
+.pdfcsv-subscription-search-v2 .form-control:focus {
+  border-color: #72cedd !important;
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08) !important;
+}
+
+.pdfcsv-subscription-count-v2 {
+  min-width: 135px;
+  min-height: 46px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e0e7ee;
+  border-radius: 9px;
+  background: #f8fafc;
+}
+
+.pdfcsv-subscription-count-icon-v2 {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  background: #e8f7fa;
+  color: #078ca6;
+  font-size: 14px;
+}
+
+.pdfcsv-subscription-count-v2 > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.pdfcsv-subscription-count-v2 > div > span {
+  color: #8995a5;
+  font-size: 8px;
+  font-weight: 500;
+}
+
+.pdfcsv-subscription-count-v2 strong {
+  margin-top: 1px;
+  color: #24364d;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* TABLE */
+.pdfcsv-subscription-table-scroll-v2 {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  background: #fff;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd4df transparent;
+}
+
+.pdfcsv-subscription-table-v2 {
+  width: 100%;
+  min-width: 930px;
+  margin: 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.pdfcsv-subscription-table-v2 thead th {
+  height: 54px;
+  padding: 0 16px;
+  border: 0;
+  background: var(--pdf-navy) !important;
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 600;
+  text-align: left;
+  text-transform: uppercase;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.pdfcsv-subscription-table-v2 tbody td {
+  height: 68px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--pdf-border-soft);
+  background: #fff !important;
+  color: #4b596d;
+  font-size: 10.5px;
+  vertical-align: middle;
+}
+
+.pdfcsv-subscription-table-v2 tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.pdfcsv-subscription-table-v2 tbody tr:hover td {
+  background: #fbfdff !important;
+}
+
+/* Override old first-column/table_new shading. */
+.pdfcsv-subscription-redesign-v2 .pdfcsv-subscription-table-v2 tbody tr,
+.pdfcsv-subscription-redesign-v2 .pdfcsv-subscription-table-v2 tbody td,
+.pdfcsv-subscription-redesign-v2
+  .pdfcsv-subscription-table-v2
+  tbody
+  td:first-child,
+.pdfcsv-subscription-redesign-v2 .pdfcsv-subscription-table-v2 .table_new,
+.pdfcsv-subscription-redesign-v2
+  .pdfcsv-subscription-table-v2
+  .table-content-font {
+  background: #fff !important;
+}
+
+.pdfcsv-subscription-table-v2 th:nth-child(1),
+.pdfcsv-subscription-table-v2 td:nth-child(1) {
+  width: 32%;
+}
+
+.pdfcsv-subscription-table-v2 th:nth-child(2),
+.pdfcsv-subscription-table-v2 td:nth-child(2) {
+  width: 14%;
+}
+
+.pdfcsv-subscription-table-v2 th:nth-child(3),
+.pdfcsv-subscription-table-v2 td:nth-child(3) {
+  width: 12%;
+}
+
+.pdfcsv-subscription-table-v2 th:nth-child(4),
+.pdfcsv-subscription-table-v2 td:nth-child(4) {
+  width: 18%;
+}
+
+.pdfcsv-subscription-table-v2 th:nth-child(5),
+.pdfcsv-subscription-table-v2 td:nth-child(5) {
+  width: 15%;
+}
+
+.pdfcsv-subscription-table-v2 th:nth-child(6),
+.pdfcsv-subscription-table-v2 td:nth-child(6) {
+  width: 9%;
+}
+
+.pdfcsv-subscription-sort-v2 {
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  font-weight: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.pdfcsv-subscription-sort-v2 i {
+  color: #c7d1df;
+  font-size: 9px;
+}
+
+/* ROW CONTENT */
+.pdfcsv-subscription-name-v2 {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pdfcsv-subscription-file-icon-v2 {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #e9f7fa;
+  color: #087f98;
+  font-size: 15px;
+}
+
+.pdfcsv-subscription-name-v2 strong {
+  min-width: 0;
+  overflow: hidden;
+  color: #24364d;
+  font-size: 11px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pdfcsv-subscription-validity-v2 {
+  min-height: 26px;
+  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #f0eefc;
+  color: #6255af;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.pdfcsv-subscription-pages-v2,
+.pdfcsv-subscription-price-v2 {
+  color: #26384f;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.pdfcsv-subscription-price-v2 {
+  font-weight: 700;
+}
+
+/* STATUS */
+.pdfcsv-subscription-status-v2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pdfcsv-subscription-status-v2 .MuiFormGroup-root,
+.pdfcsv-subscription-status-v2 .MuiFormControlLabel-root {
+  margin: 0 !important;
+}
+
+.pdfcsv-subscription-status-pill-v2 {
+  min-width: 52px;
+  min-height: 27px;
+  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.pdfcsv-subscription-status-pill-v2.is-active {
+  background: #eaf8f3;
+  color: #18845f;
+}
+
+.pdfcsv-subscription-status-pill-v2.is-inactive {
+  background: #fff0f2;
+  color: #cf4052;
+}
+
+/* ACTIONS */
+.pdfcsv-subscription-actions-head-v2,
+.pdfcsv-subscription-actions-cell-v2 {
+  text-align: center !important;
+}
+
+.pdfcsv-subscription-actions-v2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.pdfcsv-subscription-action-btn-v2 {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d8e1ea;
+  border-radius: 7px;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.pdfcsv-subscription-edit-v2 {
+  color: #4c647d;
+}
+
+.pdfcsv-subscription-edit-v2:hover {
+  border-color: #b9dce4;
+  background: #eef9fb;
+  color: #087f98;
+}
+
+.pdfcsv-subscription-delete-v2 {
+  color: #d44a59;
+}
+
+.pdfcsv-subscription-delete-v2:hover {
+  border-color: #efc4c9;
+  background: #fff3f4;
+  color: #c53a49;
+}
+
+/* EMPTY STATE */
+.pdfcsv-subscription-empty-v2 {
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid var(--pdf-border-soft);
+  background: #fff;
+}
+
+/* PAGINATION - OUTSIDE CARD */
+.pdfcsv-subscription-pagination-v2 {
+  width: 100%;
+  min-height: 64px;
+  margin: 14px auto 18px;
+  padding: 0 4px;
+  position: relative !important;
+  z-index: 1;
+  background: transparent;
+}
+
+.pdfcsv-subscription-pagination-v2 .fixed-bottom {
+  position: static !important;
+  inset: auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  background: transparent !important;
+  z-index: auto !important;
+}
+
+.pdfcsv-subscription-pagination-v2 .fixed-bottom > .row,
+.pdfcsv-subscription-pagination-v2 .row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.pdfcsv-subscription-pagination-v2 .pagination,
+.pdfcsv-subscription-pagination-v2 .mb-4 {
+  margin-bottom: 0 !important;
+}
+
+/* FOOTER */
+.pdfcsv-subscription-footer-v2 {
+  width: 100%;
+  margin-top: auto;
+  flex: 0 0 auto;
+  position: relative !important;
+  background: var(--pdf-bg);
+}
+
+.pdfcsv-subscription-footer-v2 > *,
+.pdfcsv-subscription-footer-v2 footer,
+.pdfcsv-subscription-footer-v2 .footer,
+.pdfcsv-subscription-footer-v2 .fixed-bottom {
+  position: static !important;
+  inset: auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  transform: none !important;
+  z-index: auto !important;
+}
+
+/* RESPONSIVE */
+@media (min-width: 1300px) {
+  .pdfcsv-subscription-table-v2 {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 991px) {
+  .pdfcsv-subscription-redesign-v2 {
+    width: calc(100% - 14px) !important;
+    margin-left: 14px !important;
+    padding-right: 12px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .pdfcsv-subscription-redesign-v2 {
+    width: 100% !important;
+    margin-left: 0 !important;
+    padding: 18px 8px 0 !important;
+  }
+
+  .pdfcsv-subscription-header-v2,
+  .pdfcsv-subscription-toolbar-v2 {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pdfcsv-subscription-heading-v2 h1 {
+    font-size: 24px;
+  }
+
+  .pdfcsv-subscription-add-v2,
+  .pdfcsv-subscription-add-v2 > * {
+    width: 100%;
+  }
+
+  .pdfcsv-subscription-search-v2,
+  .pdfcsv-subscription-count-v2 {
+    width: 100%;
+    max-width: none;
+  }
+
+  .pdfcsv-subscription-pagination-v2 {
+    margin: 10px auto 14px;
+    padding: 0;
+  }
+}
