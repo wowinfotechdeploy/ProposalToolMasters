@@ -2,6 +2,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import "../proposals/Proposals.css";
 import "../../pages/user/UsersStyle.css";
+import "./OrganisationViewDetails-redesign.css";
 import { useSelector } from "react-redux";
 import CommonButtonComponent from "../../components/CommonButtonComponent";
 import { Row, Col, Card, CardBody } from "reactstrap";
@@ -31,7 +32,10 @@ import {
   ChoosePlanApi,
   CreateStripeCheckoutSession,
 } from "../../redux/Services/Setting/PaymentGatewayApi";
-import { GetUserSubscriptionPackageModel, UpdateUserSubscriptionPackage } from "../../redux/Services/Subscription/UserListApi";
+import {
+  GetUserSubscriptionPackageModel,
+  UpdateUserSubscriptionPackage,
+} from "../../redux/Services/Subscription/UserListApi";
 import SubscriptionPackageModel from "../subscription/subscription_package/SubscriptionPackageModel";
 import OrganisationSubscriptionPackageDetails from "../../components/OrganisationSubscriptionPackageDetails";
 const OrganisationViewDetails = () => {
@@ -108,7 +112,7 @@ const OrganisationViewDetails = () => {
     GetCustomDate,
     formatValue,
     formatValueWithoutCurrencySymbol,
-    scrollUpDownByElementID
+    scrollUpDownByElementID,
   } = useContext(AuthContextProvider);
   const [chooseApiData, setChooseApiData] = useState();
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
@@ -292,11 +296,11 @@ const OrganisationViewDetails = () => {
     // setSubscriptionModal(true)
   };
 
-  const handleOrganisationSubscriptionPackageModel = async() => {
+  const handleOrganisationSubscriptionPackageModel = async () => {
     setShowPackageModal(true);
     await GetSubscriptionPackageModelData(subScriptionActiveList.ospKeyID);
     await GetOrganisationPlanListData(1);
-  }
+  };
   const GetSubscriptionPackageModelData = async (id) => {
     if (!id) {
       return;
@@ -524,7 +528,8 @@ const OrganisationViewDetails = () => {
   const AddUpdateSubscriptionPackageData = async (ApiRequest_ParamsObj) => {
     setLoader(true);
     try {
-      const response = await UpdateUserSubscriptionPackage(ApiRequest_ParamsObj);
+      const response =
+        await UpdateUserSubscriptionPackage(ApiRequest_ParamsObj);
       if (response) {
         setLoader(false);
         if (response?.data?.statusCode === 200) {
@@ -555,7 +560,7 @@ const OrganisationViewDetails = () => {
     i,
     searchKeywordValue,
     sortValue,
-    UserSort
+    UserSort,
   ) => {
     setLoader(true);
     try {
@@ -593,7 +598,7 @@ const OrganisationViewDetails = () => {
                 i,
                 searchKeywordValue,
                 sortValue,
-                UserSort
+                UserSort,
               );
             }, 2000);
           } else {
@@ -610,18 +615,18 @@ const OrganisationViewDetails = () => {
   const RedirectStripeCheckout = (subscription) => {
     CreateStripeCheckoutSessionRedirection(
       common.userKeyID,
-      subscription.invoiceKeyID
+      subscription.invoiceKeyID,
     );
   };
   const CreateStripeCheckoutSessionRedirection = async (
     userKeyID,
-    InvoiceKeyID
+    InvoiceKeyID,
   ) => {
     setLoader(true);
     try {
       const response = await CreateStripeCheckoutSession(
         userKeyID,
-        InvoiceKeyID
+        InvoiceKeyID,
       );
       const data = response.data;
 
@@ -711,7 +716,7 @@ const OrganisationViewDetails = () => {
         let officerArray = [];
         ModelData.officersList.forEach((item) => {
           const PhoneSelectedValue = CountryList.find(
-            (countryCode) => item.countryCodeID == countryCode.value
+            (countryCode) => item.countryCodeID == countryCode.value,
           );
           let officerObj = {
             organisationKeyID: saveLocationState?.OrgKeyID,
@@ -772,7 +777,7 @@ const OrganisationViewDetails = () => {
 
         setCompanyForm(companyObj);
         const fullAddress = concatenateFullAddress(
-          ModelData.companyDetails?.companyAddress
+          ModelData.companyDetails?.companyAddress,
         );
         setConcatenatedRegisterAddress(fullAddress);
         let CorrespondenceOrResidentialAddress = [];
@@ -784,7 +789,7 @@ const OrganisationViewDetails = () => {
               officersFullAddress: fullAddressConcatenation,
             };
             CorrespondenceOrResidentialAddress.push(
-              CorrespondenceOrResidentialAddressObj
+              CorrespondenceOrResidentialAddressObj,
             );
           } else {
             CorrespondenceOrResidentialAddress.push({
@@ -795,7 +800,7 @@ const OrganisationViewDetails = () => {
         setConcatenatedResidentialAddress(CorrespondenceOrResidentialAddress);
         if (ModelData.organisationAddress) {
           const fullAddress = concatenateFullAddress(
-            ModelData.organisationAddress
+            ModelData.organisationAddress,
           );
           setConcatenatedTradingAddress(fullAddress);
         }
@@ -879,7 +884,7 @@ const OrganisationViewDetails = () => {
           });
         }
       }
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const GetIncorporatedInLookUpListData = async () => {
@@ -895,7 +900,7 @@ const OrganisationViewDetails = () => {
           setIncorporatedInList(incorporateInListData);
         }
       }
-    } catch (error) { }
+    } catch (error) {}
   };
 
   // E] Event Handling Functions will call here.
@@ -918,14 +923,12 @@ const OrganisationViewDetails = () => {
       try {
         const Data = await DeleteUser(
           modelRequestData.inviteUserKeyID,
-          common.userKeyID
+          common.userKeyID,
         );
         if (Data) {
           setLoader(false);
           if (Data?.data?.statusCode === 200) {
-            setSuccessMessage(
-              `User ${modelRequestData.userName}`
-            );
+            setSuccessMessage(`User ${modelRequestData.userName}`);
             setOpenSuccessModal(true);
           } else {
             setErrorMessage(Data?.response?.data?.errors?.InviteUserKeyID[0]);
@@ -943,9 +946,9 @@ const OrganisationViewDetails = () => {
   const concatenateFullAddress = (address) => {
     const addPart = (part) => (part ? `${part}, ` : "");
     let concatenatedAddress = `${addPart(address?.addressLine1)}${addPart(
-      address?.addressLine2
+      address?.addressLine2,
     )}${addPart(address?.locality)}${addPart(address?.region)}${addPart(
-      address?.country
+      address?.country,
     )}${addPart(address?.countryName)}${address?.postcode || ""}`;
 
     // Remove trailing comma, if present
@@ -1019,1652 +1022,1164 @@ const OrganisationViewDetails = () => {
     await GetInviteUsersListData(pageNumber); // Call your function with the selected page number
   };
   const currencyFilter = currencyType.find(
-    (item) => otherInfo.preferredCurrency == item.value
+    (item) => otherInfo.preferredCurrency == item.value,
   );
 
   const IncorporatedValue = incorporatedInList.filter(
-    (item) => companyForm?.incInID == item.value
+    (item) => companyForm?.incInID == item.value,
   );
   return (
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
-      <div class="services page-background">
-        <div class="">
-          <div class="row">
-            <div class="col-lg-12">
-              <div class="card">
-                {/* end card header  */}
-                <div class="card-body mb-2">
-                  <div id="customerList" style={{ marginTop: "3rem" }}>
-                    <div class="bg-light border-bottom px-2">
-                      {/* <div className="container"> */}
-                      <div className="row">
-                        <div className="col-md-6 col-sm-6 col-6 ">
-                          <div class="page-title-cls">
-                            Organisation/Practice Name: {basicInfo.tradingName}
-                          </div>
+    <div className="organisation-view-redesign">
+      <div className="organisation-view-page">
+        {/* PAGE HEADER */}
+        <div className="organisation-view-page-header">
+          <div className="organisation-view-heading">
+            <button
+              type="button"
+              className="organisation-view-back-icon"
+              onClick={() => navigate("/organisations")}
+              aria-label="Back"
+            >
+              <i className="ri-arrow-left-line"></i>
+            </button>
+
+            <div>
+              <h1>Organisation / Practice Details</h1>
+              <p>
+                Review organisation information, invited users and subscription
+                details.
+              </p>
+            </div>
+          </div>
+
+          <div className="organisation-view-header-meta">
+            <span className="organisation-view-meta-label">Organisation</span>
+            <strong>{basicInfo.tradingName}</strong>
+          </div>
+        </div>
+
+        {/* MAIN CARD */}
+        <section className="organisation-view-card">
+          {/* TABS */}
+          <div className="organisation-view-tabs-wrap">
+            <ul className="nav nav-tabs organisation-view-tabs">
+              <li className="nav-item">
+                <a
+                  className="nav-link active"
+                  data-bs-toggle="tab"
+                  href="#base-justified-home"
+                  role="tab"
+                  aria-selected="false"
+                >
+                  <i className="ri-building-line"></i>
+                  <span>Organisation / Practice Details</span>
+                </a>
+              </li>
+
+              <li className="nav-item">
+                <a
+                  onClick={() => GetInviteUsersListData(1)}
+                  className="nav-link"
+                  data-bs-toggle="tab"
+                  href="#product"
+                  role="tab"
+                  aria-selected="false"
+                >
+                  <i className="ri-group-line"></i>
+                  <span>Invite User</span>
+                </a>
+              </li>
+
+              <li className="nav-item">
+                <a
+                  className="nav-link"
+                  data-bs-toggle="tab"
+                  href="#Plan"
+                  role="tab"
+                  aria-selected="false"
+                >
+                  <i className="ri-bank-card-line"></i>
+                  <span>Subscription Plan</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div className="tab-content">
+            {/* =====================================================
+                ORGANISATION DETAILS TAB
+                ===================================================== */}
+            <div
+              className="tab-pane fade show active"
+              id="base-justified-home"
+              role="tabpanel"
+            >
+              <div className="organisation-view-details-content">
+                {/* LEFT COLUMN */}
+                <div className="organisation-view-details-column">
+                  {/* BASIC INFORMATION */}
+                  <section className="organisation-view-info-card">
+                    <div className="organisation-view-section-header">
+                      <span className="organisation-view-section-icon">
+                        <i className="ri-information-line"></i>
+                      </span>
+
+                      <div>
+                        <h2>Basic Information</h2>
+                        <p>Core organisation and profession details.</p>
+                      </div>
+                    </div>
+
+                    <div className="organisation-view-field-grid">
+                      <div className="organisation-view-field">
+                        <span>Profession Type</span>
+                        <strong>{professionTypeValue}</strong>
+                      </div>
+
+                      <div className="organisation-view-field">
+                        <span>Business Type</span>
+                        <strong>{basicInfo.businessTypeName}</strong>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* TRADING DETAILS */}
+                  <section className="organisation-view-info-card">
+                    <div className="organisation-view-section-header">
+                      <span className="organisation-view-section-icon">
+                        <i className="ri-store-2-line"></i>
+                      </span>
+
+                      <div>
+                        <h2>Trading Details</h2>
+                        <p>Trading identity, address and start date.</p>
+                      </div>
+                    </div>
+
+                    <div className="organisation-view-field-grid">
+                      <div className="organisation-view-field">
+                        <span>Trading Name</span>
+                        <strong>{basicInfo.tradingName}</strong>
+                      </div>
+
+                      <div className="organisation-view-field">
+                        <span>Trading Start Date</span>
+                        <strong>{basicInfo.tradingStartDate}</strong>
+                      </div>
+
+                      <div className="organisation-view-field organisation-view-field-full">
+                        <span>Trading Address</span>
+                        <strong>{concatenatedTradingAddress}</strong>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* COMPANY DETAILS */}
+                  {(basicInfo.businessTypeID == CLIENT_TYPES.LLP ||
+                    basicInfo.businessTypeID == CLIENT_TYPES.Company) && (
+                    <section className="organisation-view-info-card">
+                      <div className="organisation-view-section-header">
+                        <span className="organisation-view-section-icon">
+                          <i className="ri-building-4-line"></i>
+                        </span>
+
+                        <div>
+                          <h2>Company Details</h2>
+                          <p>
+                            Registered company and incorporation information.
+                          </p>
                         </div>
-                        <div class="col-md-6 col-sm-6 col-6">
-                          <div
-                            class="d-flex justify-content-sm-end add-new-btn"
-                            style={{ float: "right" }}
-                          >
-                            <button
-                              className="btn btn-success create-item create-item-btn "
-                              onClick={() => navigate("/organisations")}
+                      </div>
+
+                      <div className="organisation-view-field-grid">
+                        <div className="organisation-view-field">
+                          <span>Company Name</span>
+                          <strong>{companyForm.companyName}</strong>
+                        </div>
+
+                        <div className="organisation-view-field">
+                          <span>Entity Type</span>
+                          <strong>{companyForm.companyType}</strong>
+                        </div>
+
+                        <div className="organisation-view-field">
+                          <span>Company Number</span>
+                          <strong>{companyForm.companyNumber}</strong>
+                        </div>
+
+                        <div className="organisation-view-field">
+                          <span>Company Incorporated In</span>
+                          <strong>{IncorporatedValue[0]?.label}</strong>
+                        </div>
+
+                        <div className="organisation-view-field">
+                          <span>Company Incorporation Date</span>
+                          <strong>{companyForm.incorporationDate}</strong>
+                        </div>
+
+                        <div className="organisation-view-field organisation-view-field-full">
+                          <span>Company Registered Office Address</span>
+                          <strong>{concatenatedRegisterAddress}</strong>
+                        </div>
+                      </div>
+                    </section>
+                  )}
+
+                  {/* E SIGNATURE */}
+                  <section className="organisation-view-info-card">
+                    <div className="organisation-view-section-header">
+                      <span className="organisation-view-section-icon">
+                        <i className="ri-quill-pen-line"></i>
+                      </span>
+
+                      <div>
+                        <h2>E Signature</h2>
+                        <p>Authorized signatory information.</p>
+                      </div>
+                    </div>
+
+                    <div className="organisation-view-field-grid">
+                      <div className="organisation-view-field">
+                        <span>Signatory Name</span>
+                        <strong>{basicInfo.signatoryName}</strong>
+                      </div>
+
+                      <div className="organisation-view-field">
+                        <span>Signature Image</span>
+                        <strong>
+                          {basicInfo.signatureImageUrl ? (
+                            <a
+                              className="organisation-view-link"
+                              href={basicInfo.signatureImageUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
                             >
-                              <Tooltip title={"Back"}>
-                                <span>Back</span>
-                              </Tooltip>
-                            </button>
-                          </div>
-                        </div>
+                              <i className="ri-external-link-line"></i>
+                              View Signature
+                            </a>
+                          ) : (
+                            <span className="organisation-view-muted-value">
+                              Not available
+                            </span>
+                          )}
+                        </strong>
                       </div>
                     </div>
-                  </div>
-                  <div class="container-fluid ">
-                    <div class="row">
-                      <div className="col-lg-12">
-                        <div class="card" style={{ marginTop: "75px" }}>
-                          <div class="card-body">
-                            <div id="customerList">
-                              <div class="row g-4 mb-3"></div>
-                              <div class="search-box ms-2 width-searchbox prospect-form">
-                                <div class=" table-card  mb-3 Height_View_scroll scroll-hidden  ">
-                                  <ul class="nav nav-tabs mb-3">
-                                    <li class="nav-item">
-                                      <a
-                                        class="nav-link tab_nav active"
-                                        data-bs-toggle="tab"
-                                        href="#base-justified-home"
-                                        role="tab"
-                                        aria-selected="false"
-                                      >
-                                        Organisation/Practice Details
-                                      </a>
-                                    </li>
-                                    <li class="nav-item">
-                                      <a
-                                        onClick={() =>
-                                          GetInviteUsersListData(1)
-                                        }
-                                        class="nav-link tab_nav"
-                                        data-bs-toggle="tab"
-                                        href="#product"
-                                        role="tab"
-                                        aria-selected="false"
-                                      >
-                                        Invite User
-                                      </a>
-                                    </li>
-                                    <li class="nav-item">
-                                      <a
-                                        class="nav-link tab_nav"
-                                        data-bs-toggle="tab"
-                                        href="#Plan"
-                                        role="tab"
-                                        aria-selected="false"
-                                      >
-                                        Subscription Plan
-                                      </a>
-                                    </li>
-                                  </ul>
-                                  <div class="tab-content  text-muted">
-                                    <div
-                                      class="tab-pane active"
-                                      id="base-justified-home"
-                                      role="tabpanel"
-                                    >
-                                      <table class="table table-striped fs-13 view-details-table">
-                                        <tbody>
-                                          <tr>
-                                            <th colspan="2">
-                                              Basic Information
-                                            </th>
-                                          </tr>
-                                          <tr>
-                                            <td>Profession Type</td>
-                                            <td class="text-end">
-                                              {professionTypeValue}
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td>Business Type</td>
-                                            <td class="text-end">
-                                              {basicInfo.businessTypeName}
-                                            </td>
-                                          </tr>
+                  </section>
+                </div>
 
-                                          <tr>
-                                            <td
-                                              class="break-table"
-                                              colspan="2"
-                                            ></td>
-                                          </tr>
-                                          <tr>
-                                            <th colspan="2">
-                                              Other Information
-                                            </th>
-                                          </tr>
-                                          <tr>
-                                            <td>Currency Type</td>
-                                            <td class="text-end">
-                                              {currencyFilter?.label}
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td>VAT Number</td>
-                                            <td class="text-end">
-                                              {otherInfo.vatNumber}
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td>Contact Email</td>
-                                            <td class="text-end">
-                                              {otherInfo.contactEmail}
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td>Contact Phone</td>
-                                            <td class="text-end">
-                                              {otherInfo.contactPhone}
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td>Logo</td>
-                                            <td className="text-end">
-                                              {otherInfo.logoUrl ? (
-                                                <a
-                                                  href={otherInfo.logoUrl}
-                                                  target="_blank"
-                                                  rel="noopener noreferrer"
-                                                >
-                                                  View Logo
-                                                </a>
-                                              ) : (
-                                                <span>Not available</span>
-                                              )}
-                                            </td>
-                                          </tr>
+                {/* RIGHT COLUMN */}
+                <div className="organisation-view-details-column">
+                  {/* OTHER INFORMATION */}
+                  <section className="organisation-view-info-card">
+                    <div className="organisation-view-section-header">
+                      <span className="organisation-view-section-icon">
+                        <i className="ri-settings-3-line"></i>
+                      </span>
 
-                                          <tr>
-                                            <td>Website</td>
-                                            <td class="text-end">
-                                              {otherInfo.website}
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td>Color</td>
-                                            <td
-                                              className="text-end"
-                                              style={{
-                                                display: "flex",
-                                                justifyContent: "flex-end",
-                                              }}
-                                            >
-                                              <div
-                                                style={{
-                                                  backgroundColor:
-                                                    otherInfo.brandColor,
-                                                  width: "50px",
-                                                  height: "30px",
-                                                }}
-                                              ></div>
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td>Business Tagline </td>
-                                            <td class="text-end">
-                                              {otherInfo.businessTagline}
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td>
-                                              Affiliated Accounting Body Name
-                                            </td>
-                                            <td class="text-end">
-                                              {otherInfo.AffiliatedAcBodyName}
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td>
-                                              Website of Affiliated Accounting
-                                              Body
-                                            </td>
-                                            <td class="text-end">
-                                              {otherInfo.webOfAffiliatedAccount}
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td
-                                              class="break-table"
-                                              colspan="2"
-                                            ></td>
-                                          </tr>
-                                          <tr>
-                                            <th colspan="2">Trading Details</th>
-                                          </tr>
-                                          <tr>
-                                            <td>Trading Name</td>
-                                            <td class="text-end">
-                                              {basicInfo.tradingName}
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td>Trading Address</td>
-                                            <td class="text-end">
-                                              {concatenatedTradingAddress}
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td>Trading Start Date</td>
-                                            <td class="text-end">
-                                              {basicInfo.tradingStartDate}
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td
-                                              class="break-table"
-                                              colspan="2"
-                                            ></td>
-                                          </tr>
-                                          {(basicInfo.businessTypeID ==
-                                            CLIENT_TYPES.LLP ||
-                                            basicInfo.businessTypeID ==
-                                              CLIENT_TYPES.Company) && (
-                                            <>
-                                              <tr>
-                                                <th colspan="2">
-                                                  Company Details
-                                                </th>
-                                              </tr>
-                                              <tr>
-                                                <td>Company Name</td>
-                                                <td class="text-end">
-                                                  {companyForm.companyName}
-                                                </td>
-                                              </tr>
-                                              <tr>
-                                                <td>Entity Type</td>
-                                                <td class="text-end">
-                                                  {companyForm.companyType}
-                                                </td>
-                                              </tr>
-                                              <tr>
-                                                <td>Company Number</td>
-                                                <td class="text-end">
-                                                  {" "}
-                                                  {companyForm.companyNumber}
-                                                </td>
-                                              </tr>
-                                              <tr>
-                                                <td>Company Incorporated In</td>
-                                                <td class="text-end">
-                                                  {IncorporatedValue[0]?.label}
-                                                </td>
-                                              </tr>
-                                              <tr>
-                                                <td>
-                                                  Company Incorporation Date
-                                                </td>
-                                                <td class="text-end">
-                                                  {" "}
-                                                  {
-                                                    companyForm.incorporationDate
-                                                  }
-                                                </td>
-                                              </tr>
-                                              <tr>
-                                                <td>
-                                                  Company Registered Office
-                                                  Address
-                                                </td>
-                                                <td class="text-end">
-                                                  {concatenatedRegisterAddress}
-                                                </td>
-                                              </tr>
-                                              <tr>
-                                                <td
-                                                  class="break-table"
-                                                  colspan="2"
-                                                ></td>
-                                              </tr>
-                                            </>
-                                          )}
+                      <div>
+                        <h2>Other Information</h2>
+                        <p>Contact, branding and accounting information.</p>
+                      </div>
+                    </div>
 
-                                          {officersForm.map(
-                                            (prospect, index) => (
-                                              <React.Fragment key={index}>
-                                                {basicInfo.businessTypeID ===
-                                                  CLIENT_TYPES.LLP ||
-                                                basicInfo.businessTypeID ===
-                                                  CLIENT_TYPES.Company ? (
-                                                  <tr>
-                                                    <th colspan="2">
-                                                      Officers Details
-                                                    </th>
-                                                  </tr>
-                                                ) : null}
-                                                {basicInfo.businessTypeID ===
-                                                CLIENT_TYPES.Partnership ? (
-                                                  <tr>
-                                                    <th colspan="2">
-                                                      Partnership Details
-                                                    </th>
-                                                  </tr>
-                                                ) : null}
-                                                <tr>
-                                                  {basicInfo.businessTypeID ===
-                                                  CLIENT_TYPES.Partnership ? (
-                                                    <th colspan="2">
-                                                      Partner {index + 1}
-                                                    </th>
-                                                  ) : null}
-                                                  {basicInfo.businessTypeID ===
-                                                  CLIENT_TYPES.Sole_Trader ? (
-                                                    <th colspan="2">
-                                                      Officers Details
-                                                    </th>
-                                                  ) : null}
-                                                  {basicInfo.businessTypeID ===
-                                                    CLIENT_TYPES.LLP ||
-                                                  basicInfo.businessTypeID ===
-                                                    CLIENT_TYPES.Company ? (
-                                                    <th colspan="2">
-                                                      Officer {index + 1}
-                                                    </th>
-                                                  ) : null}
-                                                </tr>
-                                                <tr>
-                                                  <td>First Name</td>
-                                                  <td className="text-end">
-                                                    {
-                                                      officersForm[index]
-                                                        .firstName
-                                                    }
-                                                  </td>
-                                                </tr>
+                    <div className="organisation-view-field-grid">
+                      <div className="organisation-view-field">
+                        <span>Currency Type</span>
+                        <strong>{currencyFilter?.label}</strong>
+                      </div>
 
-                                                <tr>
-                                                  <td>Last Name</td>
-                                                  <td className="text-end">
-                                                    {
-                                                      officersForm[index]
-                                                        .lastName
-                                                    }
-                                                  </td>
-                                                </tr>
-                                                <tr>
-                                                  <td>Phone</td>
-                                                  <td className="text-end">
-                                                    {
-                                                      officersForm[index]
-                                                        .phoneNo
-                                                    }
-                                                  </td>
-                                                </tr>
+                      <div className="organisation-view-field">
+                        <span>VAT Number</span>
+                        <strong>{otherInfo.vatNumber}</strong>
+                      </div>
 
-                                                <tr>
-                                                  <td>Email</td>
-                                                  <td className="text-end">
-                                                    {
-                                                      officersForm[index]
-                                                        .emailID
-                                                    }
-                                                  </td>
-                                                </tr>
-                                                {basicInfo.businessTypeID ===
-                                                  CLIENT_TYPES.Sole_Trader ||
-                                                basicInfo.businessTypeID ===
-                                                  CLIENT_TYPES.Partnership ? null : (
-                                                  <>
-                                                    {" "}
-                                                    <tr>
-                                                      <td>Role</td>
-                                                      <td className="text-end">
-                                                        {
-                                                          officersForm[index]
-                                                            .officerRole
-                                                        }
-                                                      </td>
-                                                    </tr>
-                                                    <tr>
-                                                      <td>Appointed On</td>
-                                                      <td className="text-end">
-                                                        {
-                                                          officersForm[index]
-                                                            .appointedOn
-                                                        }
-                                                      </td>
-                                                    </tr>
-                                                  </>
-                                                )}
-                                                <tr>
-                                                  {(basicInfo.businessTypeID ===
-                                                    CLIENT_TYPES.Sole_Trader ||
-                                                    basicInfo.businessTypeID ===
-                                                      CLIENT_TYPES.Partnership) && (
-                                                    <td>Residential Address</td>
-                                                  )}
-                                                  {(basicInfo.businessTypeID ===
-                                                    CLIENT_TYPES.Company ||
-                                                    basicInfo.businessTypeID ===
-                                                      CLIENT_TYPES.LLP) && (
-                                                    <td>
-                                                      Correspondence Address
-                                                    </td>
-                                                  )}
+                      <div className="organisation-view-field">
+                        <span>Contact Email</span>
+                        <strong>{otherInfo.contactEmail}</strong>
+                      </div>
 
-                                                  <td className="text-end">
-                                                    {
-                                                      concatenatedResidentialAddress[
-                                                        index
-                                                      ]?.officersFullAddress
-                                                    }
-                                                  </td>
-                                                </tr>
-                                                <tr>
-                                                  <td
-                                                    class="break-table"
-                                                    colspan="2"
-                                                  ></td>
-                                                </tr>
-                                              </React.Fragment>
-                                            ),
-                                          )}
-                                          <tr>
-                                            <td
-                                              class="break-table"
-                                              colspan="2"
-                                            ></td>
-                                          </tr>
-                                          <tr>
-                                            <th colspan="2">E Signature</th>
-                                          </tr>
-                                          <tr>
-                                            <td>Signatory Name</td>
-                                            <td class="text-end">
-                                              {basicInfo.signatoryName}
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td>Signature Image</td>
-                                            <td class="text-end">
-                                              {basicInfo.signatureImageUrl ? (
-                                                <a
-                                                  href={
-                                                    basicInfo.signatureImageUrl
-                                                  }
-                                                  target="_blank"
-                                                  rel="noopener noreferrer"
-                                                >
-                                                  View Signature
-                                                </a>
-                                              ) : (
-                                                <span>Not available</span>
-                                              )}
-                                            </td>
-                                          </tr>
-                                        </tbody>
-                                      </table>
-                                    </div>
-                                    {/* New Tab Start */}
-                                    {/* Officer details */}
-                                    <div
-                                      class="tab-pane"
-                                      id="product"
-                                      role="tabpanel"
-                                    >
-                                      <div
-                                        class="tab-pane active"
-                                        id="base-justified-home"
-                                        role="tabpanel"
-                                      >
-                                        <div class="">
-                                          <div className="row">
-                                            <div class="col-md-6 col-6">
-                                              <div
-                                                class="search-box w-50 width-searchbox mb-2 "
-                                                id="w-100"
-                                              >
-                                                <i class="ri-search-line search-icon"></i>
-                                                <input
-                                                  type="text"
-                                                  value={searchKeywordUsers}
-                                                  onChange={(e) => {
-                                                    HandleSearch(e);
-                                                  }}
-                                                  className="form-control search"
-                                                  placeholder="Search User"
-                                                />
-                                              </div>
-                                            </div>
-                                            <div class="col-md-6 col-6">
-                                              <div className="d-flex justify-content-sm-end add-new-btn">
-                                                {userAccessData.User_CanAdd && (
-                                                  <CommonButtonComponent
-                                                    title="Invite New User"
-                                                    dataBsTarget="#addUpdateModal"
-                                                    data_bs_toggle="modal"
-                                                    name="Invite New User"
-                                                    AddBtn={() =>
-                                                      UsersAddBtnClicked()
-                                                    }
-                                                  />
-                                                )}
-                                              </div>
-                                            </div>
-                                          </div>
-                                          <table
-                                            class="table align-middle table-nowrap"
-                                            id="customerTable"
-                                          >
-                                            <thead
-                                              class="table-light table-header-font"
-                                              style={{ width: "100%" }}
-                                            >
-                                              <tr className="head-row">
-                                                <td
-                                                  className="tr-table-class text-white"
-                                                  style={{ width: "30%" }}
-                                                >
-                                                  First Name{" "}
-                                                  {primaryUserSortDirectionObj.UserNameTypeSort ===
-                                                    "desc" && (
-                                                    <i
-                                                      onClick={() => {
-                                                        setUserSortType(
-                                                          "FirstName",
-                                                        );
-                                                        handleUserSort(
-                                                          "asc",
-                                                          "FirstName",
-                                                        );
-                                                      }}
-                                                      style={{
-                                                        cursor: "pointer",
-                                                      }}
-                                                      class="fas fa-sort-alpha-up ml-1"
-                                                    ></i>
-                                                  )}
-                                                  {(primaryUserSortDirectionObj.UserNameTypeSort ===
-                                                    null ||
-                                                    primaryUserSortDirectionObj.UserNameTypeSort ===
-                                                      "asc") && (
-                                                    <i
-                                                      onClick={() => {
-                                                        setUserSortType(
-                                                          "FirstName",
-                                                        );
-                                                        handleUserSort(
-                                                          primaryUserSortDirectionObj.UserNameTypeSort ===
-                                                            null
-                                                            ? "asc"
-                                                            : "desc",
-                                                          "FirstName",
-                                                        );
-                                                      }}
-                                                      style={{
-                                                        cursor: "pointer",
-                                                      }}
-                                                      class="fas fa-sort-alpha-down ml-1"
-                                                    ></i>
-                                                  )}
-                                                </td>
-                                                <td className="tr-table-class text-white">
-                                                  Last Name{" "}
-                                                </td>
-                                                <td className="tr-table-class text-white">
-                                                  Email
-                                                  {primaryUserSortDirectionObj.EmailTypeSort ===
-                                                    "desc" && (
-                                                    <i
-                                                      onClick={() => {
-                                                        setUserSortType(
-                                                          "Email",
-                                                        );
-                                                        handleUserSort(
-                                                          "asc",
-                                                          "Email",
-                                                        );
-                                                      }}
-                                                      style={{
-                                                        cursor: "pointer",
-                                                      }}
-                                                      class="fas fa-sort-alpha-up ml-1"
-                                                    ></i>
-                                                  )}
-                                                  {(primaryUserSortDirectionObj.EmailTypeSort ===
-                                                    null ||
-                                                    primaryUserSortDirectionObj.EmailTypeSort ===
-                                                      "asc") && (
-                                                    <i
-                                                      onClick={() => {
-                                                        setUserSortType(
-                                                          "Email",
-                                                        );
-                                                        handleUserSort(
-                                                          primaryUserSortDirectionObj.EmailTypeSort ===
-                                                            null
-                                                            ? "asc"
-                                                            : "desc",
-                                                          "Email",
-                                                        );
-                                                      }}
-                                                      style={{
-                                                        cursor: "pointer",
-                                                      }}
-                                                      class="fas fa-sort-alpha-down ml-1"
-                                                    ></i>
-                                                  )}
-                                                </td>
-                                                <td className="tr-table-class text-white">
-                                                  Role
-                                                  {primaryUserSortDirectionObj.RoleTypeSort ===
-                                                    "desc" && (
-                                                    <i
-                                                      onClick={() => {
-                                                        setUserSortType(
-                                                          "RoleName",
-                                                        );
-                                                        handleUserSort(
-                                                          "asc",
-                                                          "RoleName",
-                                                        );
-                                                      }}
-                                                      style={{
-                                                        cursor: "pointer",
-                                                      }}
-                                                      class="fas fa-sort-alpha-up ml-1"
-                                                    ></i>
-                                                  )}
-                                                  {(primaryUserSortDirectionObj.RoleTypeSort ===
-                                                    null ||
-                                                    primaryUserSortDirectionObj.RoleTypeSort ===
-                                                      "asc") && (
-                                                    <i
-                                                      onClick={() => {
-                                                        setUserSortType(
-                                                          "RoleName",
-                                                        );
-                                                        handleUserSort(
-                                                          primaryUserSortDirectionObj.RoleTypeSort ===
-                                                            null
-                                                            ? "asc"
-                                                            : "desc",
-                                                          "RoleName",
-                                                        );
-                                                      }}
-                                                      style={{
-                                                        cursor: "pointer",
-                                                      }}
-                                                      class="fas fa-sort-alpha-down ml-1"
-                                                    ></i>
-                                                  )}
-                                                </td>
-                                                <td className="tr-table-class  text-white">
-                                                  Acceptance Status
-                                                </td>
-                                                <td className="tr-table-class text-white">
-                                                  {userAccessData.User_CanDelete && (
-                                                    <>Action</>
-                                                  )}
-                                                </td>
-                                              </tr>
-                                            </thead>
-                                            <tbody class="list form-check-all table-content-font">
-                                              {inviteUsersList.map((users) => {
-                                                return (
-                                                  <tr class="table_new">
-                                                    <td className="table-content-font">
-                                                      {users.firstName}
-                                                    </td>
-                                                    <td className="table-content-font">
-                                                      {users.lastName}
-                                                    </td>
-                                                    <td className="table-content-font">
-                                                      {users.email}
-                                                    </td>
-                                                    <td className="table-content-font">
-                                                      {users.roleName}
-                                                    </td>
-                                                    <td className="table-content-font">
-                                                      {users.acceptanceStatus}
-                                                    </td>
-                                                    <td className="switch table-content-font">
-                                                      <div class="d-flex gap-2">
-                                                        {userAccessData.User_CanDelete && (
-                                                          <Tooltip
-                                                            title={
-                                                              "Delete User"
-                                                            }
-                                                          >
-                                                            <div class="remove">
-                                                              <button
-                                                                class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#ConfirmModel"
-                                                                onClick={() =>
-                                                                  setModelRequestData(
-                                                                    {
-                                                                      ...modelRequestData,
-                                                                      userName:
-                                                                        users.firstName,
-                                                                      inviteUserKeyID:
-                                                                        users.inviteUserKeyID,
-                                                                      status:
-                                                                        users.statusName,
-                                                                      user: "Invite User",
-                                                                      Action:
-                                                                        "Delete",
-                                                                    },
-                                                                  )
-                                                                }
-                                                              >
-                                                                <i class="ri-delete-bin-5-fill"></i>
-                                                              </button>
-                                                            </div>
-                                                          </Tooltip>
-                                                        )}
-                                                      </div>
-                                                    </td>
-                                                  </tr>
-                                                );
-                                              })}
-                                            </tbody>
-                                          </table>
+                      <div className="organisation-view-field">
+                        <span>Contact Phone</span>
+                        <strong>{otherInfo.contactPhone}</strong>
+                      </div>
 
-                                          {inviteUsersList &&
-                                            inviteUsersList.length === 0 && (
-                                              <noResultFoundModel />
-                                            )}
-                                          {UserListCount > 10 && (
-                                            <PaginationComponent
-                                              totalCount={UserListCount}
-                                              totalPages={totalUserPage}
-                                              currentPage={currentPageUsers}
-                                              onPageChange={
-                                                HandlePageChangeUsers
-                                              }
-                                            />
-                                          )}
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div
-                                      class="tab-pane"
-                                      id="Plan"
-                                      role="tabpanel"
-                                    >
-                                      <div
-                                        class="tab-pane active"
-                                        id="base-justified-home"
-                                        role="tabpanel"
-                                      >
-                                        <div className="d-flex justify-content-sm-end p-2">
-                                          <button
-                                            class="btn btn-md btn-success create-item-btn view"
-                                            // onClick={() =>
-                                            //   handleViewOrganisation(Org)
-                                            // }
-                                            onClick={() =>
-                                              handleOpenPurchaseModel()
-                                            }
-                                          >
-                                            {/* <i class="ri-pencil-fill"></i> */}
-                                            <span>Upgrade Plan</span>{" "}
-                                          </button>
-                                        </div>
+                      <div className="organisation-view-field">
+                        <span>Logo</span>
+                        <strong>
+                          {otherInfo.logoUrl ? (
+                            <a
+                              className="organisation-view-link"
+                              href={otherInfo.logoUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <i className="ri-external-link-line"></i>
+                              View Logo
+                            </a>
+                          ) : (
+                            <span className="organisation-view-muted-value">
+                              Not available
+                            </span>
+                          )}
+                        </strong>
+                      </div>
 
-                                        <div className="">
-                                          <div className="row">
-                                            <div className="col-lg-12">
-                                              <div
-                                                className="card mb-3"
-                                                style={{
-                                                  border: "1px solid #ced4da",
-                                                  borderRadius: "5px",
-                                                  boxShadow:
-                                                    "0 2px 4px rgba(0, 0, 0, 0.1)",
-                                                  backgroundColor: "#fff",
-                                                }}
-                                              >
-                                                <div
-                                                  // className="card-body"
-                                                  style={{ padding: "20px" }}
-                                                >
-                                                  <div
-                                                    className="row"
-                                                    style={{
-                                                      marginLeft: "0px",
-                                                    }}
-                                                  >
-                                                    {/* Left side for subscription details */}
-                                                    <div
-                                                      className="col-md-6 mt-2 mb-2"
-                                                      style={{
-                                                        backgroundColor:
-                                                          "#f8f8fa",
-                                                        // height: "303px",
-                                                      }}
-                                                    >
-                                                      <div
-                                                        className="d-flex rounded"
-                                                        style={{
-                                                          backgroundColor:
-                                                            "#f8f8fa",
-                                                          // height: "303px",
-                                                        }}
-                                                      >
-                                                        <CardBody
-                                                          className=""
-                                                        >
-                                                          <div className="media ">
-                                                            <i className="ion ion-ios-airplane h1 align-self-center"></i>
-                                                            <div className="media-body text-center ">
-                                                              <div className="text-center login-logo">
-                                                                <div className="d-flex justify-content-between">
-                                                                  <h5 className="card-title">
-                                                                    Subscription
-                                                                    Details
-                                                                  </h5>
-                                                                  <p className="mt-2">
-                                                                    {subScriptionActiveList.paymentStatus ===
-                                                                      "Unpaid" && (
-                                                                      <Tooltip
-                                                                        title={`Pay Now`}
-                                                                      >
-                                                                        <button
-                                                                          className="btn btn-md btn-success create-item-btn"
-                                                                          onClick={() =>
-                                                                            RedirectStripeCheckout(
-                                                                              subScriptionActiveList,
-                                                                            )
-                                                                          }
-                                                                        >
-                                                                          <span>
-                                                                            Pay
-                                                                            Now
-                                                                          </span>
-                                                                        </button>
-                                                                      </Tooltip>
-                                                                    )}
-                                                                    {subScriptionActiveList.paymentStatus ===
-                                                                      "Paid" && (
-                                                                      <Tooltip
-                                                                        title={`Download`}
-                                                                      >
-                                                                        <a
-                                                                          href={
-                                                                            subScriptionActiveList.hostedInvoiceUrl
-                                                                          }
-                                                                          className="btn btn-secondary btn-xs"
-                                                                        >
-                                                                          <i className="fa fa-download"></i>
-                                                                        </a>
-                                                                      </Tooltip>
-                                                                    )}
-                                                                    {subScriptionActiveList.paymentStatus ===
-                                                                      "Free" && (
-                                                                      // <p>Free</p>
-                                                                      <p
-                                                                        class="text-white"
-                                                                        style={{
-                                                                          background:
-                                                                            "#DAA520",
-                                                                          width:
-                                                                            "100px",
-                                                                          padding:
-                                                                            "1px",
-                                                                          display:
-                                                                            "inline-block",
-                                                                          borderRadius:
-                                                                            "0.5rem",
-                                                                        }}
-                                                                      >
-                                                                        Free
-                                                                      </p>
-                                                                    )}
-                                                                  </p>
-                                                                </div>
-                                                              </div>
-                                                            </div>
-                                                          </div>
-                                                          <div className="pricing-features">
-                                                            <p className="mt-2 mb-1 text-dark">
-                                                              <b>
-                                                                Package Name
-                                                              </b>
-                                                              :{" "}
-                                                              {
-                                                                subScriptionActiveList.packageName
-                                                              }
-                                                            </p>
-                                                            <p className="mt-0 mb-1 text-dark">
-                                                              <b>
-                                                                Payment
-                                                                Frequency
-                                                              </b>
-                                                              :{" "}
-                                                              {subScriptionActiveList.paymentFrequencyID ===
-                                                              1
-                                                                ? "Yearly"
-                                                                : subScriptionActiveList.paymentFrequencyID ===
-                                                                    4
-                                                                  ? "Monthly"
-                                                                  : ""}
-                                                            </p>
+                      <div className="organisation-view-field">
+                        <span>Website</span>
+                        <strong>{otherInfo.website}</strong>
+                      </div>
 
-                                                            <p className="mt-0 mb-1 text-dark">
-                                                              <b>Days</b>:{" "}
-                                                              {subScriptionActiveList.paymentFrequencyID ===
-                                                              1
-                                                                ? "365 Days"
-                                                                : subScriptionActiveList.paymentFrequencyID ===
-                                                                    4
-                                                                  ? "30 Days"
-                                                                  : "-"}
-                                                            </p>
+                      <div className="organisation-view-field">
+                        <span>Color</span>
+                        <strong className="organisation-view-color-value">
+                          <span
+                            className="organisation-view-color-swatch"
+                            style={{ backgroundColor: otherInfo.brandColor }}
+                          ></span>
+                          <span>{otherInfo.brandColor}</span>
+                        </strong>
+                      </div>
 
-                                                            <p className="mt-0 mb-1 text-dark">
-                                                              <b>
-                                                                Subscription
-                                                                Date
-                                                              </b>
-                                                              :{" "}
-                                                              {subScriptionActiveList.subscriptionStartDate ===
-                                                              null
-                                                                ? "-"
-                                                                : subScriptionActiveList.subscriptionStartDate}
-                                                            </p>
-                                                            <p className="mt-0 mb-1 text-dark">
-                                                              <b>
-                                                                {" "}
-                                                                Next Renewal
-                                                                Date
-                                                              </b>
-                                                              :{" "}
-                                                              {subScriptionActiveList.renewDate ===
-                                                              null
-                                                                ? "-"
-                                                                : subScriptionActiveList.renewDate}
-                                                            </p>
-                                                            <p className="mt-0 mb-1 text-dark">
-                                                              <b>
-                                                                Payment Status
-                                                              </b>
-                                                              :{" "}
-                                                              {
-                                                                subScriptionActiveList.paymentStatus
-                                                              }
-                                                            </p>
-                                                            <p className="mt-0 mb-1 text-dark">
-                                                              <b>
-                                                                Subscription
-                                                                Status
-                                                              </b>
-                                                              :{" "}
-                                                              {
-                                                                subScriptionActiveList.paymentStatus
-                                                              }
-                                                            </p>
-                                                            <p className="mt-0 mb-1 text-dark">
-                                                              <b>
-                                                                Remaining
-                                                                Proposals
-                                                              </b>
-                                                              :{" "}
-                                                              {subScriptionActiveList.remainingQuotesPerMonth <
-                                                              0
-                                                                ? 0
-                                                                : subScriptionActiveList.remainingQuotesPerMonth}
-                                                            </p>
-                                                            <p className="mt-0 mb-1 text-dark">
-                                                              <b>
-                                                                Remaining
-                                                                E-Signatures
-                                                              </b>
-                                                              :{" "}
-                                                              {subScriptionActiveList.remainingESignatures <
-                                                              0
-                                                                ? 0
-                                                                : subScriptionActiveList.remainingESignatures}
-                                                            </p>
-                                                          </div>
-                                                        </CardBody>
-                                                      </div>
-                                                    </div>
+                      <div className="organisation-view-field">
+                        <span>Business Tagline</span>
+                        <strong>{otherInfo.businessTagline}</strong>
+                      </div>
 
-                                                    {/* Right side for user name */}
-                                                    <div className="col-md-6 mt-2 mb-2">
-                                                      <div
-                                                        className="d-flex rounded"
-                                                        style={{
-                                                          backgroundColor:
-                                                            "#f8f8fa",
-                                                          // height: "303px",
-                                                        }}
-                                                      >
-                                                        <CardBody className="">
-                                                          <div className="media ">
-                                                            <i className="ion ion-ios-airplane h1 align-self-center"></i>
-                                                            <div className="media-body">
-                                                              <div className="d-flex justify-content-between align-items-center">
-                                                                <h5 className="card-title mb-1">
-                                                                  Package Details
-                                                                </h5>
-                                                                <button className="btn create-item-btn btn-primary">
-                                                                  <i
-                                                                    className="ri-pencil-fill"
-                                                                    style={{
-                                                                      cursor:
-                                                                        "pointer",
-                                                                    }}
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#OrganisationSubscriptionPackageDetails"
-                                                                    onClick={(
-                                                                      e,
-                                                                    ) => {
-                                                                      e.stopPropagation(); // only prevent parent click
-                                                                      GetSubscriptionPackageModelData(
-                                                                        subScriptionActiveList.ospKeyID,
-                                                                      );
-                                                                      GetOrganisationPlanListData(
-                                                                        1,
-                                                                      );
-                                                                    }}
-                                                                  />
-                                                                </button>
-                                                              </div>
+                      <div className="organisation-view-field">
+                        <span>Affiliated Accounting Body Name</span>
+                        <strong>{otherInfo.AffiliatedAcBodyName}</strong>
+                      </div>
 
-                                                              <p className="mt-2 text-center">
-                                                                {formatValue(
-                                                                  subScriptionActiveList?.yearlyValuePlan /
-                                                                    12,
-                                                                )}
-                                                                / Month
-                                                              </p>
-                                                            </div>
-                                                          </div>
-                                                          <div className="pricing-features">
-                                                            <p className="mt-0 mb-1 text-dark">
-                                                              {subScriptionActiveList?.apiIntegration ==
-                                                              true ? (
-                                                                <span
-                                                                  style={{
-                                                                    color:
-                                                                      "green",
-                                                                  }}
-                                                                  className="fa fa-check"
-                                                                ></span>
-                                                              ) : (
-                                                                <span
-                                                                  style={{
-                                                                    color:
-                                                                      "red",
-                                                                    marginRight:
-                                                                      "2px",
-                                                                  }}
-                                                                  className="fa fa-times"
-                                                                ></span>
-                                                              )}
-                                                              <span
-                                                                style={{
-                                                                  marginLeft:
-                                                                    "10px",
-                                                                }}
-                                                              >
-                                                                {" "}
-                                                                API Integration
-                                                              </span>
-                                                            </p>
-                                                            <p className="mt-0 mb-1 text-dark">
-                                                              {subScriptionActiveList?.prepareQuote ==
-                                                              true ? (
-                                                                <span
-                                                                  style={{
-                                                                    color:
-                                                                      "green",
-                                                                  }}
-                                                                  className="fa fa-check"
-                                                                ></span>
-                                                              ) : (
-                                                                <span
-                                                                  style={{
-                                                                    color:
-                                                                      "red",
-                                                                    marginRight:
-                                                                      "2px",
-                                                                  }}
-                                                                  className="fa fa-times"
-                                                                ></span>
-                                                              )}
-                                                              <span
-                                                                style={{
-                                                                  marginLeft:
-                                                                    "10px",
-                                                                }}
-                                                              >
-                                                                {" "}
-                                                                Prepare{" "}
-                                                                {proposalName}
-                                                              </span>
-                                                            </p>
-                                                            <p className="mt-0 mb-1 text-dark">
-                                                              {subScriptionActiveList?.prepareContract ===
-                                                              true ? (
-                                                                <span
-                                                                  style={{
-                                                                    color:
-                                                                      "green",
-                                                                  }}
-                                                                  className="fa fa-check"
-                                                                ></span>
-                                                              ) : (
-                                                                <span
-                                                                  style={{
-                                                                    color:
-                                                                      "red",
-                                                                    marginRight:
-                                                                      "2px",
-                                                                  }}
-                                                                  className="fa fa-times"
-                                                                ></span>
-                                                              )}
-                                                              <span
-                                                                style={{
-                                                                  marginLeft:
-                                                                    "10px",
-                                                                }}
-                                                              >
-                                                                {" "}
-                                                                Prepare{" "}
-                                                                {EngagementName}
-                                                              </span>
-                                                            </p>
-                                                            <p className="mt-0 mb-1 text-dark">
-                                                              {subScriptionActiveList?.sendQuote ===
-                                                              true ? (
-                                                                <span
-                                                                  style={{
-                                                                    color:
-                                                                      "green",
-                                                                  }}
-                                                                  className="fa fa-check"
-                                                                ></span>
-                                                              ) : (
-                                                                <span
-                                                                  style={{
-                                                                    color:
-                                                                      "red",
-                                                                    marginRight:
-                                                                      "2px",
-                                                                  }}
-                                                                  className="fa fa-times"
-                                                                ></span>
-                                                              )}
-                                                              <span
-                                                                style={{
-                                                                  marginLeft:
-                                                                    "10px",
-                                                                }}
-                                                              >
-                                                                {" "}
-                                                                Send{" "}
-                                                                {proposalName}
-                                                              </span>
-                                                            </p>
-                                                            <p className="mt-0 mb-1 text-dark">
-                                                              {subScriptionActiveList?.sendQuote ===
-                                                                true &&
-                                                                subScriptionActiveList?.quotesPerMonth >
-                                                                  0 && (
-                                                                  <>
-                                                                    <span
-                                                                      style={{
-                                                                        color:
-                                                                          "green",
-                                                                      }}
-                                                                      className="fa fa-check"
-                                                                    ></span>
-                                                                    <span
-                                                                      style={{
-                                                                        marginLeft:
-                                                                          "10px",
-                                                                      }}
-                                                                    >
-                                                                      {" "}
-                                                                      Prepare and Send{" "}
-                                                                      {
-                                                                        proposalName
-                                                                      }{" "}
-                                                                      :{" "}
-                                                                      {formatValueWithoutCurrencySymbol(
-                                                                        subScriptionActiveList?.quotesPerMonth,
-                                                                      )}
-                                                                      /Month
-                                                                    </span>
-                                                                  </>
-                                                                )}
-                                                            </p>
-                                                            <p className="mt-0 mb-1 text-dark">
-                                                              {subScriptionActiveList?.signContract ===
-                                                              true ? (
-                                                                <span
-                                                                  style={{
-                                                                    color:
-                                                                      "green",
-                                                                  }}
-                                                                  className="fa fa-check"
-                                                                ></span>
-                                                              ) : (
-                                                                <span
-                                                                  style={{
-                                                                    color:
-                                                                      "red",
-                                                                    marginRight:
-                                                                      "2px",
-                                                                  }}
-                                                                  className="fa fa-times"
-                                                                ></span>
-                                                              )}
-                                                              <span
-                                                                style={{
-                                                                  marginLeft:
-                                                                    "10px",
-                                                                }}
-                                                              >
-                                                                {" "}
-                                                                Send And
-                                                                Digitally Sign
-                                                                The{" "}
-                                                                {EngagementName}
-                                                                :{" "}
-                                                                {formatValueWithoutCurrencySymbol(
-                                                                  subScriptionActiveList?.eSignaturePerMonth,
-                                                                )}
-                                                                /Month
-                                                              </span>
-                                                            </p>
+                      <div className="organisation-view-field">
+                        <span>Website of Affiliated Accounting Body</span>
+                        <strong>{otherInfo.webOfAffiliatedAccount}</strong>
+                      </div>
+                    </div>
+                  </section>
 
-                                                            <p className="mt-0 mb-1 text-dark">
-                                                              {subScriptionActiveList?.isMailBox ===
-                                                                null ||
-                                                              !subScriptionActiveList?.isMailBox ? (
-                                                                <span
-                                                                  style={{
-                                                                    color:
-                                                                      "red",
-                                                                    marginRight:
-                                                                      "2px",
-                                                                  }}
-                                                                  className="fa fa-times"
-                                                                ></span>
-                                                              ) : (
-                                                                <span
-                                                                  style={{
-                                                                    color:
-                                                                      "green",
-                                                                  }}
-                                                                  className="fa fa-check"
-                                                                ></span>
-                                                              )}
-                                                              {"  "}
-                                                              <span
-                                                                style={{
-                                                                  marginLeft:
-                                                                    "10px",
-                                                                }}
-                                                              >
-                                                                {" "}
-                                                                Personalized
-                                                                Outgoing Mailbox
-                                                              </span>
-                                                            </p>
-                                                          </div>
-                                                        </CardBody>
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </div>
+                  {/* OFFICER / PARTNERSHIP DETAILS */}
+                  {officersForm.map((prospect, index) => (
+                    <section
+                      className="organisation-view-info-card"
+                      key={index}
+                    >
+                      <div className="organisation-view-section-header">
+                        <span className="organisation-view-section-icon">
+                          <i className="ri-user-star-line"></i>
+                        </span>
 
-                                        <div className="mb-0">
-                                          <table className="table table-striped">
-                                            <thead>
-                                              <tr>
-                                                <th
-                                                  scope="col"
-                                                  className="tr-table-class text-white"
-                                                >
-                                                  Email
-                                                </th>
-                                                <th
-                                                  scope="col"
-                                                  className="tr-table-class text-white"
-                                                >
-                                                  Contact No
-                                                </th>
-                                                <th
-                                                  scope="col"
-                                                  className="tr-table-class text-white"
-                                                >
-                                                  Package Name
-                                                </th>
-                                                <th
-                                                  scope="col"
-                                                  className="tr-table-class text-white"
-                                                >
-                                                  Package Price
-                                                </th>
-                                                <th
-                                                  scope="col"
-                                                  className="tr-table-class text-white"
-                                                >
-                                                  Subscription Start Date
-                                                </th>
-                                                <th
-                                                  scope="col"
-                                                  className="tr-table-class text-white text-nowrap"
-                                                >
-                                                  Next Renewal <br /> Date
-                                                </th>
-                                                <th
-                                                  scope="col"
-                                                  className="tr-table-class text-white"
-                                                >
-                                                  Payable Amount
-                                                </th>
-                                                <th
-                                                  scope="col"
-                                                  className="tr-table-class text-white"
-                                                >
-                                                  Payment Status
-                                                </th>
-                                                <th
-                                                  scope="col"
-                                                  className="tr-table-class text-white"
-                                                >
-                                                  Subscription Status
-                                                </th>
-                                                <th
-                                                  scope="col"
-                                                  className="tr-table-class text-white"
-                                                >
-                                                  Action
-                                                </th>
-                                              </tr>
-                                            </thead>
-                                            <tbody>
-                                              {subScriptionPlaneList.map(
-                                                (subscription, index) => (
-                                                  <tr key={index}>
-                                                    <td className="table-content-font">
-                                                      {subscription.email}
-                                                    </td>
-                                                    <td className="table-content-font">
-                                                      {
-                                                        subscription.mobileNumber
-                                                      }
-                                                    </td>
-                                                    <td className="table-content-font">
-                                                      {subscription.packageName}
-                                                    </td>
-                                                    <td className="table-content-font">
-                                                      {formatValue(
-                                                        subscription.packagePrice,
-                                                      )}
-                                                      {/* {Number(subscription.packagePrice)
-                                                .toFixed(2)
-                                                .replace(
-                                                  /\B(?=(\d{3})+(?!\d))/g,
-                                                  ","
-                                                )} */}
-                                                    </td>
-                                                    <td className="table-content-font">
-                                                      {subscription.subscriptionStartDate
-                                                        ? subscription.subscriptionStartDate
-                                                        : "_"}
-                                                    </td>
-                                                    <td className="table-content-font">
-                                                      {subscription.nextRenewalDate
-                                                        ? subscription.nextRenewalDate
-                                                        : " _"}
-                                                    </td>
-                                                    <td className="table-content-font">
-                                                      {formatValue(
-                                                        subscription.finalBillingAmount,
-                                                      )}
-                                                      {/* {Number(
-                                                subscription.finalBillingAmount
-                                              )
-                                                .toFixed(2)
-                                                .replace(
-                                                  /\B(?=(\d{3})+(?!\d))/g,
-                                                  ","
-                                                )} */}
-                                                    </td>
-                                                    <td className=" table-content-font text-center">
-                                                      {subscription.paymentStatus ===
-                                                        "Unpaid" && (
-                                                        <Tooltip
-                                                          title={`Pay Now`}
-                                                        >
-                                                          <div class="view">
-                                                            <button
-                                                              style={{
-                                                                width: "100%",
-                                                              }}
-                                                              class="btn btn-md btn-success create-item-btn view"
-                                                              onClick={() =>
-                                                                RedirectStripeCheckout(
-                                                                  subscription,
-                                                                )
-                                                              }
-                                                            >
-                                                              <span>
-                                                                Pay Now
-                                                              </span>
-                                                            </button>
-                                                          </div>
-                                                        </Tooltip>
-                                                      )}
-                                                      {subscription.paymentStatus ===
-                                                        "Paid" && (
-                                                        <Tooltip
-                                                          title={`Download`}
-                                                        >
-                                                          <a
-                                                            href={
-                                                              subscription.hostedInvoiceUrl
-                                                            }
-                                                            className="btn btn-secondary btn-xs"
-                                                          >
-                                                            <i className="fa fa-download"></i>
-                                                          </a>
-                                                        </Tooltip>
-                                                      )}
-                                                      {/* {subscription.paymentStatus ===
-                                                "Free" && <p>Free</p>} */}
-                                                      {subscription.paymentStatus ===
-                                                        "Free" && (
-                                                        <p
-                                                          className="p text-center table-content-font text-white  "
-                                                          style={{
-                                                            background:
-                                                              "#DAA520",
-                                                            width: "100px",
-                                                            padding: "4px 5px",
-                                                            display:
-                                                              "inline-block",
-                                                            borderRadius:
-                                                              "0.5rem",
-                                                          }}
-                                                        >
-                                                          Free
-                                                        </p>
-                                                      )}
-                                                    </td>
-                                                    <td className="table-content-font">
-                                                      <div
-                                                        className=" text-center  text-white rounded text-nowrap"
-                                                        style={{
-                                                          background:
-                                                            subscription.subscriptionStatus ===
-                                                            "Active"
-                                                              ? "#008000"
-                                                              : subscription.subscriptionStatus ===
-                                                                  "Expired"
-                                                                ? "#FF0000"
-                                                                : subscription.subscriptionStatus ===
-                                                                    "Pending"
-                                                                  ? "#DAA520"
-                                                                  : subscription.subscriptionStatus ===
-                                                                      "InActive"
-                                                                    ? "#772424"
-                                                                    : "gray",
-                                                          width: "100px",
+                        <div>
+                          <h2>
+                            {basicInfo.businessTypeID ===
+                              CLIENT_TYPES.Partnership &&
+                              `Partner ${index + 1}`}
 
-                                                          padding: "5px 8px", // Add padding to the button
-                                                          display:
-                                                            "inline-block", // Ensure button stays in line
-                                                          borderRadius:
-                                                            "0.5rem", // Adjust border radius
-                                                        }}
-                                                      >
-                                                        {
-                                                          subscription.subscriptionStatus
-                                                        }
-                                                      </div>
-                                                    </td>
-                                                    <td>
-                                                      <div class="view text-nowrap ">
-                                                        <Tooltip
-                                                          title={`View Subscription`}
-                                                        >
-                                                          <div class="view">
-                                                            <button
-                                                              class="btn btn-md btn-success create-item-btn view "
-                                                              onClick={() =>
-                                                                handleOpenSubscriptionModel(
-                                                                  subscription,
-                                                                )
-                                                              }
-                                                              data-bs-toggle="modal"
-                                                              data-bs-target="#addSubscriptionViewModalUser"
-                                                            >
-                                                              {/* <i class="ri-pencil-fill"></i> */}
-                                                              <span>View</span>{" "}
-                                                              <span className="mt-4">
-                                                                {" "}
-                                                                <i class="bi bi-eye "></i>
-                                                              </span>
-                                                            </button>
-                                                          </div>
-                                                        </Tooltip>
-                                                      </div>
-                                                    </td>
-                                                  </tr>
-                                                ),
-                                              )}
-                                            </tbody>
-                                          </table>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
+                            {basicInfo.businessTypeID ===
+                              CLIENT_TYPES.Sole_Trader && "Officers Details"}
+
+                            {(basicInfo.businessTypeID === CLIENT_TYPES.LLP ||
+                              basicInfo.businessTypeID ===
+                                CLIENT_TYPES.Company) &&
+                              `Officer ${index + 1}`}
+                          </h2>
+
+                          <p>
+                            {basicInfo.businessTypeID ===
+                            CLIENT_TYPES.Partnership
+                              ? "Partnership contact and residential details."
+                              : "Officer contact and appointment details."}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="organisation-view-field-grid">
+                        <div className="organisation-view-field">
+                          <span>First Name</span>
+                          <strong>{officersForm[index].firstName}</strong>
+                        </div>
+
+                        <div className="organisation-view-field">
+                          <span>Last Name</span>
+                          <strong>{officersForm[index].lastName}</strong>
+                        </div>
+
+                        <div className="organisation-view-field">
+                          <span>Phone</span>
+                          <strong>{officersForm[index].phoneNo}</strong>
+                        </div>
+
+                        <div className="organisation-view-field">
+                          <span>Email</span>
+                          <strong>{officersForm[index].emailID}</strong>
+                        </div>
+
+                        {basicInfo.businessTypeID ===
+                          CLIENT_TYPES.Sole_Trader ||
+                        basicInfo.businessTypeID ===
+                          CLIENT_TYPES.Partnership ? null : (
+                          <>
+                            <div className="organisation-view-field">
+                              <span>Role</span>
+                              <strong>{officersForm[index].officerRole}</strong>
                             </div>
-                            {/* end card  */}
-                          </div>
-                          {/* end col */}
+
+                            <div className="organisation-view-field">
+                              <span>Appointed On</span>
+                              <strong>{officersForm[index].appointedOn}</strong>
+                            </div>
+                          </>
+                        )}
+
+                        <div className="organisation-view-field organisation-view-field-full">
+                          <span>
+                            {(basicInfo.businessTypeID ===
+                              CLIENT_TYPES.Sole_Trader ||
+                              basicInfo.businessTypeID ===
+                                CLIENT_TYPES.Partnership) &&
+                              "Residential Address"}
+
+                            {(basicInfo.businessTypeID ===
+                              CLIENT_TYPES.Company ||
+                              basicInfo.businessTypeID === CLIENT_TYPES.LLP) &&
+                              "Correspondence Address"}
+                          </span>
+
+                          <strong>
+                            {
+                              concatenatedResidentialAddress[index]
+                                ?.officersFullAddress
+                            }
+                          </strong>
                         </div>
                       </div>
-                      {/* end col  */}
-                    </div>
-                    {/* end row */}
-
-                    {/* end modal  */}
-                  </div>
-                  <ErrorModel
-                    ErrorModel={openErrorModal}
-                    handleClose={handleClose}
-                    ErrorMessage={errorMessage}
-                  />
-                  {/* Confirm Modal  */}
-                  <ConfirmModel
-                    openErrorModal={openErrorModal}
-                    openSuccessModal={openSuccessModal}
-                    modelRequestData={modelRequestData}
-                    UpdatedStatus={InviteUserChangeStatusData}
-                  />
-                  <SubscriptionView
-                    class="modal fade"
-                    id="addSubscriptionViewModalUser"
-                    tabIndex="-1"
-                    aria_labelledby="exampleModalLabel"
-                    aria_hidden="true"
-                    // setIsAddUpdateActionDone={setIsAddUpdateActionDone}
-                    subscriptionPackageObj={subscriptionPackageObj}
-
-                    //   handleClose={handleCloseSubscriptionModel}
-                    //   setSubscriptionModal={setSubscriptionModal}
-                    //   openSubscriptionModal={openSubscriptionModal}
-                    // title={"Update Plan"}
-                    // organizationKeyId={activeOrganizationKeyId}
-                  />
-                  <OrganisationSubscriptionPackageDetails
-                    // id="OrganisationSubscriptionPackageDetails"
-                    // tabIndex="-1"
-                    // aria_labelledby="exampleModalLabel"
-                    // aria_hidden="true"
-                    // setIsAddUpdateActionDone={setIsAddUpdateActionDone}
-                    subscriptionPackageObj={subScriptionActiveList}
-                    setSubscriptionPackageObj={setSubScriptionActiveList}
-                  />
-                  {/* Success Modal  */}
-                  <SuccessModal
-                    handleClose={handleClose}
-                    setOpenSuccessModal={setOpenSuccessModal}
-                    openSuccessModal={openSuccessModal}
-                    modelAction={modelRequestData.Action}
-                    message={successMessage}
-                  />
-                  {/* Modal  */}
-                  <UsersModel
-                    class="modal fade"
-                    id="addUpdateModal"
-                    tabIndex="-1"
-                    aria_labelledby="exampleModalLabel"
-                    aria_hidden="true"
-                    setIsAddUpdateActionDone={setIsAddUpdateActionDone}
-                    modelRequestData={modelRequestData}
-                  />
-
-                  {/* container-fluid  */}
+                    </section>
+                  ))}
                 </div>
               </div>
             </div>
+
+            {/* =====================================================
+                INVITE USERS TAB
+                ===================================================== */}
+            <div className="tab-pane fade" id="product" role="tabpanel">
+              <div className="organisation-view-list-tab">
+                <div className="organisation-view-tab-toolbar">
+                  <div className="organisation-view-search-wrap">
+                    <i className="ri-search-line"></i>
+
+                    <input
+                      type="text"
+                      value={searchKeywordUsers}
+                      onChange={(e) => {
+                        HandleSearch(e);
+                      }}
+                      className="form-control organisation-view-search-input"
+                      placeholder="Search User"
+                    />
+                  </div>
+
+                  <div className="organisation-view-toolbar-action">
+                    {userAccessData.User_CanAdd && (
+                      <CommonButtonComponent
+                        title="Invite New User"
+                        dataBsTarget="#addUpdateModal"
+                        data_bs_toggle="modal"
+                        name="Invite New User"
+                        AddBtn={() => UsersAddBtnClicked()}
+                      />
+                    )}
+                  </div>
+                </div>
+
+                <div className="organisation-view-table-scroll">
+                  <table className="organisation-view-table">
+                    <thead>
+                      <tr>
+                        <th>
+                          <button
+                            type="button"
+                            className="organisation-view-sort-btn"
+                            onClick={() => {
+                              setUserSortType("FirstName");
+                              handleUserSort(
+                                primaryUserSortDirectionObj.UserNameTypeSort ===
+                                  null
+                                  ? "asc"
+                                  : primaryUserSortDirectionObj.UserNameTypeSort ===
+                                      "asc"
+                                    ? "desc"
+                                    : "asc",
+                                "FirstName",
+                              );
+                            }}
+                          >
+                            <span>First Name</span>
+                            <i
+                              className={
+                                primaryUserSortDirectionObj.UserNameTypeSort ===
+                                "desc"
+                                  ? "fas fa-sort-alpha-up"
+                                  : "fas fa-sort-alpha-down"
+                              }
+                            ></i>
+                          </button>
+                        </th>
+
+                        <th>Last Name</th>
+
+                        <th>
+                          <button
+                            type="button"
+                            className="organisation-view-sort-btn"
+                            onClick={() => {
+                              setUserSortType("Email");
+                              handleUserSort(
+                                primaryUserSortDirectionObj.EmailTypeSort ===
+                                  null
+                                  ? "asc"
+                                  : primaryUserSortDirectionObj.EmailTypeSort ===
+                                      "asc"
+                                    ? "desc"
+                                    : "asc",
+                                "Email",
+                              );
+                            }}
+                          >
+                            <span>Email</span>
+                            <i
+                              className={
+                                primaryUserSortDirectionObj.EmailTypeSort ===
+                                "desc"
+                                  ? "fas fa-sort-alpha-up"
+                                  : "fas fa-sort-alpha-down"
+                              }
+                            ></i>
+                          </button>
+                        </th>
+
+                        <th>
+                          <button
+                            type="button"
+                            className="organisation-view-sort-btn"
+                            onClick={() => {
+                              setUserSortType("RoleName");
+                              handleUserSort(
+                                primaryUserSortDirectionObj.RoleTypeSort ===
+                                  null
+                                  ? "asc"
+                                  : primaryUserSortDirectionObj.RoleTypeSort ===
+                                      "asc"
+                                    ? "desc"
+                                    : "asc",
+                                "RoleName",
+                              );
+                            }}
+                          >
+                            <span>Role</span>
+                            <i
+                              className={
+                                primaryUserSortDirectionObj.RoleTypeSort ===
+                                "desc"
+                                  ? "fas fa-sort-alpha-up"
+                                  : "fas fa-sort-alpha-down"
+                              }
+                            ></i>
+                          </button>
+                        </th>
+
+                        <th>Acceptance Status</th>
+
+                        <th className="organisation-view-actions-heading">
+                          {userAccessData.User_CanDelete && <>Action</>}
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {inviteUsersList.map((users) => (
+                        <tr key={users.inviteUserKeyID}>
+                          <td>
+                            <div className="organisation-view-user-cell">
+                              <span className="organisation-view-user-avatar">
+                                {users.firstName?.charAt(0)?.toUpperCase()}
+                              </span>
+                              <strong>{users.firstName}</strong>
+                            </div>
+                          </td>
+
+                          <td>{users.lastName}</td>
+                          <td>{users.email}</td>
+                          <td>
+                            <span className="organisation-view-role-pill">
+                              {users.roleName}
+                            </span>
+                          </td>
+                          <td>
+                            <span className="organisation-view-acceptance-pill">
+                              {users.acceptanceStatus}
+                            </span>
+                          </td>
+
+                          <td className="organisation-view-actions-cell">
+                            {userAccessData.User_CanDelete && (
+                              <Tooltip title={"Delete User"}>
+                                <button
+                                  type="button"
+                                  className="organisation-view-delete-btn"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#ConfirmModel"
+                                  onClick={() =>
+                                    setModelRequestData({
+                                      ...modelRequestData,
+                                      userName: users.firstName,
+                                      inviteUserKeyID: users.inviteUserKeyID,
+                                      status: users.statusName,
+                                      user: "Invite User",
+                                      Action: "Delete",
+                                    })
+                                  }
+                                >
+                                  <i className="ri-delete-bin-5-line"></i>
+                                </button>
+                              </Tooltip>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {inviteUsersList && inviteUsersList.length === 0 && (
+                  <div className="organisation-view-empty">
+                    <noResultFoundModel />
+                  </div>
+                )}
+
+                {UserListCount > 10 && (
+                  <div className="organisation-view-pagination">
+                    <PaginationComponent
+                      totalCount={UserListCount}
+                      totalPages={totalUserPage}
+                      currentPage={currentPageUsers}
+                      onPageChange={HandlePageChangeUsers}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* =====================================================
+                SUBSCRIPTION TAB
+                ===================================================== */}
+            <div className="tab-pane fade" id="Plan" role="tabpanel">
+              <div className="organisation-view-subscription-tab">
+                <div className="organisation-view-subscription-heading">
+                  <div>
+                    <h2>Subscription Plan</h2>
+                    <p>
+                      Review the active package and subscription payment
+                      history.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="btn organisation-view-primary-btn"
+                    onClick={() => handleOpenPurchaseModel()}
+                  >
+                    <i className="ri-arrow-up-circle-line"></i>
+                    <span>Upgrade Plan</span>
+                  </button>
+                </div>
+
+                {/* ACTIVE PLAN */}
+                <div className="organisation-view-subscription-grid organisation-view-subscription-grid-v2">
+                  {/* SUBSCRIPTION DETAILS */}
+                  <section className="organisation-view-plan-card organisation-view-subscription-details-card">
+                    <div className="organisation-view-plan-card-header organisation-view-subscription-card-header">
+                      <h3>Subscription Details</h3>
+
+                      <div className="organisation-view-status-group">
+                        {subScriptionActiveList.subscriptionStatus && (
+                          <span
+                            className={`organisation-view-header-status ${
+                              subScriptionActiveList.subscriptionStatus ===
+                              "Active"
+                                ? "is-active"
+                                : subScriptionActiveList.subscriptionStatus ===
+                                    "Pending"
+                                  ? "is-pending"
+                                  : "is-inactive"
+                            }`}
+                          >
+                            <i className="ri-checkbox-blank-circle-fill"></i>
+                            {subScriptionActiveList.subscriptionStatus}
+                          </span>
+                        )}
+
+                        {subScriptionActiveList.paymentStatus && (
+                          <span
+                            className={`organisation-view-header-status ${
+                              subScriptionActiveList.paymentStatus === "Paid"
+                                ? "is-paid"
+                                : subScriptionActiveList.paymentStatus ===
+                                    "Unpaid"
+                                  ? "is-unpaid"
+                                  : "is-free"
+                            }`}
+                          >
+                            {subScriptionActiveList.paymentStatus}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="organisation-view-subscription-details-body">
+                      <div className="organisation-view-subscription-facts">
+                        <div className="organisation-view-subscription-fact">
+                          <span>Package Name</span>
+                          <strong>{subScriptionActiveList.packageName}</strong>
+                        </div>
+
+                        <div className="organisation-view-subscription-fact">
+                          <span>Payment Frequency</span>
+                          <strong>
+                            {subScriptionActiveList.paymentFrequencyID === 1
+                              ? "Yearly"
+                              : subScriptionActiveList.paymentFrequencyID === 4
+                                ? "Monthly"
+                                : ""}
+                          </strong>
+                        </div>
+
+                        <div className="organisation-view-subscription-fact">
+                          <span>Billing Cycle</span>
+                          <strong>
+                            {subScriptionActiveList.paymentFrequencyID === 1
+                              ? "365 Days"
+                              : subScriptionActiveList.paymentFrequencyID === 4
+                                ? "30 Days"
+                                : "-"}
+                          </strong>
+                        </div>
+
+                        <div className="organisation-view-subscription-fact">
+                          <span>Start Date</span>
+                          <strong>
+                            {subScriptionActiveList.subscriptionStartDate ===
+                            null
+                              ? "-"
+                              : subScriptionActiveList.subscriptionStartDate}
+                          </strong>
+                        </div>
+
+                        <div className="organisation-view-subscription-fact">
+                          <span>Next Renewal</span>
+                          <strong>
+                            {subScriptionActiveList.renewDate === null
+                              ? "-"
+                              : subScriptionActiveList.renewDate}
+                          </strong>
+                        </div>
+
+                        <div className="organisation-view-subscription-fact">
+                          <span>Payment Status</span>
+                          <strong>
+                            {subScriptionActiveList.paymentStatus}
+                          </strong>
+                        </div>
+                      </div>
+
+                      <div className="organisation-view-subscription-invoice-row">
+                        {subScriptionActiveList.paymentStatus === "Unpaid" && (
+                          <Tooltip title={`Pay Now`}>
+                            <button
+                              type="button"
+                              className="organisation-view-pay-btn"
+                              onClick={() =>
+                                RedirectStripeCheckout(subScriptionActiveList)
+                              }
+                            >
+                              Pay Now
+                            </button>
+                          </Tooltip>
+                        )}
+
+                        {subScriptionActiveList.paymentStatus === "Paid" && (
+                          <Tooltip title={`Invoice`}>
+                            <a
+                              href={subScriptionActiveList.hostedInvoiceUrl}
+                              className="organisation-view-invoice-btn"
+                            >
+                              <i className="fa fa-download"></i>
+                              <span>Invoice</span>
+                            </a>
+                          </Tooltip>
+                        )}
+
+                        {subScriptionActiveList.paymentStatus === "Free" && (
+                          <span className="organisation-view-free-pill">
+                            Free
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="organisation-view-usage-grid">
+                        <div className="organisation-view-usage-card">
+                          <span>Remaining Proposals</span>
+                          <strong>
+                            {subScriptionActiveList.remainingQuotesPerMonth < 0
+                              ? 0
+                              : subScriptionActiveList.remainingQuotesPerMonth}
+                          </strong>
+                        </div>
+
+                        <div className="organisation-view-usage-card">
+                          <span>Remaining E-Signatures</span>
+                          <strong>
+                            {subScriptionActiveList.remainingESignatures < 0
+                              ? 0
+                              : subScriptionActiveList.remainingESignatures}
+                          </strong>
+                        </div>
+
+                        <div className="organisation-view-usage-card">
+                          <span>Remaining Pages</span>
+                          <strong>
+                            {subScriptionActiveList.remainingPages ??
+                              subScriptionActiveList.noOfPages ??
+                              0}
+                          </strong>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* PACKAGE DETAILS */}
+                  <section className="organisation-view-plan-card organisation-view-package-details-card">
+                    <div className="organisation-view-plan-card-header organisation-view-subscription-card-header">
+                      <h3>Package Details</h3>
+
+                      <div className="organisation-view-package-header-actions">
+                        <div className="organisation-view-package-monthly-price">
+                          <strong>
+                            {formatValue(
+                              subScriptionActiveList?.yearlyValuePlan / 12,
+                            )}
+                          </strong>
+                          <span>/ Month</span>
+                        </div>
+
+                        <button
+                          type="button"
+                          className="organisation-view-edit-plan-btn"
+                          aria-label="Edit package details"
+                        >
+                          <i
+                            className="ri-pencil-fill"
+                            data-bs-toggle="modal"
+                            data-bs-target="#OrganisationSubscriptionPackageDetails"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              GetSubscriptionPackageModelData(
+                                subScriptionActiveList.ospKeyID,
+                              );
+                              GetOrganisationPlanListData(1);
+                            }}
+                          />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="organisation-view-feature-list organisation-view-feature-list-v2">
+                      <div>
+                        <i
+                          className={
+                            subScriptionActiveList?.apiIntegration == true
+                              ? "ri-checkbox-circle-fill organisation-feature-yes"
+                              : "ri-close-circle-line organisation-feature-no"
+                          }
+                        ></i>
+                        <span>API Integration</span>
+                      </div>
+
+                      <div>
+                        <i
+                          className={
+                            subScriptionActiveList?.prepareQuote == true
+                              ? "ri-checkbox-circle-fill organisation-feature-yes"
+                              : "ri-close-circle-line organisation-feature-no"
+                          }
+                        ></i>
+                        <span>Prepare {proposalName}</span>
+                      </div>
+
+                      <div>
+                        <i
+                          className={
+                            subScriptionActiveList?.sendQuote === true
+                              ? "ri-checkbox-circle-fill organisation-feature-yes"
+                              : "ri-close-circle-line organisation-feature-no"
+                          }
+                        ></i>
+                        <span>Send {proposalName}</span>
+                      </div>
+
+                      <div>
+                        <i
+                          className={
+                            subScriptionActiveList?.prepareContract === true
+                              ? "ri-checkbox-circle-fill organisation-feature-yes"
+                              : "ri-close-circle-line organisation-feature-no"
+                          }
+                        ></i>
+                        <span>Prepare {EngagementName}</span>
+                      </div>
+
+                      {subScriptionActiveList?.sendQuote === true &&
+                        subScriptionActiveList?.quotesPerMonth > 0 && (
+                          <div>
+                            <i className="ri-checkbox-circle-fill organisation-feature-yes"></i>
+                            <span>
+                              Prepare and Send {proposalName}:{" "}
+                              {formatValueWithoutCurrencySymbol(
+                                subScriptionActiveList?.quotesPerMonth,
+                              )}
+                              /Month
+                            </span>
+                          </div>
+                        )}
+
+                      <div>
+                        <i
+                          className={
+                            subScriptionActiveList?.signContract === true
+                              ? "ri-checkbox-circle-fill organisation-feature-yes"
+                              : "ri-close-circle-line organisation-feature-no"
+                          }
+                        ></i>
+                        <span>
+                          Send And Digitally Sign The {EngagementName}:{" "}
+                          {formatValueWithoutCurrencySymbol(
+                            subScriptionActiveList?.eSignaturePerMonth,
+                          )}
+                          /Month
+                        </span>
+                      </div>
+
+                      <div>
+                        <i
+                          className={
+                            subScriptionActiveList?.enablePdfToCsv === true
+                              ? "ri-checkbox-circle-fill organisation-feature-yes"
+                              : "ri-close-circle-line organisation-feature-no"
+                          }
+                        ></i>
+                        <span>
+                          PDF To CSV
+                          {subScriptionActiveList?.enablePdfToCsv === true
+                            ? `: ${
+                                subScriptionActiveList?.noOfPages ?? 0
+                              } Page${
+                                Number(subScriptionActiveList?.noOfPages) === 1
+                                  ? ""
+                                  : "s"
+                              }`
+                            : ""}
+                        </span>
+                      </div>
+
+                      <div>
+                        <i
+                          className={
+                            subScriptionActiveList?.isMailBox === null ||
+                            !subScriptionActiveList?.isMailBox
+                              ? "ri-close-circle-line organisation-feature-no"
+                              : "ri-checkbox-circle-fill organisation-feature-yes"
+                          }
+                        ></i>
+                        <span>Personalized Outgoing Mailbox</span>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                {/* SUBSCRIPTION HISTORY */}
+                <section className="organisation-view-history-card">
+                  <div className="organisation-view-history-header">
+                    <div>
+                      <h3>Subscription History</h3>
+                      <p>Review previous and current subscription records.</p>
+                    </div>
+                  </div>
+
+                  <div className="organisation-view-table-scroll">
+                    <table className="organisation-view-table organisation-view-subscription-table">
+                      <thead>
+                        <tr>
+                          <th>Email</th>
+                          <th>Contact No</th>
+                          <th>Package Name</th>
+                          <th>Package Price</th>
+                          <th>Subscription Start Date</th>
+                          <th>Next Renewal Date</th>
+                          <th>Payable Amount</th>
+                          <th>Payment Status</th>
+                          <th>Subscription Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {subScriptionPlaneList.map((subscription, index) => (
+                          <tr key={index}>
+                            <td>{subscription.email}</td>
+                            <td>{subscription.mobileNumber}</td>
+                            <td>{subscription.packageName}</td>
+                            <td>{formatValue(subscription.packagePrice)}</td>
+                            <td>
+                              {subscription.subscriptionStartDate
+                                ? subscription.subscriptionStartDate
+                                : "_"}
+                            </td>
+                            <td>
+                              {subscription.nextRenewalDate
+                                ? subscription.nextRenewalDate
+                                : " _"}
+                            </td>
+                            <td>
+                              {formatValue(subscription.finalBillingAmount)}
+                            </td>
+
+                            <td className="organisation-view-payment-cell">
+                              {subscription.paymentStatus === "Unpaid" && (
+                                <Tooltip title={`Pay Now`}>
+                                  <button
+                                    type="button"
+                                    className="organisation-view-pay-btn"
+                                    onClick={() =>
+                                      RedirectStripeCheckout(subscription)
+                                    }
+                                  >
+                                    Pay Now
+                                  </button>
+                                </Tooltip>
+                              )}
+
+                              {subscription.paymentStatus === "Paid" && (
+                                <Tooltip title={`Download`}>
+                                  <a
+                                    href={subscription.hostedInvoiceUrl}
+                                    className="organisation-view-download-btn"
+                                  >
+                                    <i className="fa fa-download"></i>
+                                  </a>
+                                </Tooltip>
+                              )}
+
+                              {subscription.paymentStatus === "Free" && (
+                                <span className="organisation-view-free-pill">
+                                  Free
+                                </span>
+                              )}
+                            </td>
+
+                            <td>
+                              <span
+                                className={`organisation-view-subscription-status ${
+                                  subscription.subscriptionStatus === "Active"
+                                    ? "is-active"
+                                    : subscription.subscriptionStatus ===
+                                        "Expired"
+                                      ? "is-expired"
+                                      : subscription.subscriptionStatus ===
+                                          "Pending"
+                                        ? "is-pending"
+                                        : subscription.subscriptionStatus ===
+                                            "InActive"
+                                          ? "is-inactive"
+                                          : "is-default"
+                                }`}
+                              >
+                                {subscription.subscriptionStatus}
+                              </span>
+                            </td>
+
+                            <td>
+                              <Tooltip title={`View Subscription`}>
+                                <button
+                                  type="button"
+                                  className="organisation-view-table-action-btn"
+                                  onClick={() =>
+                                    handleOpenSubscriptionModel(subscription)
+                                  }
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#addSubscriptionViewModalUser"
+                                >
+                                  <i className="bi bi-eye"></i>
+                                </button>
+                              </Tooltip>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              </div>
+            </div>
           </div>
-        </div>
-        {/* End Page-content */}
+        </section>
 
+        {/* EXISTING MODALS */}
+        <ErrorModel
+          ErrorModel={openErrorModal}
+          handleClose={handleClose}
+          ErrorMessage={errorMessage}
+        />
 
+        <ConfirmModel
+          openErrorModal={openErrorModal}
+          openSuccessModal={openSuccessModal}
+          modelRequestData={modelRequestData}
+          UpdatedStatus={InviteUserChangeStatusData}
+        />
+
+        <SubscriptionView
+          class="modal fade"
+          id="addSubscriptionViewModalUser"
+          tabIndex="-1"
+          aria_labelledby="exampleModalLabel"
+          aria_hidden="true"
+          subscriptionPackageObj={subscriptionPackageObj}
+        />
+
+        <OrganisationSubscriptionPackageDetails
+          subscriptionPackageObj={subScriptionActiveList}
+          setSubscriptionPackageObj={setSubScriptionActiveList}
+        />
+
+        <SuccessModal
+          handleClose={handleClose}
+          setOpenSuccessModal={setOpenSuccessModal}
+          openSuccessModal={openSuccessModal}
+          modelAction={modelRequestData.Action}
+          message={successMessage}
+        />
+
+        <UsersModel
+          class="modal fade"
+          id="addUpdateModal"
+          tabIndex="-1"
+          aria_labelledby="exampleModalLabel"
+          aria_hidden="true"
+          setIsAddUpdateActionDone={setIsAddUpdateActionDone}
+          modelRequestData={modelRequestData}
+        />
       </div>
 
-      {/* start back-to-top */}
-      <button
-        onclick="topFunction()"
-        class="btn btn-danger btn-icon"
-        id="back-to-top"
-      >
-        <i class="ri-arrow-up-line"></i>
-      </button>
-      {/* end back-to-top */}
       <Footer />
     </div>
   );

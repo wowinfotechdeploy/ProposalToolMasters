@@ -1,6 +1,7 @@
 /* global $ */
 import React, { useContext, useEffect, useState } from "react";
 import "./Organisation.css";
+import "./Organisation-redesign.css";
 import PaginationComponent from "../../components/PaginationModel";
 import Footer from "../../components/Footer";
 import { useNavigate } from "react-router-dom";
@@ -13,10 +14,10 @@ import NoResultFoundModel from "../../components/NoResultFoundModel";
 import RecordsAvailablePopupModel from "../../components/RecordsAvailablePopupModel";
 import { useLocation } from "react-router-dom";
 import { GetProfessionTypeLookupList } from "../../redux/Services/Master/ProfessionTypeApi";
- import { GetBusinessTypeLookupList } from "../../redux/Services/Master/BusinessTypeLookupListApi";
- import Select from "react-select";
- import Utils from "../../Middleware/Utils";
- import { ActiveDateFilterEnum } from "../../Middleware/enums";
+import { GetBusinessTypeLookupList } from "../../redux/Services/Master/BusinessTypeLookupListApi";
+import Select from "react-select";
+import Utils from "../../Middleware/Utils";
+import { ActiveDateFilterEnum } from "../../Middleware/enums";
 import {
   DeleteOrganisation,
   GetOrganisationList,
@@ -77,7 +78,7 @@ const Organisation = () => {
     getCrudButtonToolTipName,
     userAccessData,
     handleErrorMessage,
-    GetActiveDateRange
+    GetActiveDateRange,
   } = useContext(AuthContextProvider);
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
   const formattedErrorMessage = handleErrorMessage(errorMessage);
@@ -97,8 +98,11 @@ const Organisation = () => {
   const [formDateOfCalenderForExport, setFormDateOfCalenderForExport] =
     useState(null);
   const [toDateCalenderForExport, setToDateCalenderForExport] = useState(null);
-  const [OrganisationBusinessTypeLookupList, setOrganisationBusinessTypeLookupList] = useState([]);
-  const [ProfessionTypeLookupList,setProfessionTypeLookupList] = useState([]);
+  const [
+    OrganisationBusinessTypeLookupList,
+    setOrganisationBusinessTypeLookupList,
+  ] = useState([]);
+  const [ProfessionTypeLookupList, setProfessionTypeLookupList] = useState([]);
 
   //initial effect
   useEffect(() => {
@@ -122,20 +126,21 @@ const Organisation = () => {
   }, [location.state]);
 
   const orgBusinessTypeFilter = OrganisationBusinessTypeLookupList?.filter(
-    (businessType) => businessType.value == businessTypeID
+    (businessType) => businessType.value == businessTypeID,
   );
 
   const professionTypeFilter = ProfessionTypeLookupList?.filter(
-    (professionType) => professionType.value == professionTypeID ? professionTypeID : null
+    (professionType) =>
+      professionType.value == professionTypeID ? professionTypeID : null,
   );
 
   const handleSelectChange = (selectedOption) => {
     setBusinessTypeID(selectedOption ? selectedOption.value : null);
   };
 
-  const handleSelectProfessionChange =(selectedOption) => {
+  const handleSelectProfessionChange = (selectedOption) => {
     setProfessionTypeID(selectedOption ? selectedOption.value : null);
-  }
+  };
 
   const handleActiveDateChange = (selectedOption) => {
     let dateFormat = "mm-dd-yyyy";
@@ -154,13 +159,13 @@ const Organisation = () => {
       case ActiveDateFilterEnum.Active_In_Last_90_Days:
       case ActiveDateFilterEnum.Active_In_Last_6_Months:
       case ActiveDateFilterEnum.Active_In_Last_1_Year:
-          const dateRange = GetActiveDateRange(dateFormat, selectedOption.value);
-          setFromDate(dateRange.fromDate);
-          setToDate(dateRange.toDate);
-          break;
+        const dateRange = GetActiveDateRange(dateFormat, selectedOption.value);
+        setFromDate(dateRange.fromDate);
+        setToDate(dateRange.toDate);
+        break;
       default:
-          break;
-  }
+        break;
+    }
   };
   const GetOrganisationBusinessTypeLookupListData = async () => {
     try {
@@ -174,7 +179,9 @@ const Organisation = () => {
             label: BusinessType.businessTypeName,
           }));
 
-          setOrganisationBusinessTypeLookupList(BusinessTypeListData.slice(1, 5));
+          setOrganisationBusinessTypeLookupList(
+            BusinessTypeListData.slice(1, 5),
+          );
         }
       }
     } catch (error) {
@@ -186,15 +193,17 @@ const Organisation = () => {
     try {
       const data = await GetProfessionTypeLookupList(
         common.userKeyID,
-        common.organisationKeyID
+        common.organisationKeyID,
       );
       if (data?.data?.statusCode === 200) {
         if (data?.data?.responseData?.data) {
           let ProfessionTypeListData = data?.data?.responseData?.data;
-          ProfessionTypeListData = ProfessionTypeListData.map((ProfessionType) => ({
-            value: ProfessionType.professionTypeId,
-            label: ProfessionType.professionTypeName,
-          }));
+          ProfessionTypeListData = ProfessionTypeListData.map(
+            (ProfessionType) => ({
+              value: ProfessionType.professionTypeId,
+              label: ProfessionType.professionTypeName,
+            }),
+          );
 
           setProfessionTypeLookupList(ProfessionTypeListData);
         }
@@ -204,7 +213,16 @@ const Organisation = () => {
     }
   };
   //Organisation Crud is here
-  const GetOrganisationListData = async (i, searchKeywordValue, sortValue, UserSort, businessTypeId,professionTypeId,FromDate,ToDate) => {
+  const GetOrganisationListData = async (
+    i,
+    searchKeywordValue,
+    sortValue,
+    UserSort,
+    businessTypeId,
+    professionTypeId,
+    FromDate,
+    ToDate,
+  ) => {
     setLoader(true);
     const pageNoList = i - 1;
     try {
@@ -218,14 +236,17 @@ const Organisation = () => {
           businessTypeId == undefined ? prospectType : businessTypeId,
         professionTypeID:
           professionTypeId == undefined ? null : professionTypeId,
-        fromDate: FromDate === undefined ? (fromDate == "" ? null : fromDate) : FromDate,
+        fromDate:
+          FromDate === undefined
+            ? fromDate == ""
+              ? null
+              : fromDate
+            : FromDate,
         toDate: ToDate === undefined ? (toDate == "" ? null : toDate) : ToDate,
         primarySortDirection:
           sortValue === undefined ? primarySortDirectionUsers : sortValue,
         PrimarySortColumnName:
-          UserSort === undefined ||
-            UserSort === null ||
-            UserSort === ""
+          UserSort === undefined || UserSort === null || UserSort === ""
             ? null
             : UserSort,
       });
@@ -302,7 +323,7 @@ const Organisation = () => {
       try {
         const Data = await DeleteOrganisation(
           modelRequestData.OrgKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -312,7 +333,7 @@ const Organisation = () => {
             ) {
               const servicePackageNames =
                 Data?.data?.responseData.organisationExistsInUser.map(
-                  (item) => item.email
+                  (item) => item.email,
                 );
               setModelRequestData({
                 ...modelRequestData,
@@ -322,9 +343,27 @@ const Organisation = () => {
               });
               $("#" + "ConfirmModel").modal("hide");
               $("#" + "RecordsAvailablePopupModel").modal("show");
-              GetOrganisationListData(currentPage,searchKeyword,primarySortDirectionUsers,UserSortType,businessTypeID,professionTypeID,fromDate,toDate);
+              GetOrganisationListData(
+                currentPage,
+                searchKeyword,
+                primarySortDirectionUsers,
+                UserSortType,
+                businessTypeID,
+                professionTypeID,
+                fromDate,
+                toDate,
+              );
             } else {
-              GetOrganisationListData(currentPage,searchKeyword,primarySortDirectionUsers,UserSortType,businessTypeID,professionTypeID,fromDate,toDate);
+              GetOrganisationListData(
+                currentPage,
+                searchKeyword,
+                primarySortDirectionUsers,
+                UserSortType,
+                businessTypeID,
+                professionTypeID,
+                fromDate,
+                toDate,
+              );
 
               setOpenSuccessModal(true);
             }
@@ -332,7 +371,16 @@ const Organisation = () => {
             setErrorMessage(Data?.response?.data?.errorMessage);
             setOpenErrorModal(true);
           }
-          GetOrganisationListData(currentPage,searchKeyword,primarySortDirectionUsers,UserSortType,businessTypeID,professionTypeID,fromDate,toDate);
+          GetOrganisationListData(
+            currentPage,
+            searchKeyword,
+            primarySortDirectionUsers,
+            UserSortType,
+            businessTypeID,
+            professionTypeID,
+            fromDate,
+            toDate,
+          );
         }
       } catch (error) {
         console.log(error);
@@ -341,7 +389,7 @@ const Organisation = () => {
       try {
         const Data = await OrganisationChangeStatus(
           modelRequestData.OrgKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -352,7 +400,16 @@ const Organisation = () => {
             setOpenErrorModal(true);
           }
         }
-        GetOrganisationListData(currentPage,searchKeyword,primarySortDirectionUsers,UserSortType,businessTypeID,professionTypeID,fromDate,toDate);
+        GetOrganisationListData(
+          currentPage,
+          searchKeyword,
+          primarySortDirectionUsers,
+          UserSortType,
+          businessTypeID,
+          professionTypeID,
+          fromDate,
+          toDate,
+        );
       } catch (error) {
         console.log(error);
       }
@@ -397,7 +454,7 @@ const Organisation = () => {
       professionTypeID,
       fromDate,
       toDate,
-    ); 
+    );
   };
 
   const handleUserSort = (sortValue, UserSort) => {
@@ -408,7 +465,16 @@ const Organisation = () => {
         UserNameTypeSort: sortValue,
       });
       setCurrentPage(1);
-      GetOrganisationListData(1, searchKeywordUsers, sortValue, UserSort, businessTypeID,professionTypeID,fromDate,toDate);
+      GetOrganisationListData(
+        1,
+        searchKeywordUsers,
+        sortValue,
+        UserSort,
+        businessTypeID,
+        professionTypeID,
+        fromDate,
+        toDate,
+      );
     } else if (UserSort === "UserFullName") {
       setPrimarySortDirectionUsers(sortValue);
       setPrimaryUserSortDirectionObj({
@@ -416,7 +482,16 @@ const Organisation = () => {
         RoleTypeSort: sortValue,
       });
       setCurrentPage(1);
-      GetOrganisationListData(1, searchKeywordUsers, sortValue, UserSort, businessTypeID,professionTypeID,fromDate,toDate);
+      GetOrganisationListData(
+        1,
+        searchKeywordUsers,
+        sortValue,
+        UserSort,
+        businessTypeID,
+        professionTypeID,
+        fromDate,
+        toDate,
+      );
     } else if (UserSort === "CreatedOnDate") {
       setPrimarySortDirectionUsers(sortValue);
       setPrimaryUserSortDirectionObj({
@@ -424,7 +499,16 @@ const Organisation = () => {
         RoleTypeSort: sortValue,
       });
       setCurrentPage(1);
-      GetOrganisationListData(1, searchKeywordUsers, sortValue, UserSort, businessTypeID,professionTypeID,fromDate,toDate);
+      GetOrganisationListData(
+        1,
+        searchKeywordUsers,
+        sortValue,
+        UserSort,
+        businessTypeID,
+        professionTypeID,
+        fromDate,
+        toDate,
+      );
     } else if (UserSort === "LastLoginDate") {
       setPrimarySortDirectionUsers(sortValue);
       setPrimaryUserSortDirectionObj({
@@ -432,622 +516,604 @@ const Organisation = () => {
         RoleTypeSort: sortValue,
       });
       setCurrentPage(1);
-      GetOrganisationListData(1, searchKeywordUsers, sortValue, UserSort, businessTypeID,professionTypeID,fromDate,toDate);
+      GetOrganisationListData(
+        1,
+        searchKeywordUsers,
+        sortValue,
+        UserSort,
+        businessTypeID,
+        professionTypeID,
+        fromDate,
+        toDate,
+      );
     }
     setUserSortType(UserSort);
   };
-     // Filter
-     const ApplyFilter = () => {
-      if (
-        (businessTypeID !== null && businessTypeID !== "") ||
-        (professionTypeID !== null && professionTypeID !== "") ||
-        (fromDate !== null && fromDate !== "") ||
-        (toDate !== null && toDate !== "") ||
-        (selectedOption !== "" && selectedOption !== null)
-      ) {
-        setIsFilterApply(true);
-      } else {
-        setIsFilterApply(false);
-      }
-      const normalizedFromDate =
-        fromDate === undefined || fromDate === "" ? null : fromDate;
-      const normalizedToDate =
-        toDate === undefined || toDate === "" ? null : toDate;
-      setCurrentPage(1);
-      GetOrganisationListData(
-        1,
-        searchKeyword,
-        primarySortDirectionUsers,
-        UserSortType,
-        businessTypeID,
-        professionTypeID,
-        normalizedFromDate,
-        normalizedToDate,
-      );
-    };
-    const ClearFilter = () => {
-      setCurrentPage(1);
-      setSelectedOption("");
+  // Filter
+  const ApplyFilter = () => {
+    if (
+      (businessTypeID !== null && businessTypeID !== "") ||
+      (professionTypeID !== null && professionTypeID !== "") ||
+      (fromDate !== null && fromDate !== "") ||
+      (toDate !== null && toDate !== "") ||
+      (selectedOption !== "" && selectedOption !== null)
+    ) {
+      setIsFilterApply(true);
+    } else {
       setIsFilterApply(false);
-      setBusinessTypeID(null);
-      setProfessionTypeID(null);
-      setFromDate(null);
-      setToDate(null);
-      setPrimarySortDirectionUsers(null);
-      setUserSortType(null);
-      GetOrganisationListData(1, searchKeyword, null, null, null, null,null,null);
-      // console.log(fromDate,toDate);
-    };
+    }
+    const normalizedFromDate =
+      fromDate === undefined || fromDate === "" ? null : fromDate;
+    const normalizedToDate =
+      toDate === undefined || toDate === "" ? null : toDate;
+    setCurrentPage(1);
+    GetOrganisationListData(
+      1,
+      searchKeyword,
+      primarySortDirectionUsers,
+      UserSortType,
+      businessTypeID,
+      professionTypeID,
+      normalizedFromDate,
+      normalizedToDate,
+    );
+  };
+  const ClearFilter = () => {
+    setCurrentPage(1);
+    setSelectedOption("");
+    setIsFilterApply(false);
+    setBusinessTypeID(null);
+    setProfessionTypeID(null);
+    setFromDate(null);
+    setToDate(null);
+    setPrimarySortDirectionUsers(null);
+    setUserSortType(null);
+    GetOrganisationListData(
+      1,
+      searchKeyword,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+    );
+    // console.log(fromDate,toDate);
+  };
   return (
     <>
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
-        <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                        <div className="container">
-                          <div className="row">
-                            <div className="col-md-6 p-0 ">
-                  <div class="page-title-cls">Organisation/Practice</div>
+      <div className="organisation-list-redesign">
+        <div className="organisation-list-page">
+          {/* =========================
+              PAGE HEADER
+              ========================= */}
+          <div className="organisation-page-header">
+            <div className="organisation-heading-copy">
+              <h1>Organisation / Practice</h1>
+              <p>
+                Manage organisations, users, plans, activity and account status.
+              </p>
+            </div>
+
+            <div className="organisation-summary">
+              <div className="organisation-summary-card">
+                <span className="organisation-summary-icon">
+                  <i className="ri-building-4-line"></i>
+                </span>
+
+                <div>
+                  <span>Total Organisations</span>
+                  <strong>{listCount > 0 ? listCount : 0}</strong>
                 </div>
-                <div className="col d-flex align-items-center justify-content-end ms-auto">
-                  <div className="count-card">
-                    Total Organisations:{" "}
-                    {listCount > 0 ? (listCount) : (<span style={{ fontSize: "12px" }}>  0</span>)}
-                  </div>
-                  <div className="count-card">
-                    Total Users: {userCount > 0 ? (userCount) : (<span style={{ fontSize: "12px" }}>  0</span>)}
-                  </div>
+              </div>
+
+              <div className="organisation-summary-card">
+                <span className="organisation-summary-icon">
+                  <i className="ri-group-line"></i>
+                </span>
+
+                <div>
+                  <span>Total Users</span>
+                  <strong>{userCount > 0 ? userCount : 0}</strong>
                 </div>
               </div>
             </div>
-          {/* </div> */}
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-
-                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
-                      <div className="row align-items-center justify-content">
-                      <div className="search-box col-md-3 col-sm-4 width-searchbox mb-2">
-                          <div>
-                            <div>
-                              <i class="ri-search-line search-icon ps-2"></i>
-                              <input
-                                type="text"
-                                class="form-control search"
-                                value={searchKeyword}
-                                onChange={(e) => {
-                                  handleSearch(e);
-                                }}
-                                placeholder={
-                                  isMobile
-                                    ? "Search"
-                                    : getPlaceholderTextName(
-                                      "Search",
-                                      moduleName
-                                    )
-                                }
-                              />
-                              </div>
-                            </div>
-                          </div>
-                          <div className="col-md-9 d-flex justify-content-end align-items-center flex-wrap gap-2">
-                         <div className="col-md-3 col-sm-4 mb-2">
-                             <div className="input-group">
-                               <Select
-                                 className="phone-input-country-code selectDropDown Drop-down-width"
-                                 placeholder="Organisation type"
-                                 options={OrganisationBusinessTypeLookupList}
-                                 value={orgBusinessTypeFilter}
-                                 onChange={handleSelectChange}
-                                 styles={{ option: (base) => ({ ...base, cursor: "pointer" }) }}
-                                 isClearable
-                               />
-                             </div>
-                           </div>
-                           <div className="col-md-3 col-sm-4 mb-2" >
-                             <div className="input-group">
-                               <Select
-                                 className="phone-input-country-code selectDropDown Drop-down-width"
-                                 style={{cursor: "pointer"}}
-                                 placeholder = "Profession type"
-                                 options={ProfessionTypeLookupList}
-                                 value= {professionTypeFilter}
-                                 onChange={handleSelectProfessionChange}
-                                 styles={{ option: (base) => ({ ...base, cursor: "pointer" }) }}
-                                 isClearable
-                               />
-                             </div>
-                           </div>
-                           <div className="col-md-3 col-sm-4 mb-2">
-                             <div className="input-group">
-                               <Select
-                                 className="phone-input-country-code selectDropDown Drop-down-width"
-                                 style={{cursor: "pointer"}}
-                                 placeholder = "Date Filter"
-                                 options={Utils.DateFilter}
-                                 value= {selectedOption}
-                                 onChange={handleActiveDateChange}
-                                 styles={{ option: (base) => ({ ...base, cursor: "pointer" }) }}
-                                 isClearable
-                               />
-                             </div>
-                           </div>
-                              <div className="d-flex justify-content align-items-center gap-2 mb-2">
-                                <button className="btn btn-md btn-success create-item-btn" onClick={ApplyFilter}>
-                                  <span>Apply Filter</span>
-                                </button>
-                                {isFilterApply &&
-                                  <button className="btn btn-md btn-success create-item-btn" onClick={ClearFilter}>
-                                    <span>Clear Filter</span>
-                                  </button>
-                                }
-                              </div>
-                           </div>
-                        </div>
-                        <table
-                          class="table align-middle table-nowrap"
-                          id="customerTable"
-                        >
-                          <thead class="table-light">
-                            <tr className="head-row">
-                              <td
-                                className="tr-table-class text-white"
-                                style={{ width: "30%" }}
-                              >
-                                Organisation{" "}
-                                {primaryUserSortDirectionObj.UserNameTypeSort ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          "asc",
-                                          "TradingBusinessName"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primaryUserSortDirectionObj.UserNameTypeSort ===
-                                  null ||
-                                  primaryUserSortDirectionObj.UserNameTypeSort ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          primaryUserSortDirectionObj.UserNameTypeSort ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "TradingBusinessName"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td
-                                className="tr-table-class text-white"
-                                style={{ width: "15%" }}
-                              >
-                                Created By
-                                {primaryUserSortDirectionObj.RoleTypeSort ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort("asc", "UserFullName");
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primaryUserSortDirectionObj.RoleTypeSort ===
-                                  null ||
-                                  primaryUserSortDirectionObj.RoleTypeSort ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          primaryUserSortDirectionObj.RoleTypeSort ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "UserFullName"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Users
-                              </td>
-
-                              <td className="tr-table-class text-white">
-                                Current Plan
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Created Date
-                              {primaryUserSortDirectionObj.RoleTypeSort ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort("asc", "CreatedOnDate");
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primaryUserSortDirectionObj.RoleTypeSort ===
-                                  null ||
-                                  primaryUserSortDirectionObj.RoleTypeSort ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          primaryUserSortDirectionObj.RoleTypeSort ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "CreatedOnDate"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                                </td>
-                              <td className="tr-table-class text-white">
-                                Last Login Date
-                              {primaryUserSortDirectionObj.RoleTypeSort ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort("asc", "LastLoginDate");
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primaryUserSortDirectionObj.RoleTypeSort ===
-                                  null ||
-                                  primaryUserSortDirectionObj.RoleTypeSort ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          primaryUserSortDirectionObj.RoleTypeSort ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "LastLoginDate"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                                </td>
-                              <td className="tr-table-class text-white">
-                                Status
-                              </td>
-                              <td
-                                className="tr-table-class text-white text-center"
-                                style={{
-                                  width: "10%",
-                                }}
-                              >
-                                Action
-                              </td>
-                            </tr>
-                          </thead>
-                          <tbody class="list form-check-all">
-                            {organisationList
-                              .slice(
-                                0,
-                                isMobile ? isMobileRecords : desktopRecords
-                              )
-                              .map((Org) => {
-                                return (
-                                  <>
-                                    <tr class="table_new">
-                                      <td className="table-content-font">
-                                        {isMobile ? (
-                                          <>
-                                            {Org.tradingBusinessName.length > 20
-                                              ? Org.tradingBusinessName
-                                                .substring(0, 20)
-                                                .toLowerCase()
-                                                .replace(/\b\w/g, (l) =>
-                                                  l.toUpperCase()
-                                                ) + "..."
-                                              : Org.tradingBusinessName
-                                                .substring(0, 20)
-                                                .toLowerCase()
-                                                .replace(/\b\w/g, (l) =>
-                                                  l.toUpperCase()
-                                                )}
-                                          </>
-                                        ) : (
-                                          <>
-                                            {Org.tradingBusinessName.length >
-                                              50 ? (
-                                              <Tooltip
-                                                title={Org.tradingBusinessName}
-                                              >
-                                                {Org.tradingBusinessName
-                                                  .substring(0, 50)
-                                                  .toLowerCase()
-                                                  .replace(/\b\w/g, (l) =>
-                                                    l.toUpperCase()
-                                                  ) + "..."}
-                                              </Tooltip>
-                                            ) : (
-                                              <>
-                                                {Org.tradingBusinessName
-                                                  .toLowerCase()
-                                                  .replace(/\b\w/g, (l) =>
-                                                    l.toUpperCase()
-                                                  )}
-                                              </>
-                                            )}
-                                          </>
-                                        )}
-                                      </td>
-                                      <td className="table-content-font ">
-                                        {Org.fullName}{" "}
-                                      </td>
-                                      <td className="table-content-font text-center">
-                                        <span>{Org.numberOfUsers}</span>
-                                      </td>
-                                      <td className="table-content-font">
-                                        {Org.currentPlan ? (
-                                          <span>{Org.currentPlan}</span>
-                                        ) : (
-                                          <span
-                                            style={{
-                                              textDecoration: "none",
-                                              color: "purple",
-                                              cursor: "pointer",
-                                            }}
-                                            onMouseOver={(e) =>
-                                            (e.target.style.textDecoration =
-                                              "underline")
-                                            }
-                                            onMouseOut={(e) =>
-                                            (e.target.style.textDecoration =
-                                              "none")
-                                            }
-                                            onClick={() => {
-                                              showPurchaseModal(Org);
-                                            }}
-                                          >
-                                            Buy Plan
-                                          </span>
-                                        )}
-                                      </td>
-                                      <td className="table-content-font">
-                                        {Org.createdOn
-                                          ? new Date(Org.createdOn).toLocaleDateString('en-GB')
-                                          : ''}
-                                      </td>
-                                      <td className="table-content-font">
-                                        {Org.lastLoginDate
-                                          ? new Date(Org.lastLoginDate).toLocaleDateString('en-GB')
-                                          : ''}
-                                      </td>
-
-                                      <td className="Switch table-content-font">
-                                        <div
-                                          style={{
-                                            alignItems: "none",
-                                            marginLeft:
-                                              userAccessData.Organisation_CanEdit
-                                                ? ""
-                                                : "10px",
-                                          }}
-                                          class="d-flex gap-2 "
-                                        >
-                                          <div style={{ width: "50px" }}>
-                                            {" "}
-                                            {Org.statusName}
-                                          </div>
-                                          {userAccessData.Organisation_CanDelete && (
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "Change Status"
-                                              )}
-                                            >
-                                              <FormGroup>
-                                                <FormControlLabel
-                                                  control={
-                                                    <Android12Switch
-                                                      onClick={() =>
-                                                        setModelRequestData({
-                                                          ...modelRequestData,
-                                                          status:
-                                                            Org.statusName,
-                                                          OrgKeyID:
-                                                            Org.organisationKeyID,
-                                                          OrgName:
-                                                            Org.tradingBusinessName,
-                                                          userKeyID:
-                                                            common.userKeyID,
-                                                          Action: "Status",
-                                                        })
-                                                      }
-                                                      checked={
-                                                        Org.statusName ===
-                                                        "Active"
-                                                      }
-                                                      data-bs-toggle="modal"
-                                                      data-bs-target="#ConfirmModel"
-                                                    />
-                                                  }
-                                                />
-                                              </FormGroup>
-                                            </Tooltip>
-                                          )}
-                                        </div>
-                                      </td>
-                                      <td className="table-content-font">
-                                        <div
-                                          class="d-flex gap-2"
-                                          style={{ float: "right" }}
-                                        >
-                                          {userAccessData.Organisation_CanView && (
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "View",
-                                                moduleName
-                                              )}
-                                            >
-                                              <div class="view">
-                                                <button
-                                                  class="btn btn-md btn-success create-item-btn view"
-                                                  onClick={() =>
-                                                    handleViewOrganisation(Org)
-                                                  }
-                                                >
-                                                  {/* <i class="ri-pencil-fill"></i> */}
-                                                  <span
-                                                    style={{
-                                                      marginRight: "4px",
-                                                    }}
-                                                  >
-                                                    View
-                                                  </span>
-                                                  <i class="bi bi-eye"></i>
-                                                </button>
-                                              </div>
-                                            </Tooltip>
-                                          )}
-                                          {userAccessData.Organisation_CanDelete && (
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "Delete",
-                                                moduleName
-                                              )}
-                                            >
-                                              <div class="remove">
-                                                <button
-                                                  class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                                  data-bs-toggle="modal"
-                                                  data-bs-target="#ConfirmModel"
-                                                  onClick={() =>
-                                                    setModelRequestData({
-                                                      ...modelRequestData,
-                                                      status: Org.statusName,
-                                                      OrgKeyID:
-                                                        Org.organisationKeyID,
-                                                      OrgName:
-                                                        Org.tradingBusinessName,
-                                                      userKeyID:
-                                                        common.userKeyID,
-                                                      Action: "Delete",
-                                                    })
-                                                  }
-                                                >
-                                                  <i class="ri-delete-bin-5-fill"></i>
-                                                </button>
-                                              </div>
-                                            </Tooltip>
-                                          )}
-                                        </div>
-                                      </td>
-                                    </tr>
-                                  </>
-                                );
-                              })}
-                          </tbody>
-                        </table>
-
-                        {totalRecords <= 0 && (
-                          <NoResultFoundModel
-                            name={moduleName}
-                            totalRecords={totalRecords}
-                          />
-                        )}
-                      </div>
-                    </div>
-
-                    {/* end card  */}
-                  {listCount > pageSize && (
-                    <PaginationComponent
-                      totalCount={listCount}
-                      totalPages={totalPage}
-                      currentPage={currentPage}
-                      onPageChange={handlePageChange}
-                    />
-                  )}
-                  </div>
-                </div>
-                {/* end col */}
-              </div>
-              {/* end col  */}
-            </div>
-            {/* end row */}
-            <ConfirmModel
-              openErrorModal={openErrorModal}
-              openSuccessModal={openSuccessModal}
-              modelRequestData={modelRequestData}
-              UpdatedStatus={OrganisationDeleteData}
-              handleClose={handleClose}
-            />
-
-            <ErrorModel
-              ErrorModel={openErrorModal}
-              handleClose={handleClose}
-              ErrorMessage={formattedErrorMessage}
-            />
-
-            <SuccessModal
-              handleClose={handleClose}
-              setOpenSuccessModal={setOpenSuccessModal}
-              openSuccessModal={openSuccessModal}
-              modelAction={modelRequestData.Action}
-              message={
-                modelRequestData.Action === "Delete"
-                  ? "Organisation " + modelRequestData.OrgName
-                  : "Status has been changed successfully!"
-              }
-            />
-
-            <RecordsAvailablePopupModel
-              handleClose={handleClose}
-              openErrorModal={openErrorModal}
-              openSuccessModal={openSuccessModal}
-              modelRequestData={modelRequestData}
-              UpdatedStatus={OrganisationDeleteData}
-            />
           </div>
 
-          {/* container-fluid  */}
+          {/* =========================
+              LIST CARD
+              ========================= */}
+          <section className="organisation-list-card">
+            {/* SEARCH / FILTERS */}
+            <div className="organisation-toolbar">
+              <div className="organisation-search-wrap">
+                <i className="ri-search-line"></i>
+
+                <input
+                  type="text"
+                  className="form-control organisation-search-input"
+                  value={searchKeyword}
+                  onChange={(e) => {
+                    handleSearch(e);
+                  }}
+                  placeholder={
+                    isMobile
+                      ? "Search"
+                      : getPlaceholderTextName("Search", moduleName)
+                  }
+                />
+              </div>
+
+              <div className="organisation-filter-area">
+                <div className="organisation-filter-select">
+                  <Select
+                    className="phone-input-country-code selectDropDown Drop-down-width"
+                    classNamePrefix="organisation-select"
+                    placeholder="Organisation type"
+                    options={OrganisationBusinessTypeLookupList}
+                    value={orgBusinessTypeFilter}
+                    onChange={handleSelectChange}
+                    styles={{
+                      option: (base) => ({
+                        ...base,
+                        cursor: "pointer",
+                      }),
+                    }}
+                    isClearable
+                  />
+                </div>
+
+                <div className="organisation-filter-select">
+                  <Select
+                    className="phone-input-country-code selectDropDown Drop-down-width"
+                    classNamePrefix="organisation-select"
+                    style={{ cursor: "pointer" }}
+                    placeholder="Profession type"
+                    options={ProfessionTypeLookupList}
+                    value={professionTypeFilter}
+                    onChange={handleSelectProfessionChange}
+                    styles={{
+                      option: (base) => ({
+                        ...base,
+                        cursor: "pointer",
+                      }),
+                    }}
+                    isClearable
+                  />
+                </div>
+
+                <div className="organisation-filter-select organisation-date-filter">
+                  <Select
+                    className="phone-input-country-code selectDropDown Drop-down-width"
+                    classNamePrefix="organisation-select"
+                    style={{ cursor: "pointer" }}
+                    placeholder="Date Filter"
+                    options={Utils.DateFilter}
+                    value={selectedOption}
+                    onChange={handleActiveDateChange}
+                    styles={{
+                      option: (base) => ({
+                        ...base,
+                        cursor: "pointer",
+                      }),
+                    }}
+                    isClearable
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  className="btn organisation-apply-filter-btn"
+                  onClick={ApplyFilter}
+                >
+                  <i className="ri-filter-3-line"></i>
+                  <span>Apply Filter</span>
+                </button>
+
+                {isFilterApply && (
+                  <button
+                    type="button"
+                    className="btn organisation-clear-filter-btn"
+                    onClick={ClearFilter}
+                  >
+                    <i className="ri-close-line"></i>
+                    <span>Clear</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* TABLE */}
+            <div className="organisation-table-scroll">
+              <table className="organisation-table" id="customerTable">
+                <thead>
+                  <tr>
+                    <th className="organisation-name-column">
+                      <button
+                        type="button"
+                        className="organisation-sort-button"
+                        onClick={() => {
+                          handleUserSort(
+                            primaryUserSortDirectionObj.UserNameTypeSort ===
+                              null
+                              ? "asc"
+                              : primaryUserSortDirectionObj.UserNameTypeSort ===
+                                  "asc"
+                                ? "desc"
+                                : "asc",
+                            "TradingBusinessName",
+                          );
+                        }}
+                      >
+                        <span>Organisation</span>
+
+                        <i
+                          className={
+                            primaryUserSortDirectionObj.UserNameTypeSort ===
+                            "desc"
+                              ? "fas fa-sort-alpha-up"
+                              : "fas fa-sort-alpha-down"
+                          }
+                        ></i>
+                      </button>
+                    </th>
+
+                    <th>
+                      <button
+                        type="button"
+                        className="organisation-sort-button"
+                        onClick={() => {
+                          handleUserSort(
+                            primaryUserSortDirectionObj.RoleTypeSort === null
+                              ? "asc"
+                              : primaryUserSortDirectionObj.RoleTypeSort ===
+                                  "asc"
+                                ? "desc"
+                                : "asc",
+                            "UserFullName",
+                          );
+                        }}
+                      >
+                        <span>Created By</span>
+
+                        <i
+                          className={
+                            primaryUserSortDirectionObj.RoleTypeSort === "desc"
+                              ? "fas fa-sort-alpha-up"
+                              : "fas fa-sort-alpha-down"
+                          }
+                        ></i>
+                      </button>
+                    </th>
+
+                    <th className="organisation-center-column">Users</th>
+
+                    <th>Current Plan</th>
+
+                    <th>
+                      <button
+                        type="button"
+                        className="organisation-sort-button"
+                        onClick={() => {
+                          handleUserSort(
+                            primaryUserSortDirectionObj.RoleTypeSort === null
+                              ? "asc"
+                              : primaryUserSortDirectionObj.RoleTypeSort ===
+                                  "asc"
+                                ? "desc"
+                                : "asc",
+                            "CreatedOnDate",
+                          );
+                        }}
+                      >
+                        <span>Created Date</span>
+
+                        <i
+                          className={
+                            primaryUserSortDirectionObj.RoleTypeSort === "desc"
+                              ? "fas fa-sort-alpha-up"
+                              : "fas fa-sort-alpha-down"
+                          }
+                        ></i>
+                      </button>
+                    </th>
+
+                    <th>
+                      <button
+                        type="button"
+                        className="organisation-sort-button"
+                        onClick={() => {
+                          handleUserSort(
+                            primaryUserSortDirectionObj.RoleTypeSort === null
+                              ? "asc"
+                              : primaryUserSortDirectionObj.RoleTypeSort ===
+                                  "asc"
+                                ? "desc"
+                                : "asc",
+                            "LastLoginDate",
+                          );
+                        }}
+                      >
+                        <span>Last Login Date</span>
+
+                        <i
+                          className={
+                            primaryUserSortDirectionObj.RoleTypeSort === "desc"
+                              ? "fas fa-sort-alpha-up"
+                              : "fas fa-sort-alpha-down"
+                          }
+                        ></i>
+                      </button>
+                    </th>
+
+                    <th>Status</th>
+                    <th className="organisation-actions-heading">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {organisationList
+                    .slice(0, isMobile ? isMobileRecords : desktopRecords)
+                    .map((Org) => {
+                      const formattedOrganisationName =
+                        Org.tradingBusinessName
+                          ?.toLowerCase()
+                          .replace(/\b\w/g, (l) => l.toUpperCase()) || "";
+
+                      return (
+                        <tr key={Org.organisationKeyID}>
+                          {/* ORGANISATION */}
+                          <td>
+                            <div className="organisation-name-cell">
+                              <span className="organisation-avatar">
+                                {Org.tradingBusinessName
+                                  ?.charAt(0)
+                                  ?.toUpperCase()}
+                              </span>
+
+                              <div className="organisation-name-copy">
+                                {isMobile ? (
+                                  <strong>
+                                    {formattedOrganisationName.length > 20
+                                      ? `${formattedOrganisationName.substring(
+                                          0,
+                                          20,
+                                        )}...`
+                                      : formattedOrganisationName}
+                                  </strong>
+                                ) : formattedOrganisationName.length > 50 ? (
+                                  <Tooltip title={Org.tradingBusinessName}>
+                                    <strong>
+                                      {`${formattedOrganisationName.substring(
+                                        0,
+                                        50,
+                                      )}...`}
+                                    </strong>
+                                  </Tooltip>
+                                ) : (
+                                  <strong>{formattedOrganisationName}</strong>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* CREATED BY */}
+                          <td>
+                            <span className="organisation-created-by">
+                              {Org.fullName}
+                            </span>
+                          </td>
+
+                          {/* USERS */}
+                          <td className="organisation-center-column">
+                            <span className="organisation-users-pill">
+                              <i className="ri-user-3-line"></i>
+                              {Org.numberOfUsers}
+                            </span>
+                          </td>
+
+                          {/* PLAN */}
+                          <td>
+                            {Org.currentPlan ? (
+                              <span className="organisation-plan-pill">
+                                {Org.currentPlan}
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                className="organisation-buy-plan-btn"
+                                onClick={() => {
+                                  showPurchaseModal(Org);
+                                }}
+                              >
+                                Buy Plan
+                              </button>
+                            )}
+                          </td>
+
+                          {/* CREATED DATE */}
+                          <td>
+                            <span className="organisation-date-text">
+                              {Org.createdOn
+                                ? new Date(Org.createdOn).toLocaleDateString(
+                                    "en-GB",
+                                  )
+                                : ""}
+                            </span>
+                          </td>
+
+                          {/* LAST LOGIN */}
+                          <td>
+                            <span className="organisation-date-text">
+                              {Org.lastLoginDate
+                                ? new Date(
+                                    Org.lastLoginDate,
+                                  ).toLocaleDateString("en-GB")
+                                : ""}
+                            </span>
+                          </td>
+
+                          {/* STATUS */}
+                          <td>
+                            <div className="organisation-status-cell">
+                              <span
+                                className={`organisation-status-pill ${
+                                  Org.statusName === "Active"
+                                    ? "is-active"
+                                    : "is-inactive"
+                                }`}
+                              >
+                                {Org.statusName}
+                              </span>
+
+                              {userAccessData.Organisation_CanDelete && (
+                                <Tooltip
+                                  title={getCrudButtonToolTipName(
+                                    "Change Status",
+                                  )}
+                                >
+                                  <FormGroup>
+                                    <FormControlLabel
+                                      control={
+                                        <Android12Switch
+                                          onClick={() =>
+                                            setModelRequestData({
+                                              ...modelRequestData,
+                                              status: Org.statusName,
+                                              OrgKeyID: Org.organisationKeyID,
+                                              OrgName: Org.tradingBusinessName,
+                                              userKeyID: common.userKeyID,
+                                              Action: "Status",
+                                            })
+                                          }
+                                          checked={Org.statusName === "Active"}
+                                          data-bs-toggle="modal"
+                                          data-bs-target="#ConfirmModel"
+                                        />
+                                      }
+                                    />
+                                  </FormGroup>
+                                </Tooltip>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* ACTIONS */}
+                          <td className="organisation-actions-cell">
+                            <div className="organisation-row-actions">
+                              {userAccessData.Organisation_CanView && (
+                                <Tooltip
+                                  title={getCrudButtonToolTipName(
+                                    "View",
+                                    moduleName,
+                                  )}
+                                >
+                                  <button
+                                    type="button"
+                                    className="organisation-action-btn organisation-view-btn"
+                                    onClick={() => handleViewOrganisation(Org)}
+                                  >
+                                    <i className="bi bi-eye"></i>
+                                  </button>
+                                </Tooltip>
+                              )}
+
+                              {userAccessData.Organisation_CanDelete && (
+                                <Tooltip
+                                  title={getCrudButtonToolTipName(
+                                    "Delete",
+                                    moduleName,
+                                  )}
+                                >
+                                  <button
+                                    type="button"
+                                    className="organisation-action-btn organisation-delete-btn"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#ConfirmModel"
+                                    onClick={() =>
+                                      setModelRequestData({
+                                        ...modelRequestData,
+                                        status: Org.statusName,
+                                        OrgKeyID: Org.organisationKeyID,
+                                        OrgName: Org.tradingBusinessName,
+                                        userKeyID: common.userKeyID,
+                                        Action: "Delete",
+                                      })
+                                    }
+                                  >
+                                    <i className="ri-delete-bin-5-line"></i>
+                                  </button>
+                                </Tooltip>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
+
+            {totalRecords <= 0 && (
+              <div className="organisation-empty-state">
+                <NoResultFoundModel
+                  name={moduleName}
+                  totalRecords={totalRecords}
+                />
+              </div>
+            )}
+
+            {listCount > pageSize && (
+              <div className="organisation-pagination">
+                <PaginationComponent
+                  totalCount={listCount}
+                  totalPages={totalPage}
+                  currentPage={currentPage}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
+          </section>
+
+          <ConfirmModel
+            openErrorModal={openErrorModal}
+            openSuccessModal={openSuccessModal}
+            modelRequestData={modelRequestData}
+            UpdatedStatus={OrganisationDeleteData}
+            handleClose={handleClose}
+          />
+
+          <ErrorModel
+            ErrorModel={openErrorModal}
+            handleClose={handleClose}
+            ErrorMessage={formattedErrorMessage}
+          />
+
+          <SuccessModal
+            handleClose={handleClose}
+            setOpenSuccessModal={setOpenSuccessModal}
+            openSuccessModal={openSuccessModal}
+            modelAction={modelRequestData.Action}
+            message={
+              modelRequestData.Action === "Delete"
+                ? "Organisation " + modelRequestData.OrgName
+                : "Status has been changed successfully!"
+            }
+          />
+
+          <RecordsAvailablePopupModel
+            handleClose={handleClose}
+            openErrorModal={openErrorModal}
+            openSuccessModal={openSuccessModal}
+            modelRequestData={modelRequestData}
+            UpdatedStatus={OrganisationDeleteData}
+          />
         </div>
-        {/* End Page-content */}
+
+        <div className="organisation-footer-wrap">
+          <Footer />
+        </div>
       </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    <Footer />
     </>
   );
 };
