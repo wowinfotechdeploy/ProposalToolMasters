@@ -10,6 +10,7 @@ import { ERROR_MESSAGES } from "../../../../components/GlobalMessage";
 import SuccessModal from "../../../../components/SuccessModal";
 import { AuthContextProvider } from "../../../../AuthContext/AuthContext";
 import "./SuperAdminUserRole.css";
+import "./AccessModel-redesign.css";
 import { updateState } from "../../../../redux/Persist";
 import { GetOrganisationLookupList } from "../../../../redux/Services/Master/OrganisationLookupList";
 import ConfirmModel from "../../../../components/ConfirmationBox";
@@ -30,7 +31,7 @@ function AccessModel(props) {
     status: null,
     Action: "",
   });
-  const [RoleTypeIndex, setRoleTypeIndex] = useState(null)
+  const [RoleTypeIndex, setRoleTypeIndex] = useState(null);
   const {
     setActiveOrganization,
     setLoader,
@@ -153,7 +154,7 @@ function AccessModel(props) {
               localStorage.removeItem("OrganisationLocalList");
               localStorage.setItem(
                 "OrganisationLocalList",
-                JSON.stringify(OrganisationsListData)
+                JSON.stringify(OrganisationsListData),
               );
               setOrganisationsList(OrganisationsListData);
 
@@ -175,7 +176,7 @@ function AccessModel(props) {
 
               localStorage.setItem(
                 "userAccess",
-                JSON.stringify(organisationData.accessList)
+                JSON.stringify(organisationData.accessList),
               );
               setActiveOrganization(organisationData.accessList);
 
@@ -220,7 +221,7 @@ function AccessModel(props) {
                         ? []
                         : organisationData.professionTypeLists,
                     enableEL: organisationData.enableEL,
-                  })
+                  }),
                 );
               }
             }
@@ -259,20 +260,20 @@ function AccessModel(props) {
     dispatch(
       updateState({
         isUpdateRole: true,
-      })
+      }),
     );
     $("#" + props.id).modal("hide");
     setOpenSuccessModal(false);
   };
   const closeConfirmModel = () => {
     $("#" + "DeleteDriverModel").modal("hide");
-  }
+  };
 
   const toggleDropdown = (roleTypeID) => {
     setIsOpens(!isOpens);
     // setOpenRole(openRole === roleTypeID ? null : roleTypeID);
     setOpenRole((prevOpenRole) =>
-      prevOpenRole === roleTypeID ? null : roleTypeID
+      prevOpenRole === roleTypeID ? null : roleTypeID,
     );
   };
 
@@ -280,7 +281,7 @@ function AccessModel(props) {
     roleIndex,
     moduleIndex,
     moduleActionIndex,
-    e
+    e,
   ) => {
     let checked = e.target.checked;
     let data = [...defaultData];
@@ -293,14 +294,13 @@ function AccessModel(props) {
   };
 
   const handleCheckAllModules = (roleIndex, e) => {
-
     const checked = e.target.checked;
     if (checked === false) {
       setModelRequestData({
         ...modelRequestData,
         Action: "AccessModel",
-      })
-      setRoleTypeIndex(roleIndex)
+      });
+      setRoleTypeIndex(roleIndex);
       // $("#" + "ConfirmModel").modal("show");
       $("#" + "DeleteDriverModel").modal("show");
     } else {
@@ -308,34 +308,31 @@ function AccessModel(props) {
 
       data[roleIndex].modules.forEach((module) => {
         module.moduleActions.forEach(
-          (action) => (action.setDefaultAction = checked)
+          (action) => (action.setDefaultAction = checked),
         );
       });
 
       setCheckBox(data);
     }
-
-
   };
   const UpdatedStatus = () => {
-
     const data = [...defaultData];
 
     data[RoleTypeIndex].modules.forEach((module) => {
       module.moduleActions.forEach(
-        (action) => (action.setDefaultAction = false)
+        (action) => (action.setDefaultAction = false),
       );
     });
 
     setCheckBox(data);
     $("#" + "DeleteDriverModel").modal("hide");
-  }
+  };
   const handleCheckAllActionsInModule = (roleIndex, moduleIndex, e) => {
     const checked = e.target.checked;
     const data = [...defaultData];
 
     data[roleIndex].modules[moduleIndex].moduleActions.forEach(
-      (action) => (action.setDefaultAction = checked)
+      (action) => (action.setDefaultAction = checked),
     );
 
     setCheckBox(data);
@@ -350,7 +347,7 @@ function AccessModel(props) {
   const areAllModulesChecked = (roleIndex) => {
     const modules = defaultData[roleIndex].modules;
     return modules.every((module) =>
-      module.moduleActions.every((action) => action.setDefaultAction)
+      module.moduleActions.every((action) => action.setDefaultAction),
     );
   };
 
@@ -359,7 +356,7 @@ function AccessModel(props) {
     <div>
       <div
         style={{ display: openSuccessModal && "none" }}
-        class={props.class}
+        className={`${props.class} access-role-modal`}
         id={props.id}
         ref={modalRef}
         tabIndex={props.tabIndex}
@@ -368,258 +365,348 @@ function AccessModel(props) {
         data-bs-backdrop="static"
         data-bs-keyboard="false"
       >
-        <div class="modal-dialog modal-md modal-dialog-centered">
-          <div class="modal-content">
-            {/*Heading Start */}
-            <div class="modal-header bg-light p-3">
-              <h5 class="modal-title" id="exampleModalLabel">
-                {modelAction === "Add"
-                  ? getCrudPopUpTitleName("Add", moduleName)
-                  : getCrudPopUpTitleName("Update", moduleName)}
-              </h5>
-              {/* Close Button Start */}
+        <div className="modal-dialog modal-dialog-centered access-role-dialog">
+          <div className="modal-content access-role-content">
+            {/* =====================================================
+                HEADER
+                ===================================================== */}
+            <div className="modal-header access-role-header">
+              <div className="access-role-header-copy">
+                <span className="access-role-header-icon">
+                  <i className="ri-shield-user-line"></i>
+                </span>
+
+                <div>
+                  <h5 className="modal-title" id="exampleModalLabel">
+                    {modelAction === "Add"
+                      ? getCrudPopUpTitleName("Add", moduleName)
+                      : getCrudPopUpTitleName("Update", moduleName)}
+                  </h5>
+
+                  <p>
+                    Configure the default module permissions available for each
+                    user role.
+                  </p>
+                </div>
+              </div>
+
               <button
                 type="button"
-                class="btn-close"
+                className="btn-close access-role-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
                 onClick={SetInitialModelData}
                 id="close-modal"
-              >
-                {/* Close Button End */}
-              </button>
+              ></button>
             </div>
-            {/*Heading End */}
-            {/*Modal body Start */}
-            <div
-              class="modal-body"
-              style={{ height: "70vh", overflow: "auto" }}
-            >
-              <>
-                <div
-                  class="accordion accordion-flush accessModel"
-                  id="accordionFlushExample"
-                >
-                  <div class="accordion-item ">
-                    {defaultData?.map((role, roleIndex) => (
-                      <div key={role.roleTypeID}>
-                        <h2 class="accordion-header" id={role.roleTypeID}>
-                          <button
-                            class="accordion-button collapsed"
-                            type="button"
-                            data-bs-toggle="collapse"
-                            data-bs-target={`#flush-collapse-${role.roleTypeID}`}
-                            aria-expanded={openRole === role.roleTypeID}
-                            aria-controls={`flush-collapse-${role.roleTypeID}`}
-                            onClick={() => toggleDropdown(role?.roleTypeID)}
-                          >
-                            <i
-                              className={`fas ${
-                                openRole === role.roleTypeID
-                                  ? "fa-chevron-up"
-                                  : "fa-chevron-down"
+
+            {/* =====================================================
+                BODY
+                ===================================================== */}
+            <div className="modal-body access-role-body">
+              {!defaultData || defaultData.length === 0 ? (
+                <div className="access-role-empty">
+                  <span className="access-role-empty-icon">
+                    <i className="ri-shield-user-line"></i>
+                  </span>
+
+                  <h6>No roles available</h6>
+                  <p>
+                    Role permissions are not available right now. Please close
+                    the modal and try again.
+                  </p>
+                </div>
+              ) : (
+                <div className="access-role-list">
+                  {defaultData.map((role, roleIndex) => {
+                    const isOpen = openRole === role.roleTypeID;
+                    const allRolePermissionsChecked =
+                      areAllModulesChecked(roleIndex);
+
+                    const selectedPermissionCount =
+                      role?.modules?.reduce((roleTotal, module) => {
+                        return (
+                          roleTotal +
+                          (module?.moduleActions?.filter(
+                            (action) => action.setDefaultAction,
+                          )?.length || 0)
+                        );
+                      }, 0) || 0;
+
+                    const totalPermissionCount =
+                      role?.modules?.reduce((roleTotal, module) => {
+                        return roleTotal + (module?.moduleActions?.length || 0);
+                      }, 0) || 0;
+
+                    return (
+                      <section
+                        className={`access-role-item ${
+                          isOpen ? "is-open" : ""
+                        }`}
+                        key={role.roleTypeID}
+                      >
+                        {/* ROLE HEADER
+                            NOTE: React state controls expansion. We intentionally
+                            do not use Bootstrap collapse here because the old
+                            data-bs-target did not match the rendered panel id. */}
+                        <button
+                          type="button"
+                          className="access-role-toggle"
+                          aria-expanded={isOpen}
+                          aria-controls={`role-permissions-${role.roleTypeID}`}
+                          onClick={() => toggleDropdown(role.roleTypeID)}
+                        >
+                          <div className="access-role-toggle-left">
+                            <span className="access-role-avatar">
+                              <i className="ri-shield-star-line"></i>
+                            </span>
+
+                            <div className="access-role-toggle-copy">
+                              <strong>{role?.roleName}</strong>
+                              <span>
+                                {selectedPermissionCount} of{" "}
+                                {totalPermissionCount} permissions selected
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="access-role-toggle-right">
+                            <span
+                              className={`access-role-selection-badge ${
+                                allRolePermissionsChecked ? "is-complete" : ""
                               }`}
-                              style={{
-                                position: "absolute",
-                                top: "50%",
-                                right: "15px",
-                                transform: "translateY(-50%)",
-                                cursor: "pointer",
-                                pointerEvents: "none",
-                                zIndex: "1000",
-                                backgroundColor: "white",
-                                color: "#1b1c25",
-                                ...(isOpens ? { fontWeight: "bold" } : {}),
-                              }}
+                            >
+                              {allRolePermissionsChecked
+                                ? "Full Access"
+                                : `${selectedPermissionCount}/${totalPermissionCount}`}
+                            </span>
+
+                            <i
+                              className={`ri-arrow-down-s-line access-role-chevron ${
+                                isOpen ? "is-open" : ""
+                              }`}
                             ></i>
-                            {role?.roleName}
-                          </button>
-                        </h2>
+                          </div>
+                        </button>
 
-                        {openRole === role?.roleTypeID && (
+                        {isOpen && (
                           <div
-                            id="collapseOne"
-                            class="accordion-collapse collapse show"
-                            aria-labelledby="headingOne"
-                            data-bs-parent="#default-accordion-example"
+                            id={`role-permissions-${role.roleTypeID}`}
+                            className="access-role-panel"
                           >
-                            <div class="accordion-body">
-                              <div class="row">
-                                {/* check module start  */}
-                                <div class="form-check form-check-outline form-check-dark mt-2">
-                                  <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    id={`roleIndex${roleIndex}`}
-                                    onChange={(e) =>
-                                      handleCheckAllModules(roleIndex, e)
-                                    }
-                                    checked={areAllModulesChecked(roleIndex)}
-                                  />
-                                  <label
-                                    htmlFor={`roleIndex${roleIndex}`}
-                                    class="form-check-label"
-                                  >
-                                    {areAllModulesChecked(roleIndex) ? (
-                                      <span>
-                                        Unselect all{" "}
-                                        <b style={{ fontSize: "12px" }}>
-                                          {" "}
-                                          {role?.roleName}{" "}
-                                        </b>{" "}
-                                        Modules
-                                      </span>
-                                    ) : (
-                                      <span>
-                                        Select all{" "}
-                                        <b style={{ fontSize: "12px" }}>
-                                          {" "}
-                                          {role?.roleName}{" "}
-                                        </b>{" "}
-                                        Modules{" "}
-                                      </span>
-                                    )}
-                                  </label>
-                                </div>
+                            {/* SELECT ALL FOR ROLE */}
+                            <div className="access-role-select-all">
+                              <div>
+                                <strong>
+                                  {allRolePermissionsChecked
+                                    ? "All permissions selected"
+                                    : `Select all ${role?.roleName} permissions`}
+                                </strong>
+                                <span>
+                                  Apply or remove access across every module for
+                                  this role.
+                                </span>
+                              </div>
 
-                                {role?.modules.map((module, moduleIndex) => (
-                                  <div class="col-md-6">
-                                    {/* M action end  */}
-                                    <div key={module?.moduleId}>
-                                      <h4
-                                        style={{
-                                          marginBottom: "20px  !important",
-                                          color: "#00afef ",
-                                          fontSize: "14px",
-                                        }}
-                                        class="card-title mb-0 flex-grow-1"
+                              <label
+                                className="access-role-master-check"
+                                htmlFor={`roleIndex${roleIndex}`}
+                              >
+                                <input
+                                  className="form-check-input"
+                                  type="checkbox"
+                                  id={`roleIndex${roleIndex}`}
+                                  onChange={(e) =>
+                                    handleCheckAllModules(roleIndex, e)
+                                  }
+                                  checked={allRolePermissionsChecked}
+                                />
+
+                                <span>
+                                  {allRolePermissionsChecked
+                                    ? "Unselect All"
+                                    : "Select All"}
+                                </span>
+                              </label>
+                            </div>
+
+                            {/* MODULES */}
+                            <div className="access-role-modules-grid">
+                              {role?.modules?.map((module, moduleIndex) => {
+                                const moduleChecked = areAllActionsChecked(
+                                  roleIndex,
+                                  moduleIndex,
+                                );
+
+                                const moduleCheckboxId = `role_${role.roleTypeID}_${module.moduleId}_${moduleIndex}`;
+
+                                return (
+                                  <div
+                                    className="access-role-module-card"
+                                    key={module?.moduleId}
+                                  >
+                                    <div className="access-role-module-header">
+                                      <div className="access-role-module-title">
+                                        <span className="access-role-module-icon">
+                                          <i className="ri-layout-grid-line"></i>
+                                        </span>
+
+                                        <div>
+                                          <strong>{module?.moduleName}</strong>
+                                          <span>
+                                            {module?.moduleActions?.length || 0}{" "}
+                                            permissions
+                                          </span>
+                                        </div>
+                                      </div>
+
+                                      <label
+                                        className="access-role-module-check"
+                                        htmlFor={moduleCheckboxId}
+                                        title={
+                                          moduleChecked
+                                            ? "Unselect module"
+                                            : "Select module"
+                                        }
                                       >
                                         <input
-                                          class="form-check-input"
+                                          className="form-check-input"
                                           type="checkbox"
-                                          id={`role${moduleIndex}`}
+                                          id={moduleCheckboxId}
                                           onChange={(e) =>
                                             handleCheckAllActionsInModule(
                                               roleIndex,
                                               moduleIndex,
-                                              e
+                                              e,
                                             )
                                           }
-                                          checked={areAllActionsChecked(
-                                            roleIndex,
-                                            moduleIndex
-                                          )}
+                                          checked={moduleChecked}
                                         />
-                                        <label
-                                          style={{ marginLeft: "8px" }}
-                                          htmlFor={`role${moduleIndex}`}
-                                        >
-                                          {" "}
-                                          {module?.moduleName}
-                                        </label>
-                                      </h4>
 
-                                      <div class="row">
-                                        <div class="col-md-7">
-                                          <div class="row">
-                                            <div class="mb-3">
-                                              {module?.moduleActions.map(
-                                                (action, moduleActionIndex) => (
-                                                  <div
-                                                    class="form-check form-check-outline form-check-dark mt-2"
-                                                    key={action?.mActionId}
-                                                  >
-                                                    <input
-                                                      class="form-check-input"
-                                                      id={`checkbox_${action?.mActionId}`} // Make sure each ID is unique
-                                                      type="checkbox"
-                                                      checked={
-                                                        action?.setDefaultAction
-                                                      }
-                                                      onChange={(e) =>
-                                                        handleCheckboxChange(
-                                                          roleIndex,
-                                                          moduleIndex,
-                                                          moduleActionIndex,
-                                                          e
-                                                        )
-                                                      }
-                                                    />
-                                                    <label
-                                                      class="form-check-label new_checkbox text-nowrap"
-                                                      htmlFor={`checkbox_${action?.mActionId}`} // Associate label with checkbox
-                                                    >
-                                                      <Tooltip title="Can Delete/Change Status/Is Default">
-                                                        {action?.mActionName ===
-                                                        "Can Delete"
-                                                          ? "Can Delete / Change Status / Is Default".substring(
-                                                              0,
-                                                              26
-                                                            ) + "..."
-                                                          : action?.mActionName}
-                                                      </Tooltip>
-                                                    </label>
-                                                  </div>
-                                                )
-                                              )}
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
+                                        <span>
+                                          {moduleChecked ? "All" : "Select All"}
+                                        </span>
+                                      </label>
+                                    </div>
+
+                                    <div className="access-role-actions-list">
+                                      {module?.moduleActions?.map(
+                                        (action, moduleActionIndex) => {
+                                          const actionId = `checkbox_${role.roleTypeID}_${module.moduleId}_${action?.mActionId}`;
+
+                                          return (
+                                            <label
+                                              className={`access-role-action-row ${
+                                                action?.setDefaultAction
+                                                  ? "is-selected"
+                                                  : ""
+                                              }`}
+                                              key={action?.mActionId}
+                                              htmlFor={actionId}
+                                            >
+                                              <input
+                                                className="form-check-input"
+                                                id={actionId}
+                                                type="checkbox"
+                                                checked={
+                                                  action?.setDefaultAction
+                                                }
+                                                onChange={(e) =>
+                                                  handleCheckboxChange(
+                                                    roleIndex,
+                                                    moduleIndex,
+                                                    moduleActionIndex,
+                                                    e,
+                                                  )
+                                                }
+                                              />
+
+                                              <Tooltip
+                                                title={
+                                                  action?.mActionName ===
+                                                  "Can Delete"
+                                                    ? "Can Delete / Change Status / Is Default"
+                                                    : action?.mActionName
+                                                }
+                                              >
+                                                <span>
+                                                  {action?.mActionName ===
+                                                  "Can Delete"
+                                                    ? "Can Delete / Change Status / Is Default"
+                                                    : action?.mActionName}
+                                                </span>
+                                              </Tooltip>
+                                            </label>
+                                          );
+                                        },
+                                      )}
                                     </div>
                                   </div>
-                                ))}
-                              </div>
+                                );
+                              })}
                             </div>
                           </div>
                         )}
-                      </div>
-                    ))}
-                  </div>
+                      </section>
+                    );
+                  })}
                 </div>
-              </>
+              )}
+
+              {errorMessage && (
+                <div className="access-role-error">
+                  <i className="ri-error-warning-line"></i>
+                  <span>{errorMessage}</span>
+                </div>
+              )}
             </div>
-            {/*Modal body End */}
-            {/*Footer body button Start */}
-            <div class="modal-footer">
-              <div class="hstack gap-2 justify-content-end">
-                <button
-                  type="button"
-                  class="btn btn-md btn-light"
-                  data-bs-dismiss="modal"
-                  onClick={() => SetInitialModelData()}
-                >
-                  <span>{getCrudButtonTextName("Cancel")}</span>
-                </button>
-                <button
-                  type="submit"
-                  class="btn btn-md btn-success create-item-btn"
-                  onClick={() => {
-                    SetPermission(mainData);
-                  }}
-                >
-                  <span>
-                    {modelAction === "Add"
-                      ? getCrudButtonTextName("Add", moduleName)
-                      : getCrudButtonTextName("Update", moduleName)}
-                  </span>
-                </button>
-              </div>
+
+            {/* =====================================================
+                FOOTER
+                ===================================================== */}
+            <div className="modal-footer access-role-footer">
+              <button
+                type="button"
+                className="btn access-role-cancel-btn"
+                data-bs-dismiss="modal"
+                onClick={() => SetInitialModelData()}
+              >
+                <span>{getCrudButtonTextName("Cancel")}</span>
+              </button>
+
+              <button
+                type="submit"
+                className="btn access-role-save-btn"
+                onClick={() => {
+                  SetPermission(mainData);
+                }}
+              >
+                <i className="ri-check-line"></i>
+
+                <span>
+                  {modelAction === "Add"
+                    ? getCrudButtonTextName("Add", moduleName)
+                    : getCrudButtonTextName("Update", moduleName)}
+                </span>
+              </button>
             </div>
-            {/*Footer body button End */}
           </div>
         </div>
+
+        {/* EXISTING MODALS — FUNCTIONALITY PRESERVED */}
         <ConfirmModel
           openErrorModal={false}
           openSuccessModal={openSuccessModal}
           modelRequestData={modelRequestData}
           UpdatedStatus={UpdatedStatus}
         />
+
         <DeleteDriverModal
           handleClose={closeConfirmModel}
           modelRequestData={modelRequestData}
           UpdatedStatus={UpdatedStatus}
         />
+
         <SuccessModal
           handleClose={handleClose}
           setDismissModal={setDismissModal}

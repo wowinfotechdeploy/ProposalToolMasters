@@ -23,6 +23,7 @@ import ErrorModel from "../../../../components/ErrorModel";
 import Footer from "../../../../components/Footer";
 import RecordsAvailablePopupModel from "../../../../components/RecordsAvailablePopupModel";
 import { USER_ROLE_TYPE } from "../../../../Middleware/enums";
+import "./UserRoleList-redesign.css";
 
 const UserRoleList = () => {
   // A] States Declaration :
@@ -67,7 +68,7 @@ const UserRoleList = () => {
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
   const [openErrorModal, setOpenErrorModal] = React.useState(false);
   const [showProfessionType, setShowProfessionType] = useState(
-    common.organisationKeyID === null || common.professionTypeLists.length > 1
+    common.organisationKeyID === null || common.professionTypeLists.length > 1,
   );
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
   // B] Initial useEffect :
@@ -98,7 +99,7 @@ const UserRoleList = () => {
     i,
     searchKeywordValue,
     sortValue,
-    ServiceSortType
+    ServiceSortType,
   ) => {
     setLoader(true);
     const pageNoList = i - 1;
@@ -134,7 +135,7 @@ const UserRoleList = () => {
                 newPageNo,
                 searchKeywordValue,
                 sortValue,
-                ServiceSortType
+                ServiceSortType,
               );
               setCurrentPage(pageNoList);
               return;
@@ -152,7 +153,7 @@ const UserRoleList = () => {
                 i,
                 searchKeywordValue,
                 sortValue,
-                ServiceSortType
+                ServiceSortType,
               );
             }, 2000);
           } else {
@@ -204,7 +205,7 @@ const UserRoleList = () => {
       try {
         const Data = await UserRoleChangeStatus(
           modelRequestData.roleTypeID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -212,7 +213,7 @@ const UserRoleList = () => {
             if (Data?.data?.responseData.roleTypeExistsInUsers.length !== 0) {
               const servicePackageNames =
                 Data?.data?.responseData.roleTypeExistsInUsers[0].recordList.map(
-                  (item) => item.name
+                  (item) => item.name,
                 );
               setModelRequestData({
                 ...modelRequestData,
@@ -241,7 +242,7 @@ const UserRoleList = () => {
       try {
         const Data = await DeleteUserRole(
           modelRequestData.roleTypeID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -249,7 +250,7 @@ const UserRoleList = () => {
             if (Data?.data?.responseData.roleTypeExistsInUsers.length !== 0) {
               const servicePackageNames =
                 Data?.data?.responseData.roleTypeExistsInUsers[0].recordList.map(
-                  (item) => item.name
+                  (item) => item.name,
                 );
               setModelRequestData({
                 ...modelRequestData,
@@ -312,399 +313,383 @@ const UserRoleList = () => {
 
   //Design part :
   return (
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
-        <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                          <div className="row">
-                <div className="col-md-6 col-6">
-                  <div class="page-title-cls">User Role</div>
-                </div>
-                <div class="col-auto ms-auto">
-                  <div className="d-flex  add-new-btn">
-                    <div class="text-right flex1">
-                      <Tooltip title="Set Default Access">
-                        <button
-                          className="btn btn-md btn-success create-item-btn"
-                          onClick={() => UserRoleAddBtnClicked("accessModel")}
-                          data-bs-target="#AccessModal"
-                          data-bs-toggle="modal"
-                          name={"Set Default Access"}
-                          title={getCrudButtonToolTipName("Set Default Access")}
-                        >
-                          <i className="bi bi-plus-circle "></i>
-                          <span className="d-none d-sm-inline">
-                            {" "}
-                            {"Set Default Access"}
-                          </span>
-                          <span className="d-inline d-sm-none">
-                            {" "}
-                            Set Access
-                          </span>
-                        </button>
-                      </Tooltip>
-                    </div>
-                  </div>
+    <div className="container-fluid user-role-list-redesign">
+      <div className="user-role-page">
+        {/* =====================================================
+            PAGE HEADER
+            ===================================================== */}
+        <div className="user-role-page-header">
+          <div className="user-role-heading-copy">
+            <h1>User Roles</h1>
+            <p>Manage user roles, access permissions and role availability.</p>
+          </div>
+
+          <div className="user-role-header-actions">
+            <Tooltip title="Set Default Access">
+              <button
+                type="button"
+                className="user-role-secondary-action"
+                onClick={() => UserRoleAddBtnClicked("accessModel")}
+                data-bs-target="#AccessModal"
+                data-bs-toggle="modal"
+                name={"Set Default Access"}
+                title={getCrudButtonToolTipName("Set Default Access")}
+              >
+                <i className="ri-shield-keyhole-line"></i>
+                <span>Set Default Access</span>
+              </button>
+            </Tooltip>
+
+            {userAccessData.SuperAdmin_Setting_User_Role_CanAdd && (
+              <div className="user-role-primary-action">
+                <CommonButtonComponent
+                  title={getCrudButtonToolTipName("Add", moduleName)}
+                  dataBsTarget="#addUpdateModal"
+                  data_bs_toggle="modal"
+                  name={getCrudButtonTextName("Add", moduleName)}
+                  AddBtn={() => UserRoleAddBtnClicked("User")}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* =====================================================
+            LIST CARD
+            ===================================================== */}
+        <section className="user-role-list-card">
+          {/* SEARCH + COUNT */}
+          <div className="user-role-toolbar">
+            <div className="user-role-search-wrap">
+              <i className="ri-search-line"></i>
+
+              <input
+                type="text"
+                value={searchKeyword}
+                onChange={(e) => {
+                  handleSearch(e);
+                }}
+                className="form-control user-role-search-input"
+                placeholder={
+                  isMobile
+                    ? "Search"
+                    : getPlaceholderTextName("Search", moduleName)
+                }
+              />
+            </div>
+
+            <div className="user-role-count">
+              <span className="user-role-count-icon">
+                <i className="ri-user-settings-line"></i>
+              </span>
+
+              <div>
+                <span>Total Roles</span>
+                <strong>{listCount > 0 ? listCount : 0}</strong>
               </div>
             </div>
           </div>
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card ">
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
-                        <div className="row justify-content-between">
-                          <div class="col-lg-6 col-md-10 col-sm-9  d-flex align-items-center">
-                            <div class="search-box col-md-3 col-6 width-searchbox mb-2">
-                              <i class="ri-search-line search-icon"></i>
-                              <input
-                                type="text"
-                                value={searchKeyword}
-                                onChange={(e) => {
-                                  handleSearch(e);
-                                }}
-                                className="form-control search"
-                                placeholder={
-                                  isMobile ? "Search" : getPlaceholderTextName("Search", moduleName)
-                                }
-                              />
-                            </div>
-                          </div>
-                          <div className="col-lg-2 col-md-2 col-sm-3">
-                            <div className="d-flex justify-content-sm-end add-new-btn mb-2">
-                              {userAccessData.SuperAdmin_Setting_User_Role_CanAdd && (
-                                <CommonButtonComponent
-                                  title={getCrudButtonToolTipName(
-                                    "Add",
-                                    moduleName
-                                  )}
-                                  dataBsTarget="#addUpdateModal"
-                                  data_bs_toggle="modal"
-                                  name={getCrudButtonTextName(
-                                    "Add",
-                                    moduleName
-                                  )}
-                                  AddBtn={() => UserRoleAddBtnClicked("User")}
-                                />
-                              )}
-                            </div>
+
+          {/* TABLE */}
+          <div className="user-role-table-scroll">
+            <table className="user-role-table" id="customerTable">
+              <thead>
+                <tr>
+                  <th>
+                    <button
+                      type="button"
+                      className="user-role-sort-btn"
+                      onClick={() => {
+                        setSortType("RoleName");
+                        handleSort(
+                          primarySortDirectionObj.UserNameSort === null
+                            ? "asc"
+                            : primarySortDirectionObj.UserNameSort === "asc"
+                              ? "desc"
+                              : "asc",
+                          "RoleName",
+                        );
+                      }}
+                    >
+                      <span>User Role</span>
+
+                      <i
+                        className={
+                          primarySortDirectionObj.UserNameSort === "desc"
+                            ? "fas fa-sort-alpha-up"
+                            : "fas fa-sort-alpha-down"
+                        }
+                      ></i>
+                    </button>
+                  </th>
+
+                  <th>Status</th>
+
+                  <th className="user-role-actions-heading">
+                    {(userAccessData.SuperAdmin_Setting_User_Role_CanDelete ||
+                      userAccessData.SuperAdmin_Setting_User_Role_CanEdit) && (
+                      <>Actions</>
+                    )}
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {UserRoleList?.slice(
+                  0,
+                  isMobile ? isMobileRecords : desktopRecords,
+                ).map((userRole, index) => {
+                  const isProtectedRole =
+                    userRole.roleTypeID === 1 || userRole.roleTypeID === 2;
+
+                  return (
+                    <tr key={index}>
+                      {/* ROLE */}
+                      <td>
+                        <div className="user-role-name-cell">
+                          <span className="user-role-icon">
+                            <i className="ri-shield-user-line"></i>
+                          </span>
+
+                          <div className="user-role-name-copy">
+                            {isMobile ? (
+                              <strong>
+                                {userRole.roleName.length > 20
+                                  ? userRole.roleName.substring(0, 20) + "..."
+                                  : userRole.roleName}
+                              </strong>
+                            ) : (
+                              <>
+                                {userRole.roleName?.length > 45 ? (
+                                  <Tooltip title={userRole.roleName}>
+                                    <strong>
+                                      {userRole.roleName.substring(0, 45) +
+                                        "..."}
+                                    </strong>
+                                  </Tooltip>
+                                ) : (
+                                  <strong>{userRole.roleName}</strong>
+                                )}
+                              </>
+                            )}
+
+                            {isProtectedRole && (
+                              <span className="user-role-system-badge">
+                                System Role
+                              </span>
+                            )}
                           </div>
                         </div>
-                        <table
-                          class="table align-middle table-nowrap"
-                          id="customerTable"
-                        >
-                          <thead class="table-light table-header-font">
-                            <tr className="head-row">
-                              <td
-                                className="tr-table-class text-white"
-                                style={{ width: "80%" }}
+                      </td>
+
+                      {/* STATUS */}
+                      <td>
+                        <div className="user-role-status-cell">
+                          <span
+                            className={`user-role-status-pill ${
+                              userRole.statusName === "Active"
+                                ? "is-active"
+                                : "is-inactive"
+                            }`}
+                          >
+                            {userRole.statusName}
+                          </span>
+
+                          {userAccessData.SuperAdmin_Setting_User_Role_CanDelete &&
+                            userRole.roleTypeID !== 1 &&
+                            userRole.roleTypeID !== 2 && (
+                              <Tooltip
+                                title={getCrudButtonToolTipName(
+                                  "Change Status",
+                                )}
                               >
-                                User Role
-                                {primarySortDirectionObj.UserNameSort ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("RoleName");
-                                        handleSort("asc", "RoleName");
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primarySortDirectionObj.UserNameSort ===
-                                  null ||
-                                  primarySortDirectionObj.UserNameSort ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("RoleName");
-                                        handleSort(
-                                          primarySortDirectionObj.UserNameSort ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "RoleName"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td
-                                className="tr-table-class text-white profession-type-column"
-                                style={{ width: "10%" }}
-                              ></td>
-                              <td className="tr-table-class text-white">
-                                Status
-                              </td>
-                              <td
-                                className="tr-table-class text-white"
-                                style={{ width: "10%" }}
-                              >
-                                {(userAccessData.SuperAdmin_Setting_User_Role_CanDelete ||
-                                  userAccessData.SuperAdmin_Setting_User_Role_CanEdit) && (
-                                    <>Action</>
-                                  )}
-                              </td>
-                            </tr>
-                          </thead>
-                          <tbody class="list form-check-all">
-                            {UserRoleList?.slice(
-                              0,
-                              isMobile ? isMobileRecords : desktopRecords
-                            ).map((userRole, index) => {
-                              return (
-                                <tr class="table_new" key={index}>
-                                  <td className="table-content-font">
-                                    {isMobile ? (
-                                      <>
-                                        {userRole.roleName.length > 20
-                                          ? userRole.roleName.substring(0, 20) +
-                                          "..."
-                                          : userRole.roleName}
-                                      </>
-                                    ) : (
-                                      <>
-                                        {userRole.roleName?.length > 45 ? (
-                                          <Tooltip title={userRole.roleName}>
-                                            {userRole.roleName.substring(
-                                              0,
-                                              45
-                                            ) + "..."}
-                                          </Tooltip>
-                                        ) : (
-                                          <>{userRole.roleName}</>
-                                        )}
-                                      </>
+                                <FormGroup>
+                                  <FormControlLabel
+                                    control={
+                                      <Android12Switch
+                                        onClick={() =>
+                                          setModelRequestData({
+                                            ...modelRequestData,
+                                            status: userRole.statusName,
+                                            roleTypeID: userRole.roleTypeID,
+                                            userKeyID: common.userKeyID,
+                                            Action: "Status",
+                                          })
+                                        }
+                                        checked={
+                                          userRole.statusName === "Active"
+                                        }
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#ConfirmModel"
+                                      />
+                                    }
+                                  />
+                                </FormGroup>
+                              </Tooltip>
+                            )}
+                        </div>
+                      </td>
+
+                      {/* ACTIONS */}
+                      <td className="user-role-actions-cell">
+                        <div className="user-role-row-actions">
+                          {userRole.roleTypeID !== 1 &&
+                            userRole.roleTypeID !== 2 && (
+                              <>
+                                {userAccessData.SuperAdmin_Setting_User_Role_CanEdit && (
+                                  <Tooltip
+                                    title={getCrudButtonToolTipName(
+                                      "Update",
+                                      moduleName,
                                     )}
-                                  </td>
-                                  <td className="table-content-font"></td>
-
-                                  <td className="Switch table-content-font">
-                                    <div
-                                      style={{ alignItems: "none" }}
-                                      class="d-flex gap-2 "
+                                  >
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        UserRoleEditBtnClicked(userRole)
+                                      }
+                                      className="user-role-action-btn user-role-edit-btn"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#addUpdateModal"
                                     >
-                                      <div style={{ width: "50px" }}>
-                                        {" "}
-                                        {userRole.statusName}
-                                      </div>
-                                      {userAccessData.SuperAdmin_Setting_User_Role_CanDelete &&
-                                        userRole.roleTypeID !== 1 &&
-                                        userRole.roleTypeID !== 2 && (
-                                          <Tooltip
-                                            title={getCrudButtonToolTipName(
-                                              "Change Status"
-                                            )}
-                                          >
-                                            <FormGroup>
-                                              <FormControlLabel
-                                                control={
-                                                  <Android12Switch
-                                                    onClick={() =>
-                                                      setModelRequestData({
-                                                        ...modelRequestData,
-                                                        status:
-                                                          userRole.statusName,
-                                                        roleTypeID:
-                                                          userRole.roleTypeID,
-                                                        userKeyID:
-                                                          common.userKeyID,
-                                                        Action: "Status",
-                                                      })
-                                                    }
-                                                    checked={
-                                                      userRole.statusName ===
-                                                      "Active"
-                                                    }
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#ConfirmModel"
-                                                  />
-                                                }
-                                              />
-                                            </FormGroup>
-                                          </Tooltip>
-                                        )}
-                                    </div>
-                                  </td>
-                                  <td className="table-content-font">
-                                    <div class="d-flex gap-2">
-                                      {userRole.roleTypeID !== 1 &&
-                                        userRole.roleTypeID !== 2 && (
-                                          <>
-                                            {userAccessData.SuperAdmin_Setting_User_Role_CanEdit && (
-                                              <Tooltip
-                                                title={getCrudButtonToolTipName(
-                                                  "Update",
-                                                  moduleName
-                                                )}
-                                              >
-                                                <div class="edit">
-                                                  <button
-                                                    onClick={() =>
-                                                      UserRoleEditBtnClicked(
-                                                        userRole
-                                                      )
-                                                    }
-                                                    class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#addUpdateModal"
-                                                  >
-                                                    <i class="ri-pencil-fill"></i>
-                                                  </button>
-                                                </div>
-                                              </Tooltip>
-                                            )}
-                                            {userAccessData.SuperAdmin_Setting_User_Role_CanDelete && (
-                                              <Tooltip
-                                                title={getCrudButtonToolTipName(
-                                                  "Delete",
-                                                  moduleName
-                                                )}
-                                              >
-                                                <div class="remove">
-                                                  <button
-                                                    class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#ConfirmModel"
-                                                    onClick={() =>
-                                                      setModelRequestData({
-                                                        ...modelRequestData,
-                                                        roleTypeID:
-                                                          userRole.roleTypeID,
-                                                        roleName:
-                                                          userRole.roleName,
-                                                        userKeyID:
-                                                          common.userKeyID,
-                                                        Action: "Delete",
-                                                      })
-                                                    }
-                                                  >
-                                                    <i class="ri-delete-bin-5-fill"></i>
-                                                  </button>
-                                                </div>
-                                              </Tooltip>
-                                            )}
-                                          </>
-                                        )}
-                                    </div>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
+                                      <i className="ri-pencil-fill"></i>
+                                    </button>
+                                  </Tooltip>
+                                )}
 
-                        {totalRecords <= 0 && (
-                          <NoResultFoundModel
-                            name={moduleName}
-                            totalRecords={totalRecords}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  {listCount > pageSize && (
-                    <PaginationComponent
-                      totalCount={listCount}
-                      totalPages={totalPage}
-                      desktopRecords={desktopRecords}
-                      currentPage={currentPage}
-                      onPageChange={handlePageChange}
-                    />
-                  )}
-                </div>
-              </div>
+                                {userAccessData.SuperAdmin_Setting_User_Role_CanDelete && (
+                                  <Tooltip
+                                    title={getCrudButtonToolTipName(
+                                      "Delete",
+                                      moduleName,
+                                    )}
+                                  >
+                                    <button
+                                      type="button"
+                                      className="user-role-action-btn user-role-delete-btn"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#ConfirmModel"
+                                      onClick={() =>
+                                        setModelRequestData({
+                                          ...modelRequestData,
+                                          roleTypeID: userRole.roleTypeID,
+                                          roleName: userRole.roleName,
+                                          userKeyID: common.userKeyID,
+                                          Action: "Delete",
+                                        })
+                                      }
+                                    >
+                                      <i className="ri-delete-bin-5-fill"></i>
+                                    </button>
+                                  </Tooltip>
+                                )}
+                              </>
+                            )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {totalRecords <= 0 && (
+            <div className="user-role-empty-state">
+              <NoResultFoundModel
+                name={moduleName}
+                totalRecords={totalRecords}
+              />
             </div>
+          )}
+        </section>
 
-            <ErrorModel
-              ErrorModel={openErrorModal}
-              handleClose={handleClose}
-              ErrorMessage={
-                errorMessage === "Please InActive this record first."
-                  ? "Please change the status to InActive first."
-                  : errorMessage
-              }
-            />
-            {/* Confirm Modal  */}
-            <ConfirmModel
-              openErrorModal={openErrorModal}
-              openSuccessModal={openSuccessModal}
-              modelRequestData={modelRequestData}
-              UpdatedStatus={UserRoleChangeStatusDataAndDeleteData}
-            />
-            <RecordsAvailablePopupModel
-              id="RecordsAvailablePopupModel"
-              handleClose={handleClose}
-              openErrorModal={openErrorModal}
-              openSuccessModal={openSuccessModal}
-              modelRequestData={modelRequestData}
-              UpdatedStatus={UserRoleChangeStatusDataAndDeleteData}
-            />
-            {/* Success Modal  */}
-            <SuccessModal
-              handleClose={handleClose}
-              setOpenSuccessModal={setOpenSuccessModal}
-              openSuccessModal={openSuccessModal}
-              modelAction={modelRequestData.Action}
-              message={
-                modelRequestData.Action === "Delete"
-                  ? `${moduleName} ${modelRequestData.roleName}`
-                  : "Status has been changed successfully!"
-              }
-            />
-
-            {/* User Model Modal  */}
-            <UserRoleModel
-              class="modal fade"
-              id="addUpdateModal"
-              tabIndex="-1"
-              aria_labelledby="exampleModalLabel"
-              aria_hidden="true"
-              setIsAddUpdateActionDone={setIsAddUpdateActionDone}
-              modelRequestData={modelRequestData}
-            />
-            <AccessModel
-              class="modal fade"
-              id="AccessModal"
-              tabIndex="-1"
-              aria_labelledby="exampleModalLabel"
-              aria_hidden="true"
-              setIsAddUpdateActionDone={setIsAddUpdateActionDone}
-              modelRequestData={modelRequestData}
+        {/* PAGINATION OUTSIDE LIST */}
+        {listCount > pageSize && (
+          <div className="user-role-pagination">
+            <PaginationComponent
+              totalCount={listCount}
+              totalPages={totalPage}
+              desktopRecords={desktopRecords}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
             />
           </div>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
-        
+        )}
+
+        {/* =====================================================
+            EXISTING MODALS
+            ===================================================== */}
+        <ErrorModel
+          ErrorModel={openErrorModal}
+          handleClose={handleClose}
+          ErrorMessage={
+            errorMessage === "Please InActive this record first."
+              ? "Please change the status to InActive first."
+              : errorMessage
+          }
+        />
+
+        <ConfirmModel
+          openErrorModal={openErrorModal}
+          openSuccessModal={openSuccessModal}
+          modelRequestData={modelRequestData}
+          UpdatedStatus={UserRoleChangeStatusDataAndDeleteData}
+        />
+
+        <RecordsAvailablePopupModel
+          id="RecordsAvailablePopupModel"
+          handleClose={handleClose}
+          openErrorModal={openErrorModal}
+          openSuccessModal={openSuccessModal}
+          modelRequestData={modelRequestData}
+          UpdatedStatus={UserRoleChangeStatusDataAndDeleteData}
+        />
+
+        <SuccessModal
+          handleClose={handleClose}
+          setOpenSuccessModal={setOpenSuccessModal}
+          openSuccessModal={openSuccessModal}
+          modelAction={modelRequestData.Action}
+          message={
+            modelRequestData.Action === "Delete"
+              ? `${moduleName} ${modelRequestData.roleName}`
+              : "Status has been changed successfully!"
+          }
+        />
+
+        <UserRoleModel
+          class="modal fade"
+          id="addUpdateModal"
+          tabIndex="-1"
+          aria_labelledby="exampleModalLabel"
+          aria_hidden="true"
+          setIsAddUpdateActionDone={setIsAddUpdateActionDone}
+          modelRequestData={modelRequestData}
+        />
+
+        <AccessModel
+          class="modal fade"
+          id="AccessModal"
+          tabIndex="-1"
+          aria_labelledby="exampleModalLabel"
+          aria_hidden="true"
+          setIsAddUpdateActionDone={setIsAddUpdateActionDone}
+          modelRequestData={modelRequestData}
+        />
       </div>
 
-      {/* start back-to-top */}
       <button
         onClick="topFunction()"
-        class="btn btn-danger btn-icon"
+        className="btn btn-danger btn-icon"
         id="back-to-top"
       >
-        <i class="ri-arrow-up-line"></i>
+        <i className="ri-arrow-up-line"></i>
       </button>
-      {/* end back-to-top */}
-      <Footer />
+
+      <div className="user-role-footer-wrap">
+        <Footer />
+      </div>
     </div>
   );
 };

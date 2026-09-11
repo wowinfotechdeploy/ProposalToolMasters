@@ -9,6 +9,7 @@ import {
 import { ERROR_MESSAGES } from "../../../../components/GlobalMessage";
 import SuccessModal from "../../../../components/SuccessModal";
 import { AuthContextProvider } from "../../../../AuthContext/AuthContext";
+import "./UserRoleModel-redesign.css";
 
 function UserRoleModel(props) {
   // A] States Declaration :
@@ -158,7 +159,7 @@ function UserRoleModel(props) {
     <div>
       <div
         style={{ display: openSuccessModal && "none" }}
-        class={props.class}
+        className={`${props.class} user-role-modal-redesign`}
         id={props.id}
         ref={modalRef}
         tabIndex={props.tabIndex}
@@ -167,45 +168,59 @@ function UserRoleModel(props) {
         data-bs-backdrop="static"
         data-bs-keyboard="false"
       >
-        <div class="modal-dialog modal-md modal-dialog-centered">
-          <div class="modal-content">
-            {/*Heading Start */}
-            <div class="modal-header bg-light p-3">
-              <h5 class="modal-title" id="exampleModalLabel">
-                {modelAction === "Add"
-                  ? getCrudPopUpTitleName("Add", moduleName)
-                  : getCrudPopUpTitleName("Update", moduleName)}
-              </h5>
-              {/* Close Button Start */}
+        <div className="modal-dialog modal-dialog-centered user-role-modal-dialog">
+          <div className="modal-content user-role-modal-content">
+            {/* HEADER */}
+            <div className="modal-header user-role-modal-header">
+              <div className="user-role-modal-header-copy">
+                <span className="user-role-modal-header-icon">
+                  <i className="ri-shield-user-line"></i>
+                </span>
+
+                <div>
+                  <h5 className="modal-title" id="exampleModalLabel">
+                    {modelAction === "Add"
+                      ? getCrudPopUpTitleName("Add", moduleName)
+                      : getCrudPopUpTitleName("Update", moduleName)}
+                  </h5>
+
+                  <p>
+                    {modelAction === "Add"
+                      ? "Create a new role for managing user access."
+                      : "Update the selected user role name."}
+                  </p>
+                </div>
+              </div>
+
               <button
                 type="button"
-                class="btn-close"
+                className="btn-close user-role-modal-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
                 onClick={SetInitialModelData}
                 id="close-modal"
-              >
-                {/* Close Button End */}
-              </button>
+              ></button>
             </div>
-            {/*Heading End */}
-            {/*Modal body Start */}
-            <div class="modal-body">
-              <div>
-                <div class="row fieldset"></div>
-                <div class="row fieldset">
-                  <div class="col-12 mb-1">
-                    <label>
-                      User Role Name
-                      <span className="text-danger">*</span>
-                    </label>
-                  </div>
-                  <div class="col-12">
+
+            {/* BODY */}
+            <div className="modal-body user-role-modal-body">
+              <div className="user-role-form-card">
+                <div className="user-role-field">
+                  <label htmlFor="user-role-name">
+                    User Role Name
+                    <span className="text-danger">*</span>
+                  </label>
+
+                  <div className="user-role-input-wrap">
+                    <span className="user-role-input-icon">
+                      <i className="ri-user-settings-line"></i>
+                    </span>
+
                     <input
-                      style={{ padding: "5px" }}
+                      id="user-role-name"
                       type="text"
-                      class="input-text"
-                      placeholder="User Role Name"
+                      className="input-text user-role-input"
+                      placeholder="Enter user role name"
                       value={userRoleObj.roleName}
                       onChange={(e) => {
                         setErrorMessage("");
@@ -227,57 +242,69 @@ function UserRoleModel(props) {
                       }}
                       maxLength={20}
                     />
-                    {requireErrorMessage && userRoleObj.roleName === "" ? (
-                      <label className="validation">{ERROR_MESSAGES}</label>
-                    ) : (
-                      ""
-                    )}
                   </div>
+
+                  <div className="user-role-field-meta">
+                    <span>Maximum 20 characters</span>
+                    <span>{userRoleObj.roleName?.length || 0}/20</span>
+                  </div>
+
+                  {requireErrorMessage && userRoleObj.roleName === "" ? (
+                    <label className="validation user-role-validation">
+                      {ERROR_MESSAGES}
+                    </label>
+                  ) : (
+                    ""
+                  )}
                 </div>
 
-                <label
-                  style={{ display: "flex", justifyContent: "center" }}
-                  className="validation"
-                >
-                  {common.professionTypeLists?.length <= 1 &&
-                    errorMessage?.includes(
-                      `Please don't choose this profession type`
-                    )
-                    ? errorMessage.split(".")[0]
-                    : errorMessage}
-                </label>
+                {errorMessage && (
+                  <div className="user-role-api-error">
+                    <i className="ri-error-warning-line"></i>
+
+                    <span>
+                      {common.professionTypeLists?.length <= 1 &&
+                      errorMessage?.includes(
+                        `Please don't choose this profession type`,
+                      )
+                        ? errorMessage.split(".")[0]
+                        : errorMessage}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
-            {/*Modal body End */}
-            {/*Footer body button Start */}
-            <div class="modal-footer">
-              <div class="hstack gap-2 justify-content-end">
-                <button
-                  type="button"
-                  class="btn btn-md btn-light"
-                  data-bs-dismiss="modal"
-                  onClick={() => SetInitialModelData()}
-                >
-                  <span>{getCrudButtonTextName("Cancel")}</span>
-                </button>
-                <button
-                  type="submit"
-                  class="btn btn-md btn-success create-item-btn"
-                  onClick={() => {
-                    UserRoleAddUpdateBtnClicked();
-                  }}
-                >
-                  <span>
-                    {modelAction === "Add"
-                      ? getCrudButtonTextName("Add", moduleName)
-                      : getCrudButtonTextName("Update", moduleName)}
-                  </span>
-                </button>
-              </div>
+
+            {/* FOOTER */}
+            <div className="modal-footer user-role-modal-footer">
+              <button
+                type="button"
+                className="btn user-role-cancel-btn"
+                data-bs-dismiss="modal"
+                onClick={() => SetInitialModelData()}
+              >
+                <span>{getCrudButtonTextName("Cancel")}</span>
+              </button>
+
+              <button
+                type="submit"
+                className="btn user-role-submit-btn"
+                onClick={() => {
+                  UserRoleAddUpdateBtnClicked();
+                }}
+              >
+                <i className="ri-check-line"></i>
+
+                <span>
+                  {modelAction === "Add"
+                    ? getCrudButtonTextName("Add", moduleName)
+                    : getCrudButtonTextName("Update", moduleName)}
+                </span>
+              </button>
             </div>
-            {/*Footer body button End */}
           </div>
         </div>
+
         <SuccessModal
           handleClose={handleClose}
           setDismissModal={setDismissModal}
