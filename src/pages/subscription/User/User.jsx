@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import "./User.css";
+import "./User-redesign.css";
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
 import Footer from "../../../components/Footer";
 import Tooltip from "@mui/material/Tooltip";
@@ -11,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { updateState } from "../../../redux/Persist";
 const User = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const {
     setLoader,
     setTopbar,
@@ -24,7 +25,8 @@ const User = () => {
     isMobileRecords,
     getCrudButtonToolTipName,
     getPlaceholderTextName,
-    userAccessData, formatValue
+    userAccessData,
+    formatValue,
   } = useContext(AuthContextProvider);
   const common = useSelector((state) => state.Storage);
   let getServiceCategoryListApiCallCount = 0;
@@ -50,7 +52,7 @@ const User = () => {
       PhoneNo: null,
       PackagePrice: null,
       NextRenewalDate: null,
-      SubscriptionStartDate: null
+      SubscriptionStartDate: null,
     });
   const [primarySortDirectionUsers, setPrimarySortDirectionUsers] =
     useState(null);
@@ -76,24 +78,30 @@ const User = () => {
   }, [isAddUpdateActionDone]);
 
   useEffect(() => {
-    if (modelRequestData.Action === "Update" && modelRequestData.ospKeyID !== null) {
+    if (
+      modelRequestData.Action === "Update" &&
+      modelRequestData.ospKeyID !== null
+    ) {
       setTopbar("none");
       navigate("/UserSubscriptionTab", { state: modelRequestData });
     }
   }, [modelRequestData, navigate]);
 
   const SubscriptionPackageEditBtnClicked = (UserData) => {
-    dispatch(updateState({ currentPage: currentPage }))
+    dispatch(updateState({ currentPage: currentPage }));
     setModelRequestData((prevState) => ({
       ...prevState,
       ospKeyID: UserData.ospKeyID,
       Action: "Update",
     }));
-
   };
 
-  const GetUserListData = async (i, searchKeywordValue, sortValue,
-    UserSort) => {
+  const GetUserListData = async (
+    i,
+    searchKeywordValue,
+    sortValue,
+    UserSort,
+  ) => {
     setLoader(true);
     const pageNoList = i - 1;
 
@@ -108,9 +116,7 @@ const User = () => {
         primarySortDirection:
           sortValue === undefined ? primarySortDirectionUsers : sortValue,
         PrimarySortColumnName:
-          UserSort === undefined ||
-            UserSort === null ||
-            UserSort === ""
+          UserSort === undefined || UserSort === null || UserSort === ""
             ? null
             : UserSort,
       });
@@ -212,442 +218,397 @@ const User = () => {
   };
 
   return (
-    <div className="container-fluid">
-      {/* <div class="main-content"> */}
-        <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                        <div className="container">
-                          <div className="row">
-                <div className="col-md-6 col-6">
-                  <div class="page-title-cls"> {moduleName}</div>
-                </div>
-              </div>
+    <div className="container-fluid subscription-user-list-redesign">
+      <div className="subscription-user-list-page">
+        {/* =====================================================
+            PAGE HEADER
+            ===================================================== */}
+        <div className="subscription-user-page-header">
+          <div className="subscription-user-heading-copy">
+            <h1>Practice Subscriptions</h1>
+            <p>
+              Review practice subscription packages, pricing, renewal dates and
+              current subscription status.
+            </p>
+          </div>
+
+          <div className="subscription-user-count">
+            <span className="subscription-user-count-icon">
+              <i className="ri-building-4-line"></i>
+            </span>
+
+            <div>
+              <span>Total Practices</span>
+              <strong>{listCount > 0 ? listCount : 0}</strong>
             </div>
           </div>
-          <div className="">
-            <div className="row">
-              <div className="col-lg-12">
-                <div className="card">
-                  <div className="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
-                        <div className="search-box col-md-3 col-8 width-searchbox mb-2">
-                          <i class="ri-search-line search-icon"></i>
-                          <input
-                            type="text"
-                            value={searchKeyword}
-                            onChange={(e) => {
-                              handleSearch(e);
-                            }}
-                            className="form-control search"
-                            placeholder={
-                              isMobile
-                                ? "Search"
-                                : getPlaceholderTextName("Search", moduleName)
-                            }
-                          />
+        </div>
+
+        {/* =====================================================
+            LIST CARD
+            ===================================================== */}
+        <section className="subscription-user-list-card">
+          {/* SEARCH */}
+          <div className="subscription-user-toolbar">
+            <div className="subscription-user-search-wrap">
+              <i className="ri-search-line"></i>
+
+              <input
+                type="text"
+                value={searchKeyword}
+                onChange={(e) => {
+                  handleSearch(e);
+                }}
+                className="form-control subscription-user-search-input"
+                placeholder={
+                  isMobile
+                    ? "Search"
+                    : getPlaceholderTextName("Search", moduleName)
+                }
+              />
+            </div>
+
+            <span className="subscription-user-toolbar-note">
+              {listCount > 0
+                ? `${listCount} ${listCount === 1 ? "practice" : "practices"}`
+                : "No practices"}
+            </span>
+          </div>
+
+          {/* TABLE */}
+          <div className="subscription-user-table-scroll">
+            <table className="subscription-user-table" id="customerTable">
+              <thead>
+                <tr>
+                  <th>
+                    <button
+                      type="button"
+                      className="subscription-user-sort-btn"
+                      onClick={() => {
+                        handleUserSort(
+                          primaryUserSortDirectionObj.TradingBusinessName ===
+                            null
+                            ? "asc"
+                            : primaryUserSortDirectionObj.TradingBusinessName ===
+                                "asc"
+                              ? "desc"
+                              : "asc",
+                          "TradingBusinessName",
+                        );
+                      }}
+                    >
+                      <span>Practice Name</span>
+                      <i
+                        className={
+                          primaryUserSortDirectionObj.TradingBusinessName ===
+                          "desc"
+                            ? "fas fa-sort-alpha-up"
+                            : "fas fa-sort-alpha-down"
+                        }
+                      ></i>
+                    </button>
+                  </th>
+
+                  <th>
+                    <button
+                      type="button"
+                      className="subscription-user-sort-btn"
+                      onClick={() => {
+                        handleUserSort(
+                          primaryUserSortDirectionObj.EmailID === null
+                            ? "asc"
+                            : primaryUserSortDirectionObj.EmailID === "asc"
+                              ? "desc"
+                              : "asc",
+                          "EmailID",
+                        );
+                      }}
+                    >
+                      <span>Email</span>
+                      <i
+                        className={
+                          primaryUserSortDirectionObj.EmailID === "desc"
+                            ? "fas fa-sort-alpha-up"
+                            : "fas fa-sort-alpha-down"
+                        }
+                      ></i>
+                    </button>
+                  </th>
+
+                  <th>
+                    <button
+                      type="button"
+                      className="subscription-user-sort-btn"
+                      onClick={() => {
+                        handleUserSort(
+                          primaryUserSortDirectionObj.PhoneNo === null
+                            ? "asc"
+                            : primaryUserSortDirectionObj.PhoneNo === "asc"
+                              ? "desc"
+                              : "asc",
+                          "PhoneNo",
+                        );
+                      }}
+                    >
+                      <span>Contact No</span>
+                      <i
+                        className={
+                          primaryUserSortDirectionObj.PhoneNo === "desc"
+                            ? "fas fa-sort-alpha-up"
+                            : "fas fa-sort-alpha-down"
+                        }
+                      ></i>
+                    </button>
+                  </th>
+
+                  <th>
+                    <button
+                      type="button"
+                      className="subscription-user-sort-btn"
+                      onClick={() => {
+                        handleUserSort(
+                          primaryUserSortDirectionObj.PackageName === null
+                            ? "asc"
+                            : primaryUserSortDirectionObj.PackageName === "asc"
+                              ? "desc"
+                              : "asc",
+                          "PackageName",
+                        );
+                      }}
+                    >
+                      <span>Package Name</span>
+                      <i
+                        className={
+                          primaryUserSortDirectionObj.PackageName === "desc"
+                            ? "fas fa-sort-alpha-up"
+                            : "fas fa-sort-alpha-down"
+                        }
+                      ></i>
+                    </button>
+                  </th>
+
+                  <th>
+                    <button
+                      type="button"
+                      className="subscription-user-sort-btn"
+                      onClick={() => {
+                        handleUserSort(
+                          primaryUserSortDirectionObj.PackagePrice === null
+                            ? "asc"
+                            : primaryUserSortDirectionObj.PackagePrice === "asc"
+                              ? "desc"
+                              : "asc",
+                          "PackagePrice",
+                        );
+                      }}
+                    >
+                      <span>Package Price</span>
+                      <i
+                        className={
+                          primaryUserSortDirectionObj.PackagePrice === "desc"
+                            ? "fas fa-sort-alpha-up"
+                            : "fas fa-sort-alpha-down"
+                        }
+                      ></i>
+                    </button>
+                  </th>
+
+                  <th>
+                    <button
+                      type="button"
+                      className="subscription-user-sort-btn"
+                      onClick={() => {
+                        handleUserSort(
+                          primaryUserSortDirectionObj.SubscriptionStartDate ===
+                            null
+                            ? "asc"
+                            : primaryUserSortDirectionObj.SubscriptionStartDate ===
+                                "asc"
+                              ? "desc"
+                              : "asc",
+                          "SubscriptionStartDate",
+                        );
+                      }}
+                    >
+                      <span>Subscription Start Date</span>
+                      <i
+                        className={
+                          primaryUserSortDirectionObj.SubscriptionStartDate ===
+                          "desc"
+                            ? "fas fa-sort-alpha-up"
+                            : "fas fa-sort-alpha-down"
+                        }
+                      ></i>
+                    </button>
+                  </th>
+
+                  <th>
+                    <button
+                      type="button"
+                      className="subscription-user-sort-btn"
+                      onClick={() => {
+                        handleUserSort(
+                          primaryUserSortDirectionObj.NextRenewalDate === null
+                            ? "asc"
+                            : primaryUserSortDirectionObj.NextRenewalDate ===
+                                "asc"
+                              ? "desc"
+                              : "asc",
+                          "NextRenewalDate",
+                        );
+                      }}
+                    >
+                      <span>Next Renewal Date</span>
+                      <i
+                        className={
+                          primaryUserSortDirectionObj.NextRenewalDate === "desc"
+                            ? "fas fa-sort-alpha-up"
+                            : "fas fa-sort-alpha-down"
+                        }
+                      ></i>
+                    </button>
+                  </th>
+
+                  <th>Subscription Status</th>
+
+                  <th className="subscription-user-actions-heading">Action</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {userListRecord?.map((UserData, index) => {
+                  const statusClass =
+                    UserData.subscriptionStatus === "Active"
+                      ? "is-active"
+                      : UserData.subscriptionStatus === "Expired"
+                        ? "is-expired"
+                        : UserData.subscriptionStatus === "Pending"
+                          ? "is-pending"
+                          : UserData.subscriptionStatus === "InActive"
+                            ? "is-inactive"
+                            : "is-default";
+
+                  return (
+                    <tr key={UserData.ospKeyID || index}>
+                      {/* PRACTICE */}
+                      <td>
+                        <div className="subscription-user-practice-cell">
+                          {/* <span className="subscription-user-practice-icon">
+                            <i className="ri-building-line"></i>
+                          </span> */}
+
+                          <strong>{UserData.organisationName}</strong>
                         </div>
-                        <table
-                          class="table align-middle table-nowrap"
-                          id="customerTable"
+                      </td>
+
+                      {/* EMAIL */}
+                      <td>
+                        <Tooltip title={UserData.email || ""}>
+                          <span className="subscription-user-ellipsis">
+                            {UserData.email}
+                          </span>
+                        </Tooltip>
+                      </td>
+
+                      {/* CONTACT */}
+                      <td>
+                        <span>{UserData.mobileNumber || "NA"}</span>
+                      </td>
+
+                      {/* PACKAGE */}
+                      <td>
+                        <span className="subscription-user-package-pill">
+                          {UserData.packageName}
+                        </span>
+                      </td>
+
+                      {/* PRICE */}
+                      <td>
+                        <strong className="subscription-user-price">
+                          {formatValue(UserData.packagePrice)}
+                        </strong>
+                      </td>
+
+                      {/* START DATE */}
+                      <td>
+                        <span className="subscription-user-date">
+                          {UserData.subscriptionStartDate
+                            ? UserData.subscriptionStartDate
+                            : "_"}
+                        </span>
+                      </td>
+
+                      {/* RENEWAL */}
+                      <td>
+                        <span className="subscription-user-date">
+                          {UserData.nextRenewalDate
+                            ? UserData.nextRenewalDate
+                            : "_"}
+                        </span>
+                      </td>
+
+                      {/* STATUS */}
+                      <td>
+                        <span
+                          className={`subscription-user-status-pill ${statusClass}`}
                         >
-                          <thead class="table-light table-header-font">
-                            <tr className="head-row">
-                              <td className="tr-table-class text-white">
-                                Practice Name
-                                {primaryUserSortDirectionObj.TradingBusinessName ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          "asc",
-                                          "TradingBusinessName"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primaryUserSortDirectionObj.TradingBusinessName ===
-                                  null ||
-                                  primaryUserSortDirectionObj.TradingBusinessName ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          primaryUserSortDirectionObj.TradingBusinessName ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "TradingBusinessName"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Email
-                                {primaryUserSortDirectionObj.EmailID ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          "asc",
-                                          "EmailID"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primaryUserSortDirectionObj.EmailID ===
-                                  null ||
-                                  primaryUserSortDirectionObj.EmailID ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          primaryUserSortDirectionObj.EmailID ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "EmailID"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Contact No
-                                {primaryUserSortDirectionObj.PhoneNo ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          "asc",
-                                          "PhoneNo"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primaryUserSortDirectionObj.PhoneNo ===
-                                  null ||
-                                  primaryUserSortDirectionObj.PhoneNo ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          primaryUserSortDirectionObj.PhoneNo ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "PhoneNo"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Package Name
-                                {primaryUserSortDirectionObj.PackageName ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          "asc",
-                                          "PackageName"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primaryUserSortDirectionObj.PackageName ===
-                                  null ||
-                                  primaryUserSortDirectionObj.PackageName ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          primaryUserSortDirectionObj.PackageName ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "PackageName"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class text-white ">
-                                Package Price
-                                {primaryUserSortDirectionObj.PackagePrice ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          "asc",
-                                          "PackagePrice"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primaryUserSortDirectionObj.PackagePrice ===
-                                  null ||
-                                  primaryUserSortDirectionObj.PackagePrice ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          primaryUserSortDirectionObj.PackagePrice ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "PackagePrice"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                              </td>
+                          <i className="ri-checkbox-blank-circle-fill"></i>
+                          {UserData.subscriptionStatus}
+                        </span>
+                      </td>
 
-                              <td className="tr-table-class text-white">
-                                Subscription <br />
-                                Start Date
-                                {primaryUserSortDirectionObj.SubscriptionStartDate ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          "asc",
-                                          "SubscriptionStartDate"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primaryUserSortDirectionObj.SubscriptionStartDate ===
-                                  null ||
-                                  primaryUserSortDirectionObj.SubscriptionStartDate ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          primaryUserSortDirectionObj.SubscriptionStartDate ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "SubscriptionStartDate"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Next Renewal <br /> Date
-                                {primaryUserSortDirectionObj.NextRenewalDate ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          "asc",
-                                          "NextRenewalDate"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primaryUserSortDirectionObj.NextRenewalDate ===
-                                  null ||
-                                  primaryUserSortDirectionObj.NextRenewalDate ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        handleUserSort(
-                                          primaryUserSortDirectionObj.NextRenewalDate ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "NextRenewalDate"
-                                        );
-                                      }}
-                                      style={{ cursor: "pointer" }}
-                                      class="fas fa-sort-alpha-down ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Subscription <br /> Status
-
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Action
-                              </td>
-                            </tr>
-                          </thead>
-                          <tbody class="list form-check-all">
-                            {userListRecord?.map((UserData) => {
-                              return (
-                                <tr class="table_new table-content-font">
-                                  <td className="table-content-font">
-                                    {UserData.organisationName}
-                                  </td>
-                                  <td className="table-content-font">
-                                    {UserData.email}
-                                  </td>
-                                  <td className="table-content-font">
-                                    {UserData.mobileNumber || "NA"}
-                                  </td>
-                                  <td className="table-content-font">
-                                    {UserData.packageName}
-                                  </td>
-                                  <td className="table-content-font text-center">
-                                    {formatValue(UserData.packagePrice)}
-                                  </td>
-                                  <td className="table-content-font text-center">
-                                    {UserData.subscriptionStartDate
-                                      ? UserData.subscriptionStartDate
-                                      : "_"}
-                                  </td>
-                                  <td className="table-content-font text-center">
-                                    {UserData.nextRenewalDate
-                                      ? UserData.nextRenewalDate
-                                      : "_"}
-                                  </td>
-                                  <td className="table-content-font">
-                                    <div className="d-flex gap-2">
-                                      {/* {UserData.subscriptionStatus ===
-                                        "Active" && (
-                                          <p
-                                            className="  p-1 text-center text-white rounded"
-                                            style={{ background: "#008000" }}
-                                          >
-                                            Active
-                                          </p>
-                                        )}
-                                      {UserData.subscriptionStatus ===
-                                        "Expired" && (
-                                          <p
-                                            className="  p-1 text-center text-white rounded"
-                                            style={{ background: "#ff0a0a" }}
-                                          >
-                                            Expired
-                                          </p>
-                                        )} */}
-                                      <div
-                                        className="p-1 text-center  text-white rounded text-nowrap"
-                                        style={{
-                                          background:
-                                            UserData.subscriptionStatus ===
-                                              "Active"
-                                              ? "#008000"
-                                              : UserData.subscriptionStatus ===
-                                                "Expired"
-                                                ? "#FF0000"
-                                                : UserData.subscriptionStatus ===
-                                                  "Pending"
-                                                  ? "#DAA520"
-                                                  : UserData.subscriptionStatus ===
-                                                    "InActive"
-                                                    ? "#772424"
-                                                    : "gray",
-                                          width: "100px",
-                                          padding: "1px 8px", // Add padding to the button
-                                          display: "inline-block", // Ensure button stays in line
-                                          borderRadius: "0.5rem", // Adjust border radius
-                                        }}
-                                      >
-                                        {UserData.subscriptionStatus}
-                                      </div>
-                                    </div>
-                                  </td>
-                                  <td className="table-content-font">
-                                    {userAccessData.SuperAdmin_Config_Subscription_User_CanEdit && (
-                                      <Tooltip
-                                        title={"Update Subscription Package"}
-                                      >
-                                        <div class="edit">
-                                          <button
-                                            onClick={() =>
-                                              SubscriptionPackageEditBtnClicked(
-                                                UserData
-                                              )
-                                            }
-                                            class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
-                                          >
-                                            <i class="ri-pencil-fill"></i>
-                                          </button>
-                                        </div>
-                                      </Tooltip>
-                                    )}
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                        {totalRecords <= 0 && (
-                          <NoResultFoundModel
-                            name={moduleName}
-                            totalRecords={totalRecords}
-                          />
+                      {/* ACTION */}
+                      <td className="subscription-user-actions-cell">
+                        {userAccessData.SuperAdmin_Config_Subscription_User_CanEdit && (
+                          <Tooltip title={"Update Subscription Package"}>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                SubscriptionPackageEditBtnClicked(UserData)
+                              }
+                              className="subscription-user-action-btn"
+                            >
+                              <i className="ri-pencil-fill"></i>
+                            </button>
+                          </Tooltip>
                         )}
-                      </div>
-                    </div>
-                  </div>
-                  {listCount > pageSize && (
-                    <PaginationComponent
-                      totalCount={listCount}
-                      totalPages={totalPage}
-                      desktopRecords={desktopRecords}
-                      currentPage={currentPage}
-                      onPageChange={handlePageChange}
-                    />
-                  )}
-                </div>
-                {/* </div> */}
-              </div>
-            </div>
-
-            {/* end row */}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-          {/* container-fluid  */}
-        </div>
-        {/* End Page-content */}
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
-      </div>
-      <Footer />
 
-      {/* start back-to-top */}
+          {totalRecords <= 0 && (
+            <div className="subscription-user-empty-state">
+              <NoResultFoundModel
+                name={moduleName}
+                totalRecords={totalRecords}
+              />
+            </div>
+          )}
+        </section>
+
+        {/* =====================================================
+            PAGINATION OUTSIDE LIST CARD
+            ===================================================== */}
+        {listCount > pageSize && (
+          <div className="subscription-user-pagination">
+            <PaginationComponent
+              totalCount={listCount}
+              totalPages={totalPage}
+              desktopRecords={desktopRecords}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="subscription-user-footer-wrap">
+        <Footer />
+      </div>
     </div>
   );
 };

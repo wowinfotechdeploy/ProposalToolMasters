@@ -1,0 +1,720 @@
+/* =========================================================
+   PRACTICE SUBSCRIPTION USER LIST
+   UI only — APIs, search, sorting, navigation, Redux state,
+   pagination and permission logic remain unchanged.
+   ========================================================= */
+
+.subscription-user-list-redesign {
+  --sul-bg: #f7f9fc;
+  --sul-card: #ffffff;
+  --sul-heading: #14243a;
+  --sul-text: #334258;
+  --sul-muted: #7b8798;
+  --sul-border: #dce4ed;
+  --sul-border-soft: #e8edf3;
+  --sul-navy: #0f1b33;
+  --sul-cyan: #14b5d1;
+  --sul-cyan-hover: #0da5c1;
+
+  width: calc(100% - 20px) !important;
+  min-height: 100vh;
+
+  margin-left: 20px !important;
+  padding: 24px 16px 0 !important;
+
+  display: flex;
+  flex-direction: column;
+
+  background: var(--sul-bg) !important;
+  color: var(--sul-text);
+}
+
+.subscription-user-list-redesign,
+.subscription-user-list-redesign * {
+  box-sizing: border-box;
+}
+
+.subscription-user-list-page {
+  width: 100%;
+  max-width: 1500px;
+
+  margin: 0 auto;
+  padding-bottom: 24px;
+  /* padding-left: 15px; */
+
+  flex: 1 0 auto;
+}
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.subscription-user-page-header {
+  min-height: 88px;
+  padding-bottom: 16px;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+
+  border-bottom: 1px solid #e2e8ef;
+}
+
+.subscription-user-heading-copy {
+  min-width: 0;
+}
+
+.subscription-user-heading-copy h1 {
+  margin: 0;
+
+  color: var(--sul-heading);
+
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.subscription-user-heading-copy p {
+  margin: 6px 0 0;
+
+  color: var(--sul-muted);
+
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.subscription-user-count {
+  min-width: 142px;
+  min-height: 50px;
+  padding: 7px 11px;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  border: 1px solid #dfe7ef;
+  border-radius: 9px;
+
+  background: #ffffff;
+}
+
+.subscription-user-count-icon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #e9f7fa;
+  color: #087f98;
+
+  font-size: 15px;
+}
+
+.subscription-user-count > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.subscription-user-count > div > span {
+  color: #8a96a6;
+
+  font-size: 8px;
+  font-weight: 500;
+}
+
+.subscription-user-count strong {
+  margin-top: 1px;
+
+  color: #24364d;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   LIST CARD
+   ========================================================= */
+
+.subscription-user-list-card {
+  width: 100%;
+
+  margin-top: 20px;
+
+  overflow: hidden;
+
+  border: 1px solid var(--sul-border);
+  border-radius: 12px;
+
+  background: var(--sul-card);
+
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.04),
+    0 10px 28px rgba(15, 23, 42, 0.025);
+}
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.subscription-user-toolbar {
+  min-height: 82px;
+  padding: 14px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  border-bottom: 1px solid var(--sul-border);
+
+  background: #ffffff;
+}
+
+.subscription-user-search-wrap {
+  position: relative;
+
+  width: 100%;
+  max-width: 390px;
+}
+
+.subscription-user-search-wrap > i {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  z-index: 2;
+
+  transform: translateY(-50%);
+
+  color: #708095;
+
+  font-size: 16px;
+
+  pointer-events: none;
+}
+
+.subscription-user-search-input {
+  width: 100%;
+  min-height: 42px;
+
+  padding: 9px 12px 9px 40px !important;
+
+  border: 1px solid #cfdae5 !important;
+  border-radius: 8px !important;
+
+  background: #ffffff !important;
+  color: #314056 !important;
+
+  font-size: 11.5px !important;
+
+  box-shadow: none !important;
+}
+
+.subscription-user-search-input:focus {
+  border-color: #72cedd !important;
+
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08) !important;
+}
+
+.subscription-user-toolbar-note {
+  color: #8390a1;
+
+  font-size: 9.5px;
+  font-weight: 500;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.subscription-user-table-scroll {
+  width: 100%;
+
+  overflow-x: auto;
+  overflow-y: visible;
+
+  scrollbar-width: thin;
+  scrollbar-color: #cbd4df transparent;
+}
+
+.subscription-user-table {
+  width: 100%;
+  min-width: 1380px;
+
+  margin: 0;
+
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.subscription-user-table thead th {
+  height: 56px;
+  padding: 0 14px;
+
+  border: 0;
+
+  background: var(--sul-navy);
+  color: #ffffff;
+
+  font-size: 9.25px;
+  font-weight: 600;
+
+  text-align: left;
+  text-transform: uppercase;
+  vertical-align: middle;
+
+  white-space: nowrap;
+}
+
+.subscription-user-table tbody td {
+  height: 72px;
+  padding: 12px 14px;
+
+  border-bottom: 1px solid var(--sul-border-soft);
+
+  background: #ffffff;
+  color: #4b596d;
+
+  font-size: 10.5px;
+  vertical-align: middle;
+}
+
+.subscription-user-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.subscription-user-table tbody tr:hover td {
+  background: #fbfdff;
+}
+
+/* Column sizing */
+.subscription-user-table th:nth-child(1),
+.subscription-user-table td:nth-child(1) {
+  width: 16%;
+}
+
+.subscription-user-table th:nth-child(2),
+.subscription-user-table td:nth-child(2) {
+  width: 16%;
+}
+
+.subscription-user-table th:nth-child(3),
+.subscription-user-table td:nth-child(3) {
+  width: 11%;
+}
+
+.subscription-user-table th:nth-child(4),
+.subscription-user-table td:nth-child(4) {
+  width: 12%;
+}
+
+.subscription-user-table th:nth-child(5),
+.subscription-user-table td:nth-child(5) {
+  width: 11%;
+}
+
+.subscription-user-table th:nth-child(6),
+.subscription-user-table td:nth-child(6) {
+  width: 12%;
+}
+
+.subscription-user-table th:nth-child(7),
+.subscription-user-table td:nth-child(7) {
+  width: 12%;
+}
+
+.subscription-user-table th:nth-child(8),
+.subscription-user-table td:nth-child(8) {
+  width: 12%;
+}
+
+.subscription-user-table th:nth-child(9),
+.subscription-user-table td:nth-child(9) {
+  width: 8%;
+}
+
+/* =========================================================
+   SORT
+   ========================================================= */
+
+.subscription-user-sort-btn {
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  border: 0;
+
+  background: transparent;
+  color: #ffffff;
+
+  font: inherit;
+  font-weight: inherit;
+  text-transform: inherit;
+
+  cursor: pointer;
+}
+
+.subscription-user-sort-btn i {
+  color: #c7d1df;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   CELL CONTENT
+   ========================================================= */
+
+.subscription-user-practice-cell {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.subscription-user-practice-icon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #e9f7fa;
+  color: #087f98;
+
+  font-size: 14px;
+}
+
+.subscription-user-practice-cell strong {
+  min-width: 0;
+
+  overflow: hidden;
+
+  color: #24364d;
+
+  font-size: 10.5px;
+  font-weight: 600;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subscription-user-ellipsis {
+  display: block;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subscription-user-package-pill {
+  min-height: 26px;
+  max-width: 100%;
+  padding: 0 9px;
+
+  display: inline-flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: #f0eefc;
+  color: #6255af;
+
+  font-size: 9px;
+  font-weight: 600;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subscription-user-price {
+  color: #20314a;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.subscription-user-date {
+  color: #536176;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.subscription-user-status-pill {
+  min-height: 28px;
+  padding: 0 10px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  border-radius: 999px;
+
+  font-size: 9px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.subscription-user-status-pill i {
+  font-size: 6px;
+}
+
+.subscription-user-status-pill.is-active {
+  background: #eaf8f3;
+  color: #18845f;
+}
+
+.subscription-user-status-pill.is-expired {
+  background: #fff0f2;
+  color: #cf4052;
+}
+
+.subscription-user-status-pill.is-pending {
+  background: #fff6df;
+  color: #9f7416;
+}
+
+.subscription-user-status-pill.is-inactive {
+  background: #f5ecee;
+  color: #824451;
+}
+
+.subscription-user-status-pill.is-default {
+  background: #eef2f6;
+  color: #657286;
+}
+
+/* =========================================================
+   ACTION
+   ========================================================= */
+
+.subscription-user-actions-heading,
+.subscription-user-actions-cell {
+  text-align: center !important;
+}
+
+.subscription-user-action-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #d8e1ea;
+  border-radius: 7px;
+
+  background: #ffffff;
+  color: #4c647d;
+
+  font-size: 13px;
+
+  cursor: pointer;
+
+  box-shadow: none;
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.subscription-user-action-btn:hover {
+  border-color: #b9dce4;
+
+  background: #eef9fb;
+  color: #087f98;
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.subscription-user-empty-state {
+  min-height: 300px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+}
+
+/* =========================================================
+   PAGINATION OUTSIDE LIST
+   ========================================================= */
+
+.subscription-user-pagination {
+  width: 100%;
+  min-height: 64px;
+
+  margin: 14px auto 18px;
+  padding: 0 4px;
+
+  position: relative !important;
+
+  background: transparent;
+}
+
+.subscription-user-pagination .fixed-bottom {
+  position: static !important;
+
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  background: transparent !important;
+
+  transform: none !important;
+
+  z-index: auto !important;
+}
+
+.subscription-user-pagination .fixed-bottom > .row,
+.subscription-user-pagination .row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.subscription-user-pagination .pagination,
+.subscription-user-pagination .mb-4 {
+  margin-bottom: 0 !important;
+}
+
+/* =========================================================
+   FOOTER FLOW
+   ========================================================= */
+
+.subscription-user-list-redesign {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.subscription-user-footer-wrap {
+  width: 100%;
+
+  margin-top: auto;
+
+  flex: 0 0 auto;
+
+  position: relative !important;
+
+  background: var(--sul-bg);
+}
+
+.subscription-user-footer-wrap > *,
+.subscription-user-footer-wrap footer,
+.subscription-user-footer-wrap .footer,
+.subscription-user-footer-wrap .fixed-bottom {
+  position: static !important;
+
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+
+  transform: none !important;
+
+  z-index: auto !important;
+}
+
+.subscription-user-list-redesign footer,
+.subscription-user-list-redesign .footer {
+  position: static !important;
+  bottom: auto !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (min-width: 1500px) {
+  .subscription-user-table {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 991px) {
+  .subscription-user-list-redesign {
+    width: calc(100% - 14px) !important;
+
+    margin-left: 14px !important;
+    padding-right: 12px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .subscription-user-list-redesign {
+    width: 100% !important;
+
+    margin-left: 0 !important;
+    padding: 18px 8px 0 !important;
+  }
+
+  .subscription-user-page-header {
+    min-height: auto;
+
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .subscription-user-heading-copy h1 {
+    font-size: 24px;
+  }
+
+  .subscription-user-count {
+    width: 100%;
+  }
+
+  .subscription-user-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .subscription-user-search-wrap {
+    max-width: 100%;
+  }
+
+  .subscription-user-toolbar-note {
+    padding-left: 2px;
+  }
+
+  .subscription-user-pagination {
+    margin: 10px auto 14px;
+    padding: 0;
+  }
+}
