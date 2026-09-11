@@ -27,6 +27,7 @@ import ErrorModel from "../../../../components/ErrorModel";
 
 import Footer from "../../../../components/Footer";
 import { updateState } from "../../../../redux/Persist";
+import "./AccountDeletionReminder-redesign.css";
 
 function AccountDeletionReminder() {
   const moduleName = "Reminder";
@@ -47,14 +48,15 @@ function AccountDeletionReminder() {
   } = useContext(AuthContextProvider);
   const [EmailTemplateList, setEmailTemplateList] = useState([]);
   const [ReminderTemplateList, setReminderTemplateList] = useState([]);
-  const [applicationStatusLookupList, setApplicationStatusLookupList] = useState([]);
+  const [applicationStatusLookupList, setApplicationStatusLookupList] =
+    useState([]);
   const [totalUnpaidRecords, setTotalUnpaidRecords] = useState(-1);
   const [totalRecords, setTotalRecords] = useState(-1);
   const [errorMessage, setErrorMessage] = useState("");
   const [isAddUpdateActionDone, setIsAddUpdateActionDone] = useState(false);
   const [openSuccessModal, setOpenSuccessModal] = React.useState(false);
   const [currentPage, setCurrentPage] = useState(
-    common.currentPage === "" ? 1 : common.currentPage
+    common.currentPage === "" ? 1 : common.currentPage,
   );
   const [searchKeyword, setSearchKeyword] = useState("");
   const [openErrorModal, setOpenErrorModal] = useState(false);
@@ -73,7 +75,7 @@ function AccountDeletionReminder() {
     userKeyID: null,
     emailTemplateType: null,
     listType: null,
-    reminderNameType:null
+    reminderNameType: null,
   });
   const dispatch = useDispatch();
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
@@ -85,11 +87,11 @@ function AccountDeletionReminder() {
     setTopbar("block");
     GetEmailTemplatesListData(isCurrentPage);
     GetReminderTemplatesListData(isCurrentPage);
-    GetApplicationSettingListData()
+    GetApplicationSettingListData();
     dispatch(
       updateState({
         currentPage: "",
-      })
+      }),
     );
   }, []);
 
@@ -125,7 +127,7 @@ function AccountDeletionReminder() {
     i,
     searchKeywordValue,
     sortValue,
-    TemplateSort
+    TemplateSort,
   ) => {
     setLoader(true);
     const pageNoList = i - 1;
@@ -139,8 +141,7 @@ function AccountDeletionReminder() {
         searchKeyword:
           searchKeywordValue === undefined ? searchKeyword : searchKeywordValue,
         primarySortDirection: "desc",
-        primarySortColumnName: "EmailAddressName"
-
+        primarySortColumnName: "EmailAddressName",
       });
       if (data) {
         if (data?.data?.statusCode === 200) {
@@ -158,7 +159,7 @@ function AccountDeletionReminder() {
                 newPaneNo,
                 searchKeywordValue,
                 sortValue,
-                TemplateSort
+                TemplateSort,
               );
               setCurrentPage(pageNoList);
               return;
@@ -176,7 +177,7 @@ function AccountDeletionReminder() {
                 i,
                 searchKeywordValue,
                 sortValue,
-                TemplateSort
+                TemplateSort,
               );
             }, 2000);
           } else {
@@ -195,7 +196,7 @@ function AccountDeletionReminder() {
     i,
     searchKeywordValue,
     sortValue,
-    TemplateSort
+    TemplateSort,
   ) => {
     setLoader(true);
     const pageNoList = i - 1;
@@ -209,7 +210,6 @@ function AccountDeletionReminder() {
         primarySortDirection: "asc",
         searchKeyword:
           searchKeywordValue === undefined ? searchKeyword : searchKeywordValue,
-
       });
       if (data) {
         if (data?.data?.statusCode === 200) {
@@ -227,7 +227,7 @@ function AccountDeletionReminder() {
                 newPaneNo,
                 searchKeywordValue,
                 sortValue,
-                TemplateSort
+                TemplateSort,
               );
               setCurrentPage(pageNoList);
               return;
@@ -236,7 +236,6 @@ function AccountDeletionReminder() {
             setListCount(totalCount);
             setTotalRecords(totalCount);
             setReminderTemplateList(TemplateListData);
-
           }
         } else {
           if (getEmailTemplatesListApiCallCount < maxCountToRecallApi) {
@@ -246,7 +245,7 @@ function AccountDeletionReminder() {
                 i,
                 searchKeywordValue,
                 sortValue,
-                TemplateSort
+                TemplateSort,
               );
             }, 2000);
           } else {
@@ -268,21 +267,20 @@ function AccountDeletionReminder() {
       if (modelRequestData.StatusType === null) {
         try {
           const Data = await ChangeStatusForPaidUsersLoginToOutbooksWarningMail(
-            common.userKeyID
+            common.userKeyID,
           );
           if (Data) {
             setLoader(false);
 
             if (Data?.data?.statusCode === 200) {
               $("#" + "ConfirmModel").modal("hide");
-              GetApplicationSettingListData()
+              GetApplicationSettingListData();
               setOpenSuccessModal(true);
-
             } else {
               setErrorMessage(Data?.response?.data?.errorMessage);
               setOpenErrorModal(true);
             }
-            GetApplicationSettingListData()
+            GetApplicationSettingListData();
           }
         } catch (error) {
           console.log(error);
@@ -291,22 +289,22 @@ function AccountDeletionReminder() {
     } else if (modelRequestData.Action === "UnpaidUser") {
       if (modelRequestData.StatusType === null) {
         try {
-          const Data = await ChangeStatusForUnpaidUsersLoginToOutbooksWarningMail(
-            common.userKeyID
-          );
+          const Data =
+            await ChangeStatusForUnpaidUsersLoginToOutbooksWarningMail(
+              common.userKeyID,
+            );
           if (Data) {
             setLoader(false);
 
             if (Data?.data?.statusCode === 200) {
               $("#" + "ConfirmModel").modal("hide");
-              GetApplicationSettingListData()
+              GetApplicationSettingListData();
               setOpenSuccessModal(true);
-
             } else {
               setErrorMessage(Data?.response?.data?.errorMessage);
               setOpenErrorModal(true);
             }
-            GetApplicationSettingListData()
+            GetApplicationSettingListData();
           }
         } catch (error) {
           console.log(error);
@@ -320,56 +318,115 @@ function AccountDeletionReminder() {
     const emailTemplateType = EmailTemplates[Template.type]; // Assuming Template.type corresponds to the keys in EmailTemplates
 
     let templateTypeID = null;
-    let greaterDay = null
-    let lessDay = null
-   let reminderNameType=Template.reminderNameType
+    let greaterDay = null;
+    let lessDay = null;
+    let reminderNameType = Template.reminderNameType;
     if (listType === "Unpaid") {
-      if (Template.reminderNameType === "Login_To_Outbooks_Warning_Email_First_Unpaid_User") {
+      if (
+        Template.reminderNameType ===
+        "Login_To_Outbooks_Warning_Email_First_Unpaid_User"
+      ) {
         templateTypeID = EmailTemplates.UnpaidUser_FirstMail;
         templateTypeID = EmailTemplates.UnpaidUser_FirstMail;
         // greaterDay = EmailTemplateList[index + 1].days
-        reminderNameType=Template.reminderNameType
-        greaterDay = EmailTemplateList.find(item => item.reminderNameType === "Login_To_Outbooks_Warning_Email_Second_Unpaid_User").days
-        lessDay = null
-      } else if (Template.reminderNameType === "Login_To_Outbooks_Warning_Email_Second_Unpaid_User") {
+        reminderNameType = Template.reminderNameType;
+        greaterDay = EmailTemplateList.find(
+          (item) =>
+            item.reminderNameType ===
+            "Login_To_Outbooks_Warning_Email_Second_Unpaid_User",
+        ).days;
+        lessDay = null;
+      } else if (
+        Template.reminderNameType ===
+        "Login_To_Outbooks_Warning_Email_Second_Unpaid_User"
+      ) {
         templateTypeID = EmailTemplates.UnpaidUser_SecondMail;
-        greaterDay = EmailTemplateList.find(item => item.reminderNameType === "Login_To_Outbooks_Warning_Email_Third_Unpaid_User").days
-        lessDay = EmailTemplateList.find(item => item.reminderNameType === "Login_To_Outbooks_Warning_Email_First_Unpaid_User").days
-        reminderNameType=Template.reminderNameType
-      } else if (Template.reminderNameType === "Login_To_Outbooks_Warning_Email_Third_Unpaid_User") {
+        greaterDay = EmailTemplateList.find(
+          (item) =>
+            item.reminderNameType ===
+            "Login_To_Outbooks_Warning_Email_Third_Unpaid_User",
+        ).days;
+        lessDay = EmailTemplateList.find(
+          (item) =>
+            item.reminderNameType ===
+            "Login_To_Outbooks_Warning_Email_First_Unpaid_User",
+        ).days;
+        reminderNameType = Template.reminderNameType;
+      } else if (
+        Template.reminderNameType ===
+        "Login_To_Outbooks_Warning_Email_Third_Unpaid_User"
+      ) {
         templateTypeID = EmailTemplates.UnpaidUser_ThirdMail;
-        greaterDay = EmailTemplateList.find(item => item.reminderNameType === "Account_Deletion_Email_Unpaid_User").days
-        lessDay = EmailTemplateList.find(item => item.reminderNameType === "Login_To_Outbooks_Warning_Email_Second_Unpaid_User").days
-        reminderNameType=Template.reminderNameType
-      } else if (Template.reminderNameType === "Account_Deletion_Email_Unpaid_User") {
+        greaterDay = EmailTemplateList.find(
+          (item) =>
+            item.reminderNameType === "Account_Deletion_Email_Unpaid_User",
+        ).days;
+        lessDay = EmailTemplateList.find(
+          (item) =>
+            item.reminderNameType ===
+            "Login_To_Outbooks_Warning_Email_Second_Unpaid_User",
+        ).days;
+        reminderNameType = Template.reminderNameType;
+      } else if (
+        Template.reminderNameType === "Account_Deletion_Email_Unpaid_User"
+      ) {
         templateTypeID = EmailTemplates.UnpaidUser_DeletionMail;
-        greaterDay = null
-        lessDay = EmailTemplateList.find(item => item.reminderNameType === "Login_To_Outbooks_Warning_Email_Third_Unpaid_User").days
-        reminderNameType=Template.reminderNameType
+        greaterDay = null;
+        lessDay = EmailTemplateList.find(
+          (item) =>
+            item.reminderNameType ===
+            "Login_To_Outbooks_Warning_Email_Third_Unpaid_User",
+        ).days;
+        reminderNameType = Template.reminderNameType;
       }
     } else if (listType === "Paid") {
-      if (Template.reminderNameType === "Login_To_Outbooks_Warning_Email_First_Paid_User") {
+      if (
+        Template.reminderNameType ===
+        "Login_To_Outbooks_Warning_Email_First_Paid_User"
+      ) {
         templateTypeID = EmailTemplates.PaidUser_FirstMail;
-        greaterDay = ReminderTemplateList.find(item => item.reminderNameType === "Login_To_Outbooks_Warning_Email_Second_Paid_User").days
-        lessDay = null
-        reminderNameType=Template.reminderNameType
-      } else if (Template.reminderNameType === "Login_To_Outbooks_Warning_Email_Second_Paid_User") {
+        greaterDay = ReminderTemplateList.find(
+          (item) =>
+            item.reminderNameType ===
+            "Login_To_Outbooks_Warning_Email_Second_Paid_User",
+        ).days;
+        lessDay = null;
+        reminderNameType = Template.reminderNameType;
+      } else if (
+        Template.reminderNameType ===
+        "Login_To_Outbooks_Warning_Email_Second_Paid_User"
+      ) {
         templateTypeID = EmailTemplates.PaidUser_SecondMail;
-        greaterDay = ReminderTemplateList.find(item => item.reminderNameType === "Login_To_Outbooks_Warning_Email_Third_Paid_User").days
-        lessDay = ReminderTemplateList.find(item => item.reminderNameType === "Login_To_Outbooks_Warning_Email_First_Paid_User").days
-        reminderNameType=Template.reminderNameType
-      } else if (Template.reminderNameType === "Login_To_Outbooks_Warning_Email_Third_Paid_User") {
+        greaterDay = ReminderTemplateList.find(
+          (item) =>
+            item.reminderNameType ===
+            "Login_To_Outbooks_Warning_Email_Third_Paid_User",
+        ).days;
+        lessDay = ReminderTemplateList.find(
+          (item) =>
+            item.reminderNameType ===
+            "Login_To_Outbooks_Warning_Email_First_Paid_User",
+        ).days;
+        reminderNameType = Template.reminderNameType;
+      } else if (
+        Template.reminderNameType ===
+        "Login_To_Outbooks_Warning_Email_Third_Paid_User"
+      ) {
         templateTypeID = EmailTemplates.PaidUser_ThirdMail;
-        greaterDay = null
-        lessDay = ReminderTemplateList.find(item => item.reminderNameType === "Login_To_Outbooks_Warning_Email_Second_Paid_User").days
-        reminderNameType=Template.reminderNameType
+        greaterDay = null;
+        lessDay = ReminderTemplateList.find(
+          (item) =>
+            item.reminderNameType ===
+            "Login_To_Outbooks_Warning_Email_Second_Paid_User",
+        ).days;
+        reminderNameType = Template.reminderNameType;
       }
     }
 
     dispatch(
       updateState({
         currentPage: currentPage,
-      })
+      }),
     );
 
     setModelRequestData({
@@ -382,453 +439,413 @@ function AccountDeletionReminder() {
       templateTypeID: templateTypeID,
       reminderTypeID: listType === "Paid" ? 3 : 2,
       listType: listType,
-      reminderNameType:reminderNameType
+      reminderNameType: reminderNameType,
     });
   };
 
   const GetApplicationSettingListData = async () => {
     try {
-      const data = await GetApplicationSettingList(common.userKeyID)
+      const data = await GetApplicationSettingList(common.userKeyID);
       if (data?.data?.statusCode === 200) {
-        setApplicationStatusLookupList(data.data.responseData.data)
+        setApplicationStatusLookupList(data.data.responseData.data);
       }
-    } catch (error) {
-
-    }
-  }
+    } catch (error) {}
+  };
   const handleClose = () => {
     $("#" + "ConfirmModel").modal("hide");
     setOpenSuccessModal(false);
     setOpenErrorModal(false);
   };
-  const UnpaidUserStatus = applicationStatusLookupList.find(item => item.appSettingType === AppSettingType.UnpaidUser)?.isEnabled
-  const PaidUserStatus = applicationStatusLookupList.find(item => item.appSettingType === AppSettingType.paidUser)?.isEnabled
+  const UnpaidUserStatus = applicationStatusLookupList.find(
+    (item) => item.appSettingType === AppSettingType.UnpaidUser,
+  )?.isEnabled;
+  const PaidUserStatus = applicationStatusLookupList.find(
+    (item) => item.appSettingType === AppSettingType.paidUser,
+  )?.isEnabled;
 
   return (
-    <>
-      <div className="container-fluid">
-      {/* <div class="main-content"> */}
-        <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                          <div className="row">
-                  <div className="col-md-6 col-6">
-                    <div class="page-title-cls">Account Login/Deletion</div>
-                  </div>
-                </div>
-            </div>
-            <div>
-              <div class="row">
-                <div class="col-lg-12">
-                  <div class="card">
-                    {/* end card header  */}
-
-                    <div class="card-body">
-                      <div id="customerList">
-                        <div class="row g-4 mb-3"></div>
-                        <div class="table-responsive mt-2 table-card  table-padding">
-
-                          <div className="row">
-                            <div className="col-md-4 col-4">
-                              <div class="page-title-cls">Unpaid User</div>
-                            </div>
-                            <div class="col-md-8 col-8">
-                              <div className="d-flex gap-2 justify-content-sm-end">
-                                <Tooltip title={`InActive/Active`}>
-                                  <div
-                                    className="d-flex gap-2 justify-content-sm-end add-new-btn"
-                                    style={{ marginRight: "10px" }}
-                                  >
-                                    <span style={{ marginBottom: "5px" }}>
-                                      {UnpaidUserStatus === 1 ? "Active" : "InActive"}
-                                    </span>{" "}
-                                    <FormGroup>
-                                      <FormControlLabel
-                                        control={
-                                          <Android12Switch
-                                            checked={UnpaidUserStatus === 1}
-                                            onClick={() =>
-                                              setModelRequestData({
-                                                ...modelRequestData,
-                                                status: UnpaidUserStatus === 1
-                                                  ? "Active"
-                                                  : "InActive",
-                                                Action: "UnpaidUser",
-                                              })
-                                            }
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#ConfirmModel"
-                                          />
-                                        }
-                                      />
-                                    </FormGroup>
-                                  </div>
-                                </Tooltip>
-                              </div>
-                            </div>
-                          </div>
-                          <table
-                            class="table align-middle table-nowrap"
-                            id="customerTable"
-                          >
-                            <thead class="table-light">
-                              <tr className="head-row table-header-font">
-                                <td className="tr-table-class text-white">
-                                  Reminder Name
-                                </td>
-                                <td className="tr-table-class text-white">
-                                  Reminder Type
-                                </td>
-                                <td className="tr-table-class text-white">
-                                  Email Template
-                                </td>
-                                <td className="tr-table-class text-white">
-                                  Days
-                                </td>
-                                <td className="tr-table-class text-white">
-                                  Sequence
-                                </td>
-                                <td className="tr-table-class text-white">
-                                  Status
-                                </td>
-                                <td className="tr-table-class text-white">
-                                  {((userAccessData.Admin_Config_Email_Template_CanEdit &&
-                                    common.organisationKeyID !== null) ||
-                                    (userAccessData.SuperAdmin_Config_Email_Template_CanAdd &&
-                                      common.organisationKeyID === null)) && (
-                                      <>Action</>
-                                    )}
-                                </td>
-                              </tr>
-                            </thead>
-                            <tbody className="list form-check-all">
-                              {EmailTemplateList.slice(
-                                0,
-                                isMobile ? isMobileRecords : desktopRecords
-                              ).map((Template, index) => {
-                                return (
-                                  <tr
-                                    className="table_new table-content-font"
-                                    key={Template.keyID}
-                                  >
-                                    <td className="table-content-font">
-                                      {Template.reminderName}
-                                    </td>
-                                    <td className="table-content-font">
-                                        {Template.reminderNameType?.replace(/_/g, ' ')}
-                                      </td>
-                                    <td className="table-content-font">
-                                      {Template.templateName}
-                                    </td>
-                                    <td className="table-content-font">
-                                      {Template.days}
-                                    </td>
-                                    <td className="table-content-font">
-                                      {Template.sequenceName}
-                                    </td>
-
-                                    <td className="Switch table-content-font">
-                                      <div
-                                        style={{ alignItems: "center" }}
-                                        className="d-flex gap-2"
-                                      >
-                                        <div style={{ width: "40px" }}>
-                                          {Template.statusName}
-                                        </div>
-                                      </div>
-                                    </td>
-
-                                    <td className="table-content-font">
-                                      <div className="d-flex gap-2">
-                                        {((userAccessData.Admin_Config_Email_Template_CanEdit &&
-                                          common.organisationKeyID !== null) ||
-                                          (userAccessData.SuperAdmin_Config_Email_Template_CanEdit &&
-                                            common.organisationKeyID ===
-                                            null)) && (
-                                            <Tooltip
-                                              title={getCrudButtonToolTipName(
-                                                "Update",
-                                                moduleName
-                                              )}
-                                            >
-                                              <div className="edit">
-                                                <button
-                                                  onClick={() =>
-                                                    TemplateEditBtnClicked(
-                                                      Template,
-                                                      "Unpaid",
-                                                      index
-                                                    )
-                                                  }
-                                                  className="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
-                                                >
-                                                  <i className="ri-pencil-fill"></i>
-                                                </button>
-                                              </div>
-                                            </Tooltip>
-                                          )}
-                                      </div>
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
-                          {totalUnpaidRecords <= 0 && (
-                            <NoResultFoundModel
-                              name={moduleName}
-                              totalRecords={totalUnpaidRecords}
-                            />
-                          )}
-                          <div class="mt-3">
-                            <div className="row">
-                              <div className="col-md-4 col-4">
-                                <div class="page-title-cls">Paid User</div>
-                              </div>
-                              <div class="col-md-8 col-8">
-                                <div className="d-flex gap-2 justify-content-sm-end">
-                                  <Tooltip title={`InActive/Active`}>
-                                    <div
-                                      className="d-flex gap-2 justify-content-sm-end add-new-btn"
-                                      style={{ marginRight: "10px" }}
-                                    >
-                                      <span style={{ marginBottom: "5px" }}>
-                                        {PaidUserStatus === 1 ? "Active" : "InActive"}
-                                      </span>{" "}
-                                      <FormGroup>
-                                        <FormControlLabel
-                                          control={
-                                            <Android12Switch
-                                              checked={PaidUserStatus === 1}
-                                              onClick={() =>
-                                                setModelRequestData({
-                                                  ...modelRequestData,
-                                                  status: PaidUserStatus === 1
-                                                    ? "Active"
-                                                    : "InActive",
-                                                  Action: "PaidUser",
-                                                })
-                                              }
-                                              data-bs-toggle="modal"
-                                              data-bs-target="#ConfirmModel"
-                                            />
-                                          }
-                                        />
-                                      </FormGroup>
-                                    </div>
-                                  </Tooltip>
-                                </div>
-                              </div>
-                            </div>
-                            <table
-                              class="table align-middle table-nowrap"
-                              id="customerTable"
-                            >
-                              <thead class="table-light">
-                                <tr className="head-row table-header-font">
-                                  <td className="tr-table-class text-white">
-                                    Reminder Name
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    Reminder Type
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    Email Template
-                                  </td>
-
-                                  <td className="tr-table-class text-white">
-                                    Days
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    Sequence
-                                  </td>
-
-                                  <td className="tr-table-class text-white">
-                                    Status
-                                  </td>
-                                  <td className="tr-table-class text-white">
-                                    {((userAccessData.Admin_Config_Email_Template_CanEdit &&
-                                      common.organisationKeyID !== null) ||
-                                      (userAccessData.SuperAdmin_Config_Email_Template_CanAdd &&
-                                        common.organisationKeyID === null)) && (
-                                        <>Action</>
-                                      )}
-                                  </td>
-                                </tr>
-                              </thead>
-                              <tbody className="list form-check-all">
-                                {ReminderTemplateList.map((Template, index) => {
-                                  return (
-                                    <tr
-                                      className="table_new table-content-font"
-                                      key={Template.keyID}
-                                    >
-                                      <td className="table-content-font">
-                                        {Template.reminderName}
-                                      </td>
-                                      <td className="table-content-font">
-                                        {Template.reminderNameType?.replace(/_/g, ' ')}
-                                      </td>
-                                      <td className="table-content-font">
-                                        {Template.templateName}
-                                      </td>
-                                      <td className="table-content-font">
-                                        {Template.days}
-                                      </td>
-                                      <td className="table-content-font">
-                                        {Template.sequenceName}
-                                      </td>
-
-                                      <td className="Switch table-content-font">
-                                        <div
-                                          style={{ alignItems: "center" }}
-                                          className="d-flex gap-2"
-                                        >
-                                          <div style={{ width: "40px" }}>
-                                            {Template.statusName}
-                                          </div>
-
-                                        </div>
-                                      </td>
-                                      <td className="table-content-font">
-                                        <div className="d-flex gap-2">
-                                          {((userAccessData.Admin_Config_Email_Template_CanEdit &&
-                                            common.organisationKeyID !== null) ||
-                                            (userAccessData.SuperAdmin_Config_Email_Template_CanEdit &&
-                                              common.organisationKeyID ===
-                                              null)) && (
-                                              <Tooltip
-                                                title={getCrudButtonToolTipName(
-                                                  "Update",
-                                                  moduleName
-                                                )}
-                                              >
-                                                <div className="edit">
-                                                  <button
-                                                    onClick={() =>
-                                                      TemplateEditBtnClicked(
-                                                        Template,
-                                                        "Paid",
-                                                        index
-                                                      )
-                                                    }
-                                                    className="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
-                                                  >
-                                                    <i className="ri-pencil-fill"></i>
-                                                  </button>
-                                                </div>
-                                              </Tooltip>
-                                            )}
-                                        </div>
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
-                            {totalRecords <= 0 && (
-                              <NoResultFoundModel
-                                name={moduleName}
-                                totalRecords={totalRecords}
-                              />
-                            )}
-                          </div>
-
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* end card  */}
-                    {/* {listCount > pageSize && (
-                    <PaginationComponent
-                      totalCount={listCount}
-                      totalPages={totalPage}
-                      currentPage={currentPage}
-                      onPageChange={handlePageChange}
-                    />
-                  )} */}
-                  </div>
-                  {/* end col */}
-                </div>
-                {/* end col  */}
-              </div>
-
-
-              {/* end row */}
-            </div>
-            {/* container-fluid  */}
+    <div className="container-fluid account-reminder-redesign">
+      <div className="account-reminder-page">
+        {/* =====================================================
+            PAGE HEADER
+            ===================================================== */}
+        <div className="account-reminder-page-header">
+          <div className="account-reminder-heading-copy">
+            <h1>Account Login / Deletion</h1>
+            <p>
+              Manage reminder schedules and login/deletion warning emails for
+              unpaid and paid users.
+            </p>
           </div>
-          {/* End Page-content */}
-          <ErrorModel
-            ErrorModel={openErrorModal}
-            handleClose={handleClose}
-            ErrorMessage={errorMessage}
-          />
-          {/* Confirm Modal  */}
-          <ConfirmModel
-            openErrorModal={openErrorModal}
-            openSuccessModal={openSuccessModal}
-            modelRequestData={modelRequestData}
-            UpdatedStatus={EmailTemplatesChangeStatusDataAndDeleteData}
-          />
-          {/* Success Modal  */}
-          <SuccessModal
-            handleClose={handleClose}
-            setOpenSuccessModal={setOpenSuccessModal}
-            openSuccessModal={openSuccessModal}
-            modelAction={modelRequestData.Action}
-            message={"Status has been changed successfully!"}
-          />
-          <Footer />
+
+          <div className="account-reminder-summary">
+            <span className="account-reminder-summary-icon">
+              <i className="ri-notification-3-line"></i>
+            </span>
+
+            <div>
+              <span>Total Reminders</span>
+              <strong>
+                {(totalUnpaidRecords > 0 ? totalUnpaidRecords : 0) +
+                  (totalRecords > 0 ? totalRecords : 0)}
+              </strong>
+            </div>
+          </div>
         </div>
-        {/* end back-to-top */}
+
+        {/* =====================================================
+            UNPAID USER REMINDERS
+            ===================================================== */}
+        <section className="account-reminder-list-card">
+          <div className="account-reminder-section-header">
+            <div className="account-reminder-section-title">
+              <span className="account-reminder-section-icon">
+                <i className="ri-user-unfollow-line"></i>
+              </span>
+
+              <div>
+                <h2>Unpaid User</h2>
+                <p>
+                  Configure login warnings and account deletion reminders for
+                  unpaid users.
+                </p>
+              </div>
+            </div>
+
+            <Tooltip title={`InActive/Active`}>
+              <div className="account-reminder-status-control">
+                <span
+                  className={`account-reminder-status-pill ${
+                    UnpaidUserStatus === 1 ? "is-active" : "is-inactive"
+                  }`}
+                >
+                  {UnpaidUserStatus === 1 ? "Active" : "InActive"}
+                </span>
+
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Android12Switch
+                        checked={UnpaidUserStatus === 1}
+                        onClick={() =>
+                          setModelRequestData({
+                            ...modelRequestData,
+                            status:
+                              UnpaidUserStatus === 1 ? "Active" : "InActive",
+                            Action: "UnpaidUser",
+                          })
+                        }
+                        data-bs-toggle="modal"
+                        data-bs-target="#ConfirmModel"
+                      />
+                    }
+                  />
+                </FormGroup>
+              </div>
+            </Tooltip>
+          </div>
+
+          <div className="account-reminder-table-scroll">
+            <table className="account-reminder-table" id="customerTable">
+              <thead>
+                <tr>
+                  <th>Reminder Name</th>
+                  <th>Reminder Type</th>
+                  <th>Email Template</th>
+                  <th>Days</th>
+                  <th>Sequence</th>
+                  <th>Status</th>
+                  <th className="account-reminder-actions-heading">
+                    {((userAccessData.Admin_Config_Email_Template_CanEdit &&
+                      common.organisationKeyID !== null) ||
+                      (userAccessData.SuperAdmin_Config_Email_Template_CanAdd &&
+                        common.organisationKeyID === null)) && <>Action</>}
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {EmailTemplateList.slice(
+                  0,
+                  isMobile ? isMobileRecords : desktopRecords,
+                ).map((Template, index) => {
+                  return (
+                    <tr key={Template.keyID}>
+                      <td>
+                        <div className="account-reminder-name-cell">
+                          <span className="account-reminder-row-icon">
+                            <i className="ri-mail-line"></i>
+                          </span>
+
+                          <strong>{Template.reminderName}</strong>
+                        </div>
+                      </td>
+
+                      <td>
+                        <span className="account-reminder-type-text">
+                          {Template.reminderNameType?.replace(/_/g, " ")}
+                        </span>
+                      </td>
+
+                      <td>
+                        <span className="account-reminder-template-pill">
+                          {Template.templateName}
+                        </span>
+                      </td>
+
+                      <td>
+                        <span className="account-reminder-days-pill">
+                          {Template.days}
+                        </span>
+                      </td>
+
+                      <td>
+                        <span className="account-reminder-sequence">
+                          {Template.sequenceName}
+                        </span>
+                      </td>
+
+                      <td>
+                        <span
+                          className={`account-reminder-row-status ${
+                            Template.statusName === "Active"
+                              ? "is-active"
+                              : "is-inactive"
+                          }`}
+                        >
+                          {Template.statusName}
+                        </span>
+                      </td>
+
+                      <td className="account-reminder-actions-cell">
+                        {((userAccessData.Admin_Config_Email_Template_CanEdit &&
+                          common.organisationKeyID !== null) ||
+                          (userAccessData.SuperAdmin_Config_Email_Template_CanEdit &&
+                            common.organisationKeyID === null)) && (
+                          <Tooltip
+                            title={getCrudButtonToolTipName(
+                              "Update",
+                              moduleName,
+                            )}
+                          >
+                            <button
+                              type="button"
+                              onClick={() =>
+                                TemplateEditBtnClicked(
+                                  Template,
+                                  "Unpaid",
+                                  index,
+                                )
+                              }
+                              className="account-reminder-action-btn account-reminder-edit-btn"
+                            >
+                              <i className="ri-pencil-fill"></i>
+                            </button>
+                          </Tooltip>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {totalUnpaidRecords <= 0 && (
+            <div className="account-reminder-empty-state">
+              <NoResultFoundModel
+                name={moduleName}
+                totalRecords={totalUnpaidRecords}
+              />
+            </div>
+          )}
+        </section>
+
+        {/* =====================================================
+            PAID USER REMINDERS
+            ===================================================== */}
+        <section className="account-reminder-list-card">
+          <div className="account-reminder-section-header">
+            <div className="account-reminder-section-title">
+              <span className="account-reminder-section-icon">
+                <i className="ri-user-follow-line"></i>
+              </span>
+
+              <div>
+                <h2>Paid User</h2>
+                <p>Configure login warning reminders for active paid users.</p>
+              </div>
+            </div>
+
+            <Tooltip title={`InActive/Active`}>
+              <div className="account-reminder-status-control">
+                <span
+                  className={`account-reminder-status-pill ${
+                    PaidUserStatus === 1 ? "is-active" : "is-inactive"
+                  }`}
+                >
+                  {PaidUserStatus === 1 ? "Active" : "InActive"}
+                </span>
+
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Android12Switch
+                        checked={PaidUserStatus === 1}
+                        onClick={() =>
+                          setModelRequestData({
+                            ...modelRequestData,
+                            status:
+                              PaidUserStatus === 1 ? "Active" : "InActive",
+                            Action: "PaidUser",
+                          })
+                        }
+                        data-bs-toggle="modal"
+                        data-bs-target="#ConfirmModel"
+                      />
+                    }
+                  />
+                </FormGroup>
+              </div>
+            </Tooltip>
+          </div>
+
+          <div className="account-reminder-table-scroll">
+            <table className="account-reminder-table" id="customerTablePaid">
+              <thead>
+                <tr>
+                  <th>Reminder Name</th>
+                  <th>Reminder Type</th>
+                  <th>Email Template</th>
+                  <th>Days</th>
+                  <th>Sequence</th>
+                  <th>Status</th>
+                  <th className="account-reminder-actions-heading">
+                    {((userAccessData.Admin_Config_Email_Template_CanEdit &&
+                      common.organisationKeyID !== null) ||
+                      (userAccessData.SuperAdmin_Config_Email_Template_CanAdd &&
+                        common.organisationKeyID === null)) && <>Action</>}
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {ReminderTemplateList.map((Template, index) => {
+                  return (
+                    <tr key={Template.keyID}>
+                      <td>
+                        <div className="account-reminder-name-cell">
+                          <span className="account-reminder-row-icon">
+                            <i className="ri-mail-line"></i>
+                          </span>
+
+                          <strong>{Template.reminderName}</strong>
+                        </div>
+                      </td>
+
+                      <td>
+                        <span className="account-reminder-type-text">
+                          {Template.reminderNameType?.replace(/_/g, " ")}
+                        </span>
+                      </td>
+
+                      <td>
+                        <span className="account-reminder-template-pill">
+                          {Template.templateName}
+                        </span>
+                      </td>
+
+                      <td>
+                        <span className="account-reminder-days-pill">
+                          {Template.days}
+                        </span>
+                      </td>
+
+                      <td>
+                        <span className="account-reminder-sequence">
+                          {Template.sequenceName}
+                        </span>
+                      </td>
+
+                      <td>
+                        <span
+                          className={`account-reminder-row-status ${
+                            Template.statusName === "Active"
+                              ? "is-active"
+                              : "is-inactive"
+                          }`}
+                        >
+                          {Template.statusName}
+                        </span>
+                      </td>
+
+                      <td className="account-reminder-actions-cell">
+                        {((userAccessData.Admin_Config_Email_Template_CanEdit &&
+                          common.organisationKeyID !== null) ||
+                          (userAccessData.SuperAdmin_Config_Email_Template_CanEdit &&
+                            common.organisationKeyID === null)) && (
+                          <Tooltip
+                            title={getCrudButtonToolTipName(
+                              "Update",
+                              moduleName,
+                            )}
+                          >
+                            <button
+                              type="button"
+                              onClick={() =>
+                                TemplateEditBtnClicked(Template, "Paid", index)
+                              }
+                              className="account-reminder-action-btn account-reminder-edit-btn"
+                            >
+                              <i className="ri-pencil-fill"></i>
+                            </button>
+                          </Tooltip>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {totalRecords <= 0 && (
+            <div className="account-reminder-empty-state">
+              <NoResultFoundModel
+                name={moduleName}
+                totalRecords={totalRecords}
+              />
+            </div>
+          )}
+        </section>
+
+        {/* EXISTING MODALS */}
+        <ErrorModel
+          ErrorModel={openErrorModal}
+          handleClose={handleClose}
+          ErrorMessage={errorMessage}
+        />
+
+        <ConfirmModel
+          openErrorModal={openErrorModal}
+          openSuccessModal={openSuccessModal}
+          modelRequestData={modelRequestData}
+          UpdatedStatus={EmailTemplatesChangeStatusDataAndDeleteData}
+        />
+
+        <SuccessModal
+          handleClose={handleClose}
+          setOpenSuccessModal={setOpenSuccessModal}
+          openSuccessModal={openSuccessModal}
+          modelAction={modelRequestData.Action}
+          message={"Status has been changed successfully!"}
+        />
       </div>
 
-      <div className="container">
-        <div class="main-content">
-          <div class="services page-background">
-            <div class="page-info-header page-info-strip">
-            </div>
-
-            {/* container-fluid  */}
-          </div>
-          {/* End Page-content */}
-          <ErrorModel
-            ErrorModel={openErrorModal}
-            handleClose={handleClose}
-            ErrorMessage={errorMessage}
-          />
-          {/* Confirm Modal  */}
-          <ConfirmModel
-            openErrorModal={openErrorModal}
-            openSuccessModal={openSuccessModal}
-            modelRequestData={modelRequestData}
-            UpdatedStatus={EmailTemplatesChangeStatusDataAndDeleteData}
-          />
-          {/* Success Modal  */}
-          <SuccessModal
-            handleClose={handleClose}
-            setOpenSuccessModal={setOpenSuccessModal}
-            openSuccessModal={openSuccessModal}
-            modelAction={modelRequestData.Action}
-            message={"Status has been changed successfully!"}
-          />
-          </div>
-          </div>
-          </div>
-          </div>
-          </div>
-        </div>
-        {/* end back-to-top */}
+      <div className="account-reminder-footer-wrap">
         <Footer />
       </div>
-    </>
+    </div>
   );
 }
 
