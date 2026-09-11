@@ -1,0 +1,1122 @@
+/* =========================================================
+   SUBSCRIPTION PACKAGE REMINDER LIST
+   UI only — APIs, navigation, sorting/filter logic, status,
+   permissions, organisation assignment, pagination and modals
+   remain unchanged.
+   ========================================================= */
+
+.subscription-reminder-list-redesign {
+  --spr-bg: #f7f9fc;
+  --spr-card: #ffffff;
+  --spr-heading: #14243a;
+  --spr-text: #334258;
+  --spr-muted: #7b8798;
+  --spr-border: #dce4ed;
+  --spr-border-soft: #e8edf3;
+  --spr-navy: #0f1b33;
+  --spr-cyan: #14b5d1;
+  --spr-cyan-hover: #0da5c1;
+
+  width: calc(100% - 20px) !important;
+  min-height: 100vh;
+
+  margin-left: 20px !important;
+  padding: 24px 16px 0 !important;
+
+  display: flex;
+  flex-direction: column;
+
+  background: var(--spr-bg) !important;
+  color: var(--spr-text);
+}
+
+.subscription-reminder-list-redesign,
+.subscription-reminder-list-redesign * {
+  box-sizing: border-box;
+}
+
+.subscription-reminder-page {
+  width: 100%;
+  max-width: 1500px;
+
+  margin: 0 auto;
+  padding-bottom: 24px;
+
+  flex: 1 0 auto;
+}
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.subscription-reminder-page-header {
+  min-height: 88px;
+  padding-bottom: 16px;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+
+  border-bottom: 1px solid #e2e8ef;
+}
+
+.subscription-reminder-heading-copy {
+  min-width: 0;
+}
+
+.subscription-reminder-heading-copy h1 {
+  margin: 0;
+
+  color: var(--spr-heading);
+
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.subscription-reminder-heading-copy p {
+  margin: 6px 0 0;
+
+  color: var(--spr-muted);
+
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.subscription-reminder-count {
+  min-width: 142px;
+  min-height: 50px;
+  padding: 7px 11px;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  border: 1px solid #dfe7ef;
+  border-radius: 9px;
+
+  background: #ffffff;
+}
+
+.subscription-reminder-count-icon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #e9f7fa;
+  color: #087f98;
+
+  font-size: 15px;
+}
+
+.subscription-reminder-count > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.subscription-reminder-count > div > span {
+  color: #8a96a6;
+
+  font-size: 8px;
+  font-weight: 500;
+}
+
+.subscription-reminder-count strong {
+  margin-top: 1px;
+
+  color: #24364d;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   LIST CARD
+   ========================================================= */
+
+.subscription-reminder-list-card,
+.subscription-reminder-organisation-card {
+  width: 100%;
+
+  margin-top: 20px;
+
+  overflow: hidden;
+
+  border: 1px solid var(--spr-border);
+  border-radius: 12px;
+
+  background: var(--spr-card);
+
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.04),
+    0 10px 28px rgba(15, 23, 42, 0.025);
+}
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.subscription-reminder-toolbar {
+  min-height: 82px;
+  padding: 14px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  border-bottom: 1px solid var(--spr-border);
+
+  background: #ffffff;
+}
+
+.subscription-reminder-search-wrap {
+  position: relative;
+
+  width: 100%;
+  max-width: 390px;
+}
+
+.subscription-reminder-search-wrap > i {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  z-index: 2;
+
+  transform: translateY(-50%);
+
+  color: #708095;
+
+  font-size: 16px;
+
+  pointer-events: none;
+}
+
+.subscription-reminder-search-input {
+  width: 100%;
+  min-height: 42px;
+
+  padding: 9px 12px 9px 40px !important;
+
+  border: 1px solid #cfdae5 !important;
+  border-radius: 8px !important;
+
+  background: #ffffff !important;
+  color: #314056 !important;
+
+  font-size: 11.5px !important;
+
+  box-shadow: none !important;
+}
+
+.subscription-reminder-search-input:focus {
+  border-color: #72cedd !important;
+
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08) !important;
+}
+
+.subscription-reminder-toolbar-note {
+  color: #8390a1;
+
+  font-size: 9.5px;
+  font-weight: 500;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.subscription-reminder-table-scroll {
+  width: 100%;
+
+  overflow-x: auto;
+  overflow-y: visible;
+
+  scrollbar-width: thin;
+  scrollbar-color: #cbd4df transparent;
+}
+
+.subscription-reminder-table {
+  width: 100%;
+  min-width: 1180px;
+
+  margin: 0;
+
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.subscription-reminder-table thead th {
+  height: 54px;
+  padding: 0 15px;
+
+  border: 0;
+
+  background: var(--spr-navy);
+  color: #ffffff;
+
+  font-size: 9.25px;
+  font-weight: 600;
+
+  text-align: left;
+  text-transform: uppercase;
+  vertical-align: middle;
+
+  white-space: nowrap;
+}
+
+.subscription-reminder-table tbody td {
+  height: 72px;
+  padding: 12px 15px;
+
+  border-bottom: 1px solid var(--spr-border-soft);
+
+  background: #ffffff;
+  color: #4b596d;
+
+  font-size: 10.5px;
+  vertical-align: middle;
+}
+
+.subscription-reminder-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.subscription-reminder-table tbody tr:hover td {
+  background: #fbfdff;
+}
+
+.subscription-reminder-table th:nth-child(1),
+.subscription-reminder-table td:nth-child(1) {
+  width: 21%;
+}
+
+.subscription-reminder-table th:nth-child(2),
+.subscription-reminder-table td:nth-child(2) {
+  width: 22%;
+}
+
+.subscription-reminder-table th:nth-child(3),
+.subscription-reminder-table td:nth-child(3) {
+  width: 21%;
+}
+
+.subscription-reminder-table th:nth-child(4),
+.subscription-reminder-table td:nth-child(4) {
+  width: 8%;
+}
+
+.subscription-reminder-table th:nth-child(5),
+.subscription-reminder-table td:nth-child(5) {
+  width: 12%;
+}
+
+.subscription-reminder-table th:nth-child(6),
+.subscription-reminder-table td:nth-child(6) {
+  width: 9%;
+}
+
+.subscription-reminder-table th:nth-child(7),
+.subscription-reminder-table td:nth-child(7) {
+  width: 7%;
+}
+
+/* =========================================================
+   CELL CONTENT
+   ========================================================= */
+
+.subscription-reminder-name-cell {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.subscription-reminder-name-icon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #e9f7fa;
+  color: #087f98;
+
+  font-size: 14px;
+}
+
+.subscription-reminder-name-copy {
+  min-width: 0;
+}
+
+.subscription-reminder-name-copy strong {
+  display: block;
+
+  min-width: 0;
+
+  overflow: hidden;
+
+  color: #24364d;
+
+  font-size: 10.5px;
+  font-weight: 600;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subscription-reminder-type-text {
+  display: block;
+
+  overflow: hidden;
+
+  color: #536176;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subscription-reminder-template-pill {
+  max-width: 100%;
+  min-height: 26px;
+  padding: 0 9px;
+
+  display: inline-flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: #f0eefc;
+  color: #6255af;
+
+  font-size: 9px;
+  font-weight: 600;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subscription-reminder-days-pill {
+  min-width: 34px;
+  min-height: 27px;
+  padding: 0 8px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 7px;
+
+  background: #eef8fa;
+  color: #087f98;
+
+  font-size: 9.5px;
+  font-weight: 700;
+}
+
+.subscription-reminder-sequence {
+  color: #41536a;
+
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.subscription-reminder-status-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subscription-reminder-status-cell .MuiFormGroup-root,
+.subscription-reminder-status-cell .MuiFormControlLabel-root {
+  margin: 0 !important;
+}
+
+.subscription-reminder-status-pill {
+  min-width: 56px;
+  min-height: 27px;
+  padding: 0 9px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.subscription-reminder-status-pill.is-active {
+  background: #eaf8f3;
+  color: #18845f;
+}
+
+.subscription-reminder-status-pill.is-inactive {
+  background: #fff0f2;
+  color: #cf4052;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.subscription-reminder-actions-heading,
+.subscription-reminder-actions-cell {
+  text-align: center !important;
+}
+
+.subscription-reminder-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.subscription-reminder-action-btn {
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  flex: 0 0 34px !important;
+
+  border: 1px solid #d8e1ea !important;
+  border-radius: 7px !important;
+
+  background: #ffffff !important;
+
+  font-size: 13px !important;
+  line-height: 1 !important;
+
+  cursor: pointer;
+
+  box-shadow: none !important;
+}
+
+.subscription-reminder-edit-btn {
+  color: #4c647d !important;
+}
+
+.subscription-reminder-edit-btn:hover {
+  border-color: #b9dce4 !important;
+
+  background: #eef9fb !important;
+  color: #087f98 !important;
+}
+
+.subscription-reminder-delete-btn {
+  color: #d44a59 !important;
+}
+
+.subscription-reminder-delete-btn:hover {
+  border-color: #efc4c9 !important;
+
+  background: #fff3f4 !important;
+  color: #c53a49 !important;
+}
+
+.subscription-reminder-action-btn i {
+  margin: 0 !important;
+  padding: 0 !important;
+
+  color: inherit !important;
+
+  font-size: 13px !important;
+  line-height: 1 !important;
+}
+
+/* =========================================================
+   EMPTY
+   ========================================================= */
+
+.subscription-reminder-empty-state {
+  min-height: 260px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+}
+
+/* =========================================================
+   PAGINATION
+   ========================================================= */
+
+.subscription-reminder-pagination {
+  width: 100%;
+  min-height: 64px;
+
+  margin: 14px auto 18px;
+  padding: 0 4px;
+
+  position: relative !important;
+
+  background: transparent;
+}
+
+.subscription-reminder-pagination .fixed-bottom {
+  position: static !important;
+
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  background: transparent !important;
+
+  transform: none !important;
+
+  z-index: auto !important;
+}
+
+.subscription-reminder-pagination .fixed-bottom > .row,
+.subscription-reminder-pagination .row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.subscription-reminder-pagination .pagination,
+.subscription-reminder-pagination .mb-4 {
+  margin-bottom: 0 !important;
+}
+
+/* =========================================================
+   ORGANISATION CARD
+   ========================================================= */
+
+.subscription-reminder-organisation-card {
+  overflow: visible;
+}
+
+.subscription-reminder-organisation-header {
+  min-height: 70px;
+  padding: 13px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  border-bottom: 1px solid var(--spr-border-soft);
+
+  background: #fbfcfe;
+
+  border-radius: 12px 12px 0 0;
+}
+
+.subscription-reminder-organisation-title {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.subscription-reminder-organisation-icon {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #e9f7fa;
+  color: #087f98;
+
+  font-size: 16px;
+}
+
+.subscription-reminder-organisation-title h2 {
+  margin: 0;
+
+  color: #20314a;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.subscription-reminder-organisation-title p {
+  margin: 3px 0 0;
+
+  color: #8994a3;
+
+  font-size: 9.5px;
+  line-height: 1.4;
+}
+
+.subscription-reminder-selected-org-count {
+  min-height: 27px;
+  padding: 0 10px;
+
+  display: inline-flex;
+  align-items: center;
+
+  border-radius: 999px;
+
+  background: #eef8fa;
+  color: #087f98;
+
+  font-size: 8.5px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.subscription-reminder-organisation-body {
+  padding: 16px;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+
+  background: #ffffff;
+
+  border-radius: 0 0 12px 12px;
+}
+
+.subscription-reminder-organisation-field {
+  min-width: 0;
+}
+
+.subscription-reminder-organisation-field label {
+  margin-bottom: 6px;
+
+  color: #35475f;
+
+  font-size: 9.5px;
+  font-weight: 600;
+}
+
+.subscription-reminder-organisation-select {
+  width: 100%;
+}
+
+.subscription-reminder-list-redesign .subscription-reminder-select__control {
+  min-height: 42px;
+
+  border: 1px solid #cfdae5 !important;
+  border-radius: 8px !important;
+
+  background: #ffffff;
+
+  box-shadow: none !important;
+}
+
+.subscription-reminder-list-redesign
+  .subscription-reminder-select__control:hover {
+  border-color: #bcc9d6 !important;
+}
+
+.subscription-reminder-list-redesign
+  .subscription-reminder-select__control--is-focused {
+  border-color: #72cedd !important;
+
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08) !important;
+}
+
+.subscription-reminder-list-redesign
+  .subscription-reminder-select__value-container {
+  padding: 4px 8px;
+}
+
+.subscription-reminder-list-redesign
+  .subscription-reminder-select__multi-value {
+  overflow: hidden;
+
+  border-radius: 6px;
+
+  background: #eef8fa;
+}
+
+.subscription-reminder-list-redesign
+  .subscription-reminder-select__multi-value__label {
+  color: #326276;
+
+  font-size: 8.5px;
+}
+
+.subscription-reminder-list-redesign
+  .subscription-reminder-select__multi-value__remove {
+  color: #587b8c;
+}
+
+.subscription-reminder-list-redesign
+  .subscription-reminder-select__multi-value__remove:hover {
+  background: #dceff3;
+  color: #1e6078;
+}
+
+.subscription-reminder-list-redesign .subscription-reminder-select__menu {
+  z-index: 1000;
+
+  border: 1px solid #dbe4ec;
+  border-radius: 8px;
+
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+}
+
+.subscription-reminder-list-redesign .subscription-reminder-select__option {
+  padding: 9px 10px;
+
+  color: #42536a;
+
+  font-size: 9.5px;
+}
+
+.subscription-reminder-list-redesign
+  .subscription-reminder-select__option--is-focused {
+  background: #f1f9fb;
+}
+
+.subscription-reminder-list-redesign
+  .subscription-reminder-select__option--is-selected {
+  background: var(--spr-cyan);
+  color: #ffffff;
+}
+
+.subscription-reminder-add-org-btn {
+  min-height: 42px;
+  padding: 0 14px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  border: 1px solid var(--spr-cyan);
+  border-radius: 8px;
+
+  background: var(--spr-cyan);
+  color: #ffffff;
+
+  font-size: 9.5px;
+  font-weight: 600;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  box-shadow: none;
+}
+
+.subscription-reminder-add-org-btn:hover {
+  border-color: var(--spr-cyan-hover);
+
+  background: var(--spr-cyan-hover);
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.subscription-reminder-list-redesign {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.subscription-reminder-footer-wrap {
+  width: 100%;
+
+  margin-top: auto;
+
+  flex: 0 0 auto;
+
+  position: relative !important;
+
+  background: var(--spr-bg);
+}
+
+.subscription-reminder-footer-wrap > *,
+.subscription-reminder-footer-wrap footer,
+.subscription-reminder-footer-wrap .footer,
+.subscription-reminder-footer-wrap .fixed-bottom {
+  position: static !important;
+
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+
+  transform: none !important;
+
+  z-index: auto !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (min-width: 1450px) {
+  .subscription-reminder-table {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 991px) {
+  .subscription-reminder-list-redesign {
+    width: calc(100% - 14px) !important;
+
+    margin-left: 14px !important;
+    padding-right: 12px !important;
+  }
+
+  .subscription-reminder-organisation-body {
+    grid-template-columns: 1fr;
+  }
+
+  .subscription-reminder-add-org-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  .subscription-reminder-list-redesign {
+    width: 100% !important;
+
+    margin-left: 0 !important;
+    padding: 18px 8px 0 !important;
+  }
+
+  .subscription-reminder-page-header {
+    min-height: auto;
+
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .subscription-reminder-heading-copy h1 {
+    font-size: 24px;
+  }
+
+  .subscription-reminder-count {
+    width: 100%;
+  }
+
+  .subscription-reminder-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .subscription-reminder-search-wrap {
+    max-width: 100%;
+  }
+
+  .subscription-reminder-organisation-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .subscription-reminder-pagination {
+    margin: 10px auto 14px;
+    padding: 0;
+  }
+}
+
+/* =========================================================
+   STATUS + ACTION COLUMN ALIGNMENT FIX
+   Keeps existing functionality/handlers untouched.
+   ========================================================= */
+
+/* Give the last two columns enough room so the status switch
+   never visually spills into the Action column. */
+.subscription-reminder-list-redesign .subscription-reminder-table {
+  min-width: 1320px;
+}
+
+.subscription-reminder-list-redesign
+  .subscription-reminder-table
+  th:nth-child(1),
+.subscription-reminder-list-redesign
+  .subscription-reminder-table
+  td:nth-child(1) {
+  width: 18%;
+}
+
+.subscription-reminder-list-redesign
+  .subscription-reminder-table
+  th:nth-child(2),
+.subscription-reminder-list-redesign
+  .subscription-reminder-table
+  td:nth-child(2) {
+  width: 21%;
+}
+
+.subscription-reminder-list-redesign
+  .subscription-reminder-table
+  th:nth-child(3),
+.subscription-reminder-list-redesign
+  .subscription-reminder-table
+  td:nth-child(3) {
+  width: 23%;
+}
+
+.subscription-reminder-list-redesign
+  .subscription-reminder-table
+  th:nth-child(4),
+.subscription-reminder-list-redesign
+  .subscription-reminder-table
+  td:nth-child(4) {
+  width: 7%;
+}
+
+.subscription-reminder-list-redesign
+  .subscription-reminder-table
+  th:nth-child(5),
+.subscription-reminder-list-redesign
+  .subscription-reminder-table
+  td:nth-child(5) {
+  width: 10%;
+}
+
+.subscription-reminder-list-redesign
+  .subscription-reminder-table
+  th:nth-child(6),
+.subscription-reminder-list-redesign
+  .subscription-reminder-table
+  td:nth-child(6) {
+  width: 12%;
+  min-width: 150px;
+}
+
+.subscription-reminder-list-redesign
+  .subscription-reminder-table
+  th:nth-child(7),
+.subscription-reminder-list-redesign
+  .subscription-reminder-table
+  td:nth-child(7) {
+  width: 9%;
+  min-width: 112px;
+}
+
+/* Center the Status heading and its pill/switch as one unit. */
+.subscription-reminder-list-redesign
+  .subscription-reminder-table
+  th:nth-child(6) {
+  text-align: center !important;
+}
+
+.subscription-reminder-list-redesign .subscription-reminder-status-cell {
+  width: 100%;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+
+  white-space: nowrap;
+}
+
+.subscription-reminder-list-redesign
+  .subscription-reminder-status-cell
+  .MuiFormGroup-root {
+  flex: 0 0 auto;
+  width: auto !important;
+}
+
+.subscription-reminder-list-redesign
+  .subscription-reminder-status-cell
+  .MuiFormControlLabel-root {
+  flex: 0 0 auto;
+
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Keep the action buttons clearly separated from the status switch. */
+.subscription-reminder-list-redesign .subscription-reminder-actions-heading,
+.subscription-reminder-list-redesign .subscription-reminder-actions-cell {
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+
+  text-align: center !important;
+}
+
+.subscription-reminder-list-redesign .subscription-reminder-actions-cell {
+  border-left: 1px solid #eef2f6;
+}
+
+.subscription-reminder-list-redesign .subscription-reminder-row-actions {
+  width: 100%;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+
+  white-space: nowrap;
+}
+
+/* Reassert compact buttons so no legacy styles can enlarge them. */
+.subscription-reminder-list-redesign .subscription-reminder-action-btn {
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+
+  flex: 0 0 34px !important;
+
+  border-radius: 7px !important;
+
+  box-shadow: none !important;
+}
+
+/* On very wide screens, keep the better column balance rather than
+   collapsing back to the old cramped widths. */
+@media (min-width: 1450px) {
+  .subscription-reminder-list-redesign .subscription-reminder-table {
+    min-width: 1180px;
+  }
+}

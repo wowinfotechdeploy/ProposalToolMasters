@@ -4,11 +4,17 @@ import { useNavigate } from "react-router";
 import CommonButtonComponent from "../../../../components/CommonButtonComponent";
 import ConfirmModel from "../../../../components/ConfirmationBox";
 import FilterModel from "../../../../components/FilterModel";
-import { MarketingReminderChangeStatus, MarketingReminderDelete } from "../../../../redux/Services/Setting/MarketingReminderApi";
-import { AddFreePackageUpgradeRemindersForSelectedOrganisations, GetOldOrganisationsWithFreePackage, GetSubscriptionPackageReminderList,
-GetFreePackageOrganisationList, 
- SubscriptionReminderChangeStatus } 
- from "../../../../redux/Services/Setting/SubscriptionPackageReminderApi";
+import {
+  MarketingReminderChangeStatus,
+  MarketingReminderDelete,
+} from "../../../../redux/Services/Setting/MarketingReminderApi";
+import {
+  AddFreePackageUpgradeRemindersForSelectedOrganisations,
+  GetOldOrganisationsWithFreePackage,
+  GetSubscriptionPackageReminderList,
+  GetFreePackageOrganisationList,
+  SubscriptionReminderChangeStatus,
+} from "../../../../redux/Services/Setting/SubscriptionPackageReminderApi";
 import PaginationComponent from "../../../../components/PaginationModel";
 import Android12Switch from "../../../../components/AndroidSwitch";
 import FormGroup from "@mui/material/FormGroup";
@@ -24,6 +30,7 @@ import { updateState } from "../../../../redux/Persist";
 
 import RecordsAvailablePopupModel from "../../../../components/RecordsAvailablePopupModel";
 import Select from "react-select";
+import "./SuperAdminReminderSubscriptionPackageList-redesign.css";
 
 function SuperAdminReminderSubscriptionPackageList() {
   const moduleName = "Subscription Package Reminder";
@@ -45,7 +52,7 @@ function SuperAdminReminderSubscriptionPackageList() {
     getPlaceholderTextName,
     getCrudButtonToolTipName,
     userAccessData,
-    prospectName
+    prospectName,
   } = useContext(AuthContextProvider);
   const [organisationList, setOrganisationList] = useState([]);
   const [oldOrganisations, setOldOrganisations] = useState([]);
@@ -82,7 +89,7 @@ function SuperAdminReminderSubscriptionPackageList() {
     reminderName: null,
     reminderTypeID: null,
     reminderNameType: null,
-    emailTemplateType: null
+    emailTemplateType: null,
   });
   const dispatch = useDispatch();
   const pageSize = isMobile ? isMobileRecords : desktopRecords;
@@ -90,18 +97,17 @@ function SuperAdminReminderSubscriptionPackageList() {
   const isCurrentPage =
     common.currentPage === "" ? currentPage : common.currentPage;
 
-
   // B] Initial useEffect :
   // 1) Will Call Initial Api Like List Api
   useEffect(() => {
     setTopbar("block");
     GetEmailTemplatesListData(isCurrentPage);
-    GetOrganisationListData(common.userKeyID,30);
+    GetOrganisationListData(common.userKeyID, 30);
     GetOldOrganisationsWithFreePackageData();
     dispatch(
       updateState({
         currentPage: "",
-      })
+      }),
     );
   }, [pageSize]);
 
@@ -119,40 +125,41 @@ function SuperAdminReminderSubscriptionPackageList() {
   }, [isAddUpdateActionDone]);
 
   useEffect(() => {
-
     if (
       modelRequestData.reminderKeyID !== null &&
       modelRequestData.Action === "Update"
     ) {
       setTopbar("none");
-      navigate("/UpdateSuperAdminSubscriptionPackageReminder", { state: modelRequestData });
+      navigate("/UpdateSuperAdminSubscriptionPackageReminder", {
+        state: modelRequestData,
+      });
     }
   }, [modelRequestData]);
 
-  const organisationOptions = organisationList.map(o => ({
+  const organisationOptions = organisationList.map((o) => ({
     value: o.organisationKeyID,
-    label: o.tradingBusinessName
+    label: o.tradingBusinessName,
   }));
   console.log(organisationOptions);
- 
+
   // Handle Add Orgs
-  const handleAddOrganisations = async(oldOrganisations) => {
+  const handleAddOrganisations = async (oldOrganisations) => {
     setLoader(true);
     try {
-      const orgKeyIds = oldOrganisations.map(o => o.organisationKeyID);
-      const data = await AddFreePackageUpgradeRemindersForSelectedOrganisations(orgKeyIds);
-      if(data?.data?.statusCode === 200) {
+      const orgKeyIds = oldOrganisations.map((o) => o.organisationKeyID);
+      const data =
+        await AddFreePackageUpgradeRemindersForSelectedOrganisations(orgKeyIds);
+      if (data?.data?.statusCode === 200) {
         setLoader(false);
       } else {
         setLoader(false);
         setErrorMessage(data?.data?.errorMessage);
       }
       await GetOldOrganisationsWithFreePackageData();
-    }
-    catch(error) {
+    } catch (error) {
       console.log(error);
     }
-  }
+  };
   // C] Calling All Api's like List and other Here :
   // 1) Get EmailTemplatesList Data
   const GetEmailTemplatesListData = async (
@@ -165,7 +172,7 @@ function SuperAdminReminderSubscriptionPackageList() {
     documentStatusID,
   ) => {
     if (pageSize === 0) {
-      return
+      return;
     }
     setLoader(true);
     const pageNoList = i - 1;
@@ -181,10 +188,13 @@ function SuperAdminReminderSubscriptionPackageList() {
           sortValue === undefined ? primarySortDirection : sortValue,
         PrimarySortColumnName: sortType == "" ? TemplateSort : sortType,
         emailAddressID:
-          EmailAddressTypeID === undefined ? EmailAddressType : EmailAddressTypeID,
+          EmailAddressTypeID === undefined
+            ? EmailAddressType
+            : EmailAddressTypeID,
         triggerPointID:
-          TriggerPointTypeID === undefined ? TriggerPointType : TriggerPointTypeID,
-
+          TriggerPointTypeID === undefined
+            ? TriggerPointType
+            : TriggerPointTypeID,
       });
       if (data) {
         if (data?.data?.statusCode === 200) {
@@ -202,7 +212,7 @@ function SuperAdminReminderSubscriptionPackageList() {
                 newPaneNo,
                 searchKeywordValue,
                 sortValue,
-                TemplateSort
+                TemplateSort,
               );
               setCurrentPage(pageNoList);
               return;
@@ -220,7 +230,7 @@ function SuperAdminReminderSubscriptionPackageList() {
                 i,
                 searchKeywordValue,
                 sortValue,
-                TemplateSort
+                TemplateSort,
               );
             }, 2000);
           } else {
@@ -243,7 +253,7 @@ function SuperAdminReminderSubscriptionPackageList() {
         try {
           const Data = await MarketingReminderChangeStatus(
             modelRequestData.reminderKeyID,
-            modelRequestData.userKeyID
+            modelRequestData.userKeyID,
           );
           if (Data) {
             setLoader(false);
@@ -266,7 +276,7 @@ function SuperAdminReminderSubscriptionPackageList() {
       try {
         const Data = await MarketingReminderDelete(
           modelRequestData.reminderKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -287,50 +297,49 @@ function SuperAdminReminderSubscriptionPackageList() {
     }
   };
   // Organisations for the workflow
-  const GetOrganisationListData = async (userKeyID,pageSize) => {
-      setLoader(true);
-      try {
-        const data = await GetFreePackageOrganisationList(userKeyID,30);
-  
-        if (data) {
-          if (data?.data?.statusCode === 200) {
-            setLoader(false);
-            if (data?.data?.responseData?.data) {
-              const orgList = data?.data?.responseData?.data;
-              const totalCount = data.data.totalCount;
-              const totalUserCount = data.data.responseData?.totalUserCount;
-              setOrganisationList(orgList);
-              setTotalRecords(orgList.length);
-            }
-          } else {
-            setErrorMessage(data?.data?.errorMessage);
+  const GetOrganisationListData = async (userKeyID, pageSize) => {
+    setLoader(true);
+    try {
+      const data = await GetFreePackageOrganisationList(userKeyID, 30);
+
+      if (data) {
+        if (data?.data?.statusCode === 200) {
+          setLoader(false);
+          if (data?.data?.responseData?.data) {
+            const orgList = data?.data?.responseData?.data;
+            const totalCount = data.data.totalCount;
+            const totalUserCount = data.data.responseData?.totalUserCount;
+            setOrganisationList(orgList);
+            setTotalRecords(orgList.length);
           }
+        } else {
+          setErrorMessage(data?.data?.errorMessage);
         }
-      } catch (error) {
-        console.log(error);
       }
-    };
-  
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // Old Orgs with Free Package selected for workflow
-  const GetOldOrganisationsWithFreePackageData = async() => {
+  const GetOldOrganisationsWithFreePackageData = async () => {
     setLoader(true);
     try {
       const data = await GetOldOrganisationsWithFreePackage();
-      if(data) {
-        if(data?.data?.statusCode === 200) {
+      if (data) {
+        if (data?.data?.statusCode === 200) {
           setLoader(false);
-          setOldOrganisations(data?.data?.responseData?.data)
-        }
-        else {
+          setOldOrganisations(data?.data?.responseData?.data);
+        } else {
           setLoader(false);
           setErrorMessage(data?.data?.errorMessage);
         }
       }
-    } catch(error) {
+    } catch (error) {
       setLoader(false);
       console.log(error);
     }
-  }
+  };
   //Add Template Button
   const TemplateAddBtnClicked = () => {
     {
@@ -346,7 +355,9 @@ function SuperAdminReminderSubscriptionPackageList() {
       status: null,
     };
     setTopbar("none");
-    navigate("/add-update-marketing-reminder", { state: addReminderRequestData });
+    navigate("/add-update-marketing-reminder", {
+      state: addReminderRequestData,
+    });
   };
   // 2) On Click Template Edit Button
 
@@ -354,18 +365,18 @@ function SuperAdminReminderSubscriptionPackageList() {
     dispatch(
       updateState({
         currentPage: currentPage,
-      })
+      }),
     );
     setModelRequestData({
-       ...modelRequestData,
+      ...modelRequestData,
       Action: "Update",
-    //   lessDay: lessDay,
-    //   greaterDay: greaterDay,
+      //   lessDay: lessDay,
+      //   greaterDay: greaterDay,
       reminderKeyID: Template.reminderKeyID,
-    //   emailTemplateType: emailTemplateType,
-    //   templateTypeID: templateTypeID,
+      //   emailTemplateType: emailTemplateType,
+      //   templateTypeID: templateTypeID,
       reminderTypeID: 5,
-      reminderNameType:Template.reminderNameType
+      reminderNameType: Template.reminderNameType,
     });
   };
 
@@ -438,7 +449,6 @@ function SuperAdminReminderSubscriptionPackageList() {
   //   return text.replace(/Contract/g, {EngagementName}).replace(/Quote/g, {proposalName});
   // };
   const ApplyFilter = () => {
-
     if (
       (EmailAddressType !== null && EmailAddressType !== "") ||
       (TriggerPointType !== null && TriggerPointType !== "")
@@ -471,353 +481,370 @@ function SuperAdminReminderSubscriptionPackageList() {
   };
 
   return (
-   <div className="container-fluid">
-      {/* <div class="main-content"> */}
-        <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                          <div className="row">
-                <div className="col-md-6 col-6">
-                  <div class="page-title-cls">{moduleName}</div>
-                </div>
-                <div className="col-auto ms-auto">
-                  <div className="d-flex justify-content-sm-end add-new-btn">
-                    {/* {((userAccessData.Admin_Config_Email_Template_CanAdd &&
+    <div className="container-fluid subscription-reminder-list-redesign">
+      <div className="subscription-reminder-page">
+        {/* =====================================================
+            PAGE HEADER
+            ===================================================== */}
+        <div className="subscription-reminder-page-header">
+          <div className="subscription-reminder-heading-copy">
+            <h1>Subscription Package Reminder</h1>
+            <p>
+              Manage subscription package reminder schedules, email templates,
+              status and organisation assignments.
+            </p>
+          </div>
+
+          <div className="subscription-reminder-count">
+            <span className="subscription-reminder-count-icon">
+              <i className="ri-notification-3-line"></i>
+            </span>
+
+            <div>
+              <span>Total Reminders</span>
+              <strong>{listCount > 0 ? listCount : 0}</strong>
+            </div>
+          </div>
+        </div>
+
+        {/* =====================================================
+            REMINDER LIST
+            ===================================================== */}
+        <section className="subscription-reminder-list-card">
+          <div className="subscription-reminder-toolbar">
+            <div className="subscription-reminder-search-wrap">
+              <i className="ri-search-line"></i>
+
+              <input
+                type="text"
+                value={searchKeyword}
+                onChange={(e) => {
+                  handleSearch(e);
+                }}
+                className="form-control subscription-reminder-search-input"
+                placeholder={
+                  isMobile
+                    ? "Search"
+                    : getPlaceholderTextName("Search", moduleName)
+                }
+              />
+            </div>
+
+            <div className="subscription-reminder-toolbar-note">
+              <span>
+                {listCount > 0
+                  ? `${listCount} ${listCount === 1 ? "reminder" : "reminders"}`
+                  : "No reminders"}
+              </span>
+            </div>
+          </div>
+
+          <div className="subscription-reminder-table-scroll">
+            <table className="subscription-reminder-table" id="customerTable">
+              <thead>
+                <tr>
+                  <th>Reminder Name</th>
+                  <th>Reminder Type</th>
+                  <th>Email Template</th>
+                  <th>Days</th>
+                  <th>Sequence</th>
+                  <th>Status</th>
+                  <th className="subscription-reminder-actions-heading">
+                    {((userAccessData.Admin_Config_Email_Template_CanEdit &&
                       common.organisationKeyID !== null) ||
                       (userAccessData.SuperAdmin_Config_Email_Template_CanAdd &&
-                        common.organisationKeyID === null))
-                         && (
-                        <CommonButtonComponent
-                          title={getCrudButtonToolTipName("Add ", moduleName)}
-                          name={getCrudButtonTextName("Add", moduleName)}
-                          AddBtn={() => TemplateAddBtnClicked()}
-                        />
-                      )} */}
-                  </div>
-                </div>
-            </div>
-          </div>
-          <div>
-            <div class="row" id="tablesections">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
+                        common.organisationKeyID === null)) && <>Action</>}
+                  </th>
+                </tr>
+              </thead>
 
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
-                        <div class="search-box ms-2 width-searchbox">
-                          <div className="row">
-                            <div className="col-lg-12 col-md-12 col-sm-12 ">
-                              <div className="row align-items-center">
-                                <div className="col-3 mb-2">
-                                  <div class="search-box w-100 width-searchbox mb-2">
-                                    <i class="ri-search-line search-icon"></i>
-                                    <input
-                                      type="text"
-                                      value={searchKeyword}
-                                      onChange={(e) => {
-                                        handleSearch(e);
-                                      }}
-                                      className="form-control search"
-                                      placeholder={
-                                        isMobile ? "Search" : getPlaceholderTextName("Search", moduleName)
-                                      }
-                                    />
-                                  </div>
-                                </div>
-                                
-                              </div>
-                            </div>
+              <tbody>
+                {EmailTemplateList.slice(
+                  0,
+                  isMobile ? isMobileRecords : desktopRecords,
+                ).map((Template, index) => {
+                  return (
+                    <tr key={Template.reminderKeyID || index}>
+                      {/* REMINDER NAME */}
+                      <td>
+                        <div className="subscription-reminder-name-cell">
+                          <span className="subscription-reminder-name-icon">
+                            <i className="ri-notification-4-line"></i>
+                          </span>
+
+                          <div className="subscription-reminder-name-copy">
+                            {isMobile ? (
+                              <strong>
+                                {Template.reminderName.length > 20
+                                  ? `${Template.reminderName.substring(
+                                      0,
+                                      20,
+                                    )}...`
+                                  : Template.reminderName}
+                              </strong>
+                            ) : (
+                              <>
+                                {Template.reminderName.length > 50 ? (
+                                  <Tooltip title={Template.reminderName}>
+                                    <strong>
+                                      {`${Template.reminderName.substring(
+                                        0,
+                                        50,
+                                      )}...`}
+                                    </strong>
+                                  </Tooltip>
+                                ) : (
+                                  <strong>{Template.reminderName}</strong>
+                                )}
+                              </>
+                            )}
                           </div>
                         </div>
-                        <table
-                          class="table align-middle table-nowrap"
-                          id="customerTable"
-                        >
-                          <thead class="table-light">
-                            <tr className="head-row table-header-font">
-                              <td className="tr-table-class text-white">
-                                Reminder Name
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Reminder Type
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Email Template
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Days
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Sequence
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Status
-                              </td>
-                              <td className="tr-table-class text-white">
-                                {((userAccessData.Admin_Config_Email_Template_CanEdit &&
-                                  common.organisationKeyID !== null) ||
-                                  (userAccessData.SuperAdmin_Config_Email_Template_CanAdd &&
-                                    common.organisationKeyID === null)) && (
-                                    <>Action</>
-                                  )}
-                              </td>
-                            </tr>
-                          </thead>
-                          <tbody class="list form-check-all">
-                            {EmailTemplateList.slice(
-                              0,
-                              isMobile ? isMobileRecords : desktopRecords
-                            ).map((Template) => {
-                              return (
-                                <tr class="table_new table-content-font">
-                                  <td className="table-content-font">
-                                    {isMobile ? (
-                                      <>
-                                        {Template.reminderName.length > 20
-                                          ? `${Template.reminderName.substring(
-                                            0,
-                                            20
-                                          )}...`
-                                          : Template.reminderName}
-                                      </>
-                                    ) : (
-                                      <>
-                                        {Template.reminderName.length > 50 ? (
-                                          <Tooltip
-                                            title={Template.reminderName}
-                                          >
-                                            {`${Template.reminderName.substring(
-                                              0,
-                                              50
-                                            )}...`}
-                                          </Tooltip>
-                                        ) : (
-                                          <>{Template.reminderName}</>
-                                        )}
-                                      </>
-                                    )}
-                                  </td>
-                                  <td className="table-content-font">
-                                    {Template.reminderNameType?.replace(/_/g, ' ')}
-                                  </td>
-                                  <td className="table-content-font">
-                                    {Template.templateName}
-                                  </td>
+                      </td>
 
-                                  <td className="table-content-font">
-                                    {Template.days}
-                                  </td>
-                                  <td className="table-content-font">
-                                    {Template.sequenceName}
-                                  </td>
-                                  <td className="Switch table-content-font">
-                                    <div
-                                      style={{ alignItems: "none" }}
-                                      class="d-flex gap-2 "
-                                    >
-                                      <div style={{ width: "40px" }}>
-                                        {" "}
-                                        {Template.statusName}
-                                      </div>
-                                      {((userAccessData.Admin_Config_Email_Template_CanDelete &&
-                                        common.organisationKeyID !== null) ||
-                                        (userAccessData.SuperAdmin_Config_Email_Template_CanDelete &&
-                                          common.organisationKeyID ===
-                                          null)) && (
-                                          <Tooltip
-                                            title={getCrudButtonToolTipName(
-                                              "Change Status"
-                                            )}
-                                          >
-                                            <FormGroup style={{ width: "55px" }}>
-                                              <FormControlLabel
-                                                control={
-                                                  <Android12Switch
-                                                    onClick={() =>
-                                                      setModelRequestData({
-                                                        ...modelRequestData,
-                                                        professionTypeNames:
-                                                          Template.professionTypeNames,
-                                                        BusinessTypeName:
-                                                          Template.orgBusinessType,
-                                                        reminderKeyID:
-                                                          Template.reminderKeyID,
-                                                        status: Template.statusName ===
-                                                          "Active"
-                                                          ? "Active"
-                                                          : "InActive",
-                                                        userKeyID:
-                                                          common.userKeyID,
-                                                        StatusType: null,
-                                                        Action: "Status",
-                                                      })
-                                                    }
-                                                    checked={
-                                                      Template.statusName ===
-                                                      "Active"
-                                                    }
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#ConfirmModel"
-                                                  />
-                                                }
-                                              />
-                                            </FormGroup>
-                                          </Tooltip>
-                                        )}
-                                    </div>
-                                  </td>
-                                  <td className="table-content-font">
-                                    <div class="d-flex gap-2">
-                                      {((userAccessData.Admin_Config_Email_Template_CanEdit &&
-                                        common.organisationKeyID !== null) ||
-                                        (userAccessData.SuperAdmin_Config_Email_Template_CanEdit &&
-                                          common.organisationKeyID ===
-                                          null)) && (
-                                          <Tooltip
-                                            title={getCrudButtonToolTipName(
-                                              "Update",
-                                              moduleName
-                                            )}
-                                          >
-                                            <div class="edit">
-                                              <button
-                                                onClick={() =>
-                                                  TemplateEditBtnClicked(Template)
-                                                }
-                                                class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
-                                              >
-                                                <i class="ri-pencil-fill"></i>
-                                              </button>
-                                            </div>
-                                          </Tooltip>
-                                        )}
-                                      {((userAccessData.Admin_Config_Email_Template_CanDelete &&
-                                        common.organisationKeyID !== null) ||
-                                        (userAccessData.SuperAdmin_Config_Email_Template_CanDelete &&
-                                          common.organisationKeyID ===
-                                          null)) && (
-                                          <Tooltip
-                                            title={getCrudButtonToolTipName(
-                                              "Delete",
-                                              moduleName
-                                            )}
-                                          >
-                                            <div class="remove">
-                                              <button
-                                                onClick={() =>
-                                                  setModelRequestData(
-                                                    (prevState) => ({
-                                                      ...prevState,
-                                                      // keyID: Template.keyID,
-                                                      reminderKeyID:
-                                                        Template.reminderKeyID,
-                                                      userKeyID: common.userKeyID,
-                                                      Action: "Delete",
-                                                    })
-                                                  )
-                                                }
-                                                class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#ConfirmModel"
-                                              >
-                                                <i class="ri-delete-bin-5-fill"></i>
-                                              </button>
-                                            </div>
-                                          </Tooltip>
-                                        )}
-                                    </div>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                        {totalRecords <= 0 && (
-                          <NoResultFoundModel
-                            name={moduleName}
-                            totalRecords={totalRecords}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  {/* end card  */}
-                  {listCount > pageSize && (
-                    <PaginationComponent
-                      totalCount={listCount}
-                      totalPages={totalPage}
-                      currentPage={currentPage}
-                      onPageChange={handlePageChange}
-                    />
-                  )}
-                </div>
-                {/* section to select old organisations */}
-                <div className="row">
-                  <div className="col-lg-3">
-                    <label className="form-label">
-                      Select Organisations <span className="text-danger">*</span>
-                    </label>
-                  </div>
-                  <div className="col-lg-6">
-                    <div className="input-group">
-                      <Select
-                        isMulti
-                        menuPlacement="top"
-                        className="user-role-select"
-                        options={organisationOptions}
-                        value={organisationOptions.filter(opt =>
-                          oldOrganisations.some(o => o.organisationKeyID === opt.value)
-                        )}
-                        onChange={(selectedOptions) => {
-                          // Update oldOrganisations to keep original structure if needed
-                          const updated = selectedOptions.map(sel => ({
-                            organisationKeyID: sel.value,
-                            organisationName: sel.label
-                          }));
-                          setOldOrganisations(updated);
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <div className="col-3">
-                    <button
-                      className="btn create-item-btn"
-                      onClick={() => handleAddOrganisations(oldOrganisations)}
-                    >
-                        Add
-                    </button>
-                  </div>
-                </div>
-                {/* end col */}
-              </div>
-              {/* end col  */}
-            </div>
-            {/* end row */}
+                      {/* REMINDER TYPE */}
+                      <td>
+                        <span className="subscription-reminder-type-text">
+                          {Template.reminderNameType?.replace(/_/g, " ")}
+                        </span>
+                      </td>
+
+                      {/* EMAIL TEMPLATE */}
+                      <td>
+                        <span className="subscription-reminder-template-pill">
+                          {Template.templateName}
+                        </span>
+                      </td>
+
+                      {/* DAYS */}
+                      <td>
+                        <span className="subscription-reminder-days-pill">
+                          {Template.days}
+                        </span>
+                      </td>
+
+                      {/* SEQUENCE */}
+                      <td>
+                        <span className="subscription-reminder-sequence">
+                          {Template.sequenceName}
+                        </span>
+                      </td>
+
+                      {/* STATUS */}
+                      <td>
+                        <div className="subscription-reminder-status-cell">
+                          <span
+                            className={`subscription-reminder-status-pill ${
+                              Template.statusName === "Active"
+                                ? "is-active"
+                                : "is-inactive"
+                            }`}
+                          >
+                            {Template.statusName}
+                          </span>
+
+                          {((userAccessData.Admin_Config_Email_Template_CanDelete &&
+                            common.organisationKeyID !== null) ||
+                            (userAccessData.SuperAdmin_Config_Email_Template_CanDelete &&
+                              common.organisationKeyID === null)) && (
+                            <Tooltip
+                              title={getCrudButtonToolTipName("Change Status")}
+                            >
+                              <FormGroup>
+                                <FormControlLabel
+                                  control={
+                                    <Android12Switch
+                                      onClick={() =>
+                                        setModelRequestData({
+                                          ...modelRequestData,
+                                          professionTypeNames:
+                                            Template.professionTypeNames,
+                                          BusinessTypeName:
+                                            Template.orgBusinessType,
+                                          reminderKeyID: Template.reminderKeyID,
+                                          status:
+                                            Template.statusName === "Active"
+                                              ? "Active"
+                                              : "InActive",
+                                          userKeyID: common.userKeyID,
+                                          StatusType: null,
+                                          Action: "Status",
+                                        })
+                                      }
+                                      checked={Template.statusName === "Active"}
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#ConfirmModel"
+                                    />
+                                  }
+                                />
+                              </FormGroup>
+                            </Tooltip>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* ACTIONS */}
+                      <td className="subscription-reminder-actions-cell">
+                        <div className="subscription-reminder-row-actions">
+                          {((userAccessData.Admin_Config_Email_Template_CanEdit &&
+                            common.organisationKeyID !== null) ||
+                            (userAccessData.SuperAdmin_Config_Email_Template_CanEdit &&
+                              common.organisationKeyID === null)) && (
+                            <Tooltip
+                              title={getCrudButtonToolTipName(
+                                "Update",
+                                moduleName,
+                              )}
+                            >
+                              <button
+                                type="button"
+                                onClick={() => TemplateEditBtnClicked(Template)}
+                                className="subscription-reminder-action-btn subscription-reminder-edit-btn"
+                              >
+                                <i className="ri-pencil-fill"></i>
+                              </button>
+                            </Tooltip>
+                          )}
+
+                          {((userAccessData.Admin_Config_Email_Template_CanDelete &&
+                            common.organisationKeyID !== null) ||
+                            (userAccessData.SuperAdmin_Config_Email_Template_CanDelete &&
+                              common.organisationKeyID === null)) && (
+                            <Tooltip
+                              title={getCrudButtonToolTipName(
+                                "Delete",
+                                moduleName,
+                              )}
+                            >
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setModelRequestData((prevState) => ({
+                                    ...prevState,
+                                    reminderKeyID: Template.reminderKeyID,
+                                    userKeyID: common.userKeyID,
+                                    Action: "Delete",
+                                  }))
+                                }
+                                className="subscription-reminder-action-btn subscription-reminder-delete-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#ConfirmModel"
+                              >
+                                <i className="ri-delete-bin-5-fill"></i>
+                              </button>
+                            </Tooltip>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-          {/* container-fluid  */}
-        </div>
-        {/* End Page-content */}
+
+          {totalRecords <= 0 && (
+            <div className="subscription-reminder-empty-state">
+              <NoResultFoundModel
+                name={moduleName}
+                totalRecords={totalRecords}
+              />
+            </div>
+          )}
+        </section>
+
+        {/* =====================================================
+            PAGINATION OUTSIDE LIST CARD
+            ===================================================== */}
+        {listCount > pageSize && (
+          <div className="subscription-reminder-pagination">
+            <PaginationComponent
+              totalCount={listCount}
+              totalPages={totalPage}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        )}
+
+        {/* =====================================================
+            ORGANISATION ASSIGNMENT
+            ===================================================== */}
+        <section className="subscription-reminder-organisation-card">
+          <div className="subscription-reminder-organisation-header">
+            <div className="subscription-reminder-organisation-title">
+              <span className="subscription-reminder-organisation-icon">
+                <i className="ri-building-4-line"></i>
+              </span>
+
+              <div>
+                <h2>Free Package Organisations</h2>
+                <p>
+                  Select organisations that should receive free package upgrade
+                  reminders.
+                </p>
+              </div>
+            </div>
+
+            <span className="subscription-reminder-selected-org-count">
+              {oldOrganisations.length} selected
+            </span>
+          </div>
+
+          <div className="subscription-reminder-organisation-body">
+            <div className="subscription-reminder-organisation-field">
+              <label className="form-label">
+                Select Organisations <span className="text-danger">*</span>
+              </label>
+
+              <Select
+                isMulti
+                menuPlacement="top"
+                className="subscription-reminder-organisation-select"
+                classNamePrefix="subscription-reminder-select"
+                options={organisationOptions}
+                value={organisationOptions.filter((opt) =>
+                  oldOrganisations.some(
+                    (o) => o.organisationKeyID === opt.value,
+                  ),
+                )}
+                onChange={(selectedOptions) => {
+                  const updated = selectedOptions.map((sel) => ({
+                    organisationKeyID: sel.value,
+                    organisationName: sel.label,
+                  }));
+                  setOldOrganisations(updated);
+                }}
+              />
+            </div>
+
+            <button
+              type="button"
+              className="subscription-reminder-add-org-btn"
+              onClick={() => handleAddOrganisations(oldOrganisations)}
+            >
+              <i className="ri-add-line"></i>
+              <span>Add Organisations</span>
+            </button>
+          </div>
+        </section>
+
+        {/* =====================================================
+            EXISTING MODALS
+            ===================================================== */}
         <ErrorModel
           ErrorModel={openErrorModal}
           handleClose={handleClose}
           ErrorMessage={errorMessage}
         />
-        {/* Confirm Modal  */}
+
         <ConfirmModel
           openErrorModal={openErrorModal}
           openSuccessModal={openSuccessModal}
           modelRequestData={modelRequestData}
           UpdatedStatus={EmailTemplatesChangeStatusDataAndDeleteData}
         />
+
         <RecordsAvailablePopupModel
           handleClose={handleClose}
           openErrorModal={openErrorModal}
@@ -825,7 +852,7 @@ function SuperAdminReminderSubscriptionPackageList() {
           modelRequestData={modelRequestData}
           UpdatedStatus={EmailTemplatesChangeStatusDataAndDeleteData}
         />
-        {/* Success Modal  */}
+
         <SuccessModal
           handleClose={handleClose}
           setOpenSuccessModal={setOpenSuccessModal}
@@ -837,6 +864,7 @@ function SuperAdminReminderSubscriptionPackageList() {
               : "Status has been changed successfully!"
           }
         />
+
         <FilterModel
           class="modal fade"
           id="FilterModel"
@@ -854,14 +882,11 @@ function SuperAdminReminderSubscriptionPackageList() {
           setEmailAddressType={setEmailAddressType}
           setTriggerPointType={setTriggerPointType}
         />
-        </div>
-        </div>
-        </div>
-        </div>
-        </div>
+      </div>
+
+      <div className="subscription-reminder-footer-wrap">
         <Footer />
       </div>
-      {/* end back-to-top */}
     </div>
   );
 }
