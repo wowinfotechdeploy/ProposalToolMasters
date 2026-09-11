@@ -12,6 +12,7 @@ import {
 } from "../../../redux/Services/Config/ServicesApi";
 import { USER_ROLE_TYPE } from "../../../Middleware/enums";
 import "../Pricing-settings/PricingSettingStyle.css";
+import "./FeeInflationView-redesign.css";
 
 const FeeInflationView = () => {
   const [openSuccessModal, setOpenSuccessModal] = useState(false);
@@ -39,10 +40,12 @@ const FeeInflationView = () => {
     },
   });
 
-  const { setLoader, setTopbar, userAccessData } = useContext(AuthContextProvider);
+  const { setLoader, setTopbar, userAccessData } =
+    useContext(AuthContextProvider);
   const common = useSelector((state) => state.Storage);
   const isSuperAdminView = common?.organisationKeyID == null;
-  const canManageFeeInflation = isSuperAdminView && common?.roleTypeId === USER_ROLE_TYPE.SuperAdmin;
+  const canManageFeeInflation =
+    isSuperAdminView && common?.roleTypeId === USER_ROLE_TYPE.SuperAdmin;
 
   useEffect(() => {
     setTopbar("block");
@@ -54,21 +57,21 @@ const FeeInflationView = () => {
     }
   }, [common.organisationKeyID, common.userKeyID, canManageFeeInflation]);
 
-  const availableServices = ServiceFeeInflationConfig.ServiceFeeInflationList.filter((s) => {
-    const isFixed = s.pricingTypeID !== 2;
-    const isAlreadyConfigured =
-      s.operator !== null && s.value !== null;
+  const availableServices =
+    ServiceFeeInflationConfig.ServiceFeeInflationList.filter((s) => {
+      const isFixed = s.pricingTypeID !== 2;
+      const isAlreadyConfigured = s.operator !== null && s.value !== null;
 
-    if (isFixed && isAlreadyConfigured) return false;
+      if (isFixed && isAlreadyConfigured) return false;
 
-    return true;
-  });
+      return true;
+    });
 
-  const allServicesSelected = availableServices.length > 0 &&
+  const allServicesSelected =
+    availableServices.length > 0 &&
     ServiceFeeInflationConfig.SelectedServices.length ===
       availableServices.length;
-  
-      
+
   const GetServiceFeeInflationConfigData = async () => {
     if (!common.userKeyID) {
       return;
@@ -90,7 +93,7 @@ const FeeInflationView = () => {
             ServiceFeeInflationList: ListData,
             SelectedServices: [],
             HasExistingConfig: ListData.some(
-              (s) => s.operator !== null && s.value !== null
+              (s) => s.operator !== null && s.value !== null,
             ),
             InflationRule: {
               operator: null,
@@ -99,7 +102,9 @@ const FeeInflationView = () => {
           }));
         }
       } else {
-        setErrorMessage(data?.data?.errorMessage || "Unable to load fee inflation data.");
+        setErrorMessage(
+          data?.data?.errorMessage || "Unable to load fee inflation data.",
+        );
       }
     } catch (error) {
       console.error(error);
@@ -109,12 +114,15 @@ const FeeInflationView = () => {
 
   const SubmitServiceFeeInflation = async () => {
     setErrorMessage("");
-    if (!ServiceFeeInflationConfig.SelectedServices || ServiceFeeInflationConfig.SelectedServices.length === 0) {
+    if (
+      !ServiceFeeInflationConfig.SelectedServices ||
+      ServiceFeeInflationConfig.SelectedServices.length === 0
+    ) {
       // setErrorMessage("Please select one or more services to configure.");
       setServiceFeeInflationConfig({
         ...ServiceFeeInflationConfig,
-        SelectionError: "Please select one or more services to configure."
-      })
+        SelectionError: "Please select one or more services to configure.",
+      });
       return;
     }
 
@@ -122,8 +130,8 @@ const FeeInflationView = () => {
       // setErrorMessage("Please choose an operator.");
       setServiceFeeInflationConfig({
         ...ServiceFeeInflationConfig,
-        SelectionError: "Please choose an operator."
-      })
+        SelectionError: "Please choose an operator.",
+      });
       return;
     }
 
@@ -131,14 +139,16 @@ const FeeInflationView = () => {
       // setErrorMessage("Please enter a value.");
       setServiceFeeInflationConfig({
         ...ServiceFeeInflationConfig,
-        SelectionError: "Please enter a value."
-      })
+        SelectionError: "Please enter a value.",
+      });
       return;
     }
 
     setLoader(true);
     try {
-      const serviceIDs = ServiceFeeInflationConfig.SelectedServices.map((s) => s.serviceID ?? s.serviceID ?? s.ServiceID).join(",");
+      const serviceIDs = ServiceFeeInflationConfig.SelectedServices.map(
+        (s) => s.serviceID ?? s.serviceID ?? s.ServiceID,
+      ).join(",");
 
       const apiParams = {
         organisationKeyID: common.organisationKeyID,
@@ -155,7 +165,11 @@ const FeeInflationView = () => {
         setIsAddUpdateActionDone(true);
         GetServiceFeeInflationConfigData();
       } else {
-        setErrorMessage(response?.data?.errorMessage || response?.response?.data?.errorMessage || "Unable to save fee inflation rule.");
+        setErrorMessage(
+          response?.data?.errorMessage ||
+            response?.response?.data?.errorMessage ||
+            "Unable to save fee inflation rule.",
+        );
       }
     } catch (error) {
       setLoader(false);
@@ -173,7 +187,7 @@ const FeeInflationView = () => {
       const data = await DeleteAllServiceFeeInflationConfiguration(
         common.organisationKeyID,
         common.userKeyID,
-        modelRequestData.batchID
+        modelRequestData.batchID,
       );
 
       if (data?.data?.statusCode === 200) {
@@ -184,7 +198,11 @@ const FeeInflationView = () => {
         });
         $("#ConfirmModel").modal("hide");
       } else {
-        setErrorMessage(data?.data?.errorMessage || data?.response?.data?.errorMessage || "Unable to delete fee inflation rule.");
+        setErrorMessage(
+          data?.data?.errorMessage ||
+            data?.response?.data?.errorMessage ||
+            "Unable to delete fee inflation rule.",
+        );
       }
     } catch (error) {
       console.error(error);
@@ -209,345 +227,524 @@ const FeeInflationView = () => {
   }
 
   return (
-    <div>
-    <div class="page-title-cls ms-2">Fee Inflation</div>
-    <div className="container" style={{ marginTop:"40px" }}>
-      <div className="row">
-        <div className="col-12 mt-3">
-          <strong>
-            Configure a price adjustment rule for one or more services.<br />
-            Select the services you want to apply an inflation rule to, then choose an operator and value:
-          </strong>
-        </div>
-      </div>
-
-      <div className="row mt-3">
-        <div className="col-md-2 pt-1">
-          <div className="form-label" style={{fontSize: "14px"}}>Select Services</div>
-        </div>
-        <div className="col-md-6">
-          <Select
-            isMulti
-            options={[
-              ...(!allServicesSelected
-                ? [
-                    {
-                      value: "ALL",
-                      label: "All",
-                      isAll: true,
-                    },
-                  ]
-                : []),
-
-              ...availableServices.map((s) => ({
-                value: s.serviceID,
-                label: s.serviceName,
-                isConfigured: s.operator !== null && s.value !== null,
-                data: s,
-              })),
-            ]}
-            value={ServiceFeeInflationConfig.SelectedServices.map((s) => ({
-              value: s.serviceID,
-              label: s.serviceName,
-              isConfigured: s.operator !== null && s.value !== null,
-              data: s,
-            }))}
-            onChange={(selected) => {
-              const clickedAll = selected?.some((s) => s.isAll);
-
-              const selectedServices = clickedAll
-                ? availableServices
-                : selected
-                    ? selected.map((s) => s.data)
-                    : [];
-
-              setServiceFeeInflationConfig((prev) => ({
-                ...prev,
-                SelectedServices: selectedServices,
-                SelectionError: "",
-                InflationRule:
-                  selectedServices.length > 0
-                    ? prev.InflationRule
-                    : {
-                        operator: null,
-                        value: null,
-                      },
-              }));
-            }}
-            formatOptionLabel={(option) => (
-              <div className="d-flex align-items-center justify-content-between">
-                <span>{option.label}</span>
-
-                {option.isConfigured && (
-                  <span className="badge bg-success ms-2">
-                    Configured
-                  </span>
-                )}
-              </div>
-            )}
-            isClearable
-            placeholder="Search and select services..."
-          />
-        {(ServiceFeeInflationConfig.SelectedServices.length == 0 && 
-          ServiceFeeInflationConfig.SelectionError) && (
-          <label className="validation">{ServiceFeeInflationConfig.SelectionError}</label>
-        )}
-        </div>
-
-      </div>
-
-      {ServiceFeeInflationConfig.SelectedServices.length > 0 && (
-        <div className="row mt-4">
-          <div className="col-12 mb-2">
-            <label className="form-label">Inflation Configuration</label>
+    <div className="fee-inflation-redesign">
+      <div className="fee-inflation-page">
+        <div className="fee-inflation-page-header">
+          <div className="fee-inflation-heading-copy">
+            <h1>Fee Inflation</h1>
+            <p>
+              Configure price adjustment rules for selected services and manage
+              existing inflation configurations.
+            </p>
           </div>
 
-          <div className="col-12 mb-3">
-            <div className="d-flex gap-2">
-              {[
-                { symbol: "+", label: "Add" },
-                { symbol: "-", label: "Subtract" },
-                { symbol: "*", label: "Markup %" },
-                { symbol: "/", label: "Discount %" },
-              ].map((op) => (
-                <button
-                  key={op.symbol}
-                  type="button"
-                  className={`btn ${ServiceFeeInflationConfig.InflationRule.operator === op.symbol ? "btn-primary" : "btn-outline-secondary"}`}
-                  onClick={() =>
+          <div className="fee-inflation-header-badge">
+            <span className="fee-inflation-header-badge-icon">
+              <i className="ri-shield-check-line"></i>
+            </span>
+            <div>
+              <span>Access</span>
+              <strong>Super Admin</strong>
+            </div>
+          </div>
+        </div>
+
+        <section className="fee-inflation-config-card">
+          <div className="fee-inflation-card-header">
+            <div className="fee-inflation-card-title">
+              <span className="fee-inflation-card-icon">
+                <i className="ri-line-chart-line"></i>
+              </span>
+              <div>
+                <h2>Configure Inflation Rule</h2>
+                <p>
+                  Select services, choose an adjustment type and enter its
+                  value.
+                </p>
+              </div>
+            </div>
+            <span className="fee-inflation-selected-count">
+              {ServiceFeeInflationConfig.SelectedServices.length} selected
+            </span>
+          </div>
+
+          <div className="fee-inflation-card-body">
+            <div className="fee-inflation-step">
+              <div className="fee-inflation-step-number">1</div>
+              <div className="fee-inflation-step-content">
+                <div className="fee-inflation-field-heading">
+                  <div>
+                    <label>Select Services</label>
+                    <span>Choose one or more services to apply this rule.</span>
+                  </div>
+                  <span className="fee-inflation-available-count">
+                    {availableServices.length} available
+                  </span>
+                </div>
+
+                <Select
+                  isMulti
+                  className="fee-inflation-service-select"
+                  classNamePrefix="fee-inflation-select"
+                  menuPortalTarget={document.body}
+                  menuPosition="fixed"
+                  styles={{
+                    menuPortal: (base) => ({
+                      ...base,
+                      zIndex: 99999,
+                    }),
+                    menu: (base) => ({
+                      ...base,
+                      zIndex: 99999,
+                    }),
+                  }}
+                  options={[
+                    ...(!allServicesSelected
+                      ? [
+                          {
+                            value: "ALL",
+                            label: "All",
+                            isAll: true,
+                          },
+                        ]
+                      : []),
+
+                    ...availableServices.map((s) => ({
+                      value: s.serviceID,
+                      label: s.serviceName,
+                      isConfigured: s.operator !== null && s.value !== null,
+                      data: s,
+                    })),
+                  ]}
+                  value={ServiceFeeInflationConfig.SelectedServices.map(
+                    (s) => ({
+                      value: s.serviceID,
+                      label: s.serviceName,
+                      isConfigured: s.operator !== null && s.value !== null,
+                      data: s,
+                    }),
+                  )}
+                  onChange={(selected) => {
+                    const clickedAll = selected?.some((s) => s.isAll);
+
+                    const selectedServices = clickedAll
+                      ? availableServices
+                      : selected
+                        ? selected.map((s) => s.data)
+                        : [];
+
                     setServiceFeeInflationConfig((prev) => ({
                       ...prev,
-                      InflationRule: {
-                        ...prev.InflationRule,
-                        operator: op.symbol,
-                        value: null,
-                      },
-                      SelectionError: ""
-                    }))
-                  }
-                >
-                  <div>{op.symbol}</div>
-                  <small>{op.label}</small>
-                </button>
-              ))}
+                      SelectedServices: selectedServices,
+                      SelectionError: "",
+                      InflationRule:
+                        selectedServices.length > 0
+                          ? prev.InflationRule
+                          : {
+                              operator: null,
+                              value: null,
+                            },
+                    }));
+                  }}
+                  formatOptionLabel={(option) => (
+                    <div className="fee-inflation-option">
+                      <span>{option.label}</span>
+
+                      {option.isConfigured && (
+                        <span className="fee-inflation-option-badge">
+                          Configured
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  isClearable
+                  placeholder="Search and select services..."
+                />
+
+                {ServiceFeeInflationConfig.SelectedServices.length == 0 &&
+                  ServiceFeeInflationConfig.SelectionError && (
+                    <label className="validation fee-inflation-validation">
+                      {ServiceFeeInflationConfig.SelectionError}
+                    </label>
+                  )}
+              </div>
             </div>
-          </div>
-          {(!ServiceFeeInflationConfig.InflationRule.operator &&
-            ServiceFeeInflationConfig.SelectionError)&& (
-            <label className="validation">
-              {ServiceFeeInflationConfig.SelectionError}
-            </label>
-          )}
 
-          {ServiceFeeInflationConfig.InflationRule.operator && (
-            <div className="col-md-4 mb-3">
-              <label className="form-label">
-                {ServiceFeeInflationConfig.InflationRule.operator === "+" || ServiceFeeInflationConfig.InflationRule.operator === "-"
-                  ? "Amount"
-                  : "Percentage (%)"}
-              </label>
-              <input
-                type="text"
-                inpitMode="decimal"
-                className="form-control"
-                min={0}
-                placeholder={
-                  ServiceFeeInflationConfig.InflationRule.operator === "+" || ServiceFeeInflationConfig.InflationRule.operator === "-"
-                    ? "Enter flat amount"
-                    : "Enter percentage e.g. 10"
-                }
-                value={ServiceFeeInflationConfig.InflationRule.value ?? ""}
-                onChange={(e) => {
-                const value = e.target.value;
+            {ServiceFeeInflationConfig.SelectedServices.length > 0 && (
+              <>
+                <div className="fee-inflation-divider"></div>
+                <div className="fee-inflation-step">
+                  <div className="fee-inflation-step-number">2</div>
+                  <div className="fee-inflation-step-content">
+                    <div className="fee-inflation-field-heading">
+                      <div>
+                        <label>Choose Adjustment Type</label>
+                        <span>
+                          Select how prices should be increased or reduced.
+                        </span>
+                      </div>
+                    </div>
 
-                // Allow empty value
-                if (value === "") {
-                  setServiceFeeInflationConfig({
-                    ...ServiceFeeInflationConfig,
-                    InflationRule: {
-                      ...ServiceFeeInflationConfig.InflationRule,
-                      value: null,
-                    },
-                    SelectionError: ""
-                  });
-                  return;
-                }
-
-                // First digit must be 1-9, following digits can be 0-9
-                if (!/^[1-9][0-9]*$/.test(value)) {
-                  return;
-                }
-
-                const maxValue =
-                  ServiceFeeInflationConfig.InflationRule.operator === "+" ||
-                  ServiceFeeInflationConfig.InflationRule.operator === "-"
-                    ? 9999 : 100;
-
-                if (parseInt(value, 10) > maxValue) {
-                  return;
-                }
-
-                setServiceFeeInflationConfig({
-                  ...ServiceFeeInflationConfig,
-                  InflationRule: {
-                    ...ServiceFeeInflationConfig.InflationRule,
-                    value,
-                  },
-                });
-              }}
-              />
-              {ServiceFeeInflationConfig.InflationRule.value > 0 && (
-                <small className="text-muted mt-1 d-block">
-                  {ServiceFeeInflationConfig.InflationRule.operator === "+" && `Price + ${ServiceFeeInflationConfig.InflationRule.value}`}
-                  {ServiceFeeInflationConfig.InflationRule.operator === "-" && `Price − ${ServiceFeeInflationConfig.InflationRule.value}`}
-                  {ServiceFeeInflationConfig.InflationRule.operator === "*" && `Price × ${(1 + ServiceFeeInflationConfig.InflationRule.value / 100).toFixed(2)}`}
-                  {ServiceFeeInflationConfig.InflationRule.operator === "/" && `Price × ${(1 - ServiceFeeInflationConfig.InflationRule.value / 100).toFixed(2)}`}
-                </small>
-              )}
-            {(ServiceFeeInflationConfig.InflationRule.operator && 
-              ServiceFeeInflationConfig.InflationRule.value === null &&
-              ServiceFeeInflationConfig.SelectionError) && (
-                <label className="validation">
-                {ServiceFeeInflationConfig.SelectionError}
-              </label>
-            )}
-            </div>
-          )}
-        </div>
-      )}
-
-      {canManageFeeInflation && (
-        <>
-        <div className="col-12 text-start mt-3">
-          <button
-            style={{ fontSize: "14px", marginTop: "5px", marginRight: "10px" }}
-            className="btn btn-primary create-item-btn"
-            onClick={() => SubmitServiceFeeInflation()}
-          >
-            <span>Submit</span>
-          </button>
-          {/* {ServiceFeeInflationConfig.ServiceFeeInflationList.some((s) => s.operator !== null && s.value !== null) && (
-            <button
-              className="btn btn-outline-danger btn-sm mt-2"
-              data-bs-toggle="modal"
-              data-bs-target="#ConfirmModel"
-              onClick={() =>
-                setModelRequestData({
-                  Action: "DeleteServiceFeeInflationConfig",
-                  batchID: null,
-                  message: "This will delete all existing fee inflation configurations. Are you sure you want to proceed?",
-                })
-              }
-            >
-              Delete All Configuration
-            </button>
-          )} */}
-        </div>
-        {/* <label className="validation">{errorMessage}</label> */}
-        </>
-      )}
-
-      {(() => {
-        const configured = ServiceFeeInflationConfig.ServiceFeeInflationList.filter((s) => s.operator !== null && s.value !== null);
-        if (configured.length === 0) return null;
-
-        const grouped = configured.reduce((acc, s) => {
-          const key = `${s.operator}|${s.value}|${s.batchID}`;
-          if (!acc[key]) {
-            acc[key] = {
-              operator: s.operator,
-              value: s.value,
-              batchID: s.batchID,
-              services: [],
-            };
-          }
-          acc[key].services.push({ serviceID: s.serviceID, serviceName: s.serviceName });
-          return acc;
-        }, {});
-
-        const rows = Object.values(grouped);
-        const operatorLabel = (op, val) => {
-          if (op === "+") return `+ ${val} (flat add)`;
-          if (op === "-") return `− ${val} (flat subtract)`;
-          if (op === "*") return `× ${(1 + val / 100).toFixed(2)} (${val}% markup)`;
-          if (op === "/") return `× ${(1 - val / 100).toFixed(2)} (${val}% discount)`;
-          return `${op} ${val}`;
-        };
-
-        return (
-          <div className="row mt-4">
-            <div className="col-12">
-              <div className="form-label" style={{fontSize: "14px"}}>Configured Inflation Rules</div>
-              <table className="table table-bordered table-sm">
-                <thead className="table-light">
-                  <tr>
-                    <th style={{ width: "35%", color: "white" }}>Inflation Rule</th>
-                    <th style={{ color: "white" }}>Services</th>
-                    {canManageFeeInflation && (
-                      <th style={{ width: "80px", color: "white" }} className="text-center">
-                        Action
-                      </th>
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row) => (
-                    <tr key={`${row.operator}|${row.value}|${row.batchID}`}>
-                      <td className="align-middle" style={{ fontSize: "14px" }}>
-                        <code className="fw-bold">{operatorLabel(row.operator, row.value)}</code>
-                      </td>
-                      <td className="align-middle text-white" style={{ fontSize: "14px" }}>
-                        <div className="d-flex flex-wrap gap-1">
-                          {row.services.map((svc) => (
-                            <span key={svc.serviceID} className="badge bg-secondary text-white">
-                              {svc.serviceName}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      {canManageFeeInflation && (
-                        <td className="text-center align-middle">
+                    <div className="fee-inflation-operator-grid">
+                      {[
+                        {
+                          symbol: "+",
+                          label: "Add",
+                          description: "Flat increase",
+                          icon: "ri-add-line",
+                        },
+                        {
+                          symbol: "-",
+                          label: "Subtract",
+                          description: "Flat reduction",
+                          icon: "ri-subtract-line",
+                        },
+                        {
+                          symbol: "*",
+                          label: "Markup %",
+                          description: "Percentage increase",
+                          icon: "ri-percent-line",
+                        },
+                        {
+                          symbol: "/",
+                          label: "Discount %",
+                          description: "Percentage reduction",
+                          icon: "ri-percent-line",
+                        },
+                      ].map((op) => {
+                        const isSelected =
+                          ServiceFeeInflationConfig.InflationRule.operator ===
+                          op.symbol;
+                        return (
                           <button
-                            className="btn btn-danger text-white btn-outline-danger btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#ConfirmModel"
+                            key={op.symbol}
+                            type="button"
+                            className={`fee-inflation-operator-card ${isSelected ? "is-selected" : ""}`}
                             onClick={() =>
-                              setModelRequestData({
-                                Action: "DeleteServiceFeeInflationRule",
-                                batchID: row.batchID,
-                                serviceIDs: row.services.map((s) => s.serviceID),
-                                message: "This will delete the inflation rule. Are you sure?",
-                              })
+                              setServiceFeeInflationConfig((prev) => ({
+                                ...prev,
+                                InflationRule: {
+                                  ...prev.InflationRule,
+                                  operator: op.symbol,
+                                  value: null,
+                                },
+                                SelectionError: "",
+                              }))
                             }
                           >
-                            Delete
+                            <span className="fee-inflation-operator-icon">
+                              <i className={op.icon}></i>
+                            </span>
+                            <span className="fee-inflation-operator-copy">
+                              <strong>{op.label}</strong>
+                              <small>{op.description}</small>
+                            </span>
+                            <span className="fee-inflation-operator-symbol">
+                              {op.symbol}
+                            </span>
                           </button>
-                        </td>
+                        );
+                      })}
+                    </div>
+
+                    {!ServiceFeeInflationConfig.InflationRule.operator &&
+                      ServiceFeeInflationConfig.SelectionError && (
+                        <label className="validation fee-inflation-validation">
+                          {ServiceFeeInflationConfig.SelectionError}
+                        </label>
+                      )}
+                  </div>
+                </div>
+
+                {ServiceFeeInflationConfig.InflationRule.operator && (
+                  <>
+                    <div className="fee-inflation-divider"></div>
+                    <div className="fee-inflation-step">
+                      <div className="fee-inflation-step-number">3</div>
+                      <div className="fee-inflation-step-content">
+                        <div className="fee-inflation-value-layout">
+                          <div className="fee-inflation-value-field">
+                            <label className="fee-inflation-input-label">
+                              {ServiceFeeInflationConfig.InflationRule
+                                .operator === "+" ||
+                              ServiceFeeInflationConfig.InflationRule
+                                .operator === "-"
+                                ? "Amount"
+                                : "Percentage (%)"}
+                            </label>
+                            <div className="fee-inflation-value-input-wrap">
+                              <span className="fee-inflation-value-prefix">
+                                {ServiceFeeInflationConfig.InflationRule
+                                  .operator === "+" ||
+                                ServiceFeeInflationConfig.InflationRule
+                                  .operator === "-"
+                                  ? ServiceFeeInflationConfig.InflationRule
+                                      .operator
+                                  : "%"}
+                              </span>
+                              <input
+                                type="text"
+                                inpitMode="decimal"
+                                className="form-control fee-inflation-value-input"
+                                min={0}
+                                placeholder={
+                                  ServiceFeeInflationConfig.InflationRule
+                                    .operator === "+" ||
+                                  ServiceFeeInflationConfig.InflationRule
+                                    .operator === "-"
+                                    ? "Enter flat amount"
+                                    : "Enter percentage e.g. 10"
+                                }
+                                value={
+                                  ServiceFeeInflationConfig.InflationRule
+                                    .value ?? ""
+                                }
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (value === "") {
+                                    setServiceFeeInflationConfig({
+                                      ...ServiceFeeInflationConfig,
+                                      InflationRule: {
+                                        ...ServiceFeeInflationConfig.InflationRule,
+                                        value: null,
+                                      },
+                                      SelectionError: "",
+                                    });
+                                    return;
+                                  }
+                                  if (!/^[1-9][0-9]*$/.test(value)) {
+                                    return;
+                                  }
+                                  const maxValue =
+                                    ServiceFeeInflationConfig.InflationRule
+                                      .operator === "+" ||
+                                    ServiceFeeInflationConfig.InflationRule
+                                      .operator === "-"
+                                      ? 9999
+                                      : 100;
+                                  if (parseInt(value, 10) > maxValue) {
+                                    return;
+                                  }
+                                  setServiceFeeInflationConfig({
+                                    ...ServiceFeeInflationConfig,
+                                    InflationRule: {
+                                      ...ServiceFeeInflationConfig.InflationRule,
+                                      value,
+                                    },
+                                  });
+                                }}
+                              />
+                            </div>
+
+                            {ServiceFeeInflationConfig.InflationRule.operator &&
+                              ServiceFeeInflationConfig.InflationRule.value ===
+                                null &&
+                              ServiceFeeInflationConfig.SelectionError && (
+                                <label className="validation fee-inflation-validation">
+                                  {ServiceFeeInflationConfig.SelectionError}
+                                </label>
+                              )}
+                          </div>
+
+                          {ServiceFeeInflationConfig.InflationRule.value >
+                            0 && (
+                            <div className="fee-inflation-preview">
+                              <span className="fee-inflation-preview-icon">
+                                <i className="ri-eye-line"></i>
+                              </span>
+                              <div>
+                                <span>Rule Preview</span>
+                                <strong>
+                                  {ServiceFeeInflationConfig.InflationRule
+                                    .operator === "+" &&
+                                    `Price + ${ServiceFeeInflationConfig.InflationRule.value}`}
+                                  {ServiceFeeInflationConfig.InflationRule
+                                    .operator === "-" &&
+                                    `Price − ${ServiceFeeInflationConfig.InflationRule.value}`}
+                                  {ServiceFeeInflationConfig.InflationRule
+                                    .operator === "*" &&
+                                    `Price × ${(1 + ServiceFeeInflationConfig.InflationRule.value / 100).toFixed(2)}`}
+                                  {ServiceFeeInflationConfig.InflationRule
+                                    .operator === "/" &&
+                                    `Price × ${(1 - ServiceFeeInflationConfig.InflationRule.value / 100).toFixed(2)}`}
+                                </strong>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+
+            {errorMessage && (
+              <div className="fee-inflation-api-error">
+                <i className="ri-error-warning-line"></i>
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
+            {canManageFeeInflation && (
+              <div className="fee-inflation-config-actions">
+                <button
+                  type="button"
+                  className="fee-inflation-submit-btn"
+                  onClick={() => SubmitServiceFeeInflation()}
+                >
+                  <i className="ri-check-line"></i>
+                  <span>Submit Configuration</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {(() => {
+          const configured =
+            ServiceFeeInflationConfig.ServiceFeeInflationList.filter(
+              (s) => s.operator !== null && s.value !== null,
+            );
+          if (configured.length === 0) return null;
+
+          const grouped = configured.reduce((acc, s) => {
+            const key = `${s.operator}|${s.value}|${s.batchID}`;
+            if (!acc[key]) {
+              acc[key] = {
+                operator: s.operator,
+                value: s.value,
+                batchID: s.batchID,
+                services: [],
+              };
+            }
+            acc[key].services.push({
+              serviceID: s.serviceID,
+              serviceName: s.serviceName,
+            });
+            return acc;
+          }, {});
+
+          const rows = Object.values(grouped);
+          const operatorLabel = (op, val) => {
+            if (op === "+") return `+ ${val} (flat add)`;
+            if (op === "-") return `− ${val} (flat subtract)`;
+            if (op === "*")
+              return `× ${(1 + val / 100).toFixed(2)} (${val}% markup)`;
+            if (op === "/")
+              return `× ${(1 - val / 100).toFixed(2)} (${val}% discount)`;
+            return `${op} ${val}`;
+          };
+
+          return (
+            <section className="fee-inflation-rules-card">
+              <div className="fee-inflation-card-header">
+                <div className="fee-inflation-card-title">
+                  <span className="fee-inflation-card-icon">
+                    <i className="ri-settings-3-line"></i>
+                  </span>
+                  <div>
+                    <h2>Configured Inflation Rules</h2>
+                    <p>
+                      Review existing service adjustments and remove rules when
+                      required.
+                    </p>
+                  </div>
+                </div>
+                <span className="fee-inflation-rule-count">
+                  {rows.length} {rows.length === 1 ? "rule" : "rules"}
+                </span>
+              </div>
+
+              <div className="fee-inflation-table-scroll">
+                <table className="fee-inflation-table">
+                  <thead>
+                    <tr>
+                      <th>Inflation Rule</th>
+                      <th>Services</th>
+                      {canManageFeeInflation && (
+                        <th className="fee-inflation-actions-heading">
+                          Action
+                        </th>
                       )}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        );
-      })()}
+                  </thead>
+                  <tbody>
+                    {rows.map((row) => (
+                      <tr key={`${row.operator}|${row.value}|${row.batchID}`}>
+                        <td>
+                          <div className="fee-inflation-rule-cell">
+                            <span className="fee-inflation-rule-icon">
+                              {row.operator}
+                            </span>
+                            <code>
+                              {operatorLabel(row.operator, row.value)}
+                            </code>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="fee-inflation-service-tags">
+                            {row.services.map((svc) => (
+                              <span
+                                key={svc.serviceID}
+                                className="fee-inflation-service-tag"
+                              >
+                                {svc.serviceName}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        {canManageFeeInflation && (
+                          <td className="fee-inflation-actions-cell">
+                            <button
+                              type="button"
+                              className="fee-inflation-delete-btn"
+                              data-bs-toggle="modal"
+                              data-bs-target="#ConfirmModel"
+                              onClick={() =>
+                                setModelRequestData({
+                                  Action: "DeleteServiceFeeInflationRule",
+                                  batchID: row.batchID,
+                                  serviceIDs: row.services.map(
+                                    (s) => s.serviceID,
+                                  ),
+                                  message:
+                                    "This will delete the inflation rule. Are you sure?",
+                                })
+                              }
+                            >
+                              <i className="ri-delete-bin-5-fill"></i>
+                            </button>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          );
+        })()}
 
-      <ConfirmModel
-        openSuccessModal={openSuccessModal}
-        modelRequestData={modelRequestData}
-        setModelRequestData={setModelRequestData}
-        UpdatedStatus={modelRequestData.Action === "DeleteServiceFeeInflationRule" ? DeleteServiceFeeInflationConfig : null}
-      />
-      <SuccessModal
-        handleClose={handleClose}
-        setDismissModal={setDismissModal}
-        setOpenSuccessModal={setOpenSuccessModal}
-        openSuccessModal={openSuccessModal}
-        modelAction={"Update"}
-        message={"Fee inflation"}
-      />
-    </div>
+        <ConfirmModel
+          openSuccessModal={openSuccessModal}
+          modelRequestData={modelRequestData}
+          setModelRequestData={setModelRequestData}
+          UpdatedStatus={
+            modelRequestData.Action === "DeleteServiceFeeInflationRule"
+              ? DeleteServiceFeeInflationConfig
+              : null
+          }
+        />
+        <SuccessModal
+          handleClose={handleClose}
+          setDismissModal={setDismissModal}
+          setOpenSuccessModal={setOpenSuccessModal}
+          openSuccessModal={openSuccessModal}
+          modelAction={"Update"}
+          message={"Fee inflation"}
+        />
+      </div>
     </div>
   );
 };
