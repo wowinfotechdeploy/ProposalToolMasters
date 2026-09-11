@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 // import "./Invoices.css";
+import "./Invoices-redesign.css";
 import Utils from "../../../Middleware/Utils";
 import DropDown from "../../../components/DropDown";
 import { AuthContextProvider } from "../../../AuthContext/AuthContext";
@@ -232,398 +233,347 @@ const Invoices = () => {
   const selectedStatusValue = Utils.paymentStatus.find((item) => item.value === selectedStatus)
   const className = "phone-input-country-code selectDropDown Drop-down-width";
   return (
-   <div className="container-fluid">
-      {/* <div class="main-content"> */}
-        <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                        <div className="container">
-                          <div className="row align-items-center">
-                {/* Invoice Name */}
-                <div className="col-sm-12 col-md-4 col-lg-4"> {/* Invoice Title: 4 columns on desktop, full-width on mobile */}
-                  <div className="page-title-cls">
-                    Invoice
-                  </div>
-                </div>
-
-                {/* Invoice Date and Payment Status */}
-                <div className="col-sm-12 col-md-8 col-lg-8"> {/* Invoice Date and Payment Status: 8 columns on desktop, full-width on mobile */}
-                  <div className="d-flex align-items-center flex-wrap flex-md-nowrap"> {/* Wrap on mobile, single line on desktop */}
-                    {/* Invoice Date */}
-                    <div className="d-flex align-items-center me-3">
-                      <label className="form-label me-2 mb-0 mx-2">Invoice Date</label>
-                      <div style={{ minWidth: "300px" }}>
-                        <DatePicker
-                          format="dd/MM/y"
-                          dayPlaceholder="dd"
-                          monthPlaceholder="mm"
-                          yearPlaceholder="yyyy"
-                          className="engagementCalender w-100"
-                          value={fromDate}
-                          maxDate={dayjs().toDate()}
-                          onChange={(e) => handleFromDateChange(e)}
-                          popperPlacement="bottom-start"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Payment Status */}
-                    <div className="d-flex align-items-center">
-                      <label className="form-label me-2 mb-0">Payment Status</label>
-                      <div style={{ minWidth: "300px" }}>
-                        <DropDown
-                          className={`${className} w-100`}
-                          options={Utils.paymentStatus}
-                          value={selectedStatusValue}
-                          onChange={handlePaymentStatusChange}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
+    <div className="container-fluid invoices-list-redesign">
+      <div className="invoices-list-page">
+        {/* =====================================================
+            PAGE HEADER
+            ===================================================== */}
+        <div className="invoices-page-header">
+          <div className="invoices-heading-copy">
+            <h1>Invoices</h1>
+            <p>
+              Review organisation invoices, payment status, billing amounts and
+              invoice history.
+            </p>
           </div>
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div
-                        class="table-responsive table-card mt-2 mb-3 table-padding invoice-margin"
-                      >
-                        <div className="row align-items-center mb-2 "></div>
 
-                        <div class="search-box  ms-2 width-searchbox">
-                          <table
-                            class="table align-middle table-nowrap"
-                            id="customerTable"
-                          >
-                            <thead class="table-light table-header-font">
-                              <tr className="head-row">
-                                <td
-                                  className="tr-table-class text-white"
-                                  style={{ width: "30%" }}
-                                >
-                                  Organisation Name
-                                  {primaryUserSortDirectionObj.TradingBusinessName ===
-                                    "desc" && (
-                                      <i
-                                        onClick={() => {
-                                          handleUserSort(
-                                            "asc",
-                                            "TradingBusinessName"
-                                          );
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-up ml-1"
-                                      ></i>
-                                    )}
-                                  {(primaryUserSortDirectionObj.TradingBusinessName ===
-                                    null ||
-                                    primaryUserSortDirectionObj.TradingBusinessName ===
-                                    "asc") && (
-                                      <i
-                                        onClick={() => {
-                                          handleUserSort(
-                                            primaryUserSortDirectionObj.TradingBusinessName ===
-                                              null
-                                              ? "asc"
-                                              : "desc",
-                                            "TradingBusinessName"
-                                          );
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-down ml-1"
-                                      ></i>
-                                    )}
-                                </td>
-                                <td className="tr-table-class text-white">
-                                  Invoice Date
-                                  {primaryUserSortDirectionObj.InvoiceDate ===
-                                    "desc" && (
-                                      <i
-                                        onClick={() => {
-                                          handleUserSort(
-                                            "asc",
-                                            "InvoiceDate"
-                                          );
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-up ml-1"
-                                      ></i>
-                                    )}
-                                  {(primaryUserSortDirectionObj.InvoiceDate ===
-                                    null ||
-                                    primaryUserSortDirectionObj.InvoiceDate ===
-                                    "asc") && (
-                                      <i
-                                        onClick={() => {
-                                          handleUserSort(
-                                            primaryUserSortDirectionObj.InvoiceDate ===
-                                              null
-                                              ? "asc"
-                                              : "desc",
-                                            "InvoiceDate"
-                                          );
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-down ml-1"
-                                      ></i>
-                                    )}
-                                </td>
-                                <td className="tr-table-class text-white">
-                                  Amount
-                                  {primaryUserSortDirectionObj.FinalBillingAmount ===
-                                    "desc" && (
-                                      <i
-                                        onClick={() => {
-                                          handleUserSort(
-                                            "asc",
-                                            "FinalBillingAmount"
-                                          );
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-up ml-1"
-                                      ></i>
-                                    )}
-                                  {(primaryUserSortDirectionObj.FinalBillingAmount ===
-                                    null ||
-                                    primaryUserSortDirectionObj.FinalBillingAmount ===
-                                    "asc") && (
-                                      <i
-                                        onClick={() => {
-                                          handleUserSort(
-                                            primaryUserSortDirectionObj.FinalBillingAmount ===
-                                              null
-                                              ? "asc"
-                                              : "desc",
-                                            "FinalBillingAmount"
-                                          );
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-down ml-1"
-                                      ></i>
-                                    )}
-                                </td>
-                                <td className="tr-table-class text-white">
-                                  Invoice Number
-                                </td>
-                                <td className="tr-table-class text-white">
-                                  Payment Date
-                                  {primaryUserSortDirectionObj.PaymentDate ===
-                                    "desc" && (
-                                      <i
-                                        onClick={() => {
-                                          handleUserSort(
-                                            "asc",
-                                            "PaymentDate"
-                                          );
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-up ml-1"
-                                      ></i>
-                                    )}
-                                  {(primaryUserSortDirectionObj.PaymentDate ===
-                                    null ||
-                                    primaryUserSortDirectionObj.PaymentDate ===
-                                    "asc") && (
-                                      <i
-                                        onClick={() => {
-                                          handleUserSort(
-                                            primaryUserSortDirectionObj.PaymentDate ===
-                                              null
-                                              ? "asc"
-                                              : "desc",
-                                            "PaymentDate"
-                                          );
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-down ml-1"
-                                      ></i>
-                                    )}
-                                </td>
-                                <td className="tr-table-class text-center text-white">
-                                  Payment Status
-                                  {/* {primaryUserSortDirectionObj.PaymentStatus ===
-                                    "desc" && (
-                                      <i
-                                        onClick={() => {
-                                          handleUserSort(
-                                            "asc",
-                                            "PaymentStatus"
-                                          );
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-up ml-1"
-                                      ></i>
-                                    )}
-                                  {(primaryUserSortDirectionObj.PaymentStatus ===
-                                    null ||
-                                    primaryUserSortDirectionObj.PaymentStatus ===
-                                    "asc") && (
-                                      <i
-                                        onClick={() => {
-                                          handleUserSort(
-                                            primaryUserSortDirectionObj.PaymentStatus ===
-                                              null
-                                              ? "asc"
-                                              : "desc",
-                                            "PaymentStatus"
-                                          );
-                                        }}
-                                        style={{ cursor: "pointer" }}
-                                        class="fas fa-sort-alpha-down ml-1"
-                                      ></i>
-                                    )} */}
-                                </td>
-                                {/* <td className="tr-table-class text-white text-center">
-                                  Action
-                                </td> */}
-                              </tr>
-                            </thead>
-                            <tbody class="list form-check-all">
-                              {organisationInvoiceList
-                                .slice(
-                                  0,
-                                  isMobile ? isMobileRecords : desktopRecords
-                                )
-                                .map((item) => {
-                                  return (
-                                    <tr class="table_new">
-                                      <td className="table-content-font">
-                                        {item.organisationName}
-                                      </td>
-                                      <td className="table-content-font">
-                                        {item.invoiceDate}
-                                      </td>
+          <div className="invoices-record-count">
+            <span className="invoices-record-count-icon">
+              <i className="ri-bill-line"></i>
+            </span>
 
-                                      <td className="table-content-font ">
-                                        {formatValue(item.finalBillingAmount)}
-
-                                      </td>
-
-                                      <td className="table-content-font">
-
-                                        {item.stripeInvoiceNo}
-
-                                      </td>
-                                      <td>
-
-                                        {item.paymentDate
-                                          ? item.paymentDate
-                                          : "_"}
-
-                                      </td>
-                                      <td className="text-center">
-                                        {item.paymentStatus === "Unpaid" && (
-                                          <Tooltip title={`Pay Now`}>
-                                            <button
-                                              style={{
-                                                width: "100px",
-                                                display: "inline-block",
-                                                borderRadius: "0.5rem",
-                                              }}
-                                              className="btn btn-md btn-success create-item-btn"
-                                              onClick={() =>
-                                                CreateStripeCheckoutSessionRedirection(item)
-                                              }
-                                            >
-                                              <span>Pay Now</span>
-                                            </button>
-                                          </Tooltip>
-                                        )}
-                                        {item.paymentStatus === "Paid" && (
-                                          <Tooltip title={`Download`}>
-                                            <a
-                                              style={{
-                                                width: "100px",
-                                                padding: "2px 0px",
-                                                display: "inline-block",
-                                                borderRadius: "0.5rem",
-                                              }}
-                                              href={item.hostedInvoiceUrl}
-                                              className="btn btn-secondary btn-xs"
-                                            >
-                                              <i className="fa fa-download"></i>
-                                            </a>
-                                          </Tooltip>
-                                        )}
-                                        {item.paymentStatus === "Free" && (
-                                          <Tooltip title={`Free`}>
-                                            <p
-                                              className="text-center table-content-font"
-                                              style={{
-                                                background: "#DAA520",
-                                                width: "100px",
-                                                padding: "6px 5px",
-                                                display: "inline-block",
-                                                borderRadius: "0.5rem",
-                                                marginBottom: "0px"
-                                              }}
-                                            >
-                                              Free
-                                            </p>
-                                          </Tooltip>
-                                        )}
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                            </tbody>
-                          </table>
-                          {totalRecords <= 0 && (
-                            <NoResultFoundModel
-                              name={"Invoices"}
-                              totalRecords={totalRecords}
-                            />
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        {listCount > Number(pageSize) && (
-                          <PaginationComponent
-                            totalCount={listCount}
-                            totalPages={isMobile
-                              ? Math.ceil(listCount / isMobileRecords)
-                              : Math.ceil(listCount / ((desktopRecords > 5 && window.innerHeight == 652) ? 5 : desktopRecords))}
-                            currentPage={currentPage}
-                            onPageChange={handlePageChange}
-                          />
-                        )}
-                      </div>
-                    </div>
-                    {/* end card  */}
-                  </div>
-                </div>
-                {/* end col */}
-              </div>
-              {/* end col  */}
+            <div>
+              <span>Total Invoices</span>
+              <strong>{listCount > 0 ? listCount : 0}</strong>
             </div>
-            {/* end row */}
-
-            {/* end modal  */}
           </div>
-          {/* container-fluid  */}
         </div>
-        {/* End Page-content */}
-      </div>
-      </div>
-      </div>
-      </div>
-      </div>
+
+        {/* =====================================================
+            LIST CARD
+            ===================================================== */}
+        <section className="invoices-list-card">
+          {/* FILTER TOOLBAR */}
+          <div className="invoices-filter-toolbar">
+            <div className="invoices-filter-group">
+              <div className="invoices-filter-field invoices-date-filter">
+                <label>Invoice Date</label>
+
+                <div className="invoices-datepicker-wrap">
+                  <i className="ri-calendar-line"></i>
+
+                  <DatePicker
+                    format="dd/MM/y"
+                    dayPlaceholder="dd"
+                    monthPlaceholder="mm"
+                    yearPlaceholder="yyyy"
+                    className="engagementCalender invoices-datepicker"
+                    value={fromDate}
+                    maxDate={dayjs().toDate()}
+                    onChange={(e) => handleFromDateChange(e)}
+                    popperPlacement="bottom-start"
+                  />
+                </div>
+              </div>
+
+              <div className="invoices-filter-field invoices-status-filter">
+                <label>Payment Status</label>
+
+                <DropDown
+                  className={`${className} invoices-status-dropdown`}
+                  options={Utils.paymentStatus}
+                  value={selectedStatusValue}
+                  onChange={handlePaymentStatusChange}
+                />
+              </div>
+            </div>
+
+            <div className="invoices-filter-summary">
+              <span>
+                {selectedStatusValue?.label
+                  ? selectedStatusValue.label
+                  : "All payment statuses"}
+              </span>
+            </div>
+          </div>
+
+          {/* TABLE */}
+          <div className="invoices-table-scroll">
+            <table className="invoices-table" id="customerTable">
+              <thead>
+                <tr>
+                  <th>
+                    <button
+                      type="button"
+                      className="invoices-sort-btn"
+                      onClick={() => {
+                        handleUserSort(
+                          primaryUserSortDirectionObj.TradingBusinessName ===
+                            null
+                            ? "asc"
+                            : primaryUserSortDirectionObj.TradingBusinessName ===
+                                "asc"
+                              ? "desc"
+                              : "asc",
+                          "TradingBusinessName"
+                        );
+                      }}
+                    >
+                      <span>Organisation Name</span>
+                      <i
+                        className={
+                          primaryUserSortDirectionObj.TradingBusinessName ===
+                          "desc"
+                            ? "fas fa-sort-alpha-up"
+                            : "fas fa-sort-alpha-down"
+                        }
+                      ></i>
+                    </button>
+                  </th>
+
+                  <th>
+                    <button
+                      type="button"
+                      className="invoices-sort-btn"
+                      onClick={() => {
+                        handleUserSort(
+                          primaryUserSortDirectionObj.InvoiceDate === null
+                            ? "asc"
+                            : primaryUserSortDirectionObj.InvoiceDate === "asc"
+                              ? "desc"
+                              : "asc",
+                          "InvoiceDate"
+                        );
+                      }}
+                    >
+                      <span>Invoice Date</span>
+                      <i
+                        className={
+                          primaryUserSortDirectionObj.InvoiceDate === "desc"
+                            ? "fas fa-sort-alpha-up"
+                            : "fas fa-sort-alpha-down"
+                        }
+                      ></i>
+                    </button>
+                  </th>
+
+                  <th>
+                    <button
+                      type="button"
+                      className="invoices-sort-btn"
+                      onClick={() => {
+                        handleUserSort(
+                          primaryUserSortDirectionObj.FinalBillingAmount === null
+                            ? "asc"
+                            : primaryUserSortDirectionObj.FinalBillingAmount ===
+                                "asc"
+                              ? "desc"
+                              : "asc",
+                          "FinalBillingAmount"
+                        );
+                      }}
+                    >
+                      <span>Amount</span>
+                      <i
+                        className={
+                          primaryUserSortDirectionObj.FinalBillingAmount ===
+                          "desc"
+                            ? "fas fa-sort-alpha-up"
+                            : "fas fa-sort-alpha-down"
+                        }
+                      ></i>
+                    </button>
+                  </th>
+
+                  <th>Invoice Number</th>
+
+                  <th>
+                    <button
+                      type="button"
+                      className="invoices-sort-btn"
+                      onClick={() => {
+                        handleUserSort(
+                          primaryUserSortDirectionObj.PaymentDate === null
+                            ? "asc"
+                            : primaryUserSortDirectionObj.PaymentDate === "asc"
+                              ? "desc"
+                              : "asc",
+                          "PaymentDate"
+                        );
+                      }}
+                    >
+                      <span>Payment Date</span>
+                      <i
+                        className={
+                          primaryUserSortDirectionObj.PaymentDate === "desc"
+                            ? "fas fa-sort-alpha-up"
+                            : "fas fa-sort-alpha-down"
+                        }
+                      ></i>
+                    </button>
+                  </th>
+
+                  <th className="invoices-payment-heading">Payment Status</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {organisationInvoiceList
+                  .slice(
+                    0,
+                    isMobile ? isMobileRecords : desktopRecords
+                  )
+                  .map((item, index) => {
+                    return (
+                      <tr key={item.InvoiceKeyID || item.invoiceKeyID || index}>
+                        {/* ORGANISATION */}
+                        <td>
+                          <div className="invoices-organisation-cell">
+                            <span className="invoices-organisation-icon">
+                              <i className="ri-building-4-line"></i>
+                            </span>
+
+                            <Tooltip title={item.organisationName || ""}>
+                              <strong className="invoices-ellipsis">
+                                {item.organisationName}
+                              </strong>
+                            </Tooltip>
+                          </div>
+                        </td>
+
+                        {/* INVOICE DATE */}
+                        <td>
+                          <span className="invoices-date-value">
+                            {item.invoiceDate}
+                          </span>
+                        </td>
+
+                        {/* AMOUNT */}
+                        <td>
+                          <strong className="invoices-amount-value">
+                            {formatValue(item.finalBillingAmount)}
+                          </strong>
+                        </td>
+
+                        {/* NUMBER */}
+                        <td>
+                          <span className="invoices-number-value">
+                            {item.stripeInvoiceNo}
+                          </span>
+                        </td>
+
+                        {/* PAYMENT DATE */}
+                        <td>
+                          <span className="invoices-date-value">
+                            {item.paymentDate ? item.paymentDate : "_"}
+                          </span>
+                        </td>
+
+                        {/* PAYMENT STATUS / EXISTING ACTION */}
+                        <td className="invoices-payment-cell">
+                          {item.paymentStatus === "Unpaid" && (
+                            <div className="invoices-payment-action">
+                              <span className="invoices-status-pill is-unpaid">
+                                <i className="ri-checkbox-blank-circle-fill"></i>
+                                Unpaid
+                              </span>
+
+                              <Tooltip title={`Pay Now`}>
+                                <button
+                                  type="button"
+                                  className="invoices-pay-now-btn"
+                                  onClick={() =>
+                                    CreateStripeCheckoutSessionRedirection(item)
+                                  }
+                                >
+                                  Pay Now
+                                </button>
+                              </Tooltip>
+                            </div>
+                          )}
+
+                          {item.paymentStatus === "Paid" && (
+                            <div className="invoices-payment-action">
+                              <span className="invoices-status-pill is-paid">
+                                <i className="ri-checkbox-blank-circle-fill"></i>
+                                Paid
+                              </span>
+
+                              <Tooltip title={`Download`}>
+                                <a
+                                  href={item.hostedInvoiceUrl}
+                                  className="invoices-download-btn"
+                                >
+                                  <i className="fa fa-download"></i>
+                                  <span>Invoice</span>
+                                </a>
+                              </Tooltip>
+                            </div>
+                          )}
+
+                          {item.paymentStatus === "Free" && (
+                            <Tooltip title={`Free`}>
+                              <span className="invoices-status-pill is-free">
+                                <i className="ri-checkbox-blank-circle-fill"></i>
+                                Free
+                              </span>
+                            </Tooltip>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </div>
+
+          {totalRecords <= 0 && (
+            <div className="invoices-empty-state">
+              <NoResultFoundModel
+                name={"Invoices"}
+                totalRecords={totalRecords}
+              />
+            </div>
+          )}
+        </section>
+
+        {/* =====================================================
+            PAGINATION OUTSIDE LIST CARD
+            ===================================================== */}
+        {listCount > Number(pageSize) && (
+          <div className="invoices-pagination">
+            <PaginationComponent
+              totalCount={listCount}
+              totalPages={
+                isMobile
+                  ? Math.ceil(listCount / isMobileRecords)
+                  : Math.ceil(
+                      listCount /
+                        (desktopRecords > 5 && window.innerHeight == 652
+                          ? 5
+                          : desktopRecords)
+                    )
+              }
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        )}
       </div>
 
-      <Footer />
+      <div className="invoices-footer-wrap">
+        <Footer />
+      </div>
     </div>
   );
 };
