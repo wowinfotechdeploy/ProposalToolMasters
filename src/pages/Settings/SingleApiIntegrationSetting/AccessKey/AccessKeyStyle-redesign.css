@@ -335,6 +335,11 @@
 }
 
 /* Organisation-specific layout */
+/* Column widths — must total 100% for BOTH layouts.
+   Org view      (organisationKeyID !== null): 5 columns, cols 1–5 = 92%,
+                 the browser distributes the remainder.
+   Super view    (organisationKeyID === null): 6 columns, cols 1–6 = 100%. */
+
 .access-key-table th:nth-child(1),
 .access-key-table td:nth-child(1) {
   width: 20%;
@@ -342,22 +347,30 @@
 
 .access-key-table th:nth-child(2),
 .access-key-table td:nth-child(2) {
-  width: 27%;
+  width: 22%;
 }
 
 .access-key-table th:nth-child(3),
 .access-key-table td:nth-child(3) {
-  width: 23%;
+  width: 22%;
 }
 
 .access-key-table th:nth-child(4),
 .access-key-table td:nth-child(4) {
-  width: 15%;
+  width: 13%;
 }
 
 .access-key-table th:nth-child(5),
 .access-key-table td:nth-child(5) {
   width: 15%;
+}
+
+/* Actions column — sixth column, super-admin view only */
+.access-key-table th:nth-child(6),
+.access-key-table td:nth-child(6),
+.access-key-table th.access-key-actions-heading,
+.access-key-table td.access-key-actions-cell {
+  width: 8%;
 }
 
 /* =========================================================
@@ -544,16 +557,17 @@
 .access-key-actions-heading,
 .access-key-actions-cell {
   text-align: center !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
 }
 
 .access-key-row-actions {
-  min-width: 42px;
-
-  display: inline-flex;
+  width: 100%;
+  min-width: 34px;
+  display: flex;
   align-items: center;
   justify-content: center;
 }
-
 .access-key-action-button {
   width: 34px;
   height: 34px;

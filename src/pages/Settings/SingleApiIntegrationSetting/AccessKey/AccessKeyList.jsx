@@ -425,9 +425,10 @@ const AccessKeyList = () => {
                       <>
                         <th>Status</th>
                         <th className="access-key-actions-heading">
-                          {userAccessData.Admin_Setting_AccessKeyCanDelete && (
+                          Actions
+                          {/* {userAccessData.Admin_Setting_AccessKeyCanDelete && (
                             <>Actions</>
-                          )}
+                          )} */}
                         </th>
                       </>
                     )}
