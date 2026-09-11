@@ -1,0 +1,593 @@
+/* =========================================================
+   Super Admin Email Template List - Redesign
+   ALL rules are scoped under .super-email-template-list-redesign
+   so no other module/screen can be affected.
+   ========================================================= */
+
+.super-email-template-list-redesign {
+  width: calc(100% - 20px);
+  margin-left: 20px;
+  padding: 24px 16px 0;
+  background: #f7f9fc;
+  min-height: calc(100vh - 70px);
+  display: flex;
+  flex-direction: column;
+}
+
+.super-email-template-list-redesign .setl-page {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  flex: 1 1 auto;
+  padding-left: 15px;
+}
+
+/* ---------------- Page header ---------------- */
+
+.super-email-template-list-redesign .setl-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 16px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #dce4ed;
+}
+
+.super-email-template-list-redesign .setl-page-title {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #14243a;
+  letter-spacing: -0.2px;
+}
+
+.super-email-template-list-redesign .setl-page-subtitle {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #7b8798;
+}
+
+/* Primary "Add" action (CommonButtonComponent) */
+.super-email-template-list-redesign .setl-page-actions .add-new-btn {
+  margin: 0;
+}
+
+.super-email-template-list-redesign .setl-page-actions button,
+.super-email-template-list-redesign .setl-page-actions .btn,
+.super-email-template-list-redesign .setl-page-actions a.btn {
+  min-height: 41px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #14b5d1 !important;
+  border: 1px solid #14b5d1 !important;
+  color: #ffffff !important;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.super-email-template-list-redesign .setl-page-actions button:hover,
+.super-email-template-list-redesign .setl-page-actions .btn:hover,
+.super-email-template-list-redesign .setl-page-actions a.btn:hover {
+  background: #0da5c1 !important;
+  border-color: #0da5c1 !important;
+}
+
+.super-email-template-list-redesign .setl-page-actions button:focus-visible,
+.super-email-template-list-redesign .setl-page-actions .btn:focus-visible {
+  outline: 2px solid #72cedd;
+  outline-offset: 2px;
+}
+
+.super-email-template-list-redesign .setl-page-actions button i,
+.super-email-template-list-redesign .setl-page-actions .btn i {
+  font-size: 14px;
+}
+
+/* ---------------- List card ---------------- */
+
+.super-email-template-list-redesign .setl-list-card {
+  background: #ffffff;
+  border: 1px solid #dce4ed;
+  border-radius: 12px;
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.04),
+    0 10px 28px rgba(15, 23, 42, 0.025);
+  height: auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ---------------- Toolbar ---------------- */
+
+.super-email-template-list-redesign .setl-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 16px;
+  border-bottom: 1px solid #e8edf3;
+  background: #ffffff;
+}
+
+.super-email-template-list-redesign .setl-search-box {
+  position: relative;
+  width: 370px;
+  max-width: 100%;
+}
+
+.super-email-template-list-redesign .setl-search-icon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 15px;
+  color: #8a96a6;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.super-email-template-list-redesign .setl-search-input {
+  width: 100%;
+  height: 41px;
+  padding: 0 14px 0 36px;
+  font-size: 13px;
+  color: #334258;
+  background: #ffffff;
+  border: 1px solid #cfdae5;
+  border-radius: 8px;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.super-email-template-list-redesign .setl-search-input::placeholder {
+  color: #a3aebd;
+}
+
+.super-email-template-list-redesign .setl-search-input:focus {
+  border-color: #72cedd;
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.14);
+}
+
+.super-email-template-list-redesign .setl-toolbar-meta {
+  font-size: 12px;
+  color: #7b8798;
+  white-space: nowrap;
+}
+
+.super-email-template-list-redesign .setl-toolbar-meta strong {
+  color: #24364d;
+  font-weight: 600;
+}
+
+/* ---------------- Table ---------------- */
+
+.super-email-template-list-redesign .setl-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.super-email-template-list-redesign .setl-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+  margin: 0;
+  background: #ffffff;
+}
+
+/* header */
+.super-email-template-list-redesign .setl-table thead tr {
+  background: #0f1b33;
+}
+
+.super-email-template-list-redesign .setl-th {
+  background: #0f1b33;
+  color: #ffffff;
+  padding: 12px 16px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  vertical-align: middle;
+  border: none;
+}
+
+.super-email-template-list-redesign .setl-th-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.super-email-template-list-redesign .setl-th-label {
+  display: inline-block;
+}
+
+.super-email-template-list-redesign .setl-th-action {
+  width: 120px;
+  text-align: center;
+}
+
+/* sort icons keep their original click handlers */
+.super-email-template-list-redesign .setl-sort-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.super-email-template-list-redesign .setl-sort-icon:hover {
+  color: #ffffff;
+  background: rgba(20, 181, 209, 0.35);
+}
+
+/* rows */
+.super-email-template-list-redesign .setl-row {
+  background: #ffffff;
+  border-bottom: 1px solid #eef2f6;
+  transition: background 0.12s ease;
+}
+
+.super-email-template-list-redesign .setl-row:last-child {
+  border-bottom: none;
+}
+
+.super-email-template-list-redesign .setl-row:hover {
+  background: #fbfdff;
+}
+
+.super-email-template-list-redesign .setl-td {
+  padding: 14px 16px;
+  height: 68px;
+  font-size: 11px;
+  color: #334258;
+  vertical-align: middle;
+  border: none;
+  white-space: nowrap;
+}
+
+.super-email-template-list-redesign .setl-td-action {
+  text-align: center;
+}
+
+/* name cell */
+.super-email-template-list-redesign .setl-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.super-email-template-list-redesign .setl-name-icon {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #e9f7fa;
+  color: #0e8ba3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.super-email-template-list-redesign .setl-name-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #20314a;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.super-email-template-list-redesign .setl-type-text {
+  font-size: 11px;
+  color: #40516a;
+}
+
+/* ---------------- Status / Is-Default pills ---------------- */
+
+.super-email-template-list-redesign .setl-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.super-email-template-list-redesign .setl-pill-active {
+  background: #eaf8f3;
+  color: #18845f;
+}
+
+.super-email-template-list-redesign .setl-pill-inactive {
+  background: #fff0f2;
+  color: #cf4052;
+}
+
+.super-email-template-list-redesign .setl-pill-purple {
+  background: #f0eefc;
+  color: #6255af;
+}
+
+.super-email-template-list-redesign .setl-pill-default {
+  background: #eef2f6;
+  color: #657286;
+}
+
+/* switch cells (Android12Switch preserved) */
+.super-email-template-list-redesign .setl-switch-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.super-email-template-list-redesign .setl-switch-cell .MuiFormGroup-root {
+  width: auto;
+}
+
+.super-email-template-list-redesign
+  .setl-switch-cell
+  .MuiFormControlLabel-root {
+  margin: 0;
+}
+
+/* ---------------- Action buttons ----------------
+   !important is used deliberately: legacy Bootstrap/template rules
+   otherwise win the cascade and paint these as large purple/red
+   squares. Legacy classes have been removed from the JSX too.       */
+
+.super-email-template-list-redesign .setl-th-action,
+.super-email-template-list-redesign .setl-actions-heading,
+.super-email-template-list-redesign .setl-actions-cell {
+  width: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+  text-align: center !important;
+}
+
+.super-email-template-list-redesign .setl-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+/* legacy .edit / .remove Tooltip wrappers must not add box styling */
+.super-email-template-list-redesign .setl-actions > div,
+.super-email-template-list-redesign .setl-actions .edit,
+.super-email-template-list-redesign .setl-actions .remove {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  line-height: 0 !important;
+}
+
+.super-email-template-list-redesign .setl-action-btn,
+.super-email-template-list-redesign button.setl-action-btn {
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  flex: 0 0 34px !important;
+
+  border: 1px solid #d8e1ea !important;
+  border-radius: 7px !important;
+
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+
+  font-size: 13px !important;
+  line-height: 1 !important;
+
+  box-shadow: none !important;
+  text-shadow: none !important;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.super-email-template-list-redesign .setl-action-btn i {
+  margin: 0 !important;
+  padding: 0 !important;
+  color: inherit !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+}
+
+.super-email-template-list-redesign .setl-edit-btn,
+.super-email-template-list-redesign .setl-edit-btn:focus,
+.super-email-template-list-redesign .setl-edit-btn:active {
+  color: #4c647d !important;
+  background-color: #ffffff !important;
+  border-color: #d8e1ea !important;
+  box-shadow: none !important;
+}
+
+.super-email-template-list-redesign .setl-edit-btn:hover {
+  border-color: #b9dce4 !important;
+  background-color: #eef9fb !important;
+  color: #087f98 !important;
+}
+
+.super-email-template-list-redesign .setl-delete-btn,
+.super-email-template-list-redesign .setl-delete-btn:focus,
+.super-email-template-list-redesign .setl-delete-btn:active {
+  color: #d44a59 !important;
+  background-color: #ffffff !important;
+  border-color: #d8e1ea !important;
+  box-shadow: none !important;
+}
+
+.super-email-template-list-redesign .setl-delete-btn:hover {
+  border-color: #efc4c9 !important;
+  background-color: #fff3f4 !important;
+  color: #c53a49 !important;
+}
+
+.super-email-template-list-redesign .setl-action-btn:focus-visible {
+  outline: 2px solid #72cedd !important;
+  outline-offset: 2px;
+}
+
+/* ---------------- Empty state (NoResultFoundModel) ---------------- */
+
+.super-email-template-list-redesign .setl-empty {
+  padding: 18px 16px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-height: 300px;
+  overflow: hidden;
+}
+
+.super-email-template-list-redesign .setl-empty > *,
+.super-email-template-list-redesign .setl-empty > * > * {
+  min-height: 0 !important;
+  height: auto !important;
+  margin-bottom: 0 !important;
+}
+
+.super-email-template-list-redesign .setl-empty img,
+.super-email-template-list-redesign .setl-empty svg {
+  max-height: 120px;
+  width: auto;
+}
+
+/* ---------------- Pagination (outside the card) ---------------- */
+
+.super-email-template-list-redesign .setl-pagination {
+  margin: 14px 0 6px;
+  width: 100%;
+}
+
+.super-email-template-list-redesign .setl-pagination .fixed-bottom,
+.super-email-template-list-redesign .setl-pagination > * {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  width: 100% !important;
+  margin: 0 !important;
+  transform: none !important;
+  z-index: auto !important;
+}
+
+/* ---------------- Footer in normal flow ---------------- */
+
+.super-email-template-list-redesign .setl-footer-wrap,
+.super-email-template-list-redesign .setl-footer-wrap > *,
+.super-email-template-list-redesign .setl-footer-wrap footer,
+.super-email-template-list-redesign .setl-footer-wrap .footer,
+.super-email-template-list-redesign .setl-footer-wrap .fixed-bottom {
+  position: static !important;
+  top: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: 100% !important;
+  transform: none !important;
+  z-index: auto !important;
+}
+
+.super-email-template-list-redesign .setl-footer-wrap {
+  margin-top: 10px;
+}
+
+/* ---------------- Responsive ---------------- */
+
+@media (max-width: 1199.98px) {
+  .super-email-template-list-redesign {
+    width: calc(100% - 10px);
+    margin-left: 10px;
+    padding: 20px 12px 0;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .super-email-template-list-redesign {
+    width: 100%;
+    margin-left: 0;
+    padding: 16px 12px 0;
+  }
+
+  .super-email-template-list-redesign .setl-page-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .super-email-template-list-redesign .setl-page-title {
+    font-size: 22px;
+  }
+
+  .super-email-template-list-redesign .setl-page-actions,
+  .super-email-template-list-redesign .setl-page-actions .add-new-btn {
+    width: 100%;
+  }
+
+  .super-email-template-list-redesign .setl-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .super-email-template-list-redesign .setl-search-box {
+    width: 100%;
+  }
+
+  .super-email-template-list-redesign .setl-toolbar-meta {
+    text-align: right;
+  }
+}
+
+@media (min-width: 1600px) {
+  .super-email-template-list-redesign .setl-table {
+    min-width: 100%;
+  }
+}
