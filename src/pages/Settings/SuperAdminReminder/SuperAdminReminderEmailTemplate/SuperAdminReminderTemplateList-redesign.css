@@ -1,0 +1,777 @@
+/* =========================================================
+   SUPER ADMIN WORKFLOW EMAIL TEMPLATE LIST
+   UI only — APIs, navigation, filtering, sorting, status,
+   default toggles, permissions, pagination and modals unchanged.
+   ========================================================= */
+
+.superadmin-reminder-template-redesign {
+  --sart-bg: #f7f9fc;
+  --sart-card: #ffffff;
+  --sart-heading: #14243a;
+  --sart-text: #334258;
+  --sart-muted: #7b8798;
+  --sart-border: #dce4ed;
+  --sart-border-soft: #e8edf3;
+  --sart-navy: #0f1b33;
+  --sart-cyan: #14b5d1;
+  --sart-cyan-hover: #0da5c1;
+
+  width: calc(100% - 20px) !important;
+  min-height: 100vh;
+
+  margin-left: 20px !important;
+  padding: 24px 16px 0 !important;
+
+  display: flex;
+  flex-direction: column;
+
+  background: var(--sart-bg) !important;
+  color: var(--sart-text);
+}
+
+.superadmin-reminder-template-redesign,
+.superadmin-reminder-template-redesign * {
+  box-sizing: border-box;
+}
+
+.superadmin-reminder-template-page {
+  width: 100%;
+  max-width: 1500px;
+
+  margin: 0 auto;
+  padding-bottom: 24px;
+
+  flex: 1 0 auto;
+}
+
+/* PAGE HEADER */
+
+.superadmin-reminder-template-page-header {
+  min-height: 88px;
+  padding-bottom: 16px;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+
+  border-bottom: 1px solid #e2e8ef;
+}
+
+.superadmin-reminder-template-heading-copy h1 {
+  margin: 0;
+
+  color: var(--sart-heading);
+
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.superadmin-reminder-template-heading-copy p {
+  margin: 6px 0 0;
+
+  color: var(--sart-muted);
+
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.superadmin-reminder-template-header-action {
+  flex: 0 0 auto;
+}
+
+.superadmin-reminder-template-header-action .create-item-btn,
+.superadmin-reminder-template-header-action .btn-success,
+.superadmin-reminder-template-header-action button {
+  min-height: 42px !important;
+  padding: 0 14px !important;
+
+  border: 1px solid var(--sart-cyan) !important;
+  border-radius: 8px !important;
+
+  background: var(--sart-cyan) !important;
+  color: #ffffff !important;
+
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+}
+
+/* LIST CARD */
+
+.superadmin-reminder-template-list-card {
+  width: 100%;
+  margin-top: 20px;
+
+  overflow: hidden;
+
+  border: 1px solid var(--sart-border);
+  border-radius: 12px;
+
+  background: var(--sart-card);
+
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.04),
+    0 10px 28px rgba(15, 23, 42, 0.025);
+}
+
+/* TOOLBAR */
+
+.superadmin-reminder-template-toolbar {
+  min-height: 82px;
+  padding: 14px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  border-bottom: 1px solid var(--sart-border);
+
+  background: #ffffff;
+}
+
+.superadmin-reminder-template-toolbar-left {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.superadmin-reminder-template-search-wrap {
+  position: relative;
+  width: min(390px, 42vw);
+}
+
+.superadmin-reminder-template-search-wrap > i {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  z-index: 2;
+
+  transform: translateY(-50%);
+
+  color: #708095;
+  font-size: 16px;
+
+  pointer-events: none;
+}
+
+.superadmin-reminder-template-search-input {
+  width: 100%;
+  min-height: 42px;
+
+  padding: 9px 12px 9px 40px !important;
+
+  border: 1px solid #cfdae5 !important;
+  border-radius: 8px !important;
+
+  background: #ffffff !important;
+  color: #314056 !important;
+
+  font-size: 11.5px !important;
+
+  box-shadow: none !important;
+}
+
+.superadmin-reminder-template-search-input:focus {
+  border-color: #72cedd !important;
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08) !important;
+}
+
+.superadmin-reminder-template-filter-btn,
+.superadmin-reminder-template-clear-filter-btn {
+  min-height: 40px;
+  padding: 0 11px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  border-radius: 8px;
+
+  font-size: 9px;
+  font-weight: 600;
+
+  white-space: nowrap;
+  cursor: pointer;
+
+  box-shadow: none;
+}
+
+.superadmin-reminder-template-filter-btn {
+  position: relative;
+
+  border: 1px solid #d2dde7;
+
+  background: #ffffff;
+  color: #596a7f;
+}
+
+.superadmin-reminder-template-filter-btn:hover,
+.superadmin-reminder-template-filter-btn.is-active {
+  border-color: #a8dce5;
+
+  background: #eef9fb;
+  color: #087f98;
+}
+
+.superadmin-reminder-template-filter-dot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: var(--sart-cyan);
+}
+
+.superadmin-reminder-template-clear-filter-btn {
+  border: 1px solid #e1d7da;
+
+  background: #ffffff;
+  color: #bc4452;
+}
+
+.superadmin-reminder-template-clear-filter-btn:hover {
+  border-color: #efc4c9;
+
+  background: #fff3f4;
+  color: #c53a49;
+}
+
+.superadmin-reminder-template-count {
+  min-width: 142px;
+  min-height: 46px;
+  padding: 6px 10px;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  border: 1px solid #e0e7ee;
+  border-radius: 9px;
+
+  background: #f8fafc;
+}
+
+.superadmin-reminder-template-count-icon {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 7px;
+
+  background: #e9f7fa;
+  color: #087f98;
+
+  font-size: 14px;
+}
+
+.superadmin-reminder-template-count > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.superadmin-reminder-template-count > div > span {
+  color: #8995a5;
+
+  font-size: 8px;
+  font-weight: 500;
+}
+
+.superadmin-reminder-template-count strong {
+  margin-top: 1px;
+
+  color: #24364d;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* TABLE */
+
+.superadmin-reminder-template-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+
+  scrollbar-width: thin;
+  scrollbar-color: #cbd4df transparent;
+}
+
+.superadmin-reminder-template-table {
+  width: 100%;
+  min-width: 1050px;
+
+  margin: 0;
+
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.superadmin-reminder-template-table thead th {
+  height: 54px;
+  padding: 0 15px;
+
+  border: 0;
+
+  background: var(--sart-navy);
+  color: #ffffff;
+
+  font-size: 9.5px;
+  font-weight: 600;
+
+  text-align: left;
+  text-transform: uppercase;
+  vertical-align: middle;
+
+  white-space: nowrap;
+}
+
+.superadmin-reminder-template-table tbody td {
+  height: 72px;
+  padding: 12px 15px;
+
+  border-bottom: 1px solid var(--sart-border-soft);
+
+  background: #ffffff;
+  color: #4b596d;
+
+  font-size: 10.5px;
+  vertical-align: middle;
+}
+
+.superadmin-reminder-template-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.superadmin-reminder-template-table tbody tr:hover td {
+  background: #fbfdff;
+}
+
+.superadmin-reminder-template-table th:nth-child(1),
+.superadmin-reminder-template-table td:nth-child(1) {
+  width: 35%;
+}
+
+.superadmin-reminder-template-table th:nth-child(2),
+.superadmin-reminder-template-table td:nth-child(2) {
+  width: 22%;
+}
+
+.superadmin-reminder-template-table th:nth-child(3),
+.superadmin-reminder-template-table td:nth-child(3) {
+  width: 15%;
+}
+
+.superadmin-reminder-template-table th:nth-child(4),
+.superadmin-reminder-template-table td:nth-child(4) {
+  width: 16%;
+}
+
+.superadmin-reminder-template-table th:nth-child(5),
+.superadmin-reminder-template-table td:nth-child(5) {
+  width: 12%;
+}
+
+/* SORT */
+
+.superadmin-reminder-template-sort-btn {
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  border: 0;
+
+  background: transparent;
+  color: #ffffff;
+
+  font: inherit;
+  font-weight: inherit;
+  text-transform: inherit;
+
+  cursor: pointer;
+}
+
+.superadmin-reminder-template-sort-btn i {
+  color: #c7d1df;
+  font-size: 9px;
+}
+
+/* NAME */
+
+.superadmin-reminder-template-name-cell {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.superadmin-reminder-template-name-icon {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #e9f7fa;
+  color: #087f98;
+
+  font-size: 15px;
+}
+
+.superadmin-reminder-template-name-copy {
+  min-width: 0;
+}
+
+.superadmin-reminder-template-name-copy strong {
+  display: block;
+
+  overflow: hidden;
+
+  color: #24364d;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* TYPE */
+
+.superadmin-reminder-template-type-pill {
+  min-height: 26px;
+  max-width: 100%;
+  padding: 0 9px;
+
+  display: inline-flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: #f0eefc;
+  color: #6255af;
+
+  font-size: 9px;
+  font-weight: 600;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* DEFAULT / STATUS */
+
+.superadmin-reminder-template-state-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.superadmin-reminder-template-state-cell .MuiFormGroup-root,
+.superadmin-reminder-template-state-cell .MuiFormControlLabel-root {
+  margin: 0 !important;
+}
+
+.superadmin-reminder-template-state-pill,
+.superadmin-reminder-template-status-pill {
+  min-width: 52px;
+  min-height: 27px;
+  padding: 0 9px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.superadmin-reminder-template-state-pill.is-positive,
+.superadmin-reminder-template-status-pill.is-active {
+  background: #eaf8f3;
+  color: #18845f;
+}
+
+.superadmin-reminder-template-state-pill.is-neutral {
+  background: #eef2f6;
+  color: #657286;
+}
+
+.superadmin-reminder-template-status-pill.is-inactive {
+  background: #fff0f2;
+  color: #cf4052;
+}
+
+/* ACTIONS */
+
+.superadmin-reminder-template-actions-heading,
+.superadmin-reminder-template-actions-cell {
+  text-align: center !important;
+}
+
+.superadmin-reminder-template-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.superadmin-reminder-template-action-btn {
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  flex: 0 0 34px !important;
+
+  border: 1px solid #d8e1ea !important;
+  border-radius: 7px !important;
+
+  background: #ffffff !important;
+
+  font-size: 13px !important;
+  line-height: 1 !important;
+
+  cursor: pointer;
+
+  box-shadow: none !important;
+}
+
+.superadmin-reminder-template-edit-btn {
+  color: #4c647d !important;
+}
+
+.superadmin-reminder-template-edit-btn:hover {
+  border-color: #b9dce4 !important;
+
+  background: #eef9fb !important;
+  color: #087f98 !important;
+}
+
+.superadmin-reminder-template-delete-btn {
+  color: #d44a59 !important;
+}
+
+.superadmin-reminder-template-delete-btn:hover {
+  border-color: #efc4c9 !important;
+
+  background: #fff3f4 !important;
+  color: #c53a49 !important;
+}
+
+.superadmin-reminder-template-action-btn i {
+  margin: 0 !important;
+  padding: 0 !important;
+
+  color: inherit !important;
+
+  font-size: 13px !important;
+  line-height: 1 !important;
+}
+
+/* EMPTY STATE */
+
+.superadmin-reminder-template-empty-state {
+  min-height: 280px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+}
+
+/* PAGINATION */
+
+.superadmin-reminder-template-pagination {
+  width: 100%;
+  min-height: 64px;
+
+  margin: 14px auto 18px;
+  padding: 0 4px;
+
+  position: relative !important;
+
+  background: transparent;
+}
+
+.superadmin-reminder-template-pagination .fixed-bottom {
+  position: static !important;
+
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  background: transparent !important;
+
+  transform: none !important;
+
+  z-index: auto !important;
+}
+
+.superadmin-reminder-template-pagination .fixed-bottom > .row,
+.superadmin-reminder-template-pagination .row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.superadmin-reminder-template-pagination .pagination,
+.superadmin-reminder-template-pagination .mb-4 {
+  margin-bottom: 0 !important;
+}
+
+/* FOOTER */
+
+.superadmin-reminder-template-redesign {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.superadmin-reminder-template-footer-wrap {
+  width: 100%;
+  margin-top: auto;
+
+  flex: 0 0 auto;
+
+  position: relative !important;
+
+  background: var(--sart-bg);
+}
+
+.superadmin-reminder-template-footer-wrap > *,
+.superadmin-reminder-template-footer-wrap footer,
+.superadmin-reminder-template-footer-wrap .footer,
+.superadmin-reminder-template-footer-wrap .fixed-bottom {
+  position: static !important;
+
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  margin: 0 !important;
+
+  transform: none !important;
+
+  z-index: auto !important;
+}
+
+/* RESPONSIVE */
+
+@media (min-width: 1350px) {
+  .superadmin-reminder-template-table {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 991px) {
+  .superadmin-reminder-template-redesign {
+    width: calc(100% - 14px) !important;
+
+    margin-left: 14px !important;
+    padding-right: 12px !important;
+  }
+
+  .superadmin-reminder-template-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .superadmin-reminder-template-toolbar-left {
+    width: 100%;
+  }
+
+  .superadmin-reminder-template-search-wrap {
+    flex: 1;
+    width: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .superadmin-reminder-template-redesign {
+    width: 100% !important;
+
+    margin-left: 0 !important;
+    padding: 18px 8px 0 !important;
+  }
+
+  .superadmin-reminder-template-page-header {
+    min-height: auto;
+
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .superadmin-reminder-template-heading-copy h1 {
+    font-size: 24px;
+  }
+
+  .superadmin-reminder-template-header-action,
+  .superadmin-reminder-template-header-action > * {
+    width: 100%;
+  }
+
+  .superadmin-reminder-template-toolbar-left {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .superadmin-reminder-template-search-wrap {
+    width: 100%;
+  }
+
+  .superadmin-reminder-template-filter-btn,
+  .superadmin-reminder-template-clear-filter-btn,
+  .superadmin-reminder-template-count {
+    width: 100%;
+  }
+
+  .superadmin-reminder-template-pagination {
+    margin: 10px auto 14px;
+    padding: 0;
+  }
+}
