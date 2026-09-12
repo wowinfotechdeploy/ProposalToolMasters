@@ -1,0 +1,848 @@
+/* =========================================================
+   OTHER REMINDER LIST REDESIGN
+   Scoped UI-only overrides. Existing functionality is untouched.
+   ========================================================= */
+
+.marketing-reminder-list-redesign {
+  --mr-bg: #f7f9fc;
+  --mr-card: #ffffff;
+  --mr-heading: #14243a;
+  --mr-text: #334258;
+  --mr-muted: #7b8798;
+  --mr-border: #dce4ed;
+  --mr-border-soft: #e8edf3;
+  --mr-navy: #0f1b33;
+  --mr-cyan: #14b5d1;
+  --mr-cyan-hover: #0da5c1;
+
+  width: calc(100% - 20px) !important;
+  min-height: 100vh;
+  margin-left: 20px !important;
+  padding: 24px 16px 0 !important;
+  background: var(--mr-bg) !important;
+  color: var(--mr-text);
+}
+
+.marketing-reminder-list-redesign,
+.marketing-reminder-list-redesign * {
+  box-sizing: border-box;
+}
+
+/* Remove legacy spacing/card chrome */
+.marketing-reminder-list-redesign .services.page-background {
+  background: transparent !important;
+}
+
+.marketing-reminder-list-redesign > .services > div > .row,
+.marketing-reminder-list-redesign .services > div > .row,
+.marketing-reminder-list-redesign #tablesections {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.marketing-reminder-list-redesign .services > div > .row > [class*="col-"],
+.marketing-reminder-list-redesign #tablesections > [class*="col-"] {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.marketing-reminder-list-redesign .card {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.marketing-reminder-list-redesign .card-body {
+  padding: 0 !important;
+}
+
+.marketing-reminder-list-redesign #customerList[style] {
+  margin-top: 0 !important;
+}
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.marketing-reminder-list-redesign .bg-light.border-bottom.px-2 {
+  min-height: 88px;
+  padding: 0 0 16px !important;
+  display: flex;
+  align-items: flex-start;
+  border: 0 !important;
+  border-bottom: 1px solid #e2e8ef !important;
+  background: transparent !important;
+}
+
+.marketing-reminder-list-redesign .bg-light.border-bottom.px-2 > .row {
+  width: 100%;
+  margin: 0 !important;
+  align-items: flex-start;
+}
+
+.marketing-reminder-list-redesign .page-title-cls {
+  margin: 0 !important;
+  padding: 0 !important;
+  color: var(--mr-heading) !important;
+  font-size: 30px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+
+/* Add a compact page description without changing JSX/functionality */
+.marketing-reminder-list-redesign .page-title-cls::after {
+  content: "Manage reminder emails, trigger points, frequency, repeat settings and reminder availability.";
+  display: block;
+  margin-top: 6px;
+  color: var(--mr-muted);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.marketing-reminder-list-redesign .add-new-btn {
+  align-items: center;
+}
+
+.marketing-reminder-list-redesign .add-new-btn .create-item-btn,
+.marketing-reminder-list-redesign .add-new-btn .btn-success,
+.marketing-reminder-list-redesign .add-new-btn button {
+  min-height: 42px !important;
+  padding: 0 14px !important;
+  border: 1px solid var(--mr-cyan) !important;
+  border-radius: 8px !important;
+  background: var(--mr-cyan) !important;
+  color: #fff !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+.marketing-reminder-list-redesign .add-new-btn .create-item-btn:hover,
+.marketing-reminder-list-redesign .add-new-btn .btn-success:hover,
+.marketing-reminder-list-redesign .add-new-btn button:hover {
+  border-color: var(--mr-cyan-hover) !important;
+  background: var(--mr-cyan-hover) !important;
+}
+
+/* =========================================================
+   LIST CARD
+   ========================================================= */
+
+.marketing-reminder-list-redesign #tablesections {
+  margin-top: 20px !important;
+}
+
+.marketing-reminder-list-redesign #tablesections > .col-lg-12 > .card {
+  overflow: hidden !important;
+  border: 1px solid var(--mr-border) !important;
+  border-radius: 12px !important;
+  background: var(--mr-card) !important;
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.04),
+    0 10px 28px rgba(15, 23, 42, 0.025) !important;
+}
+
+/* =========================================================
+   SEARCH + FILTER TOOLBAR
+   ========================================================= */
+
+.marketing-reminder-list-redesign .table-responsive.table-card {
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  border: 0 !important;
+}
+
+.marketing-reminder-list-redesign .table-responsive.table-card > .search-box {
+  width: 100% !important;
+  min-height: 82px;
+  margin: 0 !important;
+  padding: 14px 16px !important;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--mr-border);
+  background: #fff;
+}
+
+.marketing-reminder-list-redesign
+  .table-responsive.table-card
+  > .search-box
+  > .row {
+  width: 100%;
+  margin: 0 !important;
+}
+
+.marketing-reminder-list-redesign
+  .table-responsive.table-card
+  > .search-box
+  .row {
+  align-items: center !important;
+}
+
+.marketing-reminder-list-redesign
+  .table-responsive.table-card
+  > .search-box
+  .col-3 {
+  width: min(390px, 42vw) !important;
+  flex: 0 0 min(390px, 42vw) !important;
+  margin-bottom: 0 !important;
+  padding-left: 0 !important;
+}
+
+.marketing-reminder-list-redesign
+  .table-responsive.table-card
+  > .search-box
+  .col-6 {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin-bottom: 0 !important;
+  padding-left: 8px !important;
+}
+
+.marketing-reminder-list-redesign .search-box.w-100 {
+  position: relative;
+  margin: 0 !important;
+}
+
+.marketing-reminder-list-redesign .search-box .search-icon {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  z-index: 2;
+  transform: translateY(-50%);
+  color: #708095;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.marketing-reminder-list-redesign .search-box input.search {
+  width: 100% !important;
+  min-height: 42px !important;
+  padding: 9px 12px 9px 40px !important;
+  border: 1px solid #cfdae5 !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  color: #314056 !important;
+  font-size: 11.5px !important;
+  box-shadow: none !important;
+}
+
+.marketing-reminder-list-redesign .search-box input.search:focus {
+  border-color: #72cedd !important;
+  box-shadow: 0 0 0 3px rgba(20, 181, 209, 0.08) !important;
+}
+
+/* Filter buttons */
+.marketing-reminder-list-redesign .filter.create-item-btn,
+.marketing-reminder-list-redesign .filter.create-item-btn-apply {
+  width: 40px !important;
+  min-width: 40px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid #d2dde7 !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  color: #596a7f !important;
+  box-shadow: none !important;
+}
+
+.marketing-reminder-list-redesign .filter.create-item-btn {
+  border-color: #a8dce5 !important;
+  background: #eef9fb !important;
+  color: #087f98 !important;
+}
+
+.marketing-reminder-list-redesign .create-Filter-item-btn {
+  min-height: 40px !important;
+  padding: 0 11px !important;
+  border: 1px solid #e1d7da !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  color: #bc4452 !important;
+  font-size: 9px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+.marketing-reminder-list-redesign .create-Filter-item-btn:hover {
+  border-color: #efc4c9 !important;
+  background: #fff3f4 !important;
+  color: #c53a49 !important;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.marketing-reminder-list-redesign #customerTable {
+  width: 100% !important;
+  min-width: 1380px !important;
+  margin: 0 !important;
+  border-collapse: collapse !important;
+  table-layout: fixed !important;
+}
+
+.marketing-reminder-list-redesign #customerTable thead,
+.marketing-reminder-list-redesign #customerTable .table-light {
+  background: var(--mr-navy) !important;
+}
+
+.marketing-reminder-list-redesign #customerTable thead td {
+  height: 54px !important;
+  padding: 0 14px !important;
+  border: 0 !important;
+  background: var(--mr-navy) !important;
+  color: #fff !important;
+  font-size: 9px !important;
+  font-weight: 600 !important;
+  text-align: left;
+  text-transform: uppercase;
+  vertical-align: middle !important;
+  white-space: nowrap;
+}
+
+.marketing-reminder-list-redesign #customerTable thead td i {
+  margin-left: 6px !important;
+  color: #c7d1df !important;
+  font-size: 9px !important;
+  cursor: pointer;
+}
+
+.marketing-reminder-list-redesign #customerTable tbody td {
+  height: 72px !important;
+  padding: 12px 14px !important;
+  border-bottom: 1px solid var(--mr-border-soft) !important;
+  background: #fff !important;
+  color: #4b596d !important;
+  font-size: 10.25px !important;
+  vertical-align: middle !important;
+}
+
+.marketing-reminder-list-redesign #customerTable tbody tr:last-child td {
+  border-bottom: 0 !important;
+}
+
+.marketing-reminder-list-redesign #customerTable tbody tr:hover td {
+  background: #fbfdff !important;
+}
+
+/* Column balance */
+.marketing-reminder-list-redesign #customerTable td:nth-child(1) {
+  width: 18%;
+}
+.marketing-reminder-list-redesign #customerTable td:nth-child(2) {
+  width: 18%;
+}
+.marketing-reminder-list-redesign #customerTable td:nth-child(3) {
+  width: 15%;
+}
+.marketing-reminder-list-redesign #customerTable td:nth-child(4) {
+  width: 13%;
+}
+.marketing-reminder-list-redesign #customerTable td:nth-child(5) {
+  width: 10%;
+}
+.marketing-reminder-list-redesign #customerTable td:nth-child(6) {
+  width: 8%;
+}
+.marketing-reminder-list-redesign #customerTable td:nth-child(7) {
+  width: 11%;
+  min-width: 150px;
+}
+.marketing-reminder-list-redesign #customerTable td:nth-child(8) {
+  width: 7%;
+  min-width: 105px;
+}
+
+/* Main cell */
+.marketing-reminder-list-redesign #customerTable tbody td:first-child {
+  position: relative;
+  padding-left: 58px !important;
+  color: #24364d !important;
+  font-weight: 600 !important;
+}
+
+.marketing-reminder-list-redesign #customerTable tbody td:first-child::before {
+  content: "\ea73";
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  width: 34px;
+  height: 34px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #e9f7fa;
+  color: #087f98;
+  font-family: "remixicon";
+  font-size: 14px;
+  font-weight: 400;
+}
+
+/* Email template */
+.marketing-reminder-list-redesign #customerTable tbody td:nth-child(2) {
+  color: #6255af !important;
+  font-weight: 600 !important;
+}
+
+/* Trigger / Frequency */
+.marketing-reminder-list-redesign #customerTable tbody td:nth-child(4),
+.marketing-reminder-list-redesign #customerTable tbody td:nth-child(5) {
+  color: #41536a !important;
+  font-weight: 600 !important;
+}
+
+/* Repeat pill-like treatment without changing values */
+.marketing-reminder-list-redesign #customerTable tbody td:nth-child(6) {
+  color: #657286 !important;
+  font-weight: 600 !important;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.marketing-reminder-list-redesign #customerTable thead td:nth-child(7),
+.marketing-reminder-list-redesign #customerTable thead td:nth-child(8) {
+  text-align: center !important;
+}
+
+.marketing-reminder-list-redesign #customerTable tbody td.Switch > .d-flex {
+  width: 100%;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 9px !important;
+  white-space: nowrap;
+}
+
+.marketing-reminder-list-redesign
+  #customerTable
+  tbody
+  td.Switch
+  > .d-flex
+  > div:first-child {
+  width: auto !important;
+  min-width: 56px;
+  min-height: 27px;
+  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #eaf8f3;
+  color: #18845f;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.marketing-reminder-list-redesign
+  #customerTable
+  tbody
+  td.Switch
+  .MuiFormGroup-root,
+.marketing-reminder-list-redesign
+  #customerTable
+  tbody
+  td.Switch
+  .MuiFormControlLabel-root {
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: 0 0 auto;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.marketing-reminder-list-redesign #customerTable tbody td:nth-child(8) {
+  border-left: 1px solid #eef2f6 !important;
+}
+
+.marketing-reminder-list-redesign
+  #customerTable
+  tbody
+  td:nth-child(8)
+  > .d-flex {
+  width: 100%;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+}
+
+/* Completely neutralize legacy Bootstrap colors/sizing */
+.marketing-reminder-list-redesign .actionButtonsStyle {
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 34px !important;
+  border: 1px solid #d8e1ea !important;
+  border-radius: 7px !important;
+  background: #fff !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  box-shadow: none !important;
+}
+
+.marketing-reminder-list-redesign .edit-item-btn {
+  color: #4c647d !important;
+}
+
+.marketing-reminder-list-redesign .edit-item-btn:hover {
+  border-color: #b9dce4 !important;
+  background: #eef9fb !important;
+  color: #087f98 !important;
+}
+
+.marketing-reminder-list-redesign .remove-item-btn {
+  color: #d44a59 !important;
+}
+
+.marketing-reminder-list-redesign .remove-item-btn:hover {
+  border-color: #efc4c9 !important;
+  background: #fff3f4 !important;
+  color: #c53a49 !important;
+}
+
+.marketing-reminder-list-redesign .actionButtonsStyle i {
+  margin: 0 !important;
+  padding: 0 !important;
+  color: inherit !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.marketing-reminder-list-redesign
+  .table-responsive
+  > div:last-child:not(.search-box) {
+  max-height: none !important;
+}
+
+/* =========================================================
+   PAGINATION + FOOTER FLOW
+   ========================================================= */
+
+.marketing-reminder-list-redesign #tablesections .fixed-bottom {
+  position: static !important;
+  inset: auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 14px 0 18px !important;
+  padding: 0 !important;
+  transform: none !important;
+  background: transparent !important;
+  z-index: auto !important;
+}
+
+.marketing-reminder-list-redesign {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.marketing-reminder-list-redesign > footer,
+.marketing-reminder-list-redesign > .footer,
+.marketing-reminder-list-redesign > .fixed-bottom:last-of-type {
+  position: static !important;
+  inset: auto !important;
+  width: 100% !important;
+  margin-top: auto !important;
+  transform: none !important;
+  z-index: auto !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 991px) {
+  .marketing-reminder-list-redesign {
+    width: calc(100% - 14px) !important;
+    margin-left: 14px !important;
+    padding-right: 12px !important;
+  }
+
+  .marketing-reminder-list-redesign
+    .table-responsive.table-card
+    > .search-box
+    .col-3 {
+    width: 50% !important;
+    flex: 0 0 50% !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .marketing-reminder-list-redesign {
+    width: 100% !important;
+    margin-left: 0 !important;
+    padding: 18px 8px 0 !important;
+  }
+
+  .marketing-reminder-list-redesign .page-title-cls {
+    font-size: 24px !important;
+  }
+
+  .marketing-reminder-list-redesign .bg-light.border-bottom.px-2 {
+    min-height: auto;
+  }
+
+  .marketing-reminder-list-redesign .bg-light.border-bottom.px-2 > .row {
+    gap: 12px;
+  }
+
+  .marketing-reminder-list-redesign .bg-light.border-bottom.px-2 .col-md-6,
+  .marketing-reminder-list-redesign .bg-light.border-bottom.px-2 .col-auto {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+  }
+
+  .marketing-reminder-list-redesign .add-new-btn,
+  .marketing-reminder-list-redesign .add-new-btn > * {
+    width: 100% !important;
+  }
+
+  .marketing-reminder-list-redesign .table-responsive.table-card > .search-box {
+    align-items: stretch;
+  }
+
+  .marketing-reminder-list-redesign
+    .table-responsive.table-card
+    > .search-box
+    .row.align-items-center {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .marketing-reminder-list-redesign
+    .table-responsive.table-card
+    > .search-box
+    .col-3,
+  .marketing-reminder-list-redesign
+    .table-responsive.table-card
+    > .search-box
+    .col-6 {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+    padding-left: 0 !important;
+  }
+}
+
+/* =========================================================
+   TABLE OVERLAP FIX
+   Prevent long Reminder Name / Template values from spilling
+   into neighbouring columns. UI-only; no functional changes.
+   ========================================================= */
+
+/* Better desktop balance for the actual content on this screen. */
+.marketing-reminder-list-redesign #customerTable {
+  min-width: 1260px !important;
+}
+
+.marketing-reminder-list-redesign #customerTable td:nth-child(1) {
+  width: 23% !important;
+}
+
+.marketing-reminder-list-redesign #customerTable td:nth-child(2) {
+  width: 18% !important;
+}
+
+.marketing-reminder-list-redesign #customerTable td:nth-child(3) {
+  width: 15% !important;
+}
+
+.marketing-reminder-list-redesign #customerTable td:nth-child(4) {
+  width: 16% !important;
+}
+
+.marketing-reminder-list-redesign #customerTable td:nth-child(5) {
+  width: 9% !important;
+}
+
+.marketing-reminder-list-redesign #customerTable td:nth-child(6) {
+  width: 7% !important;
+}
+
+.marketing-reminder-list-redesign #customerTable td:nth-child(7) {
+  width: 12% !important;
+  min-width: 158px !important;
+}
+
+.marketing-reminder-list-redesign #customerTable td:nth-child(8) {
+  width: 10% !important;
+  min-width: 112px !important;
+}
+
+/* Critical fix: a table cell may visually paint text into the next
+   cell unless overflow is explicitly constrained. */
+.marketing-reminder-list-redesign #customerTable tbody td {
+  overflow: hidden !important;
+}
+
+/* Reminder Name */
+.marketing-reminder-list-redesign #customerTable tbody td:nth-child(1) {
+  padding-right: 18px !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Email Template */
+.marketing-reminder-list-redesign #customerTable tbody td:nth-child(2) {
+  padding-right: 18px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Email Address */
+.marketing-reminder-list-redesign #customerTable tbody td:nth-child(3) {
+  padding-right: 18px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Trigger Point */
+.marketing-reminder-list-redesign #customerTable tbody td:nth-child(4) {
+  padding-right: 18px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Keep status + actions visible rather than clipping their controls. */
+.marketing-reminder-list-redesign #customerTable tbody td:nth-child(7),
+.marketing-reminder-list-redesign #customerTable tbody td:nth-child(8) {
+  overflow: visible !important;
+}
+
+/* Add a little more separation between data-heavy columns. */
+/* .marketing-reminder-list-redesign #customerTable thead td:nth-child(1),
+.marketing-reminder-list-redesign #customerTable tbody td:nth-child(1),
+.marketing-reminder-list-redesign #customerTable thead td:nth-child(2),
+.marketing-reminder-list-redesign #customerTable tbody td:nth-child(2),
+.marketing-reminder-list-redesign #customerTable thead td:nth-child(3),
+.marketing-reminder-list-redesign #customerTable tbody td:nth-child(3),
+.marketing-reminder-list-redesign #customerTable thead td:nth-child(4),
+.marketing-reminder-list-redesign #customerTable tbody td:nth-child(4) {
+  border-right: 1px solid #f2f5f8;
+} */
+
+/* Keep the first-column icon from reducing the usable name area too much. */
+.marketing-reminder-list-redesign #customerTable tbody td:first-child {
+  padding-left: 58px !important;
+}
+
+/* Make horizontal scrolling smoother and visually lighter when needed. */
+.marketing-reminder-list-redesign .table-responsive.table-card {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd4df #f5f7fa;
+}
+
+.marketing-reminder-list-redesign
+  .table-responsive.table-card::-webkit-scrollbar {
+  height: 8px;
+}
+
+.marketing-reminder-list-redesign
+  .table-responsive.table-card::-webkit-scrollbar-track {
+  background: #f5f7fa;
+}
+
+.marketing-reminder-list-redesign
+  .table-responsive.table-card::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #cbd4df;
+}
+
+/* On larger desktops, let the table use the available width without
+   introducing a scrollbar unless the viewport actually needs it. */
+@media (min-width: 1440px) {
+  .marketing-reminder-list-redesign #customerTable {
+    min-width: 100% !important;
+  }
+}
+
+/* =========================================================
+   TABLE HEIGHT FIX
+   Let the reminder table grow naturally with its rows.
+   ========================================================= */
+
+.marketing-reminder-list-redesign .table-responsive.table-card {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+}
+
+.marketing-reminder-list-redesign #customerList {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+}
+
+.marketing-reminder-list-redesign #tablesections,
+.marketing-reminder-list-redesign #tablesections .card,
+.marketing-reminder-list-redesign #tablesections .card-body {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Keep horizontal scrolling only when the table genuinely needs it */
+.marketing-reminder-list-redesign .table-responsive.table-card {
+  scrollbar-width: thin;
+}
+
+/* Give rows a little more breathing room */
+.marketing-reminder-list-redesign #customerTable tbody td {
+  height: 74px !important;
+}
+
+/* =========================================================
+   TABLE BORDER CONSISTENCY
+   No vertical grid lines between cells.
+   ========================================================= */
+
+.marketing-reminder-list-redesign #customerTable th,
+.marketing-reminder-list-redesign #customerTable td {
+  border-left: none !important;
+  border-right: none !important;
+}
+
+/* Keep only the subtle horizontal row separator */
+.marketing-reminder-list-redesign #customerTable tbody td {
+  border-bottom: 1px solid #e8edf3 !important;
+}
+
+.marketing-reminder-list-redesign #customerTable tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+/* Remove the separator previously added before Action */
+.marketing-reminder-list-redesign #customerTable tbody td:nth-child(8) {
+  border-left: none !important;
+}

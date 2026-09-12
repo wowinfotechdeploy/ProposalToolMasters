@@ -23,6 +23,7 @@ import Footer from "../../../../components/Footer";
 import { updateState } from "../../../../redux/Persist";
 
 import RecordsAvailablePopupModel from "../../../../components/RecordsAvailablePopupModel";
+import "./SuperAdminMarketingReminderList-redesign.css";
 
 function SuperAdminMarketingReminderList() {
   const moduleName = "Other Reminder";
@@ -44,7 +45,7 @@ function SuperAdminMarketingReminderList() {
     getPlaceholderTextName,
     getCrudButtonToolTipName,
     userAccessData,
-    prospectName
+    prospectName,
   } = useContext(AuthContextProvider);
   const [EmailTemplateList, setEmailTemplateList] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
@@ -84,7 +85,6 @@ function SuperAdminMarketingReminderList() {
   const isCurrentPage =
     common.currentPage === "" ? currentPage : common.currentPage;
 
-
   // B] Initial useEffect :
   // 1) Will Call Initial Api Like List Api
   useEffect(() => {
@@ -93,7 +93,7 @@ function SuperAdminMarketingReminderList() {
     dispatch(
       updateState({
         currentPage: "",
-      })
+      }),
     );
   }, [pageSize]);
 
@@ -111,7 +111,6 @@ function SuperAdminMarketingReminderList() {
   }, [isAddUpdateActionDone]);
 
   useEffect(() => {
-
     if (
       modelRequestData.reminderKeyID !== null &&
       modelRequestData.Action === "Update"
@@ -133,7 +132,7 @@ function SuperAdminMarketingReminderList() {
     documentStatusID,
   ) => {
     if (pageSize === 0) {
-      return
+      return;
     }
     setLoader(true);
     const pageNoList = i - 1;
@@ -149,10 +148,13 @@ function SuperAdminMarketingReminderList() {
           sortValue === undefined ? primarySortDirection : sortValue,
         PrimarySortColumnName: sortType == "" ? TemplateSort : sortType,
         emailAddressID:
-          EmailAddressTypeID === undefined ? EmailAddressType : EmailAddressTypeID,
+          EmailAddressTypeID === undefined
+            ? EmailAddressType
+            : EmailAddressTypeID,
         triggerPointID:
-          TriggerPointTypeID === undefined ? TriggerPointType : TriggerPointTypeID,
-
+          TriggerPointTypeID === undefined
+            ? TriggerPointType
+            : TriggerPointTypeID,
       });
       if (data) {
         if (data?.data?.statusCode === 200) {
@@ -170,7 +172,7 @@ function SuperAdminMarketingReminderList() {
                 newPaneNo,
                 searchKeywordValue,
                 sortValue,
-                TemplateSort
+                TemplateSort,
               );
               setCurrentPage(pageNoList);
               return;
@@ -188,7 +190,7 @@ function SuperAdminMarketingReminderList() {
                 i,
                 searchKeywordValue,
                 sortValue,
-                TemplateSort
+                TemplateSort,
               );
             }, 2000);
           } else {
@@ -211,7 +213,7 @@ function SuperAdminMarketingReminderList() {
         try {
           const Data = await MarketingReminderChangeStatus(
             modelRequestData.reminderKeyID,
-            modelRequestData.userKeyID
+            modelRequestData.userKeyID,
           );
           if (Data) {
             setLoader(false);
@@ -234,7 +236,7 @@ function SuperAdminMarketingReminderList() {
       try {
         const Data = await MarketingReminderDelete(
           modelRequestData.reminderKeyID,
-          modelRequestData.userKeyID
+          modelRequestData.userKeyID,
         );
         if (Data) {
           setLoader(false);
@@ -270,7 +272,9 @@ function SuperAdminMarketingReminderList() {
       status: null,
     };
     setTopbar("none");
-    navigate("/add-update-marketing-reminder", { state: addReminderRequestData });
+    navigate("/add-update-marketing-reminder", {
+      state: addReminderRequestData,
+    });
   };
   // 2) On Click Template Edit Button
 
@@ -278,7 +282,7 @@ function SuperAdminMarketingReminderList() {
     dispatch(
       updateState({
         currentPage: currentPage,
-      })
+      }),
     );
     setModelRequestData({
       ...modelRequestData,
@@ -356,7 +360,6 @@ function SuperAdminMarketingReminderList() {
   //   return text.replace(/Contract/g, {EngagementName}).replace(/Quote/g, {proposalName});
   // };
   const ApplyFilter = () => {
-
     if (
       (EmailAddressType !== null && EmailAddressType !== "") ||
       (TriggerPointType !== null && TriggerPointType !== "")
@@ -389,517 +392,560 @@ function SuperAdminMarketingReminderList() {
   };
 
   return (
-   <div className="container-fluid">
+    <div className="container-fluid marketing-reminder-list-redesign">
       {/* <div class="main-content"> */}
-        <div class="services page-background">
-          <div class="">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
-                  <div class="card-body mb-2">
-                    <div id="customerList" style={{ marginTop: "3rem" }}>
-                      <div class="bg-light border-bottom px-2">
-                          <div className="row">
-                <div className="col-md-6 col-6">
-                  <div class="page-title-cls">{moduleName}</div>
-                </div>
-                <div className="col-auto ms-auto">
-                  <div className="d-flex justify-content-sm-end add-new-btn">
-                    {((userAccessData.Admin_Config_Email_Template_CanAdd &&
-                      common.organisationKeyID !== null) ||
-                      (userAccessData.SuperAdmin_Config_Email_Template_CanAdd &&
-                        common.organisationKeyID === null)) && (
-                        <CommonButtonComponent
-                          title={getCrudButtonToolTipName("Add ", moduleName)}
-                          name={getCrudButtonTextName("Add", moduleName)}
-                          AddBtn={() => TemplateAddBtnClicked()}
-                        />
-                      )}
-                  </div>
-                </div>
-            </div>
-          </div>
-          <div>
-            <div class="row" id="tablesections">
-              <div class="col-lg-12">
-                <div class="card">
-                  {/* end card header  */}
+      <div class="services page-background">
+        <div class="">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                {/* end card header  */}
+                <div class="card-body mb-2">
+                  <div id="customerList" style={{ marginTop: "3rem" }}>
+                    <div class="bg-light border-bottom px-2">
+                      <div className="row">
+                        <div className="col-md-6 col-6">
+                          <div class="page-title-cls">{moduleName}</div>
+                        </div>
+                        <div className="col-auto ms-auto">
+                          <div className="d-flex justify-content-sm-end add-new-btn">
+                            {((userAccessData.Admin_Config_Email_Template_CanAdd &&
+                              common.organisationKeyID !== null) ||
+                              (userAccessData.SuperAdmin_Config_Email_Template_CanAdd &&
+                                common.organisationKeyID === null)) && (
+                              <CommonButtonComponent
+                                title={getCrudButtonToolTipName(
+                                  "Add ",
+                                  moduleName,
+                                )}
+                                name={getCrudButtonTextName("Add", moduleName)}
+                                AddBtn={() => TemplateAddBtnClicked()}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="row" id="tablesections">
+                        <div class="col-lg-12">
+                          <div class="card">
+                            {/* end card header  */}
 
-                  <div class="card-body">
-                    <div id="customerList">
-                      <div class="row g-4 mb-3"></div>
-                      <div class="table-responsive table-card mt-2 mb-3 table-padding">
-                        <div class="search-box ms-2 width-searchbox">
-                          <div className="row">
-                            <div className="col-lg-12 col-md-12 col-sm-12 ">
-                              <div className="row align-items-center">
-                                <div className="col-3 mb-2">
-                                  <div class="search-box w-100 width-searchbox mb-2">
-                                    <i class="ri-search-line search-icon"></i>
-                                    <input
-                                      type="text"
-                                      value={searchKeyword}
-                                      onChange={(e) => {
-                                        handleSearch(e);
-                                      }}
-                                      className="form-control search"
-                                      placeholder={
-                                        isMobile ? "Search" : getPlaceholderTextName("Search", moduleName)
-                                      }
-                                    />
-                                  </div>
-                                </div>
-                                <div className="col-6 d-flex align-items-start justify-content-start mb-3">
-                                  <Tooltip
-                                    title={getCrudButtonToolTipName(
-                                      "Filter",
-                                      moduleName
-                                    )}
-                                  >
-                                    <div>
-                                      <button
-                                        className={
-                                          isFilterApply
-                                            ? "btn btn-md btn-success create-item-btn filter me-2"
-                                            : "btn btn-md btn-success create-item-btn-apply filter me-2"
-                                        }
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#FilterModel"
-
-                                      >
-                                        <i
-                                          className={
-                                            isFilterApply
-                                              ? "ri-filter-fill align-bottom "
-                                              : "ri-filter-fill align-bottom Filter-apply-color"
-                                          }
-                                        ></i>
-                                      </button>
-                                    </div>
-                                  </Tooltip>
-                                  <div className="col-9">
-                                    {isFilterApply ? (
-                                      <div>
-                                        <Tooltip title={"Clear Filter"}>
-                                          <button
-                                            className="btn btn-md btn-success create-Filter-item-btn text-nowrap "
-                                            onClick={ClearFilter} // Corrected from onclick to onClick
-                                          >
-                                            <span>Clear Filter</span>
-                                          </button>
-                                        </Tooltip>
+                            <div class="card-body">
+                              <div id="customerList">
+                                <div class="row g-4 mb-3"></div>
+                                <div class="table-responsive table-card mt-2 mb-3 table-padding">
+                                  <div class="search-box ms-2 width-searchbox">
+                                    <div className="row">
+                                      <div className="col-lg-12 col-md-12 col-sm-12 ">
+                                        <div className="row align-items-center">
+                                          <div className="col-3 mb-2">
+                                            <div class="search-box w-100 width-searchbox mb-2">
+                                              <i class="ri-search-line search-icon"></i>
+                                              <input
+                                                type="text"
+                                                value={searchKeyword}
+                                                onChange={(e) => {
+                                                  handleSearch(e);
+                                                }}
+                                                className="form-control search"
+                                                placeholder={
+                                                  isMobile
+                                                    ? "Search"
+                                                    : getPlaceholderTextName(
+                                                        "Search",
+                                                        moduleName,
+                                                      )
+                                                }
+                                              />
+                                            </div>
+                                          </div>
+                                          <div className="col-6 d-flex align-items-start justify-content-start mb-3">
+                                            <Tooltip
+                                              title={getCrudButtonToolTipName(
+                                                "Filter",
+                                                moduleName,
+                                              )}
+                                            >
+                                              <div>
+                                                <button
+                                                  className={
+                                                    isFilterApply
+                                                      ? "btn btn-md btn-success create-item-btn filter me-2"
+                                                      : "btn btn-md btn-success create-item-btn-apply filter me-2"
+                                                  }
+                                                  data-bs-toggle="modal"
+                                                  data-bs-target="#FilterModel"
+                                                >
+                                                  <i
+                                                    className={
+                                                      isFilterApply
+                                                        ? "ri-filter-fill align-bottom "
+                                                        : "ri-filter-fill align-bottom Filter-apply-color"
+                                                    }
+                                                  ></i>
+                                                </button>
+                                              </div>
+                                            </Tooltip>
+                                            <div className="col-9">
+                                              {isFilterApply ? (
+                                                <div>
+                                                  <Tooltip
+                                                    title={"Clear Filter"}
+                                                  >
+                                                    <button
+                                                      className="btn btn-md btn-success create-Filter-item-btn text-nowrap "
+                                                      onClick={ClearFilter} // Corrected from onclick to onClick
+                                                    >
+                                                      <span>Clear Filter</span>
+                                                    </button>
+                                                  </Tooltip>
+                                                </div>
+                                              ) : (
+                                                ""
+                                              )}
+                                            </div>
+                                          </div>
+                                        </div>
                                       </div>
-                                    ) : (
-                                      ""
-                                    )}
+                                    </div>
                                   </div>
+                                  <table
+                                    class="table align-middle table-nowrap"
+                                    id="customerTable"
+                                  >
+                                    <thead class="table-light">
+                                      <tr className="head-row table-header-font">
+                                        <td className="tr-table-class text-white">
+                                          Reminder Name
+                                          {primarySortDirectionObj.templateNameSort ===
+                                            "desc" && (
+                                            <i
+                                              onClick={() => {
+                                                setSortType("ReminderName");
+                                                handleSort(
+                                                  "asc",
+                                                  "TemplateName",
+                                                );
+                                              }}
+                                              class="fas fa-sort-alpha-up ml-1"
+                                            ></i>
+                                          )}
+                                          {(primarySortDirectionObj.templateNameSort ===
+                                            null ||
+                                            primarySortDirectionObj.templateNameSort ===
+                                              "asc") && (
+                                            <i
+                                              onClick={() => {
+                                                setSortType("ReminderName");
+                                                handleSort(
+                                                  primarySortDirectionObj.templateNameSort ===
+                                                    null
+                                                    ? "asc"
+                                                    : "desc",
+                                                  "TemplateName",
+                                                );
+                                              }}
+                                              class="fas fa-sort-alpha-down  ml-1"
+                                            ></i>
+                                          )}
+                                        </td>
+                                        <td className="tr-table-class text-white">
+                                          Email Template
+                                          {primarySortDirectionObj.TemplateTypeSort ===
+                                            "desc" && (
+                                            <i
+                                              onClick={() => {
+                                                setSortType("TemplateName");
+                                                handleSort(
+                                                  "asc",
+                                                  "TemplateType",
+                                                );
+                                              }}
+                                              class="fas fa-sort-alpha-up ml-1"
+                                            ></i>
+                                          )}
+                                          {(primarySortDirectionObj.TemplateTypeSort ===
+                                            null ||
+                                            primarySortDirectionObj.TemplateTypeSort ===
+                                              "asc") && (
+                                            <i
+                                              onClick={() => {
+                                                setSortType("TemplateName");
+                                                handleSort(
+                                                  primarySortDirectionObj.TemplateTypeSort ===
+                                                    null
+                                                    ? "asc"
+                                                    : "desc",
+                                                  "TemplateType",
+                                                );
+                                              }}
+                                              class="fas fa-sort-alpha-down  ml-1"
+                                            ></i>
+                                          )}
+                                        </td>
+                                        <td className="tr-table-class text-white">
+                                          Email Address
+                                          {primarySortDirectionObj.EmailAddressType ===
+                                            "desc" && (
+                                            <i
+                                              onClick={() => {
+                                                setSortType("EmailAddressName");
+                                                handleSort(
+                                                  "asc",
+                                                  "EmailAddressName",
+                                                );
+                                              }}
+                                              class="fas fa-sort-alpha-up ml-1"
+                                            ></i>
+                                          )}
+                                          {(primarySortDirectionObj.EmailAddressType ===
+                                            null ||
+                                            primarySortDirectionObj.EmailAddressType ===
+                                              "asc") && (
+                                            <i
+                                              onClick={() => {
+                                                setSortType("EmailAddressName");
+                                                handleSort(
+                                                  primarySortDirectionObj.EmailAddressType ===
+                                                    null
+                                                    ? "asc"
+                                                    : "desc",
+                                                  "EmailAddressName",
+                                                );
+                                              }}
+                                              class="fas fa-sort-alpha-down  ml-1"
+                                            ></i>
+                                          )}
+                                        </td>
+                                        <td className="tr-table-class text-white">
+                                          Trigger Point
+                                          {primarySortDirectionObj.TriggerPointType ===
+                                            "desc" && (
+                                            <i
+                                              onClick={() => {
+                                                setSortType("TriggerPointName");
+                                                handleSort(
+                                                  "asc",
+                                                  "TriggerPointName",
+                                                );
+                                              }}
+                                              class="fas fa-sort-alpha-up ml-1"
+                                            ></i>
+                                          )}
+                                          {(primarySortDirectionObj.TriggerPointType ===
+                                            null ||
+                                            primarySortDirectionObj.TriggerPointType ===
+                                              "asc") && (
+                                            <i
+                                              onClick={() => {
+                                                setSortType("TriggerPointName");
+                                                handleSort(
+                                                  primarySortDirectionObj.TriggerPointType ===
+                                                    null
+                                                    ? "asc"
+                                                    : "desc",
+                                                  "TriggerPointName",
+                                                );
+                                              }}
+                                              class="fas fa-sort-alpha-down  ml-1"
+                                            ></i>
+                                          )}
+                                        </td>
+                                        <td className="tr-table-class text-white">
+                                          Frequency
+                                        </td>
+                                        <td className="tr-table-class text-white">
+                                          Repeat
+                                        </td>
+                                        <td className="tr-table-class text-white">
+                                          Status
+                                        </td>
+                                        <td className="tr-table-class text-white">
+                                          {((userAccessData.Admin_Config_Email_Template_CanEdit &&
+                                            common.organisationKeyID !==
+                                              null) ||
+                                            (userAccessData.SuperAdmin_Config_Email_Template_CanAdd &&
+                                              common.organisationKeyID ===
+                                                null)) && <>Action</>}
+                                        </td>
+                                      </tr>
+                                    </thead>
+                                    <tbody class="list form-check-all">
+                                      {EmailTemplateList.slice(
+                                        0,
+                                        isMobile
+                                          ? isMobileRecords
+                                          : desktopRecords,
+                                      ).map((Template) => {
+                                        return (
+                                          <tr class="table_new table-content-font">
+                                            <td className="table-content-font">
+                                              {isMobile ? (
+                                                <>
+                                                  {Template.reminderName
+                                                    .length > 20
+                                                    ? `${Template.reminderName.substring(
+                                                        0,
+                                                        20,
+                                                      )}...`
+                                                    : Template.reminderName}
+                                                </>
+                                              ) : (
+                                                <>
+                                                  {Template.reminderName
+                                                    .length > 50 ? (
+                                                    <Tooltip
+                                                      title={
+                                                        Template.reminderName
+                                                      }
+                                                    >
+                                                      {`${Template.reminderName.substring(
+                                                        0,
+                                                        50,
+                                                      )}...`}
+                                                    </Tooltip>
+                                                  ) : (
+                                                    <>{Template.reminderName}</>
+                                                  )}
+                                                </>
+                                              )}
+                                            </td>
+                                            <td className="table-content-font">
+                                              {Template.templateName}
+                                            </td>
+                                            <td className="table-content-font">
+                                              {Template.emailAddressName?.replace(
+                                                /prospects/gi,
+                                                prospectName,
+                                              )}
+                                            </td>
+
+                                            <td className="table-content-font">
+                                              {Template.triggerPointName}
+                                            </td>
+                                            <td className="table-content-font">
+                                              {Template.reminderFrequencyName}
+                                            </td>
+                                            <td className="table-content-font">
+                                              {Template.isRepeat ? "Yes" : "No"}
+                                            </td>
+                                            <td className="Switch table-content-font">
+                                              <div
+                                                style={{ alignItems: "none" }}
+                                                class="d-flex gap-2 "
+                                              >
+                                                <div style={{ width: "40px" }}>
+                                                  {" "}
+                                                  {Template.statusName}
+                                                </div>
+                                                {((userAccessData.Admin_Config_Email_Template_CanDelete &&
+                                                  common.organisationKeyID !==
+                                                    null) ||
+                                                  (userAccessData.SuperAdmin_Config_Email_Template_CanDelete &&
+                                                    common.organisationKeyID ===
+                                                      null)) && (
+                                                  <Tooltip
+                                                    title={getCrudButtonToolTipName(
+                                                      "Change Status",
+                                                    )}
+                                                  >
+                                                    <FormGroup
+                                                      style={{ width: "55px" }}
+                                                    >
+                                                      <FormControlLabel
+                                                        control={
+                                                          <Android12Switch
+                                                            onClick={() =>
+                                                              setModelRequestData(
+                                                                {
+                                                                  ...modelRequestData,
+                                                                  professionTypeNames:
+                                                                    Template.professionTypeNames,
+                                                                  BusinessTypeName:
+                                                                    Template.orgBusinessType,
+                                                                  reminderKeyID:
+                                                                    Template.reminderKeyID,
+                                                                  status:
+                                                                    Template.statusName ===
+                                                                    "Active"
+                                                                      ? "Active"
+                                                                      : "InActive",
+                                                                  userKeyID:
+                                                                    common.userKeyID,
+                                                                  StatusType:
+                                                                    null,
+                                                                  Action:
+                                                                    "Status",
+                                                                },
+                                                              )
+                                                            }
+                                                            checked={
+                                                              Template.statusName ===
+                                                              "Active"
+                                                            }
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#ConfirmModel"
+                                                          />
+                                                        }
+                                                      />
+                                                    </FormGroup>
+                                                  </Tooltip>
+                                                )}
+                                              </div>
+                                            </td>
+                                            <td className="table-content-font">
+                                              <div class="d-flex gap-2">
+                                                {((userAccessData.Admin_Config_Email_Template_CanEdit &&
+                                                  common.organisationKeyID !==
+                                                    null) ||
+                                                  (userAccessData.SuperAdmin_Config_Email_Template_CanEdit &&
+                                                    common.organisationKeyID ===
+                                                      null)) && (
+                                                  <Tooltip
+                                                    title={getCrudButtonToolTipName(
+                                                      "Update",
+                                                      moduleName,
+                                                    )}
+                                                  >
+                                                    <div class="edit">
+                                                      <button
+                                                        onClick={() =>
+                                                          TemplateEditBtnClicked(
+                                                            Template,
+                                                          )
+                                                        }
+                                                        class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
+                                                      >
+                                                        <i class="ri-pencil-fill"></i>
+                                                      </button>
+                                                    </div>
+                                                  </Tooltip>
+                                                )}
+                                                {((userAccessData.Admin_Config_Email_Template_CanDelete &&
+                                                  common.organisationKeyID !==
+                                                    null) ||
+                                                  (userAccessData.SuperAdmin_Config_Email_Template_CanDelete &&
+                                                    common.organisationKeyID ===
+                                                      null)) && (
+                                                  <Tooltip
+                                                    title={getCrudButtonToolTipName(
+                                                      "Delete",
+                                                      moduleName,
+                                                    )}
+                                                  >
+                                                    <div class="remove">
+                                                      <button
+                                                        onClick={() =>
+                                                          setModelRequestData(
+                                                            (prevState) => ({
+                                                              ...prevState,
+                                                              // keyID: Template.keyID,
+                                                              reminderKeyID:
+                                                                Template.reminderKeyID,
+                                                              userKeyID:
+                                                                common.userKeyID,
+                                                              Action: "Delete",
+                                                            }),
+                                                          )
+                                                        }
+                                                        class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#ConfirmModel"
+                                                      >
+                                                        <i class="ri-delete-bin-5-fill"></i>
+                                                      </button>
+                                                    </div>
+                                                  </Tooltip>
+                                                )}
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        );
+                                      })}
+                                    </tbody>
+                                  </table>
+                                  {totalRecords <= 0 && (
+                                    <NoResultFoundModel
+                                      name={moduleName}
+                                      totalRecords={totalRecords}
+                                    />
+                                  )}
                                 </div>
                               </div>
                             </div>
+                            {/* end card  */}
+                            {listCount > pageSize && (
+                              <PaginationComponent
+                                totalCount={listCount}
+                                totalPages={totalPage}
+                                currentPage={currentPage}
+                                onPageChange={handlePageChange}
+                              />
+                            )}
                           </div>
+                          {/* end col */}
                         </div>
-                        <table
-                          class="table align-middle table-nowrap"
-                          id="customerTable"
-                        >
-                          <thead class="table-light">
-                            <tr className="head-row table-header-font">
-                              <td className="tr-table-class text-white">
-                                Reminder Name
-                                {primarySortDirectionObj.templateNameSort ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("ReminderName");
-                                        handleSort("asc", "TemplateName");
-                                      }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primarySortDirectionObj.templateNameSort ===
-                                  null ||
-                                  primarySortDirectionObj.templateNameSort ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("ReminderName");
-                                        handleSort(
-                                          primarySortDirectionObj.templateNameSort ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "TemplateName"
-                                        );
-                                      }}
-                                      class="fas fa-sort-alpha-down  ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Email Template
-                                {primarySortDirectionObj.TemplateTypeSort ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("TemplateName");
-                                        handleSort("asc", "TemplateType");
-                                      }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primarySortDirectionObj.TemplateTypeSort ===
-                                  null ||
-                                  primarySortDirectionObj.TemplateTypeSort ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("TemplateName");
-                                        handleSort(
-                                          primarySortDirectionObj.TemplateTypeSort ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "TemplateType"
-                                        );
-                                      }}
-                                      class="fas fa-sort-alpha-down  ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Email Address
-                                {primarySortDirectionObj.EmailAddressType ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("EmailAddressName");
-                                        handleSort("asc", "EmailAddressName");
-                                      }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primarySortDirectionObj.EmailAddressType ===
-                                  null ||
-                                  primarySortDirectionObj.EmailAddressType ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("EmailAddressName");
-                                        handleSort(
-                                          primarySortDirectionObj.EmailAddressType ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "EmailAddressName"
-                                        );
-                                      }}
-                                      class="fas fa-sort-alpha-down  ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Trigger Point
-                                {primarySortDirectionObj.TriggerPointType ===
-                                  "desc" && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("TriggerPointName");
-                                        handleSort("asc", "TriggerPointName");
-                                      }}
-                                      class="fas fa-sort-alpha-up ml-1"
-                                    ></i>
-                                  )}
-                                {(primarySortDirectionObj.TriggerPointType ===
-                                  null ||
-                                  primarySortDirectionObj.TriggerPointType ===
-                                  "asc") && (
-                                    <i
-                                      onClick={() => {
-                                        setSortType("TriggerPointName");
-                                        handleSort(
-                                          primarySortDirectionObj.TriggerPointType ===
-                                            null
-                                            ? "asc"
-                                            : "desc",
-                                          "TriggerPointName"
-                                        );
-                                      }}
-                                      class="fas fa-sort-alpha-down  ml-1"
-                                    ></i>
-                                  )}
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Frequency
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Repeat
-                              </td>
-                              <td className="tr-table-class text-white">
-                                Status
-                              </td>
-                              <td className="tr-table-class text-white">
-                                {((userAccessData.Admin_Config_Email_Template_CanEdit &&
-                                  common.organisationKeyID !== null) ||
-                                  (userAccessData.SuperAdmin_Config_Email_Template_CanAdd &&
-                                    common.organisationKeyID === null)) && (
-                                    <>Action</>
-                                  )}
-                              </td>
-                            </tr>
-                          </thead>
-                          <tbody class="list form-check-all">
-                            {EmailTemplateList.slice(
-                              0,
-                              isMobile ? isMobileRecords : desktopRecords
-                            ).map((Template) => {
-                              return (
-                                <tr class="table_new table-content-font">
-                                  <td className="table-content-font">
-                                    {isMobile ? (
-                                      <>
-                                        {Template.reminderName.length > 20
-                                          ? `${Template.reminderName.substring(
-                                            0,
-                                            20
-                                          )}...`
-                                          : Template.reminderName}
-                                      </>
-                                    ) : (
-                                      <>
-                                        {Template.reminderName.length > 50 ? (
-                                          <Tooltip
-                                            title={Template.reminderName}
-                                          >
-                                            {`${Template.reminderName.substring(
-                                              0,
-                                              50
-                                            )}...`}
-                                          </Tooltip>
-                                        ) : (
-                                          <>{Template.reminderName}</>
-                                        )}
-                                      </>
-                                    )}
-                                  </td>
-                                  <td className="table-content-font">
-                                    {Template.templateName}
-                                  </td>
-                                  <td className="table-content-font">
-                                    {Template.emailAddressName?.replace(/prospects/gi, prospectName)}
-                                  </td>
-
-                                  <td className="table-content-font">
-                                    {Template.triggerPointName}
-                                  </td>
-                                  <td className="table-content-font">
-                                    {Template.reminderFrequencyName}
-                                  </td>
-                                  <td className="table-content-font">
-                                    {Template.isRepeat ? "Yes" : "No"}
-                                  </td>
-                                  <td className="Switch table-content-font">
-                                    <div
-                                      style={{ alignItems: "none" }}
-                                      class="d-flex gap-2 "
-                                    >
-                                      <div style={{ width: "40px" }}>
-                                        {" "}
-                                        {Template.statusName}
-                                      </div>
-                                      {((userAccessData.Admin_Config_Email_Template_CanDelete &&
-                                        common.organisationKeyID !== null) ||
-                                        (userAccessData.SuperAdmin_Config_Email_Template_CanDelete &&
-                                          common.organisationKeyID ===
-                                          null)) && (
-                                          <Tooltip
-                                            title={getCrudButtonToolTipName(
-                                              "Change Status"
-                                            )}
-                                          >
-                                            <FormGroup style={{ width: "55px" }}>
-                                              <FormControlLabel
-                                                control={
-                                                  <Android12Switch
-                                                    onClick={() =>
-                                                      setModelRequestData({
-                                                        ...modelRequestData,
-                                                        professionTypeNames:
-                                                          Template.professionTypeNames,
-                                                        BusinessTypeName:
-                                                          Template.orgBusinessType,
-                                                        reminderKeyID:
-                                                          Template.reminderKeyID,
-                                                        status: Template.statusName ===
-                                                          "Active"
-                                                          ? "Active"
-                                                          : "InActive",
-                                                        userKeyID:
-                                                          common.userKeyID,
-                                                        StatusType: null,
-                                                        Action: "Status",
-                                                      })
-                                                    }
-                                                    checked={
-                                                      Template.statusName ===
-                                                      "Active"
-                                                    }
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#ConfirmModel"
-                                                  />
-                                                }
-                                              />
-                                            </FormGroup>
-                                          </Tooltip>
-                                        )}
-                                    </div>
-                                  </td>
-                                  <td className="table-content-font">
-                                    <div class="d-flex gap-2">
-                                      {((userAccessData.Admin_Config_Email_Template_CanEdit &&
-                                        common.organisationKeyID !== null) ||
-                                        (userAccessData.SuperAdmin_Config_Email_Template_CanEdit &&
-                                          common.organisationKeyID ===
-                                          null)) && (
-                                          <Tooltip
-                                            title={getCrudButtonToolTipName(
-                                              "Update",
-                                              moduleName
-                                            )}
-                                          >
-                                            <div class="edit">
-                                              <button
-                                                onClick={() =>
-                                                  TemplateEditBtnClicked(Template)
-                                                }
-                                                class="btn btn-sm btn-success edit-item-btn actionButtonsStyle"
-                                              >
-                                                <i class="ri-pencil-fill"></i>
-                                              </button>
-                                            </div>
-                                          </Tooltip>
-                                        )}
-                                      {((userAccessData.Admin_Config_Email_Template_CanDelete &&
-                                        common.organisationKeyID !== null) ||
-                                        (userAccessData.SuperAdmin_Config_Email_Template_CanDelete &&
-                                          common.organisationKeyID ===
-                                          null)) && (
-                                          <Tooltip
-                                            title={getCrudButtonToolTipName(
-                                              "Delete",
-                                              moduleName
-                                            )}
-                                          >
-                                            <div class="remove">
-                                              <button
-                                                onClick={() =>
-                                                  setModelRequestData(
-                                                    (prevState) => ({
-                                                      ...prevState,
-                                                      // keyID: Template.keyID,
-                                                      reminderKeyID:
-                                                        Template.reminderKeyID,
-                                                      userKeyID: common.userKeyID,
-                                                      Action: "Delete",
-                                                    })
-                                                  )
-                                                }
-                                                class="btn btn-sm btn-danger remove-item-btn actionButtonsStyle"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#ConfirmModel"
-                                              >
-                                                <i class="ri-delete-bin-5-fill"></i>
-                                              </button>
-                                            </div>
-                                          </Tooltip>
-                                        )}
-                                    </div>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                        {totalRecords <= 0 && (
-                          <NoResultFoundModel
-                            name={moduleName}
-                            totalRecords={totalRecords}
-                          />
-                        )}
+                        {/* end col  */}
                       </div>
+                      {/* end row */}
                     </div>
+                    {/* container-fluid  */}
                   </div>
-                  {/* end card  */}
-                  {listCount > pageSize && (
-                    <PaginationComponent
-                      totalCount={listCount}
-                      totalPages={totalPage}
-                      currentPage={currentPage}
-                      onPageChange={handlePageChange}
-                    />
-                  )}
+                  {/* End Page-content */}
+                  <ErrorModel
+                    ErrorModel={openErrorModal}
+                    handleClose={handleClose}
+                    ErrorMessage={errorMessage}
+                  />
+                  {/* Confirm Modal  */}
+                  <ConfirmModel
+                    openErrorModal={openErrorModal}
+                    openSuccessModal={openSuccessModal}
+                    modelRequestData={modelRequestData}
+                    UpdatedStatus={EmailTemplatesChangeStatusDataAndDeleteData}
+                  />
+                  <RecordsAvailablePopupModel
+                    handleClose={handleClose}
+                    openErrorModal={openErrorModal}
+                    openSuccessModal={openSuccessModal}
+                    modelRequestData={modelRequestData}
+                    UpdatedStatus={EmailTemplatesChangeStatusDataAndDeleteData}
+                  />
+                  {/* Success Modal  */}
+                  <SuccessModal
+                    handleClose={handleClose}
+                    setOpenSuccessModal={setOpenSuccessModal}
+                    openSuccessModal={openSuccessModal}
+                    modelAction={modelRequestData.Action}
+                    message={
+                      modelRequestData.Action === "Delete"
+                        ? `${moduleName}`
+                        : "Status has been changed successfully!"
+                    }
+                  />
+                  <FilterModel
+                    class="modal fade"
+                    id="FilterModel"
+                    tabIndex="-1"
+                    aria_labelledby="exampleModalLabel"
+                    aria_hidden="true"
+                    data-bs-backdrop="static"
+                    data-bs-keyboard="false"
+                    ModuleName={moduleName}
+                    isFilterApply={isFilterApply}
+                    setIsFilterApply={setIsFilterApply}
+                    ApplyFilter={ApplyFilter}
+                    EmailAddressType={EmailAddressType}
+                    TriggerPointType={TriggerPointType}
+                    setEmailAddressType={setEmailAddressType}
+                    setTriggerPointType={setTriggerPointType}
+                  />
                 </div>
-                {/* end col */}
               </div>
-              {/* end col  */}
             </div>
-            {/* end row */}
           </div>
-          {/* container-fluid  */}
-        </div>
-        {/* End Page-content */}
-        <ErrorModel
-          ErrorModel={openErrorModal}
-          handleClose={handleClose}
-          ErrorMessage={errorMessage}
-        />
-        {/* Confirm Modal  */}
-        <ConfirmModel
-          openErrorModal={openErrorModal}
-          openSuccessModal={openSuccessModal}
-          modelRequestData={modelRequestData}
-          UpdatedStatus={EmailTemplatesChangeStatusDataAndDeleteData}
-        />
-        <RecordsAvailablePopupModel
-          handleClose={handleClose}
-          openErrorModal={openErrorModal}
-          openSuccessModal={openSuccessModal}
-          modelRequestData={modelRequestData}
-          UpdatedStatus={EmailTemplatesChangeStatusDataAndDeleteData}
-        />
-        {/* Success Modal  */}
-        <SuccessModal
-          handleClose={handleClose}
-          setOpenSuccessModal={setOpenSuccessModal}
-          openSuccessModal={openSuccessModal}
-          modelAction={modelRequestData.Action}
-          message={
-            modelRequestData.Action === "Delete"
-              ? `${moduleName}`
-              : "Status has been changed successfully!"
-          }
-        />
-        <FilterModel
-          class="modal fade"
-          id="FilterModel"
-          tabIndex="-1"
-          aria_labelledby="exampleModalLabel"
-          aria_hidden="true"
-          data-bs-backdrop="static"
-          data-bs-keyboard="false"
-          ModuleName={moduleName}
-          isFilterApply={isFilterApply}
-          setIsFilterApply={setIsFilterApply}
-          ApplyFilter={ApplyFilter}
-          EmailAddressType={EmailAddressType}
-          TriggerPointType={TriggerPointType}
-          setEmailAddressType={setEmailAddressType}
-          setTriggerPointType={setTriggerPointType}
-        />
-        </div>
-        </div>
-        </div>
-        </div>
         </div>
         <Footer />
       </div>
